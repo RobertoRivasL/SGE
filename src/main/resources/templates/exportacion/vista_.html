@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Módulo de Exportación - InformViva</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Estilos personalizados -->
+    <style>
+        .export-card {
+            transition: all 0.3s ease;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .export-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            border-color: #007bff;
+        }
+
+        .export-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .format-selector {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .progress-container {
+            display: none;
+            margin-top: 1rem;
+        }
+
+        .export-history {
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+        }
+
+        .btn-export {
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-export:hover {
+            background: linear-gradient(45deg, #0056b3, #004085);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,123,255,0.3);
+        }
+
+        .datetime-input {
+            border-radius: 6px;
+            border: 1px solid #ced4da;
+            padding: 0.5rem;
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body class="bg-light">
+<div th:replace="fragments/navbar :: navbar"></div>
+
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="section-header text-center">
+        <h1 class="mb-2">
+            <i class="fas fa-download me-3"></i>
+            Módulo de Exportación
+        </h1>
+        <p class="mb-0">Exporta tus datos en múltiples formatos para análisis externo</p>
+    </div>
+
+    <!-- Alertas -->
+    <div th:if="${mensajeExito}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>
+        <span th:text="${mensajeExito}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div th:if="${mensajeError}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <span th:text="${mensajeError}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div class="row">
+        <!-- Panel de Exportaciones -->
+        <div class="col-lg-8">
+            <!-- Exportación de Clientes -->
+            <div class="export-card mb-4">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <div class="export-icon text-primary">
+                                <i class="fas fa-users"></i>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <h4 class="card-title mb-2">Exportar Clientes</h4>
+                            <p class="card-text text-muted">Exporta la base de datos de clientes con información de compras y estadísticas.</p>
+
+                            <form id="exportClientesForm" method="get" th:action="@{/exportacion/clientes}">
+                                <div class="row g-3">
+                                    <div class="col-md-3">
+                                        <label class="form-label">Formato</label>
+                                        <select name="formato" class="form-select" required>
+                                            <option value="EXCEL" selected>Excel (.xlsx)</option>
+                                            <option value="PDF">PDF</option>
+                                            <option value="CSV">CSV</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Fecha Inicio</label>
+                                        <input type="datetime-local" name="fechaInicio" class="form-control datetime-input"
+                                               th:value="${#temporals.format(fechaActual.minusMonths(3), 'yyyy-MM-dd\'T\'HH:mm')}">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Fecha Fin</label>
+                                        <input type="datetime-local" name="fechaFin" class="form-control datetime-input"
+                                               th:value="${#temporals.format(fechaActual, 'yyyy-MM-dd\'T\'HH:mm')}">
+                                    </div>
+                                    <div class="col-md-1 d-flex align-items-end">
+                                        <button type="submit" class="btn btn-export w-100">
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Filtros adicionales -->
+                                <div class="format-selector mt-3">
+                                    <h6 class="mb-2">Filtros Adicionales</h6>
+                                    <div class="row g-2">
+                                        <div class="col-md-6">
+                                            <input type="text" name="busqueda" class="form-control" placeholder="Buscar por nombre o email">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <input type="text" name="categoria" class="form-control" placeholder="Filtrar por categoría">
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exportación de Productos -->
+            <div class="export-card mb-4">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <div class="export-icon text-success">
+                                <i class="fas fa-boxes"></i>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <h4 class="card-title mb-2">Exportar Productos</h4>
+                            <p class="card-text text-muted">Exporta el catálogo de productos con información de inventario y precios.</p>
+
+                            <form id="exportProductosForm" method="get" th:action="@{/exportacion/productos}">
+                                <div class="row g-3">
+                                    <div class="col-md-3">
+                                        <label class="form-label">Formato</label>
+                                        <select name="formato" class="form-select" required>
+                                            <option value="EXCEL" selected>Excel (.xlsx)</option>
+                                            <option value="PDF">PDF</option>
+                                            <option value="CSV">CSV</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Categoría</label>
+                                        <input type="text" name="categoria" class="form-control" placeholder="Todas las categorías">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">Solo Activos</label>
+                                        <div class="form-check form-switch mt-2">
+                                            <input class="form-check-input" type="checkbox" name="soloActivos" id="soloActivos" checked>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">Con Stock</label>
+                                        <div class="form-check form-switch mt-2">
+                                            <input class="form-check-input" type="checkbox" name="soloConStock" id="soloConStock">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 d-flex align-items-end">
+                                        <button type="submit" class="btn btn-export w-100">
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exportación de Ventas -->
+            <div class="export-card mb-4">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <div class="export-icon text-warning">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <h4 class="card-title mb-2">Exportar Ventas</h4>
+                            <p class="card-text text-muted">Exporta registros de ventas con detalles de transacciones y clientes.</p>
+
+                            <form id="exportVentasForm" method="get" th:action="@{/exportacion/ventas}">
+                                <div class="row g-3">
+                                    <div class="col-md-3">
+                                        <label class="form-label">Formato</label>
+                                        <select name="formato" class="form-select" required>
+                                            <option value="EXCEL" selected>Excel (.xlsx)</option>
+                                            <option value="PDF">PDF</option>
+                                            <option value="CSV">CSV</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Fecha Inicio</label>
+                                        <input type="datetime-local" name="fechaInicio" class="form-control datetime-input" required
+                                               th:value="${#temporals.format(fechaActual.minusMonths(1), 'yyyy-MM-dd\'T\'HH:mm')}">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Fecha Fin</label>
+                                        <input type="datetime-local" name="fechaFin" class="form-control datetime-input" required
+                                               th:value="${#temporals.format(fechaActual, 'yyyy-MM-dd\'T\'HH:mm')}">
+                                    </div>
+                                    <div class="col-md-1 d-flex align-items-end">
+                                        <button type="submit" class="btn btn-export w-100">
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Filtros adicionales -->
+                                <div class="format-selector mt-3">
+                                    <h6 class="mb-2">Filtros Adicionales</h6>
+                                    <div class="row g-2">
+                                        <div class="col-md-6">
+                                            <select name="estado" class="form-select">
+                                                <option value="">Todos los estados</option>
+                                                <option value="COMPLETADA">Completadas</option>
+                                                <option value="ANULADA">Anuladas</option>
+                                                <option value="PENDIENTE">Pendientes</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <input type="text" name="vendedor" class="form-control" placeholder="Filtrar por vendedor">
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exportación de Reportes Avanzados -->
+            <div class="export-card mb-4">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <div class="export-icon text-info">
+                                <i class="fas fa-file-chart-column"></i>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <h4 class="card-title mb-2">Reportes Avanzados</h4>
+                            <p class="card-text text-muted">Genera reportes ejecutivos y análisis financieros detallados.</p>
+
+                            <div class="row g-3">
+                                <!-- Reporte de Ventas -->
+                                <div class="col-md-6">
+                                    <form method="get" th:action="@{/exportacion/reporte-ventas}">
+                                        <div class="format-selector">
+                                            <h6>Reporte de Ventas</h6>
+                                            <select name="formato" class="form-select mb-2">
+                                                <option value="PDF" selected>PDF</option>
+                                                <option value="EXCEL">Excel</option>
+                                            </select>
+                                            <input type="datetime-local" name="fechaInicio" class="form-control mb-2" required
+                                                   th:value="${#temporals.format(fechaActual.minusMonths(1), 'yyyy-MM-dd\'T\'HH:mm')}">
+                                            <input type="datetime-local" name="fechaFin" class="form-control mb-2" required
+                                                   th:value="${#temporals.format(fechaActual, 'yyyy-MM-dd\'T\'HH:mm')}">
+                                            <select name="tipoReporte" class="form-select mb-2">
+                                                <option value="RESUMEN">Resumen</option>
+                                                <option value="DETALLADO">Detallado</option>
+                                                <option value="POR_PRODUCTO">Por Producto</option>
+                                                <option value="POR_VENDEDOR">Por Vendedor</option>
+                                            </select>
+                                            <button type="submit" class="btn btn-export w-100">
+                                                <i class="fas fa-chart-bar me-2"></i>Generar Reporte
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <!-- Reporte Financiero -->
+                                <div class="col-md-6">
+                                    <form method="get" th:action="@{/exportacion/reporte-financiero}">
+                                        <div class="format-selector">
+                                            <h6>Reporte Financiero</h6>
+                                            <select name="formato" class="form-select mb-2">
+                                                <option value="PDF" selected>PDF</option>
+                                                <option value="EXCEL">Excel</option>
+                                            </select>
+                                            <input type="datetime-local" name="fechaInicio" class="form-control mb-2" required
+                                                   th:value="${#temporals.format(fechaActual.minusMonths(1), 'yyyy-MM-dd\'T\'HH:mm')}">
+                                            <input type="datetime-local" name="fechaFin" class="form-control mb-2" required
+                                                   th:value="${#temporals.format(fechaActual, 'yyyy-MM-dd\'T\'HH:mm')}">
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input" type="checkbox" name="incluirComparativo" id="incluirComparativo" checked>
+                                                <label class="form-check-label" for="incluirComparativo">
+                                                    Incluir comparativo
+                                                </label>
+                                            </div>
+                                            <button type="submit" class="btn btn-export w-100">
+                                                <i class="fas fa-coins me-2"></i>Generar Reporte
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Solo para Administradores -->
+            <div th:if="${#authorization.expression('hasRole(''ADMIN'')')}" class="export-card mb-4">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <div class="export-icon text-danger">
+                                <i class="fas fa-user-shield"></i>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <h4 class="card-title mb-2">Exportar Usuarios <span class="badge bg-danger">Admin</span></h4>
+                            <p class="card-text text-muted">Exporta la lista de usuarios del sistema (solo administradores).</p>
+
+                            <form id="exportUsuariosForm" method="get" th:action="@{/exportacion/usuarios}">
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label">Formato</label>
+                                        <select name="formato" class="form-select" required>
+                                            <option value="EXCEL" selected>Excel (.xlsx)</option>
+                                            <option value="PDF">PDF</option>
+                                            <option value="CSV">CSV</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Solo Activos</label>
+                                        <div class="form-check form-switch mt-2">
+                                            <input class="form-check-input" type="checkbox" name="soloActivos" id="soloActivosUsuarios" checked>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 d-flex align-items-end">
+                                        <button type="submit" class="btn btn-export w-100">
+                                            <i class="fas fa-download"></i> Exportar
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel de Información -->
+        <div class="col-lg-4">
+            <!-- Formatos Soportados -->
+            <div class="export-history mb-4">
+                <h5 class="mb-3">
+                    <i class="fas fa-file-export me-2"></i>
+                    Formatos Soportados
+                </h5>
+
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item d-flex justify-content-between align-items-center border-0 px-0">
+                        <div>
+                            <i class="fas fa-file-excel text-success me-2"></i>
+                            <strong>Excel (.xlsx)</strong>
+                            <br>
+                            <small class="text-muted">Ideal para análisis de datos</small>
+                        </div>
+                        <span class="badge bg-success">Recomendado</span>
+                    </div>
+
+                    <div class="list-group-item d-flex justify-content-between align-items-center border-0 px-0">
+                        <div>
+                            <i class="fas fa-file-pdf text-danger me-2"></i>
+                            <strong>PDF</strong>
+                            <br>
+                            <small class="text-muted">Ideal para reportes e impresión</small>
+                        </div>
+                        <span class="badge bg-info">Reportes</span>
+                    </div>
+
+                    <div class="list-group-item d-flex justify-content-between align-items-center border-0 px-0">
+                        <div>
+                            <i class="fas fa-file-csv text-primary me-2"></i>
+                            <strong>CSV</strong>
+                            <br>
+                            <small class="text-muted">Ideal para importación</small>
+                        </div>
+                        <span class="badge bg-secondary">Básico</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información del Sistema -->
+            <div class="export-history mb-4">
+                <h5 class="mb-3">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Información del Sistema
+                </h5>
+
+                <div class="row text-center">
+                    <div class="col-12 mb-3">
+                        <div class="bg-light p-3 rounded">
+                            <h6 class="mb-1" th:text="${#temporals.format(fechaActual, 'dd/MM/yyyy HH:mm')}">01/06/2025 14:30</h6>
+                            <small class="text-muted">Fecha y hora actual</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-info">
+                    <i class="fas fa-lightbulb me-2"></i>
+                    <strong>Consejo:</strong> Para exportaciones grandes, utiliza filtros de fecha para mejorar el rendimiento.
+                </div>
+            </div>
+
+            <!-- Accesos Rápidos -->
+            <div class="export-history">
+                <h5 class="mb-3">
+                    <i class="fas fa-bolt me-2"></i>
+                    Accesos Rápidos
+                </h5>
+
+                <div class="d-grid gap-2">
+                    <a href="#" class="btn btn-outline-primary" onclick="exportarInventarioBajoStock()">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Productos con Bajo Stock
+                    </a>
+
+                    <a href="#" class="btn btn-outline-success" onclick="exportarVentasHoy()">
+                        <i class="fas fa-calendar-day me-2"></i>
+                        Ventas de Hoy
+                    </a>
+
+                    <a href="#" class="btn btn-outline-info" onclick="exportarClientesNuevos()">
+                        <i class="fas fa-user-plus me-2"></i>
+                        Clientes Nuevos (30 días)
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Indicator de Progreso -->
+<div class="progress-container">
+    <div class="progress">
+        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Funciones para accesos rápidos
+    function exportarInventarioBajoStock() {
+        const form = document.createElement('form');
+        form.method = 'GET';
+        form.action = '/exportacion/inventario';
+
+        const formato = document.createElement('input');
+        formato.type = 'hidden';
+        formato.name = 'formato';
+        formato.value = 'EXCEL';
+
+        const bajoStock = document.createElement('input');
+        bajoStock.type = 'hidden';
+        bajoStock.name = 'soloConBajoStock';
+        bajoStock.value = 'true';
+
+        const umbral = document.createElement('input');
+        umbral.type = 'hidden';
+        umbral.name = 'umbralStock';
+        umbral.value = '5';
+
+        form.appendChild(formato);
+        form.appendChild(bajoStock);
+        form.appendChild(umbral);
+
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
+    }
+
+    function exportarVentasHoy() {
+        const today = new Date();
+        const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59);
+
+        const form = document.createElement('form');
+        form.method = 'GET';
+        form.action = '/exportacion/ventas';
+
+        const formato = document.createElement('input');
+        formato.type = 'hidden';
+        formato.name = 'formato';
+        formato.value = 'EXCEL';
+
+        const fechaInicio = document.createElement('input');
+        fechaInicio.type = 'hidden';
+        fechaInicio.name = 'fechaInicio';
+        fechaInicio.value = startOfDay.toISOString().slice(0, 16);
+
+        const fechaFin = document.createElement('input');
+        fechaFin.type = 'hidden';
+        fechaFin.name = 'fechaFin';
+        fechaFin.value = endOfDay.toISOString().slice(0, 16);
+
+        form.appendChild(formato);
+        form.appendChild(fechaInicio);
+        form.appendChild(fechaFin);
+
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
+    }
+
+    function exportarClientesNuevos() {
+        const today = new Date();
+        const thirtyDaysAgo = new Date(today.getTime() - (30 * 24 * 60 * 60 * 1000));
+
+        const form = document.createElement('form');
+        form.method = 'GET';
+        form.action = '/exportacion/clientes';
+
+        const formato = document.createElement('input');
+        formato.type = 'hidden';
+        formato.name = 'formato';
+        formato.value = 'EXCEL';
+
+        const fechaInicio = document.createElement('input');
+        fechaInicio.type = 'hidden';
+        fechaInicio.name = 'fechaInicio';
+        fechaInicio.value = thirtyDaysAgo.toISOString().slice(0, 16);
+
+        const fechaFin = document.createElement('input');
+        fechaFin.type = 'hidden';
+        fechaFin.name = 'fechaFin';
+        fechaFin.value = today.toISOString().slice(0, 16);
+
+        form.appendChild(formato);
+        form.appendChild(fechaInicio);
+        form.appendChild(fechaFin);
+
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
+    }
+
+    // Manejar envío de formularios con indicador de progreso
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            // Mostrar indicador de progreso
+            const progressContainer = document.querySelector('.progress-container');
+            const progressBar = document.querySelector('.progress-bar');
+
+            progressContainer.style.display = 'block';
+
+            // Simular progreso
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 30;
+                if (progress > 90) progress = 90;
+                progressBar.style.width = progress + '%';
+            }, 200);
+
+            // Limpiar después de 5 segundos
+            setTimeout(() => {
+                clearInterval(interval);
+                progressBar.style.width = '100%';
+                setTimeout(() => {
+                    progressContainer.style.display = 'none';
+                    progressBar.style.width = '0%';
+                }, 1000);
+            }, 5000);
+        });
+    });
+
+    // Validar fechas
+    document.querySelectorAll('input[type="datetime-local"]').forEach(input => {
+        input.addEventListener('change', function() {
+            const form = this.closest('form');
+            const fechaInicio = form.querySelector('input[name="fechaInicio"]');
+            const fechaFin = form.querySelector('input[name="fechaFin"]');
+
+            if (fechaInicio && fechaFin && fechaInicio.value && fechaFin.value) {
+                const inicio = new Date(fechaInicio.value);
+                const fin = new Date(fechaFin.value);
+
+                if (inicio > fin) {
+                    alert('La fecha de inicio no puede ser posterior a la fecha de fin');
+                    this.value = '';
+                }
+            }
+        });
+    });
+</script>
+</body>
+</html>

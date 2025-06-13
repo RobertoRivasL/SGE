@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Sistema de Gestión</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<!-- Incluir el fragmento de menú de navegación -->
+<div th:replace="~{fragments/menu :: menu}"></div>
+
+<div class="container-fluid mt-4">
+    <!-- Sección visible solo para usuarios autenticados -->
+    <div sec:authorize="isAuthenticated()">
+        <!-- Encabezado con bienvenida -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1 class="text-center">Panel de Control</h1>
+                <p class="text-center text-muted">
+                    Bienvenido, <span sec:authentication="name">Usuario</span>
+                    <span class="badge bg-admin ms-2" sec:authorize="hasRole('ADMIN')">Administrador</span>
+                    <span class="badge bg-ventas ms-2" sec:authorize="hasRole('VENTAS')">Ventas</span>
+                    <span class="badge bg-productos ms-2" sec:authorize="hasRole('PRODUCTOS')">Productos</span>
+                    <span class="badge bg-gerente ms-2" sec:authorize="hasRole('GERENTE')">Gerente</span>
+                </p>
+            </div>
+        </div>
+
+        <!-- Tarjetas de indicadores clave usando MetricaDTO -->
+        <div class="row mb-4">
+            <div class="col-md-3 mb-3">
+                <div class="card bg-primary text-white h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-shopping-cart fa-3x mb-3"></i>
+                        <h5 class="card-title">Ventas del día</h5>
+                        <p class="card-text fs-1 fw-bold" th:text="${ventasHoy != null ? ventasHoy : '0'}">0</p>
+                        <p class="card-text"
+                           th:if="${transaccionesMetrica != null && transaccionesMetrica.porcentajeCambio != null}">
+                                <span th:class="${transaccionesMetrica.porcentajeCambio >= 0 ? 'metric-change positive' : 'metric-change negative'}">
+                                    <i th:class="${transaccionesMetrica.porcentajeCambio >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'}"></i>
+                                    <span th:text="${#numbers.formatDecimal(Math.abs(transaccionesMetrica.porcentajeCambio), 1, 1) + '%'}">0%</span>
+                                </span>
+                            vs período anterior
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card bg-success text-white h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-dollar-sign fa-3x mb-3"></i>
+                        <h5 class="card-title">Ingresos del mes</h5>
+                        <p class="card-text fs-1 fw-bold"
+                           th:text="${ingresosMes != null ? #numbers.formatCurrency(ingresosMes) : '$0'}">$0</p>
+                        <p class="card-text" th:if="${ventasMetrica != null && ventasMetrica.porcentajeCambio != null}">
+                                <span th:class="${ventasMetrica.porcentajeCambio >= 0 ? 'metric-change positive' : 'metric-change negative'}">
+                                    <i th:class="${ventasMetrica.porcentajeCambio >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'}"></i>
+                                    <span th:text="${#numbers.formatDecimal(Math.abs(ventasMetrica.porcentajeCambio), 1, 1) + '%'}">0%</span>
+                                </span>
+                            vs período anterior
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card bg-warning text-white h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+                        <h5 class="card-title">Productos con bajo stock</h5>
+                        <p class="card-text fs-1 fw-bold" th:text="${productosBajos != null ? productosBajos : '0'}">
+                            0</p>
+                        <p class="card-text">Necesitan reposición</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card bg-info text-white h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-user-plus fa-3x mb-3"></i>
+                        <h5 class="card-title">Clientes nuevos</h5>
+                        <p class="card-text fs-1 fw-bold"
+                           th:text="${clientesMetrica != null ? clientesMetrica.valor : '0'}">0</p>
+                        <p class="card-text"
+                           th:if="${clientesMetrica != null && clientesMetrica.porcentajeCambio != null}">
+                                <span th:class="${clientesMetrica.porcentajeCambio >= 0 ? 'metric-change positive' : 'metric-change negative'}">
+                                    <i th:class="${clientesMetrica.porcentajeCambio >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'}"></i>
+                                    <span th:text="${#numbers.formatDecimal(Math.abs(clientesMetrica.porcentajeCambio), 1, 1) + '%'}">0%</span>
+                                </span>
+                            vs período anterior
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Accesos directos a los módulos principales -->
+        <div class="row mb-4">
+            <div class="col-md-4 mb-3" sec:authorize="hasAnyRole('ADMIN', 'PRODUCTOS')">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-box fa-3x mb-3 text-productos"></i>
+                        <h5 class="card-title">Gestión de Productos</h5>
+                        <p class="card-text">Administre su inventario, categorías y precios de productos</p>
+                        <a class="btn btn-outline-success" th:href="@{/productos}">Acceder</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3" sec:authorize="hasAnyRole('ADMIN', 'VENTAS')">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-shopping-cart fa-3x mb-3 text-ventas"></i>
+                        <h5 class="card-title">Gestión de Ventas</h5>
+                        <p class="card-text">Registre ventas, consulte historial y genere facturas</p>
+                        <a class="btn btn-outline-primary" th:href="@{/ventas/lista}">Acceder</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3" sec:authorize="hasAnyRole('ADMIN', 'VENTAS')">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-users fa-3x mb-3 text-info"></i>
+                        <h5 class="card-title">Gestión de Clientes</h5>
+                        <p class="card-text">Administre la información y historiales de sus clientes</p>
+                        <a class="btn btn-outline-info" th:href="@{/clientes}">Acceder</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6 mb-3" sec:authorize="hasAnyRole('ADMIN', 'GERENTE', 'GERENTE_GENERAL')">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-chart-bar fa-3x mb-3 text-gerente"></i>
+                        <h5 class="card-title">Reportes e Informes</h5>
+                        <p class="card-text">Visualice estadísticas y genere informes detallados</p>
+                        <a class="btn btn-outline-warning" th:href="@{/reportes/panel-ventas}">Acceder</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3" sec:authorize="hasRole('ADMIN')">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-user-cog fa-3x mb-3 text-admin"></i>
+                        <h5 class="card-title">Administración de Usuarios</h5>
+                        <p class="card-text">Gestione usuarios y sus permisos en el sistema</p>
+                        <a class="btn btn-outline-danger" th:href="@{/admin/usuarios}">Acceder</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección con datos de negocio en tiempo real - Para roles administrativos -->
+        <div class="row mt-5" sec:authorize="hasAnyRole('ADMIN', 'GERENTE', 'GERENTE_GENERAL')">
+            <div class="col-12">
+                <h3 class="mb-4 border-bottom pb-2">Datos del Negocio en Tiempo Real</h3>
+            </div>
+
+            <!-- Primera fila: Ventas por período y por categoría -->
+            <div class="col-lg-6 mb-4" th:if="${ventasPorPeriodo != null && !ventasPorPeriodo.empty}">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">Ventas por Período</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="ventasPorPeriodoChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6 mb-4" th:if="${ventasPorCategoria != null && !ventasPorCategoria.empty}">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">Ventas por Categoría</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="ventasPorCategoriaChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Segunda fila: Ventas recientes y productos con bajo stock -->
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">Ventas Recientes</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Cliente</th>
+                                    <th>Total</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="venta : ${ventasRecientes}"
+                                    th:if="${ventasRecientes != null && !ventasRecientes.empty}">
+                                    <td th:text="${#temporals.format(venta.fecha, 'dd/MM/yyyy')}">01/01/2023</td>
+                                    <td th:text="${venta.cliente.nombreCompleto}">Cliente</td>
+                                    <td th:text="${#numbers.formatCurrency(venta.total)}">$0</td>
+                                    <td>
+                                                <span th:class="${venta.estado == 'COMPLETADA' ? 'estado-completada' : (venta.estado == 'ANULADA' ? 'estado-anulada' : 'estado-pendiente')}"
+                                                      th:text="${venta.estado}">Estado</span>
+                                    </td>
+                                    <td>
+                                        <a class="btn btn-sm btn-outline-info"
+                                           th:href="@{/ventas/detalle/{id}(id=${venta.id})}">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr th:if="${ventasRecientes == null || ventasRecientes.empty}">
+                                    <td class="text-center" colspan="5">No hay ventas recientes</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer text-end">
+                        <a class="btn btn-sm btn-primary" th:href="@{/ventas/lista}">Ver todas las ventas</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Productos con Bajo Stock -->
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">Productos con Bajo Stock</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Nombre</th>
+                                    <th>Stock Actual</th>
+                                    <th>Acciones</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="producto : ${productosConBajoStock}"
+                                    th:if="${productosConBajoStock != null && !productosConBajoStock.empty}">
+                                    <td th:text="${producto.codigo}">ABC123</td>
+                                    <td th:text="${producto.nombre}">Producto</td>
+                                    <td>
+                                        <span class="badge bg-danger" th:text="${producto.stock}">0</span>
+                                    </td>
+                                    <td>
+                                        <a class="btn btn-sm btn-outline-warning"
+                                           th:href="@{/productos/editar/{id}(id=${producto.id})}">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr th:if="${productosConBajoStock == null || productosConBajoStock.empty}">
+                                    <td class="text-center" colspan="4">No hay productos con bajo stock</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer text-end">
+                        <a class="btn btn-sm btn-primary" th:href="@{/productos}">Ver todos los productos</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Productos más vendidos -->
+            <div class="col-lg-12 mb-4" th:if="${productosMasVendidos != null && !productosMasVendidos.empty}">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">Productos Más Vendidos</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Unidades Vendidas</th>
+                                    <th>Ingresos</th>
+                                    <th>% del Total</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="producto : ${productosMasVendidos}">
+                                    <td th:text="${producto.nombre}">Producto</td>
+                                    <td th:text="${producto.unidadesVendidas}">0</td>
+                                    <td th:text="${#numbers.formatCurrency(producto.ingresos)}">$0</td>
+                                    <td>
+                                        <div class="progress" style="height: 20px;">
+                                            <div class="progress-bar bg-success" role="progressbar"
+                                                 th:style="'width: ' + ${producto.porcentajeTotal} + '%'"
+                                                 th:text="${#numbers.formatDecimal(producto.porcentajeTotal, 1, 1) + '%'}">
+                                                0%
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sección visible para usuarios no autenticados (página de bienvenida pública) -->
+    <div sec:authorize="!isAuthenticated()">
+        <div class="row justify-content-center my-5">
+            <div class="col-md-8 text-center">
+                <h1 class="display-4">Bienvenido al Sistema de Gestión</h1>
+                <p class="lead">Administre sus ventas, productos, clientes y reportes en un solo lugar</p>
+                <hr class="my-4">
+                <p>Inicie sesión para acceder a todas las funcionalidades del sistema.</p>
+                <a class="btn btn-primary btn-lg" role="button" th:href="@{/login}">Iniciar Sesión</a>
+            </div>
+        </div>
+
+        <!-- Información sobre el sistema (público) -->
+        <div class="row mt-5">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-shopping-cart fa-3x mb-3 text-primary"></i>
+                        <h5 class="card-title">Gestión de Ventas</h5>
+                        <p class="card-text">Registre ventas de manera rápida y eficiente, con actualización automática
+                            de inventario.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-box fa-3x mb-3 text-success"></i>
+                        <h5 class="card-title">Gestión de Productos</h5>
+                        <p class="card-text">Mantenga un control completo de su inventario con alertas de stock
+                            bajo.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-chart-line fa-3x mb-3 text-warning"></i>
+                        <h5 class="card-title">Informes y Estadísticas</h5>
+                        <p class="card-text">Visualice el rendimiento de su negocio con gráficos e informes
+                            detallados.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Incluir el fragmento de pie de página -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Scripts para gráficos - Solo se cargan para usuarios autenticados con roles administrativos -->
+<div sec:authorize="hasAnyRole('ADMIN', 'GERENTE', 'GERENTE_GENERAL')">
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+            // Datos para gráficos
+            const ventasPorPeriodoData = /*[[${ventasPorPeriodo}]]*/ [];
+            const ventasPorCategoriaData = /*[[${ventasPorCategoria}]]*/ [];
+
+            // Gráfico de ventas por período
+            if (ventasPorPeriodoData && ventasPorPeriodoData.length > 0) {
+                const ctxPeriodo = document.getElementById('ventasPorPeriodoChart').getContext('2d');
+                new Chart(ctxPeriodo, {
+                    type: 'line',
+                    data: {
+                        labels: ventasPorPeriodoData.map(item => item.periodo),
+                        datasets: [{
+                            label: 'Ventas',
+                            data: ventasPorPeriodoData.map(item => item.total),
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function (value) {
+                                        return '$' + value.toLocaleString();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Gráfico de ventas por categoría
+            if (ventasPorCategoriaData && ventasPorCategoriaData.length > 0) {
+                const ctxCategoria = document.getElementById('ventasPorCategoriaChart').getContext('2d');
+                new Chart(ctxCategoria, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ventasPorCategoriaData.map(item => item.categoria),
+                        datasets: [{
+                            data: ventasPorCategoriaData.map(item => item.total),
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.7)',
+                                'rgba(54, 162, 235, 0.7)',
+                                'rgba(255, 206, 86, 0.7)',
+                                'rgba(75, 192, 192, 0.7)',
+                                'rgba(153, 102, 255, 0.7)',
+                                'rgba(255, 159, 64, 0.7)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        let label = context.label || '';
+                                        let value = context.raw;
+                                        let percentage = context.parsed;
+                                        return `${label}: $${value.toLocaleString()}`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</div>
+</body>
+</html>

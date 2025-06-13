@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Respaldo - InformViva</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        .tipo-modulo-card {
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .tipo-modulo-card:hover {
+            transform: translateY(-2px);
+            border-color: #0d6efd;
+        }
+
+        .tipo-modulo-card.selected {
+            border-color: #0d6efd;
+            background-color: #f8f9fa;
+        }
+
+        .validation-status {
+            font-size: 0.875rem;
+        }
+
+        .badge-param {
+            background-color: #fd7e14;
+        }
+
+        .badge-data {
+            background-color: #0dcaf0;
+        }
+    </style>
+</head>
+<body>
+<div class="container-fluid">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Inicio</a></li>
+            <li class="breadcrumb-item"><a href="/respaldos">Respaldos</a></li>
+            <li class="breadcrumb-item active">Crear Respaldo</li>
+        </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0">
+                        <i class="bi bi-plus-circle text-primary"></i>
+                        Crear Nuevo Respaldo
+                    </h1>
+                    <p class="text-muted mb-0">Seleccione el tipo de respaldo que desea crear</p>
+                </div>
+                <a href="/respaldos" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Volver
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alertas -->
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle"></i>
+        <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle"></i>
+        <span th:text="${success}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Formulario Principal -->
+    <form method="post" action="/respaldos/crear" id="formCrearRespaldo">
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Selección de Tipo de Módulo -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-puzzle"></i> Seleccionar Tipo de Respaldo
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <input type="hidden" name="tipoModulo" id="tipoModuloSeleccionado" required>
+
+                        <div class="row">
+                            <div th:each="tipo : ${tiposModulos}" class="col-md-6 col-lg-4 mb-3">
+                                <div class="card tipo-modulo-card h-100"
+                                     th:onclick="|seleccionarTipoModulo('${tipo.name()}', this)|"
+                                     th:data-tipo="${tipo.name()}">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h6 class="card-title" th:text="${tipo.nombre}">Tipo</h6>
+                                            <div>
+                                                    <span th:if="${tipo.requiereParametros}"
+                                                          class="badge badge-param text-white"
+                                                          title="Requiere parámetros">
+                                                        <i class="bi bi-gear"></i>
+                                                    </span>
+                                                <span th:if="${tipo.afectaDatos}"
+                                                      class="badge badge-data text-white"
+                                                      title="Afecta datos">
+                                                        <i class="bi bi-database"></i>
+                                                    </span>
+                                            </div>
+                                        </div>
+                                        <p class="card-text small text-muted" th:text="${tipo.descripcion}">
+                                            Descripción</p>
+
+                                        <!-- Estado de Validación -->
+                                        <div class="validation-status" th:data-tipo="${tipo.name()}">
+                                            <div th:if="${validaciones != null and validaciones[tipo.name()] != null}">
+                                                <div th:if="${validaciones[tipo.name()].valido}" class="text-success">
+                                                    <i class="bi bi-check-circle"></i> Disponible
+                                                </div>
+                                                <div th:unless="${validaciones[tipo.name()].valido}"
+                                                     class="text-warning">
+                                                    <i class="bi bi-exclamation-triangle"></i>
+                                                    <span th:text="${validaciones[tipo.name()].mensaje}">No disponible</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Parámetros Específicos -->
+                <div class="card mb-4" id="parametrosCard" style="display: none;">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-sliders"></i> Parámetros Específicos
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Parámetros para Tablas Específicas -->
+                        <div id="parametrosTablas" style="display: none;">
+                            <div class="mb-3">
+                                <label for="tablas" class="form-label">
+                                    <i class="bi bi-table"></i> Tablas a Respaldar
+                                </label>
+                                <textarea class="form-control"
+                                          id="tablas"
+                                          name="tablas"
+                                          rows="3"
+                                          placeholder="Ingrese los nombres de las tablas separados por comas (ej: usuarios, productos, ventas)"></textarea>
+                                <div class="form-text">
+                                    Especifique las tablas que desea incluir en el respaldo, separadas por comas.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Parámetros para Personalizado -->
+                        <div id="parametrosPersonalizado" style="display: none;">
+                            <div class="mb-3">
+                                <label for="parametrosCustom" class="form-label">
+                                    <i class="bi bi-code"></i> Configuración Personalizada
+                                </label>
+                                <textarea class="form-control"
+                                          id="parametrosCustom"
+                                          name="parametrosCustom"
+                                          rows="4"
+                                          placeholder="Configuración en formato JSON o texto libre"></textarea>
+                                <div class="form-text">
+                                    Especifique parámetros personalizados para el respaldo.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel Lateral -->
+            <div class="col-lg-4">
+                <!-- Información del Respaldo -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-info-circle"></i> Información del Respaldo
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="infoTipoSeleccionado" style="display: none;">
+                            <h6 id="nombreTipoSeleccionado"></h6>
+                            <p id="descripcionTipoSeleccionado" class="text-muted small"></p>
+
+                            <hr>
+
+                            <div class="mb-2">
+                                <strong>Características:</strong>
+                            </div>
+                            <ul class="list-unstyled small">
+                                <li id="caracteristicaParametros" style="display: none;">
+                                    <i class="bi bi-gear text-warning"></i> Requiere configuración adicional
+                                </li>
+                                <li id="caracteristicaDatos" style="display: none;">
+                                    <i class="bi bi-database text-info"></i> Incluye datos de la base
+                                </li>
+                                <li id="caracteristicaEstructura" style="display: none;">
+                                    <i class="bi bi-diagram-3 text-primary"></i> Incluye estructura de BD
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div id="infoSinSeleccion">
+                            <p class="text-muted text-center">
+                                <i class="bi bi-arrow-up"></i><br>
+                                Seleccione un tipo de respaldo para ver más información
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Acciones -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-play-circle"></i> Acciones
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary" id="btnCrearRespaldo" disabled>
+                                <i class="bi bi-download"></i> Crear Respaldo
+                            </button>
+
+                            <button type="button" class="btn btn-outline-info" id="btnValidar" disabled
+                                    onclick="validarModuloSeleccionado()">
+                                <i class="bi bi-check2-square"></i> Validar Módulo
+                            </button>
+
+                            <hr>
+
+                            <a href="/respaldos" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left"></i> Cancelar
+                            </a>
+                        </div>
+
+                        <div class="mt-3">
+                            <small class="text-muted">
+                                <i class="bi bi-clock"></i>
+                                El proceso puede tardar varios minutos dependiendo del tamaño de la base de datos.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Modal de Progreso -->
+<div class="modal fade" id="modalProgreso" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-gear"></i> Creando Respaldo
+                </h5>
+            </div>
+            <div class="modal-body text-center">
+                <div class="spinner-border text-primary mb-3" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+                <p>Por favor espere mientras se crea el respaldo...</p>
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated"
+                         role="progressbar" style="width: 100%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    let tipoSeleccionado = null;
+
+    function seleccionarTipoModulo(tipo, elemento) {
+        // Remover selección anterior
+        document.querySelectorAll('.tipo-modulo-card').forEach(card => {
+            card.classList.remove('selected');
+        });
+
+        // Seleccionar nuevo tipo
+        elemento.classList.add('selected');
+        tipoSeleccionado = tipo;
+
+        // Actualizar campo hidden
+        document.getElementById('tipoModuloSeleccionado').value = tipo;
+
+        // Habilitar botones
+        document.getElementById('btnCrearRespaldo').disabled = false;
+        document.getElementById('btnValidar').disabled = false;
+
+        // Mostrar información del tipo
+        mostrarInformacionTipo(tipo);
+
+        // Mostrar/ocultar parámetros específicos
+        mostrarParametrosEspecificos(tipo);
+    }
+
+    function mostrarInformacionTipo(tipo) {
+        const infoDiv = document.getElementById('infoTipoSeleccionado');
+        const sinSeleccionDiv = document.getElementById('infoSinSeleccion');
+
+        // Ocultar mensaje de sin selección
+        sinSeleccionDiv.style.display = 'none';
+        infoDiv.style.display = 'block';
+
+        // Buscar información del tipo en los elementos del DOM
+        const tipoCard = document.querySelector(`[data-tipo="${tipo}"]`);
+        if (tipoCard) {
+            const nombre = tipoCard.querySelector('.card-title').textContent;
+            const descripcion = tipoCard.querySelector('.card-text').textContent;
+
+            document.getElementById('nombreTipoSeleccionado').textContent = nombre;
+            document.getElementById('descripcionTipoSeleccionado').textContent = descripcion;
+
+            // Mostrar características
+            const tieneParametros = tipoCard.querySelector('.badge-param') !== null;
+            const afectaDatos = tipoCard.querySelector('.badge-data') !== null;
+
+            document.getElementById('caracteristicaParametros').style.display = tieneParametros ? 'block' : 'none';
+            document.getElementById('caracteristicaDatos').style.display = afectaDatos ? 'block' : 'none';
+
+            // Determinar si incluye estructura (tipos que no son solo datos)
+            const incluyeEstructura = !['DATOS', 'LOGS', 'CONFIGURACION'].includes(tipo);
+            document.getElementById('caracteristicaEstructura').style.display = incluyeEstructura ? 'block' : 'none';
+        }
+    }
+
+    function mostrarParametrosEspecificos(tipo) {
+        const parametrosCard = document.getElementById('parametrosCard');
+        const parametrosTablas = document.getElementById('parametrosTablas');
+        const parametrosPersonalizado = document.getElementById('parametrosPersonalizado');
+
+        // Ocultar todos los parámetros
+        parametrosTablas.style.display = 'none';
+        parametrosPersonalizado.style.display = 'none';
+        parametrosCard.style.display = 'none';
+
+        // Mostrar parámetros específicos según el tipo
+        if (tipo === 'TABLAS_ESPECIFICAS') {
+            parametrosCard.style.display = 'block';
+            parametrosTablas.style.display = 'block';
+        } else if (tipo === 'PERSONALIZADO') {
+            parametrosCard.style.display = 'block';
+            parametrosPersonalizado.style.display = 'block';
+        }
+    }
+
+    function validarModuloSeleccionado() {
+        if (!tipoSeleccionado) {
+            alert('Por favor seleccione un tipo de módulo primero');
+            return;
+        }
+
+        fetch(`/respaldos/api/validar/${tipoSeleccionado}`)
+            .then(response => response.json())
+            .then(data => {
+                let mensaje = `Módulo: ${data.nombreModulo}\n`;
+                mensaje += `Estado: ${data.valido ? 'VÁLIDO' : 'INVÁLIDO'}\n`;
+                mensaje += `Mensaje: ${data.mensaje}\n`;
+
+                if (data.erroresDetectados && data.erroresDetectados.length > 0) {
+                    mensaje += `\nErrores:\n${data.erroresDetectados.join('\n')}`;
+                }
+
+                if (data.advertencias && data.advertencias.length > 0) {
+                    mensaje += `\nAdvertencias:\n${data.advertencias.join('\n')}`;
+                }
+
+                alert(mensaje);
+            })
+            .catch(error => {
+                console.error('Error al validar módulo:', error);
+                alert('Error al validar el módulo');
+            });
+    }
+
+    // Mostrar modal de progreso al enviar formulario
+    document.getElementById('formCrearRespaldo').addEventListener('submit', function (e) {
+        const modal = new bootstrap.Modal(document.getElementById('modalProgreso'));
+        modal.show();
+    });
+
+    // Validación del formulario
+    document.getElementById('formCrearRespaldo').addEventListener('submit', function (e) {
+        if (!tipoSeleccionado) {
+            e.preventDefault();
+            alert('Por favor seleccione un tipo de respaldo');
+            return false;
+        }
+
+        // Validación para tablas específicas
+        if (tipoSeleccionado === 'TABLAS_ESPECIFICAS') {
+            const tablas = document.getElementById('tablas').value.trim();
+            if (!tablas) {
+                e.preventDefault();
+                alert('Por favor especifique las tablas a respaldar');
+                return false;
+            }
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+>
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Panel de Ventas - Informática Viva</title>
+
+    <!-- CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <!-- Eliminamos la referencia a dashboard.css que no existe -->
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+
+    <!-- Estilos inline para reemplazar lo que estaría en dashboard.css -->
+    <style>
+        .icon-bg {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .metric-comparison {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+
+        .card {
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            border-top-left-radius: 0.5rem !important;
+            border-top-right-radius: 0.5rem !important;
+        }
+
+        .progress {
+            height: 8px;
+            margin-bottom: 5px;
+        }
+
+        canvas {
+            max-width: 100%;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+<!-- Incluir el fragmento de navegación -->
+<div th:replace="~{fragments/menu :: menu}"></div>
+
+<div class="container mt-4">
+    <div class="row mb-3">
+        <div class="col-12">
+            <h2 class="border-bottom pb-2">Panel de Ventas</h2>
+        </div>
+    </div>
+
+    <!--    &lt;!&ndash; Navegación de pestañas &ndash;&gt;-->
+    <!--    <div class="row mb-4">-->
+    <!--        <div class="col-12">-->
+    <!--            <ul class="nav nav-tabs">-->
+    <!--                <li class="nav-item">-->
+    <!--                    <a class="nav-link" href="#" th:href="@{/inicio}">-->
+    <!--                        <i class="fas fa-home me-1"></i> Inicio-->
+    <!--                    </a>-->
+    <!--                </li>-->
+    <!--                <li class="nav-item">-->
+    <!--                    <a class="nav-link active" href="#" th:href="@{/panel-ventas}">-->
+    <!--                        <i class="fas fa-chart-line me-1"></i> Panel de Ventas-->
+    <!--                    </a>-->
+    <!--                </li>-->
+    <!--                <li class="nav-item">-->
+    <!--                    <a class="nav-link" href="#" th:href="@{/productos}">-->
+    <!--                        <i class="fas fa-box me-1"></i> Productos-->
+    <!--                    </a>-->
+    <!--                </li>-->
+    <!--                <li class="nav-item">-->
+    <!--                    <a class="nav-link" href="#" th:href="@{/clientes-desde-inicio}">-->
+    <!--                        <i class="fas fa-users me-1"></i> Clientes-->
+    <!--                    </a>-->
+    <!--                </li>-->
+    <!--            </ul>-->
+    <!--        </div>-->
+    <!--    </div>-->
+
+    <!-- Filtro de Fecha -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Filtrar por período</h5>
+                    <form class="row g-3" id="dateFilterForm" method="get" th:action="@{/panel-ventas}">
+                        <div class="col-md-4">
+                            <label class="form-label" for="startDate">Desde:</label>
+                            <input class="form-control" id="startDate" name="startDate" th:value="${startDate}"
+                                   type="date">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label" for="endDate">Hasta:</label>
+                            <input class="form-control" id="endDate" name="endDate" th:value="${endDate}" type="date">
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-filter me-1"></i> Filtrar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Métricas principales -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 border-primary">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="icon-bg bg-primary text-white me-2">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <h5 class="card-title mb-0">Ventas Totales</h5>
+                    </div>
+                    <h3 class="mb-1"
+                        th:text="${'$' + #numbers.formatDecimal(ventaSummary.totalVentas, 0, 'COMMA', 0, 'POINT')}">
+                        $0</h3>
+                    <p class="metric-comparison mb-0" th:if="${ventaSummary.porcentajeCambioVentas != null}">
+                        <i th:class="${ventaSummary.porcentajeCambioVentas >= 0 ? 'fas fa-arrow-up text-success' : 'fas fa-arrow-down text-danger'}"></i>
+                        <span th:text="${#numbers.formatDecimal(Math.abs(ventaSummary.porcentajeCambioVentas), 1, 1) + '%'}">0%</span>
+                        <span>vs período anterior</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 border-info">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="icon-bg bg-info text-white me-2">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <h5 class="card-title mb-0">Transacciones</h5>
+                    </div>
+                    <h3 class="mb-1" th:text="${ventaSummary.totalTransacciones}">0</h3>
+                    <p class="metric-comparison mb-0" th:if="${ventaSummary.porcentajeCambioTransacciones != null}">
+                        <i th:class="${ventaSummary.porcentajeCambioTransacciones >= 0 ? 'fas fa-arrow-up text-success' : 'fas fa-arrow-down text-danger'}"></i>
+                        <span th:text="${#numbers.formatDecimal(Math.abs(ventaSummary.porcentajeCambioTransacciones), 1, 1) + '%'}">0%</span>
+                        <span>vs período anterior</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 border-success">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="icon-bg bg-success text-white me-2">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h5 class="card-title mb-0">Ticket Promedio</h5>
+                    </div>
+                    <h3 class="mb-1"
+                        th:text="${'$' + #numbers.formatDecimal(ventaSummary.ticketPromedio, 0, 'COMMA', 0, 'POINT')}">
+                        $0</h3>
+                    <p class="metric-comparison mb-0" th:if="${ventaSummary.porcentajeCambioTicketPromedio != null}">
+                        <i th:class="${ventaSummary.porcentajeCambioTicketPromedio >= 0 ? 'fas fa-arrow-up text-success' : 'fas fa-arrow-down text-danger'}"></i>
+                        <span th:text="${#numbers.formatDecimal(Math.abs(ventaSummary.porcentajeCambioTicketPromedio), 1, 1) + '%'}">0%</span>
+                        <span>vs período anterior</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 border-warning">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="icon-bg bg-warning text-white me-2">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h5 class="card-title mb-0">Clientes Nuevos</h5>
+                    </div>
+                    <h3 class="mb-1" th:text="${ventaSummary.clientesNuevos}">0</h3>
+                    <p class="metric-comparison mb-0" th:if="${ventaSummary.porcentajeCambioClientesNuevos != null}">
+                        <i th:class="${ventaSummary.porcentajeCambioClientesNuevos >= 0 ? 'fas fa-arrow-up text-success' : 'fas fa-arrow-down text-danger'}"></i>
+                        <span th:text="${#numbers.formatDecimal(Math.abs(ventaSummary.porcentajeCambioClientesNuevos), 1, 1) + '%'}">0%</span>
+                        <span>vs período anterior</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráficos principales -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">Ventas por Período</h5>
+                </div>
+                <div class="card-body">
+                    <canvas height="250" id="ventasPorPeriodoChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">Ventas por Categoría</h5>
+                </div>
+                <div class="card-body">
+                    <canvas height="250" id="ventasPorCategoriaChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Productos Más Vendidos y Ventas por Vendedor -->
+    <div class="row mb-4">
+        <div class="col-md-8 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">Productos Más Vendidos</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Unidades</th>
+                                <th>Ingresos</th>
+                                <th>% del Total</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="producto : ${ventaSummary.productosMasVendidos}">
+                                <td th:text="${producto.nombre}">Producto</td>
+                                <td th:text="${producto.unidadesVendidas}">0</td>
+                                <td th:text="${'$' + #numbers.formatDecimal(producto.ingresos, 0, 'COMMA', 0, 'POINT')}">
+                                    $0
+                                </td>
+                                <td>
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar bg-primary"
+                                             role="progressbar"
+                                             th:style="'width: ' + ${producto.porcentajeTotal} + '%'"></div>
+                                    </div>
+                                    <small class="fw-bold"
+                                           th:text="${#numbers.formatDecimal(producto.porcentajeTotal, 1, 1) + '%'}">0%</small>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">Ventas por Vendedor</h5>
+                </div>
+                <div class="card-body">
+                    <canvas height="250" id="ventasPorVendedorChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/script.js}"></script>
+
+<script th:inline="javascript">
+    // Datos para los gráficos pasados desde el controlador
+    const ventasPorPeriodoData = /*[[${ventaSummary.ventasPorPeriodo != null ? ventaSummary.ventasPorPeriodo : []}]]*/ [];
+    const ventasPorCategoriaData = /*[[${ventaSummary.ventasPorCategoria != null ? ventaSummary.ventasPorCategoria : []}]]*/ [];
+    const ventasPorVendedorData = /*[[${ventaSummary.ventasPorVendedor != null ? ventaSummary.ventasPorVendedor : []}]]*/ [];
+
+    // Estilos y colores
+    const primaryColor = '#0d6efd';
+    const successColor = '#10b981';
+    const warningColor = '#f59e0b';
+    const dangerColor = '#ef4444';
+    const infoColor = '#3b82f6';
+    const chartColors = [
+        primaryColor,
+        successColor,
+        warningColor,
+        dangerColor,
+        infoColor,
+        '#8b5cf6',
+        '#14b8a6',
+        '#f43f5e',
+        '#6366f1',
+        '#84cc16'
+    ];
+
+    // Inicializar gráficos cuando el DOM esté listo
+    document.addEventListener('DOMContentLoaded', function () {
+        // Gráfico de ventas por período
+        const ctxPeriodo = document.getElementById('ventasPorPeriodoChart').getContext('2d');
+        new Chart(ctxPeriodo, {
+            type: 'line',
+            data: {
+                labels: ventasPorPeriodoData.map(item => item.periodo),
+                datasets: [{
+                    label: 'Ventas',
+                    data: ventasPorPeriodoData.map(item => item.total),
+                    backgroundColor: 'rgba(13, 110, 253, 0.2)',
+                    borderColor: primaryColor,
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function (value) {
+                                return '$' + value.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Gráfico de ventas por categoría
+        const ctxCategoria = document.getElementById('ventasPorCategoriaChart').getContext('2d');
+        new Chart(ctxCategoria, {
+            type: 'doughnut',
+            data: {
+                labels: ventasPorCategoriaData.map(item => item.categoria),
+                datasets: [{
+                    data: ventasPorCategoriaData.map(item => item.total),
+                    backgroundColor: chartColors,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                let label = context.label || '';
+                                let value = context.raw;
+                                let total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                let percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+                                return `${label}: $${value.toLocaleString()} (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Gráfico de ventas por vendedor
+        const ctxVendedor = document.getElementById('ventasPorVendedorChart').getContext('2d');
+        new Chart(ctxVendedor, {
+            type: 'bar',
+            data: {
+                labels: ventasPorVendedorData.map(item => item.vendedor),
+                datasets: [{
+                    label: 'Ventas',
+                    data: ventasPorVendedorData.map(item => item.total),
+                    backgroundColor: successColor,
+                    borderColor: successColor,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function (value) {
+                                return '$' + value.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+
+    // Validación del formulario de fechas
+    document.getElementById('dateFilterForm').addEventListener('submit', function (e) {
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+
+        if (!startDate || !endDate) {
+            e.preventDefault();
+            alert('Por favor, seleccione ambas fechas para filtrar');
+            return false;
+        }
+
+        if (new Date(startDate) > new Date(endDate)) {
+            e.preventDefault();
+            alert('La fecha de inicio no puede ser posterior a la fecha de fin');
+            return false;
+        }
+
+        return true;
+    });
+</script>
+
+<!-- Estilos adicionales inline -->
+<style>
+    .icon-bg {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+
+    .metric-comparison {
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+
+    .card {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        border-radius: 0.5rem;
+    }
+
+    .card-header {
+        border-top-left-radius: 0.5rem !important;
+        border-top-right-radius: 0.5rem !important;
+    }
+</style>
+</body>
+</html>

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml"
+>
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Lista de Clientes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<!-- Navegación -->
+<div th:replace="~{fragments/menu :: menu}"></div>
+
+<div class="container mt-4">
+    <!-- Encabezado -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2>Gestión de Clientes</h2>
+                <a class="btn btn-primary" th:href="@{/clientes/nuevo}">
+                    <i class="fas fa-plus me-2"></i>Nuevo Cliente
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- En templates/clientes/lista.html - agregar este botón -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Listado de Clientes</h2>
+        <div>
+            <a th:href="@{/clientes/nuevo}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Nuevo Cliente
+            </a>
+            <a sec:authorize="hasRole('ADMIN')" th:href="@{/clientes/admin}" class="btn btn-warning">
+                <i class="fas fa-cog"></i> Vista Admin
+            </a>
+        </div>
+    </div>
+
+    <!-- Mensajes -->
+    <div class="alert alert-success alert-dismissible fade show" th:if="${mensaje}">
+        <i class="fas fa-check-circle me-2"></i>
+        <span th:text="${mensaje}"></span>
+        <button class="btn-close" data-bs-dismiss="alert" type="button"></button>
+    </div>
+
+    <div class="alert alert-danger alert-dismissible fade show" th:if="${error}">
+        <i class="fas fa-exclamation-circle me-2"></i>
+        <span th:text="${error}"></span>
+        <button class="btn-close" data-bs-dismiss="alert" type="button"></button>
+    </div>
+
+    <!-- Tabla de clientes -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th>RUT</th>
+                        <th>Nombre</th>
+                        <th>Email</th>
+                        <th>Teléfono</th>
+                        <th>Fecha Registro</th>
+                        <th>Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="cliente : ${clientes}">
+                        <td th:text="${cliente.rut}">11.111.111-1</td>
+                        <td th:text="${cliente.nombreCompleto}">Nombre Apellido</td>
+                        <td th:text="${cliente.email}">email@example.com</td>
+                        <td th:text="${cliente.telefono}">+56912345678</td>
+                        <td th:text="${#temporals.format(cliente.fechaRegistro, 'dd/MM/yyyy')}">01/01/2023</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a class="btn btn-info"
+                                   th:href="@{/clientes/detalle/{id}(id=${cliente.id})}" title="Ver detalle">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a class="btn btn-warning"
+                                   th:href="@{/clientes/editar/{id}(id=${cliente.id})}" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a class="btn btn-danger"
+                                   onclick="return confirm('¿Está seguro de eliminar este cliente?')"
+                                   th:href="@{/clientes/eliminar/{id}(id=${cliente.id})}"
+                                   title="Eliminar">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Paginación -->
+            <nav th:if="${currentPage != null && currentPage.totalPages > 1}">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item" th:classappend="${currentPage.first} ? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/clientes(page=${currentPage.number - 1}, size=${currentPage.size})}">
+                            Anterior
+                        </a>
+                    </li>
+
+                    <li class="page-item"
+                        th:classappend="${pageNum == currentPage.number} ? 'active'"
+                        th:each="pageNum : ${#numbers.sequence(0, currentPage.totalPages - 1)}">
+                        <a class="page-link"
+                           th:href="@{/clientes(page=${pageNum}, size=${currentPage.size})}"
+                           th:text="${pageNum + 1}">1</a>
+                    </li>
+
+                    <li class="page-item" th:classappend="${currentPage.last} ? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/clientes(page=${currentPage.number + 1}, size=${currentPage.size})}">
+                            Siguiente
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

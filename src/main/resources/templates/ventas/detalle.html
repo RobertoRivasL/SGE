@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle de Venta - InformViva</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        .venta-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        .estado-badge {
+            font-size: 0.9rem;
+            padding: 8px 15px;
+            border-radius: 20px;
+        }
+        .info-card {
+            border: none;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 10px;
+        }
+        .producto-item {
+            border-bottom: 1px solid #eee;
+            padding: 15px 0;
+        }
+        .producto-item:last-child {
+            border-bottom: none;
+        }
+        .total-section {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        .print-section {
+            display: none;
+        }
+        @media print {
+            .no-print { display: none !important; }
+            .print-section { display: block !important; }
+            .container-fluid { max-width: 100% !important; }
+        }
+    </style>
+</head>
+<body class="bg-light">
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary no-print">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/inicio">
+            <i class="fas fa-cash-register me-2"></i>InformViva
+        </a>
+        <div class="navbar-nav ms-auto">
+                <span class="navbar-text text-white me-3">
+                    <i class="fas fa-user me-1"></i>
+                    <span sec:authentication="name">Usuario</span>
+                </span>
+            <a class="nav-link text-white" href="/logout">
+                <i class="fas fa-sign-out-alt"></i> Salir
+            </a>
+        </div>
+    </div>
+</nav>
+
+<!-- Header para impresión -->
+<div class="print-section text-center mb-4">
+    <h1>InformViva</h1>
+    <p>Sistema de Gestión Empresarial</p>
+    <hr>
+</div>
+
+<div class="container-fluid mt-4">
+    <!-- Mensaje de error si la venta no existe -->
+    <div th:if="${error}" class="alert alert-danger no-print">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <span th:text="${error}"></span>
+        <div class="mt-3">
+            <a href="/ventas/lista" class="btn btn-primary">
+                <i class="fas fa-arrow-left"></i> Volver a Lista de Ventas
+            </a>
+        </div>
+    </div>
+
+    <!-- Contenido principal (solo si existe la venta) -->
+    <div th:if="${venta != null}">
+        <!-- Header de la venta -->
+        <div class="venta-header no-print">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="mb-2">
+                        <i class="fas fa-receipt me-3"></i>
+                        Venta #<span th:text="${venta.id}">001</span>
+                    </h1>
+                    <p class="mb-0 opacity-75">
+                        Registrada el <span th:text="${#temporals.format(venta.fecha, 'dd/MM/yyyy \'a las\' HH:mm')}">01/01/2024 a las 10:30</span>
+                    </p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div th:switch="${venta.estado}">
+                            <span th:case="'COMPLETADA'" class="estado-badge bg-success">
+                                <i class="fas fa-check-circle"></i> Completada
+                            </span>
+                        <span th:case="'PENDIENTE'" class="estado-badge bg-warning text-dark">
+                                <i class="fas fa-clock"></i> Pendiente
+                            </span>
+                        <span th:case="'ANULADA'" class="estado-badge bg-danger">
+                                <i class="fas fa-ban"></i> Anulada
+                            </span>
+                        <span th:case="*" class="estado-badge bg-secondary" th:text="${venta.estado}">Estado</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Acciones -->
+        <div class="row mb-4 no-print">
+            <div class="col-md-6">
+                <a href="/ventas/lista" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Volver a Lista
+                </a>
+            </div>
+            <div class="col-md-6 text-end">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-info" onclick="window.print()">
+                        <i class="fas fa-print"></i> Imprimir
+                    </button>
+                    <button type="button" class="btn btn-success" onclick="exportarPDF()">
+                        <i class="fas fa-file-pdf"></i> PDF
+                    </button>
+                    <a th:href="@{/ventas/editar/{id}(id=${venta.id})}"
+                       class="btn btn-warning"
+                       th:if="${venta.estado != 'ANULADA'}"
+                       sec:authorize="hasAnyRole('ADMIN', 'VENTAS')">
+                        <i class="fas fa-edit"></i> Editar
+                    </a>
+                    <button type="button"
+                            class="btn btn-danger"
+                            th:if="${venta.estado != 'ANULADA'}"
+                            sec:authorize="hasAnyRole('ADMIN', 'VENTAS')"
+                            onclick="confirmarAnulacion()">
+                        <i class="fas fa-ban"></i> Anular
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Información principal -->
+        <div class="row mb-4">
+            <!-- Información del cliente -->
+            <div class="col-md-6">
+                <div class="card info-card h-100">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-user"></i> Información del Cliente</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-12">
+                                <h6 class="text-primary" th:text="${venta.cliente.nombreCompleto}">Nombre del Cliente</h6>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-sm-4 text-muted">Email:</div>
+                            <div class="col-sm-8" th:text="${venta.cliente.email}">email@example.com</div>
+                        </div>
+                        <div class="row" th:if="${venta.cliente.telefono}">
+                            <div class="col-sm-4 text-muted">Teléfono:</div>
+                            <div class="col-sm-8" th:text="${venta.cliente.telefono}">+56 9 1234 5678</div>
+                        </div>
+                        <div class="row" th:if="${venta.cliente.rut}">
+                            <div class="col-sm-4 text-muted">RUT:</div>
+                            <div class="col-sm-8" th:text="${venta.cliente.rut}">12.345.678-9</div>
+                        </div>
+                        <div class="row" th:if="${venta.cliente.direccion}">
+                            <div class="col-sm-4 text-muted">Dirección:</div>
+                            <div class="col-sm-8" th:text="${venta.cliente.direccion}">Dirección del cliente</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-4 text-muted">Cliente desde:</div>
+                            <div class="col-sm-8" th:text="${#temporals.format(venta.cliente.fechaRegistro, 'dd/MM/yyyy')}">01/01/2020</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información de la venta -->
+            <div class="col-md-6">
+                <div class="card info-card h-100">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-info-circle"></i> Detalles de la Venta</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-sm-4 text-muted">Vendedor:</div>
+                            <div class="col-sm-8">
+                                <strong th:text="${venta.vendedor.nombreCompleto}">Nombre del Vendedor</strong>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-sm-4 text-muted">Fecha y hora:</div>
+                            <div class="col-sm-8" th:text="${#temporals.format(venta.fecha, 'dd/MM/yyyy HH:mm:ss')}">01/01/2024 10:30:00</div>
+                        </div>
+                        <div class="row" th:if="${venta.metodoPago}">
+                            <div class="col-sm-4 text-muted">Método de pago:</div>
+                            <div class="col-sm-8">
+                                    <span th:switch="${venta.metodoPago}">
+                                        <span th:case="'EFECTIVO'"><i class="fas fa-money-bill-wave text-success"></i> Efectivo</span>
+                                        <span th:case="'TARJETA_CREDITO'"><i class="fas fa-credit-card text-primary"></i> Tarjeta de Crédito</span>
+                                        <span th:case="'TARJETA_DEBITO'"><i class="fas fa-credit-card text-info"></i> Tarjeta de Débito</span>
+                                        <span th:case="'TRANSFERENCIA'"><i class="fas fa-exchange-alt text-warning"></i> Transferencia</span>
+                                        <span th:case="'CHEQUE'"><i class="fas fa-money-check text-secondary"></i> Cheque</span>
+                                        <span th:case="*" th:text="${venta.metodoPago}">Método</span>
+                                    </span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-4 text-muted">Estado:</div>
+                            <div class="col-sm-8">
+                                    <span th:switch="${venta.estado}">
+                                        <span th:case="'COMPLETADA'" class="badge bg-success">Completada</span>
+                                        <span th:case="'PENDIENTE'" class="badge bg-warning">Pendiente</span>
+                                        <span th:case="'ANULADA'" class="badge bg-danger">Anulada</span>
+                                        <span th:case="*" class="badge bg-secondary" th:text="${venta.estado}">Estado</span>
+                                    </span>
+                            </div>
+                        </div>
+                        <div class="row" th:if="${venta.observaciones}">
+                            <div class="col-sm-4 text-muted">Observaciones:</div>
+                            <div class="col-sm-8" th:text="${venta.observaciones}">Observaciones de la venta</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Productos vendidos -->
+        <div class="card info-card mb-4">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0">
+                    <i class="fas fa-box"></i>
+                    Productos Vendidos
+                    <span class="badge bg-dark ms-2" th:text="${venta.detalles?.size() ?: 0}">0</span>
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                <!-- Productos en desktop -->
+                <div class="d-none d-md-block">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                        <tr>
+                            <th>Producto</th>
+                            <th class="text-center">Cantidad</th>
+                            <th class="text-end">Precio Unit.</th>
+                            <th class="text-center">Descuento</th>
+                            <th class="text-end">Subtotal</th>
+                            <th class="text-end">Total</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="detalle : ${venta.detalles}" th:if="${venta.detalles != null}">
+                            <td>
+                                <div>
+                                    <strong th:text="${detalle.producto.nombre}">Producto</strong>
+                                    <div class="small text-muted" th:text="'Código: ' + ${detalle.producto.codigo}">Código: ABC123</div>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-primary" th:text="${detalle.cantidad}">1</span>
+                            </td>
+                            <td class="text-end" th:text="${#numbers.formatCurrency(detalle.precioUnitario)}">$0.00</td>
+                            <td class="text-center">
+                                        <span th:if="${detalle.descuento != null and detalle.descuento > 0}"
+                                              class="badge bg-success" th:text="${detalle.descuento} + '%'">5%</span>
+                                <span th:unless="${detalle.descuento != null and detalle.descuento > 0}"
+                                      class="text-muted">-</span>
+                            </td>
+                            <td class="text-end" th:text="${#numbers.formatCurrency(detalle.subtotal)}">$0.00</td>
+                            <td class="text-end">
+                                <strong th:text="${#numbers.formatCurrency(detalle.total)}">$0.00</strong>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Productos en mobile -->
+                <div class="d-md-none p-3">
+                    <div th:each="detalle : ${venta.detalles}" th:if="${venta.detalles != null}" class="producto-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1" th:text="${detalle.producto.nombre}">Producto</h6>
+                                <div class="small text-muted mb-2" th:text="'Código: ' + ${detalle.producto.codigo}">Código: ABC123</div>
+                                <div class="row small">
+                                    <div class="col-6">Cantidad: <strong th:text="${detalle.cantidad}">1</strong></div>
+                                    <div class="col-6">Precio: <strong th:text="${#numbers.formatCurrency(detalle.precioUnitario)}">$0.00</strong></div>
+                                </div>
+                                <div class="row small">
+                                    <div class="col-6" th:if="${detalle.descuento != null and detalle.descuento > 0}">
+                                        Descuento: <span class="badge bg-success" th:text="${detalle.descuento} + '%'">5%</span>
+                                    </div>
+                                    <div class="col-6">Subtotal: <strong th:text="${#numbers.formatCurrency(detalle.subtotal)}">$0.00</strong></div>
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <div class="h6 text-success mb-0" th:text="${#numbers.formatCurrency(detalle.total)}">$0.00</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mensaje si no hay productos -->
+                <div th:if="${venta.detalles == null or #lists.isEmpty(venta.detalles)}"
+                     class="text-center py-4 text-muted">
+                    <i class="fas fa-box-open fa-2x"></i>
+                    <p class="mt-2">No hay productos registrados en esta venta</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Totales -->
+        <div class="row">
+            <div class="col-md-8">
+                <!-- Información adicional -->
+                <div class="card info-card" th:if="${venta.observaciones}">
+                    <div class="card-header">
+                        <h6 class="mb-0"><i class="fas fa-comment"></i> Observaciones</h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-0" th:text="${venta.observaciones}">Observaciones de la venta</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="total-section">
+                    <h5 class="mb-3"><i class="fas fa-calculator"></i> Resumen de Totales</h5>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Subtotal:</span>
+                        <strong th:text="${#numbers.formatCurrency(venta.subtotal)}">$0.00</strong>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-2" th:if="${venta.descuento != null and venta.descuento > 0}">
+                        <span>Descuentos:</span>
+                        <strong class="text-danger" th:text="'-' + ${#numbers.formatCurrency(venta.descuento)}">-$0.00</strong>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>IVA (19%):</span>
+                        <strong th:text="${#numbers.formatCurrency(venta.impuesto)}">$0.00</strong>
+                    </div>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between mb-0">
+                        <span class="h5">Total:</span>
+                        <strong class="h4 text-success" th:text="${#numbers.formatCurrency(venta.total)}">$0.00</strong>
+                    </div>
+                </div>
+
+                <!-- Estadísticas rápidas -->
+                <div class="card info-card mt-3">
+                    <div class="card-header">
+                        <h6 class="mb-0"><i class="fas fa-chart-bar"></i> Estadísticas</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-6">
+                                <div class="h4 text-primary" th:text="${venta.detalles?.size() ?: 0}">0</div>
+                                <div class="small text-muted">Productos únicos</div>
+                            </div>
+                            <div class="col-6">
+                                <div class="h4 text-success" th:text="${venta.detalles?.![cantidad].sum() ?: 0}">0</div>
+                                <div class="small text-muted">Artículos totales</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmación para anular -->
+<div class="modal fade" id="modalAnularVenta" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="fas fa-exclamation-triangle"></i> Confirmar Anulación</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Está seguro que desea anular esta venta?</p>
+                <div class="alert alert-warning">
+                    <strong>Importante:</strong>
+                    <ul class="mb-0 mt-2">
+                        <li>Esta acción no se puede deshacer</li>
+                        <li>Se restaurará el stock de los productos</li>
+                        <li>La venta quedará marcada como anulada</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <form th:action="@{/ventas/anular/{id}(id=${venta?.id})}" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-ban"></i> Anular Venta
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    function confirmarAnulacion() {
+        const modal = new bootstrap.Modal(document.getElementById('modalAnularVenta'));
+        modal.show();
+    }
+
+    function exportarPDF() {
+        const ventaId = /*[[${venta?.id}]]*/ null;
+        if (ventaId) {
+            window.open(`/ventas/${ventaId}/pdf`, '_blank');
+        }
+    }
+
+    // Mejorar la impresión
+    window.addEventListener('beforeprint', function() {
+        document.title = `Venta #${/*[[${venta?.id}]]*/ 'N/A'} - InformViva`;
+    });
+
+    // Atajos de teclado
+    document.addEventListener('keydown', function(e) {
+        // Ctrl + P para imprimir
+        if (e.ctrlKey && e.key === 'p') {
+            e.preventDefault();
+            window.print();
+        }
+
+        // Escape para volver
+        if (e.key === 'Escape') {
+            window.location.href = '/ventas/lista';
+        }
+    });
+
+    // Auto-refresh para ventas pendientes
+    const estado = /*[[${venta?.estado}]]*/ '';
+    if (estado === 'PENDIENTE') {
+        setInterval(function() {
+            // Verificar si el estado cambió
+            fetch(window.location.href, {
+                method: 'HEAD'
+            }).then(response => {
+                if (response.ok) {
+                    // Recargar solo si la página está visible
+                    if (document.visibilityState === 'visible') {
+                        location.reload();
+                    }
+                }
+            }).catch(console.error);
+        }, 30000); // Cada 30 segundos
+    }
+</script>
+</body>
+</html>

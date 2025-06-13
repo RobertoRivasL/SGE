@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+>
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Administración de Clientes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <!-- DataTables CSS -->
+    <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/select/1.3.4/css/select.bootstrap5.min.css" rel="stylesheet">
+</head>
+<body>
+<!-- Navegación -->
+<div th:replace="~{fragments/navegacion-unificada :: nav}"></div>
+
+<div class="container-fluid mt-4">
+    <div class="row mb-3">
+        <div class="col-12">
+            <h2 class="border-bottom pb-2">Administración del Sistema</h2>
+        </div>
+    </div>
+
+    <!-- Navegación de pestañas para Administración -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                    <a class="nav-link" href="#" th:href="@{/admin/usuarios}">
+                        <i class="fas fa-users me-1"></i> Usuarios
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="#" th:href="@{/admin/clientes}">
+                        <i class="fas fa-user-friends me-1"></i> Clientes
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" th:href="@{/admin/roles}">
+                        <i class="fas fa-user-shield me-1"></i> Roles y Permisos
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" th:href="@{/admin/configuracion}">
+                        <i class="fas fa-cogs me-1"></i> Configuración
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Mensajes de alerta -->
+    <div class="alert alert-success alert-dismissible fade show" th:if="${mensajeExito != null}">
+        <i class="fas fa-check-circle me-2"></i>
+        <span th:text="${mensajeExito}">Operación exitosa</span>
+        <button class="btn-close" data-bs-dismiss="alert" type="button"></button>
+    </div>
+
+    <div class="alert alert-danger alert-dismissible fade show" th:if="${mensajeError != null}">
+        <i class="fas fa-exclamation-circle me-2"></i>
+        <span th:text="${mensajeError}">Error en la operación</span>
+        <button class="btn-close" data-bs-dismiss="alert" type="button"></button>
+    </div>
+
+    <!-- Panel de estadísticas avanzadas -->
+    <div class="row mb-4">
+        <div class="col-md-2 mb-3">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-users fa-2x mb-2"></i>
+                    <h4 th:text="${#lists.size(clientes)}">0</h4>
+                    <small>Total Clientes</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 mb-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-user-plus fa-2x mb-2"></i>
+                    <h4 th:text="${clientesNuevosUltimoMes != null ? clientesNuevosUltimoMes : 0}">0</h4>
+                    <small>Nuevos (30d)</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 mb-3">
+            <div class="card bg-warning text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-star fa-2x mb-2"></i>
+                    <h4 th:text="${clientesVip != null ? clientesVip : 0}">0</h4>
+                    <small>VIP</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 mb-3">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-envelope fa-2x mb-2"></i>
+                    <h4 th:text="${clientesConEmail != null ? clientesConEmail : 0}">0</h4>
+                    <small>Con Email</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 mb-3">
+            <div class="card bg-secondary text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-phone fa-2x mb-2"></i>
+                    <h4 th:text="${clientesConTelefono != null ? clientesConTelefono : 0}">0</h4>
+                    <small>Con Teléfono</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 mb-3">
+            <div class="card bg-danger text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
+                    <h4 th:text="${clientesIncompletos != null ? clientesIncompletos : 0}">0</h4>
+                    <small>Incompletos</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Panel de control y herramientas -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <h5 class="mb-0"><i class="fas fa-tools me-2"></i>Herramientas de Administración</h5>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <div class="btn-group">
+                                <button class="btn btn-primary" data-bs-target="#modalNuevoCliente"
+                                        data-bs-toggle="modal"
+                                        type="button">
+                                    <i class="fas fa-plus me-1"></i> Nuevo Cliente
+                                </button>
+                                <button class="btn btn-success" disabled id="btnExportarSeleccionados" type="button">
+                                    <i class="fas fa-download me-1"></i> Exportar Seleccionados
+                                </button>
+                                <div class="btn-group">
+                                    <button class="btn btn-info dropdown-toggle" data-bs-toggle="dropdown"
+                                            type="button">
+                                        <i class="fas fa-file-export me-1"></i> Exportar Todo
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" th:href="@{/admin/clientes/exportar/excel}">
+                                            <i class="fas fa-file-excel me-1"></i> Excel
+                                        </a></li>
+                                        <li><a class="dropdown-item" th:href="@{/admin/clientes/exportar/pdf}">
+                                            <i class="fas fa-file-pdf me-1"></i> PDF
+                                        </a></li>
+                                        <li><a class="dropdown-item" th:href="@{/admin/clientes/exportar/csv}">
+                                            <i class="fas fa-file-csv me-1"></i> CSV
+                                        </a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                <input class="form-control" id="busquedaGeneral"
+                                       placeholder="Buscar en todos los campos..."
+                                       type="text">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select" id="filtroCategoria">
+                                <option value="">Todas las categorías</option>
+                                <option value="VIP">VIP</option>
+                                <option value="Premium">Premium</option>
+                                <option value="Regular">Regular</option>
+                                <option value="">Sin categoría</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select" id="filtroEstado">
+                                <option value="">Todos los estados</option>
+                                <option value="completo">Perfil Completo</option>
+                                <option value="incompleto">Perfil Incompleto</option>
+                                <option value="nuevo">Nuevos (30 días)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select" id="filtroRegistros">
+                                <option value="10">10 registros</option>
+                                <option value="25">25 registros</option>
+                                <option value="50">50 registros</option>
+                                <option value="100">100 registros</option>
+                                <option value="-1">Todos</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-outline-secondary w-100" id="btnLimpiarFiltros" type="button">
+                                <i class="fas fa-eraser me-1"></i> Limpiar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de clientes con funcionalidades avanzadas -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <h5 class="mb-0"><i class="fas fa-table me-2"></i>Lista de Clientes</h5>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <small class="text-muted">
+                                <span id="contadorSeleccionados">0</span> seleccionados |
+                                <span id="contadorTotal" th:text="${#lists.size(clientes)}">0</span> total
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped" id="clientesAdminTable">
+                            <thead class="table-light">
+                            <tr>
+                                <th width="30">
+                                    <input class="form-check-input" id="selectAll" type="checkbox">
+                                </th>
+                                <th>ID</th>
+                                <th>Cliente</th>
+                                <th>Contacto</th>
+                                <th>Ubicación</th>
+                                <th>Categoría</th>
+                                <th>Estado</th>
+                                <th>Registro</th>
+                                <th>Acciones</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="cliente : ${clientes}">
+                                <td>
+                                    <input class="form-check-input cliente-checkbox" th:value="${cliente.id}"
+                                           type="checkbox">
+                                </td>
+                                <td th:text="${cliente.id}">1</td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-circle bg-primary text-white me-2"
+                                             style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;"
+                                             th:style="'background-color: ' + (${cliente.categoria == 'VIP'} ? '#ffc107' : (${cliente.categoria == 'Premium'} ? '#20c997' : '#0d6efd')) + '!important'">
+                                            <span th:text="${#strings.substring(cliente.nombre, 0, 1) + #strings.substring(cliente.apellido, 0, 1)}">AB</span>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold" th:text="${cliente.nombreCompleto}">Nombre Apellido
+                                            </div>
+                                            <small class="text-muted" th:text="${cliente.rut}">12.345.678-9</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <i class="fas fa-envelope me-1"></i>
+                                        <a class="text-decoration-none small" th:href="'mailto:' + ${cliente.email}"
+                                           th:if="${cliente.email != null}"
+                                           th:text="${cliente.email}">email@ejemplo.com</a>
+                                        <span class="text-muted small" th:if="${cliente.email == null}">Sin email</span>
+                                    </div>
+                                    <div>
+                                        <i class="fas fa-phone me-1"></i>
+                                        <a class="text-decoration-none small" th:href="'tel:' + ${cliente.telefono}"
+                                           th:if="${cliente.telefono != null}" th:text="${cliente.telefono}">+56 9
+                                            1234 5678</a>
+                                        <span class="text-muted small"
+                                              th:if="${cliente.telefono == null}">Sin teléfono</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <small class="text-muted" th:text="${cliente.direccion ?: 'Sin dirección'}">Dirección</small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-warning text-dark" th:if="${cliente.categoria == 'VIP'}">
+                                        <i class="fas fa-crown me-1"></i>VIP
+                                    </span>
+                                    <span class="badge bg-success" th:if="${cliente.categoria == 'Premium'}">
+                                        <i class="fas fa-gem me-1"></i>Premium
+                                    </span>
+                                    <span class="badge bg-info" th:if="${cliente.categoria == 'Regular'}">
+                                        <i class="fas fa-user me-1"></i>Regular
+                                    </span>
+                                    <span class="badge bg-secondary"
+                                          th:if="${cliente.categoria == null || cliente.categoria.isEmpty()}">
+                                        Sin categoría
+                                    </span>
+                                </td>
+                                <td>
+                                    <!-- Estado basado en la completitud del perfil -->
+                                    <span class="badge bg-success"
+                                          th:if="${cliente.email != null && cliente.telefono != null && cliente.direccion != null}">
+                                        <i class="fas fa-check-circle me-1"></i>Completo
+                                    </span>
+                                    <span class="badge bg-warning text-dark"
+                                          th:if="${cliente.email == null || cliente.telefono == null || cliente.direccion == null}">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>Incompleto
+                                    </span>
+                                    <!-- Cliente nuevo (últimos 30 días) -->
+                                    <span class="badge bg-info ms-1"
+                                          th:if="${cliente.fechaRegistro != null && cliente.fechaRegistro.isAfter(T(java.time.LocalDate).now().minusDays(30))}">
+                                        <i class="fas fa-star me-1"></i>Nuevo
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="small"
+                                         th:text="${#temporals.format(cliente.fechaRegistro, 'dd/MM/yyyy')}">01/01/2024
+                                    </div>
+                                    <div class="text-muted small"
+                                         th:text="${T(java.time.temporal.ChronoUnit).DAYS.between(cliente.fechaRegistro, T(java.time.LocalDate).now())} + ' días'">
+                                        0 días
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a class="btn btn-outline-info"
+                                           th:href="@{/admin/clientes/detalle/{id}(id=${cliente.id})}"
+                                           title="Ver detalle">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a class="btn btn-outline-primary"
+                                           th:href="@{/admin/clientes/editar/{id}(id=${cliente.id})}" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button class="btn btn-outline-warning"
+                                                th:onclick="'cambiarCategoria(' + ${cliente.id} + ', \'' + ${cliente.nombreCompleto} + '\')'"
+                                                title="Cambiar categoría"
+                                                type="button">
+                                            <i class="fas fa-tags"></i>
+                                        </button>
+                                        <button class="btn btn-outline-danger"
+                                                th:onclick="'confirmarEliminacion(' + ${cliente.id} + ', \'' + ${cliente.nombreCompleto} + '\')'"
+                                                title="Eliminar"
+                                                type="button">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para nuevo cliente -->
+<div class="modal fade" id="modalNuevoCliente" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-user-plus me-2"></i>Agregar Nuevo Cliente
+                </h5>
+                <button class="btn-close btn-close-white" data-bs-dismiss="modal" type="button"></button>
+            </div>
+            <div class="modal-body">
+                <p>Puede crear un nuevo cliente de forma rápida o completa:</p>
+                <div class="d-grid gap-2">
+                    <a class="btn btn-outline-primary" th:href="@{/clientes/nuevo}">
+                        <i class="fas fa-edit me-2"></i>Formulario Completo
+                    </a>
+                    <button class="btn btn-primary" onclick="crearClienteRapido()" type="button">
+                        <i class="fas fa-bolt me-2"></i>Creación Rápida
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para cambiar categoría -->
+<div class="modal fade" id="modalCambiarCategoria" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-tags me-2"></i>Cambiar Categoría
+                </h5>
+                <button class="btn-close" data-bs-dismiss="modal" type="button"></button>
+            </div>
+            <div class="modal-body">
+                <p>Cliente: <strong id="nombreClienteCategoria"></strong></p>
+                <div class="mb-3">
+                    <label class="form-label" for="nuevaCategoria">Nueva Categoría:</label>
+                    <select class="form-select" id="nuevaCategoria">
+                        <option value="">Sin categoría</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Premium">Premium</option>
+                        <option value="VIP">VIP</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Cancelar</button>
+                <button class="btn btn-warning" id="btnConfirmarCategoria" type="button">
+                    <i class="fas fa-save me-1"></i>Cambiar Categoría
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para confirmar eliminación -->
+<div class="modal fade" id="confirmarEliminacionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle text-danger me-2"></i>
+                    Confirmar Eliminación
+                </h5>
+                <button class="btn-close" data-bs-dismiss="modal" type="button"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger">
+                    <i class="fas fa-warning me-2"></i>
+                    <strong>¡Atención!</strong> Esta acción no se puede deshacer.
+                </div>
+                <p>¿Está seguro que desea eliminar al cliente <strong id="nombreClienteEliminar"></strong>?</p>
+                <small class="text-muted">Si el cliente tiene ventas asociadas, no podrá ser eliminado.</small>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Cancelar</button>
+                <a class="btn btn-danger" href="#" id="btnConfirmarEliminacion">
+                    <i class="fas fa-trash me-1"></i>Eliminar Cliente
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.2.2/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/select/1.3.4/js/dataTables.select.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Inicializar DataTable con funcionalidades avanzadas
+        const table = $('#clientesAdminTable').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json'
+            },
+            pageLength: 10,
+            order: [[1, 'desc']], // Ordenar por ID descendente
+            columnDefs: [
+                {orderable: false, targets: [0, 8]}, // Desactivar ordenamiento en checkbox y acciones
+                {className: 'select-checkbox', targets: 0}
+            ],
+            dom: 'Bfrtip',
+            buttons: []
+        });
+
+        // Manejar selección de filas
+        let clientesSeleccionados = [];
+
+        $('#selectAll').on('change', function () {
+            const checkboxes = $('.cliente-checkbox');
+            checkboxes.prop('checked', this.checked);
+            actualizarSeleccionados();
+        });
+
+        $(document).on('change', '.cliente-checkbox', function () {
+            actualizarSeleccionados();
+
+            const totalCheckboxes = $('.cliente-checkbox').length;
+            const checkedCheckboxes = $('.cliente-checkbox:checked').length;
+
+            $('#selectAll').prop('indeterminate', checkedCheckboxes > 0 && checkedCheckboxes < totalCheckboxes);
+            $('#selectAll').prop('checked', checkedCheckboxes === totalCheckboxes);
+        });
+
+        function actualizarSeleccionados() {
+            const seleccionados = $('.cliente-checkbox:checked');
+            clientesSeleccionados = [];
+
+            seleccionados.each(function () {
+                clientesSeleccionados.push($(this).val());
+            });
+
+            $('#contadorSeleccionados').text(clientesSeleccionados.length);
+            $('#btnExportarSeleccionados').prop('disabled', clientesSeleccionados.length === 0);
+        }
+
+        // Filtros
+        $('#busquedaGeneral').on('keyup', function () {
+            table.search(this.value).draw();
+        });
+
+        $('#filtroCategoria').on('change', function () {
+            table.column(5).search(this.value).draw();
+        });
+
+        $('#filtroEstado').on('change', function () {
+            table.column(6).search(this.value).draw();
+        });
+
+        $('#filtroRegistros').on('change', function () {
+            table.page.len(this.value).draw();
+        });
+
+        $('#btnLimpiarFiltros').on('click', function () {
+            $('#busquedaGeneral').val('');
+            $('#filtroCategoria').val('');
+            $('#filtroEstado').val('');
+            table.search('').columns().search('').draw();
+        });
+    });
+
+    function cambiarCategoria(clienteId, nombreCliente) {
+        document.getElementById('nombreClienteCategoria').textContent = nombreCliente;
+
+        document.getElementById('btnConfirmarCategoria').onclick = function () {
+            const nuevaCategoria = document.getElementById('nuevaCategoria').value;
+            // Aquí puedes implementar la llamada AJAX para cambiar la categoría
+            console.log('Cambiar categoría del cliente', clienteId, 'a', nuevaCategoria);
+            bootstrap.Modal.getInstance(document.getElementById('modalCambiarCategoria')).hide();
+        };
+
+        const modal = new bootstrap.Modal(document.getElementById('modalCambiarCategoria'));
+        modal.show();
+    }
+
+    function confirmarEliminacion(clienteId, nombreCliente) {
+        document.getElementById('nombreClienteEliminar').textContent = nombreCliente;
+        document.getElementById('btnConfirmarEliminacion').href = '/admin/clientes/eliminar/' + clienteId;
+
+        const modal = new bootstrap.Modal(document.getElementById('confirmarEliminacionModal'));
+        modal.show();
+    }
+
+    function crearClienteRapido() {
+        // Implementar formulario rápido de creación
+        console.log('Crear cliente rápido');
+    }
+</script>
+</body>
+</html>

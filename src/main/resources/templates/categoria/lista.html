@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Categorías - InformViva</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+<!-- Incluir fragmento de navegación si existe -->
+<!-- <div th:replace="fragments/navbar :: navbar"></div> -->
+
+<div class="container-fluid mt-4">
+    <div class="row">
+        <!-- Sidebar si existe -->
+        <!-- <div th:replace="fragments/sidebar :: sidebar"></div> -->
+
+        <!-- Contenido principal -->
+        <main class="col-md-12 ms-sm-auto col-lg-12 px-md-4">
+
+            <!-- Header de la página -->
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">
+                    <i class="fas fa-tags me-2"></i>
+                    Gestión de Categorías
+                </h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <button type="button" class="btn btn-outline-secondary" onclick="window.location.reload()">
+                            <i class="fas fa-sync-alt"></i> Actualizar
+                        </button>
+                    </div>
+                    <div sec:authorize="hasAnyRole('ADMIN', 'PRODUCTOS', 'GERENTE')">
+                        <a th:href="@{/categorias/nueva}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Nueva Categoría
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alertas -->
+            <div th:if="${mensajeExito}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                <span th:text="${mensajeExito}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <div th:if="${mensajeError}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <span th:text="${mensajeError}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!-- Estadísticas rápidas -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card text-white bg-primary">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="card-title">Total Categorías</h6>
+                                    <h3 th:text="${totalCategorias ?: 0}">0</h3>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-tags fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-white bg-success">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="card-title">Activas</h6>
+                                    <h3 th:text="${categoriasActivas ?: 0}">0</h3>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-check-circle fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-white bg-warning">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="card-title">Inactivas</h6>
+                                    <h3 th:text="${categoriasInactivas ?: 0}">0</h3>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-times-circle fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-white bg-info">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="card-title">Más Utilizadas</h6>
+                                    <h3>Top 5</h3>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-star fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filtros y búsqueda -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-filter me-2"></i>
+                        Filtros y Búsqueda
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="get" th:action="@{/categorias}">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="search" class="form-label">Buscar</label>
+                                <input type="text" class="form-control" id="search" name="search"
+                                       th:value="${search}" placeholder="Nombre o descripción...">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="soloActivas" class="form-label">Estado</label>
+                                <select class="form-select" id="soloActivas" name="soloActivas">
+                                    <option value="">Todas</option>
+                                    <option value="true" th:selected="${soloActivas}">Solo Activas</option>
+                                    <option value="false">Solo Inactivas</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="size" class="form-label">Por página</label>
+                                <select class="form-select" id="size" name="size">
+                                    <option value="10" th:selected="${categoriasPage.size == 10}">10</option>
+                                    <option value="25" th:selected="${categoriasPage.size == 25}">25</option>
+                                    <option value="50" th:selected="${categoriasPage.size == 50}">50</option>
+                                    <option value="100" th:selected="${categoriasPage.size == 100}">100</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 d-flex align-items-end">
+                                <button type="submit" class="btn btn-primary me-2">
+                                    <i class="fas fa-search"></i> Buscar
+                                </button>
+                                <a th:href="@{/categorias}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times"></i> Limpiar
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Tabla de categorías -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>
+                        Lista de Categorías
+                    </h5>
+                    <span class="badge bg-secondary" th:text="'Total: ' + ${categoriasPage.totalElements}">Total: 0</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Descripción</th>
+                                <th>Estado</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:if="${categoriasPage.empty}">
+                                <td colspan="5" class="text-center py-4">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    No se encontraron categorías con los filtros aplicados.
+                                </td>
+                            </tr>
+                            <tr th:each="categoria : ${categoriasPage.content}" th:object="${categoria}">
+                                <td th:text="*{id}" class="align-middle"></td>
+                                <td class="align-middle">
+                                    <strong th:text="*{nombre}"></strong>
+                                </td>
+                                <td th:text="*{descripcion ?: 'Sin descripción'}" class="align-middle text-muted"></td>
+                                <td class="align-middle">
+                                            <span th:if="*{activa}" class="badge bg-success">
+                                                <i class="fas fa-check me-1"></i>Activa
+                                            </span>
+                                    <span th:unless="*{activa}" class="badge bg-danger">
+                                                <i class="fas fa-times me-1"></i>Inactiva
+                                            </span>
+                                </td>
+                                <td class="text-center align-middle">
+                                    <div class="btn-group" role="group">
+                                        <!-- Ver detalle -->
+                                        <a th:href="@{'/categorias/detalle/' + *{id}}"
+                                           class="btn btn-outline-info btn-sm"
+                                           title="Ver detalle">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+
+                                        <!-- Editar -->
+                                        <div sec:authorize="hasAnyRole('ADMIN', 'PRODUCTOS', 'GERENTE')">
+                                            <a th:href="@{'/categorias/editar/' + *{id}}"
+                                               class="btn btn-outline-warning btn-sm"
+                                               title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        </div>
+
+                                        <!-- Cambiar estado -->
+                                        <div sec:authorize="hasAnyRole('ADMIN', 'PRODUCTOS')">
+                                            <form th:action="@{'/categorias/cambiar-estado/' + *{id}}" method="post" style="display: inline;">
+                                                <button type="submit"
+                                                        th:class="*{activa} ? 'btn btn-outline-warning btn-sm' : 'btn btn-outline-success btn-sm'"
+                                                        th:title="*{activa} ? 'Desactivar' : 'Activar'"
+                                                        onclick="return confirm('¿Está seguro de cambiar el estado de esta categoría?')">
+                                                    <i th:class="*{activa} ? 'fas fa-toggle-off' : 'fas fa-toggle-on'"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+
+                                        <!-- Eliminar -->
+                                        <div sec:authorize="hasRole('ADMIN')">
+                                            <form th:action="@{'/categorias/eliminar/' + *{id}}" method="post" style="display: inline;">
+                                                <button type="submit"
+                                                        class="btn btn-outline-danger btn-sm"
+                                                        title="Eliminar"
+                                                        onclick="return confirm('¿Está seguro de eliminar esta categoría? Esta acción no se puede deshacer.')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Paginación -->
+            <nav th:if="${categoriasPage.totalPages > 1}" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    <!-- Botón anterior -->
+                    <li class="page-item" th:classappend="${categoriasPage.first} ? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/categorias(page=${categoriasPage.number - 1}, size=${categoriasPage.size}, search=${search}, soloActivas=${soloActivas})}">
+                            <i class="fas fa-chevron-left"></i> Anterior
+                        </a>
+                    </li>
+
+                    <!-- Números de página -->
+                    <li class="page-item"
+                        th:each="pageNum : ${#numbers.sequence(0, categoriasPage.totalPages - 1)}"
+                        th:if="${pageNum >= categoriasPage.number - 2 and pageNum <= categoriasPage.number + 2}"
+                        th:classappend="${pageNum == categoriasPage.number} ? 'active'">
+                        <a class="page-link"
+                           th:href="@{/categorias(page=${pageNum}, size=${categoriasPage.size}, search=${search}, soloActivas=${soloActivas})}"
+                           th:text="${pageNum + 1}">1</a>
+                    </li>
+
+                    <!-- Botón siguiente -->
+                    <li class="page-item" th:classappend="${categoriasPage.last} ? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/categorias(page=${categoriasPage.number + 1}, size=${categoriasPage.size}, search=${search}, soloActivas=${soloActivas})}">
+                            Siguiente <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+
+                <!-- Información de paginación -->
+                <div class="text-center mt-2">
+                    <small class="text-muted">
+                        Mostrando
+                        <span th:text="${categoriasPage.numberOfElements}">0</span> de
+                        <span th:text="${categoriasPage.totalElements}">0</span> categorías
+                        (Página <span th:text="${categoriasPage.number + 1}">1</span> de
+                        <span th:text="${categoriasPage.totalPages}">1</span>)
+                    </small>
+                </div>
+            </nav>
+
+        </main>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Auto-submit form en cambio de tamaño de página
+    document.getElementById('size').addEventListener('change', function() {
+        this.form.submit();
+    });
+
+    // Confirmar acciones destructivas
+    function confirmarEliminacion(nombre) {
+        return confirm(`¿Está seguro de eliminar la categoría "${nombre}"? Esta acción no se puede deshacer.`);
+    }
+
+    // Auto-ocultar alertas después de 5 segundos
+    setTimeout(function() {
+        var alerts = document.querySelectorAll('.alert');
+        alerts.forEach(function(alert) {
+            var bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        });
+    }, 5000);
+</script>
+</body>
+</html>

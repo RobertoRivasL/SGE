@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Importación de Datos - Sistema de Gestión</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .import-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        .import-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .import-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        .feature-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem 0;
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+<body>
+<!-- Navegación -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+        <a class="navbar-brand" href="/inicio">
+            <i class="fas fa-chart-line"></i> Sistema de Gestión
+        </a>
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link" href="/inicio">
+                <i class="fas fa-home"></i> Inicio
+            </a>
+            <a class="nav-link" href="/importacion/ayuda">
+                <i class="fas fa-question-circle"></i> Ayuda
+            </a>
+        </div>
+    </div>
+</nav>
+
+<!-- Sección Hero -->
+<div class="hero-section">
+    <div class="container text-center">
+        <h1 class="display-4 mb-3">
+            <i class="fas fa-upload me-3"></i>Importación de Datos
+        </h1>
+        <p class="lead">Importe clientes, productos y usuarios de forma rápida y segura</p>
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <i class="fas fa-file-excel text-white mb-2" style="font-size: 2rem;"></i>
+                <p>Soporte para Excel y CSV</p>
+            </div>
+            <div class="col-md-4">
+                <i class="fas fa-shield-alt text-white mb-2" style="font-size: 2rem;"></i>
+                <p>Validación automática</p>
+            </div>
+            <div class="col-md-4">
+                <i class="fas fa-chart-bar text-white mb-2" style="font-size: 2rem;"></i>
+                <p>Reportes detallados</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Alertas -->
+    <div th:if="${param.error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <span th:switch="${param.error[0]}">
+                <span th:case="'tipo-invalido'">Tipo de entidad no válido.</span>
+                <span th:case="*">Ha ocurrido un error.</span>
+            </span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Tarjetas de Importación -->
+    <div class="row g-4">
+        <!-- Importar Clientes -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card import-card h-100 border-primary">
+                <div class="card-body text-center">
+                    <div class="import-icon text-primary">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h4 class="card-title text-primary">Importar Clientes</h4>
+                    <p class="card-text text-muted">
+                        Importe información de clientes desde archivos Excel o CSV.
+                    </p>
+
+                    <ul class="feature-list text-start">
+                        <li><i class="fas fa-check text-success me-2"></i>Datos personales</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Información de contacto</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Validación de RUT</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Categorización automática</li>
+                    </ul>
+                </div>
+                <div class="card-footer bg-primary">
+                    <div class="d-grid gap-2">
+                        <a href="/importacion/cliente" class="btn btn-light">
+                            <i class="fas fa-upload me-2"></i>Importar Clientes
+                        </a>
+                        <a href="/importacion/cliente/plantilla?formato=excel" class="btn btn-outline-light btn-sm">
+                            <i class="fas fa-download me-2"></i>Descargar Plantilla
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Importar Productos -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card import-card h-100 border-success">
+                <div class="card-body text-center">
+                    <div class="import-icon text-success">
+                        <i class="fas fa-box"></i>
+                    </div>
+                    <h4 class="card-title text-success">Importar Productos</h4>
+                    <p class="card-text text-muted">
+                        Cargue su catálogo de productos con precios y stock.
+                    </p>
+
+                    <ul class="feature-list text-start">
+                        <li><i class="fas fa-check text-success me-2"></i>Códigos únicos</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Precios y stock</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Categorización</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Información técnica</li>
+                    </ul>
+                </div>
+                <div class="card-footer bg-success">
+                    <div class="d-grid gap-2">
+                        <a href="/importacion/producto" class="btn btn-light">
+                            <i class="fas fa-upload me-2"></i>Importar Productos
+                        </a>
+                        <a href="/importacion/producto/plantilla?formato=excel" class="btn btn-outline-light btn-sm">
+                            <i class="fas fa-download me-2"></i>Descargar Plantilla
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Importar Usuarios -->
+        <div class="col-lg-4 col-md-6" sec:authorize="hasRole('ADMIN')">
+            <div class="card import-card h-100 border-warning">
+                <div class="card-body text-center">
+                    <div class="import-icon text-warning">
+                        <i class="fas fa-user-cog"></i>
+                    </div>
+                    <h4 class="card-title text-warning">Importar Usuarios</h4>
+                    <p class="card-text text-muted">
+                        Gestione usuarios del sistema con roles y permisos.
+                    </p>
+
+                    <ul class="feature-list text-start">
+                        <li><i class="fas fa-check text-success me-2"></i>Cuentas de usuario</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Asignación de roles</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Estados de activación</li>
+                        <li><i class="fas fa-shield-alt text-warning me-2"></i>Solo para administradores</li>
+                    </ul>
+                </div>
+                <div class="card-footer bg-warning">
+                    <div class="d-grid gap-2">
+                        <a href="/importacion/usuario" class="btn btn-dark">
+                            <i class="fas fa-upload me-2"></i>Importar Usuarios
+                        </a>
+                        <a href="/importacion/usuario/plantilla?formato=excel" class="btn btn-outline-dark btn-sm">
+                            <i class="fas fa-download me-2"></i>Descargar Plantilla
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Información Adicional -->
+    <div class="row mt-5">
+        <div class="col-md-6">
+            <div class="card border-info">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Formatos Soportados
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6" th:each="formato : ${formatosSoportados}">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-file-alt text-info me-2"></i>
+                                <span th:text="${formato.toUpperCase()}">CSV</span>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <small class="text-muted">
+                        <i class="fas fa-exclamation-triangle me-1"></i>
+                        Tamaño máximo: 10MB por archivo
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card border-secondary">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-line me-2"></i>Estadísticas de Importación
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <div class="border-end">
+                                <div class="fs-4 text-primary fw-bold">CSV</div>
+                                <small class="text-muted">Más rápido</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="border-end">
+                                <div class="fs-4 text-success fw-bold">Excel</div>
+                                <small class="text-muted">Más cómodo</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="fs-4 text-info fw-bold">99%</div>
+                            <small class="text-muted">Precisión</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enlaces de Ayuda -->
+    <div class="text-center mt-5 mb-4">
+        <a href="/importacion/ayuda" class="btn btn-outline-primary btn-lg me-3">
+            <i class="fas fa-question-circle me-2"></i>Centro de Ayuda
+        </a>
+        <a href="/importacion/historial" class="btn btn-outline-secondary btn-lg">
+            <i class="fas fa-history me-2"></i>Historial de Importaciones
+        </a>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Precargar información al cargar la página
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animación de entrada para las tarjetas
+        const cards = document.querySelectorAll('.import-card');
+        cards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                card.style.transition = 'opacity 0.5s, transform 0.5s';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, index * 200);
+        });
+    });
+</script>
+</body>
+</html>

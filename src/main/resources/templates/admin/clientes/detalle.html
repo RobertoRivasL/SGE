@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Detalle del Cliente</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <!-- DataTables CSS para historial de compras -->
+    <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+</head>
+<body>
+<!-- Navegación -->
+<div th:replace="~{fragments/navegacion-unificada :: nav}"></div>
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1>
+                        <i class="fas fa-user me-2"></i>
+                        <span th:text="${cliente.nombreCompleto}">Nombre del Cliente</span>
+                        <!-- Badge de categoría -->
+                        <span class="badge bg-warning text-dark ms-2" th:if="${cliente.categoria == 'VIP'}">
+                            <i class="fas fa-crown me-1"></i>VIP
+                        </span>
+                        <span class="badge bg-success ms-2" th:if="${cliente.categoria == 'Premium'}">
+                            <i class="fas fa-gem me-1"></i>Premium
+                        </span>
+                        <span class="badge bg-info ms-2" th:if="${cliente.categoria == 'Regular'}">
+                            <i class="fas fa-user me-1"></i>Regular
+                        </span>
+                    </h1>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a th:href="@{/}">Inicio</a></li>
+                            <li class="breadcrumb-item"><a th:href="@{/clientes}">Clientes</a></li>
+                            <li class="breadcrumb-item active" th:text="${cliente.nombreCompleto}">Cliente Actual</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="btn-group">
+                    <a class="btn btn-primary" sec:authorize="hasAnyRole('ADMIN', 'VENTAS')"
+                       th:href="@{/clientes/editar/{id}(id=${cliente.id})}">
+                        <i class="fas fa-edit me-1"></i> Editar
+                    </a>
+                    <a class="btn btn-success" sec:authorize="hasAnyRole('ADMIN', 'VENTAS')"
+                       th:href="@{/ventas/nueva(clienteId=${cliente.id})}">
+                        <i class="fas fa-shopping-cart me-1"></i> Nueva Venta
+                    </a>
+                    <div class="btn-group">
+                        <button class="btn btn-info dropdown-toggle" data-bs-toggle="dropdown" type="button">
+                            <i class="fas fa-download me-1"></i> Exportar
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" th:href="@{/clientes/{id}/exportar/pdf(id=${cliente.id})}">
+                                <i class="fas fa-file-pdf me-1"></i> Perfil en PDF
+                            </a></li>
+                            <li><a class="dropdown-item"
+                                   th:href="@{/clientes/{id}/exportar/historial(id=${cliente.id})}">
+                                <i class="fas fa-file-excel me-1"></i> Historial Excel
+                            </a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Información principal del cliente -->
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-user-circle me-2"></i>Información Personal</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Avatar del cliente -->
+                    <div class="text-center mb-3">
+                        <div class="avatar-lg mx-auto mb-2"
+                             th:style="'background: linear-gradient(45deg, ' + (${cliente.categoria == 'VIP'} ? '#ffc107, #ff8c00' : (${cliente.categoria == 'Premium'} ? '#20c997, #17a2b8' : '#0d6efd, #6f42c1')) + '); width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; font-weight: bold; margin: 0 auto;'">
+                            <span th:text="${#strings.substring(cliente.nombre, 0, 1) + #strings.substring(cliente.apellido, 0, 1)}">AB</span>
+                        </div>
+                        <h4 th:text="${cliente.nombreCompleto}">Nombre Completo</h4>
+                        <p class="text-muted"
+                           th:text="'Cliente desde ' + ${#temporals.format(cliente.fechaRegistro, 'MMMM yyyy')}">Cliente
+                            desde enero 2024</p>
+                    </div>
+
+                    <dl class="row">
+                        <dt class="col-sm-4">RUT:</dt>
+                        <dd class="col-sm-8">
+                            <code th:text="${cliente.rut}">12.345.678-9</code>
+                        </dd>
+
+                        <dt class="col-sm-4">Email:</dt>
+                        <dd class="col-sm-8">
+                            <a class="text-decoration-none" th:href="'mailto:' + ${cliente.email}"
+                               th:if="${cliente.email != null}" th:text="${cliente.email}">
+                                <i class="fas fa-envelope me-1"></i>email@ejemplo.com
+                            </a>
+                            <span class="text-muted" th:if="${cliente.email == null}">
+                                <i class="fas fa-exclamation-triangle me-1"></i>Sin email registrado
+                            </span>
+                        </dd>
+
+                        <dt class="col-sm-4">Teléfono:</dt>
+                        <dd class="col-sm-8">
+                            <a class="text-decoration-none" th:href="'tel:' + ${cliente.telefono}"
+                               th:if="${cliente.telefono != null}" th:text="${cliente.telefono}">
+                                <i class="fas fa-phone me-1"></i>+56 9 1234 5678
+                            </a>
+                            <span class="text-muted" th:if="${cliente.telefono == null}">
+                                <i class="fas fa-exclamation-triangle me-1"></i>Sin teléfono registrado
+                            </span>
+                        </dd>
+
+                        <dt class="col-sm-4">Dirección:</dt>
+                        <dd class="col-sm-8">
+                            <span th:if="${cliente.direccion != null}" th:text="${cliente.direccion}">
+                                <i class="fas fa-map-marker-alt me-1"></i>Dirección completa
+                            </span>
+                            <span class="text-muted" th:if="${cliente.direccion == null}">
+                                <i class="fas fa-exclamation-triangle me-1"></i>Sin dirección registrada
+                            </span>
+                        </dd>
+
+                        <dt class="col-sm-4">Registro:</dt>
+                        <dd class="col-sm-8">
+                            <span th:text="${#temporals.format(cliente.fechaRegistro, 'dd/MM/yyyy')}">01/01/2024</span>
+                            <br>
+                            <small class="text-muted"
+                                   th:text="'(' + ${T(java.time.temporal.ChronoUnit).DAYS.between(cliente.fechaRegistro, T(java.time.LocalDate).now())} + ' días)'">
+                                (0 días)
+                            </small>
+                        </dd>
+
+                        <dt class="col-sm-4">Estado:</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge bg-success"
+                                  th:if="${cliente.email != null && cliente.telefono != null && cliente.direccion != null}">
+                                <i class="fas fa-check-circle me-1"></i>Perfil Completo
+                            </span>
+                            <span class="badge bg-warning text-dark"
+                                  th:if="${cliente.email == null || cliente.telefono == null || cliente.direccion == null}">
+                                <i class="fas fa-exclamation-triangle me-1"></i>Perfil Incompleto
+                            </span>
+                        </dd>
+                    </dl>
+
+                    <!-- Acciones rápidas -->
+                    <div class="d-grid gap-2 mt-3">
+                        <a class="btn btn-outline-primary btn-sm" th:href="'mailto:' + ${cliente.email}"
+                           th:if="${cliente.email != null}">
+                            <i class="fas fa-envelope me-1"></i> Enviar Email
+                        </a>
+                        <a class="btn btn-outline-success btn-sm" th:href="'tel:' + ${cliente.telefono}"
+                           th:if="${cliente.telefono != null}">
+                            <i class="fas fa-phone me-1"></i> Llamar
+                        </a>
+                        <a class="btn btn-outline-info btn-sm"
+                           target="_blank" th:href="'https://maps.google.com/?q=' + ${cliente.direccion}"
+                           th:if="${cliente.direccion != null}">
+                            <i class="fas fa-map-marker-alt me-1"></i> Ver en Mapa
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estadísticas del cliente -->
+        <div class="col-md-8 mb-4">
+            <div class="row mb-4">
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-primary text-white h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-shopping-cart fa-2x mb-2"></i>
+                            <h4 th:text="${estadisticas != null ? estadisticas.totalCompras : 0}">0</h4>
+                            <small>Total Compras</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-success text-white h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-dollar-sign fa-2x mb-2"></i>
+                            <h4 th:text="${estadisticas != null ? #numbers.formatCurrency(estadisticas.montoTotal) : '$0'}">
+                                $0</h4>
+                            <small>Monto Total</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-info text-white h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-chart-line fa-2x mb-2"></i>
+                            <h4 th:text="${estadisticas != null ? #numbers.formatCurrency(estadisticas.ticketPromedio) : '$0'}">
+                                $0</h4>
+                            <small>Ticket Promedio</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-warning text-white h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-calendar fa-2x mb-2"></i>
+                            <h4 th:text="${estadisticas != null ? (estadisticas.ultimaCompra != null ? #temporals.format(estadisticas.ultimaCompra, 'dd/MM') : 'N/A') : 'N/A'}">
+                                N/A</h4>
+                            <small>Última Compra</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gráfico de compras por mes -->
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-chart-area me-2"></i>Evolución de Compras</h5>
+                </div>
+                <div class="card-body">
+                    <canvas height="200" id="comprasPorMesChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Historial de compras -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <h5 class="mb-0"><i class="fas fa-history me-2"></i>Historial de Compras</h5>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary" id="btnFiltrarUltimos30" type="button">
+                                    Últimos 30 días
+                                </button>
+                                <button class="btn btn-outline-primary" id="btnFiltrarUltimos90" type="button">
+                                    Últimos 90 días
+                                </button>
+                                <button class="btn btn-outline-primary" id="btnFiltrarTodos" type="button">
+                                    Todas
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="historialComprasTable">
+                            <thead class="table-light">
+                            <tr>
+                                <th>Fecha</th>
+                                <th>N° Venta</th>
+                                <th>Productos</th>
+                                <th>Cantidad</th>
+                                <th>Total</th>
+                                <th>Estado</th>
+                                <th>Vendedor</th>
+                                <th>Acciones</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="venta : ${historialCompras}" th:if="${historialCompras != null}">
+                                <td th:text="${#temporals.format(venta.fecha, 'dd/MM/yyyy')}">01/01/2024</td>
+                                <td>
+                                    <strong th:text="'#' + ${venta.id}">Nº Venta</strong>
+                                </td>
+                                <td>
+                                    <div th:if="${venta.detalles != null && !#lists.isEmpty(venta.detalles)}">
+                                        <div th:each="detalle, iterStat : ${venta.detalles}"
+                                             th:if="${iterStat.index < 2}">
+                                            <small th:text="${detalle.producto.nombre}">Producto</small>
+                                        </div>
+                                        <small class="text-muted" th:if="${#lists.size(venta.detalles) > 2}">
+                                            y <span th:text="${#lists.size(venta.detalles) - 2}">0</span> más...
+                                        </small>
+                                    </div>
+                                    <span class="text-muted"
+                                          th:if="${venta.detalles == null || #lists.isEmpty(venta.detalles)}">
+                                            Sin detalles
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary" th:text="${venta.cantidad}">0</span>
+                                </td>
+                                <td>
+                                    <strong th:text="${#numbers.formatCurrency(venta.total)}">$0</strong>
+                                </td>
+                                <td>
+                                    <span class="badge bg-success" th:if="${venta.estado == 'COMPLETADA'}">
+                                        <i class="fas fa-check me-1"></i>Completada
+                                    </span>
+                                    <span class="badge bg-warning text-dark" th:if="${venta.estado == 'PENDIENTE'}">
+                                        <i class="fas fa-clock me-1"></i>Pendiente
+                                    </span>
+                                    <span class="badge bg-danger" th:if="${venta.estado == 'ANULADA'}">
+                                        <i class="fas fa-times me-1"></i>Anulada
+                                    </span>
+                                </td>
+                                <td>
+                                    <small th:text="${venta.vendedor != null ? venta.vendedor.nombreCompleto : 'No disponible'}">
+                                        Vendedor
+                                    </small>
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a class="btn btn-outline-info"
+                                           th:href="@{/ventas/detalle/{id}(id=${venta.id})}" title="Ver detalle">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a class="btn btn-outline-primary"
+                                           th:href="@{/ventas/{id}/factura(id=${venta.id})}" title="Descargar factura">
+                                            <i class="fas fa-file-pdf"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:if="${historialCompras == null || historialComprasempty}">
+                                <td class="text-center py-4" colspan="8">
+                                    <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                                    <h5 class="text-muted">Sin historial de compras</h5>
+                                    <p class="text-muted">Este cliente aún no ha realizado ninguna compra.</p>
+                                    <a class="btn btn-primary" sec:authorize="hasAnyRole('ADMIN', 'VENTAS')"
+                                       th:href="@{/ventas/nueva(clienteId=${cliente.id})}">
+                                        <i class="fas fa-plus me-1"></i> Crear Primera Venta
+                                    </a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function () {
+        // Inicializar DataTable para historial de compras
+        const table = $('#historialComprasTable').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json'
+            },
+            pageLength: 10,
+            order: [[0, 'desc']], // Ordenar por fecha descendente
+            columnDefs: [
+                {orderable: false, targets: [7]} // Desactivar ordenamiento en columna de acciones
+            ]
+        });
+
+        // Filtros rápidos
+        $('#btnFiltrarUltimos30').on('click', function () {
+            const fecha30DiasAtras = new Date();
+            fecha30DiasAtras.setDate(fecha30DiasAtras.getDate() - 30);
+            // Implementar filtro por fecha
+            $('.btn-outline-primary').removeClass('active');
+            $(this).addClass('active');
+        });
+
+        $('#btnFiltrarUltimos90').on('click', function () {
+            const fecha90DiasAtras = new Date();
+            fecha90DiasAtras.setDate(fecha90DiasAtras.getDate() - 90);
+            // Implementar filtro por fecha
+            $('.btn-outline-primary').removeClass('active');
+            $(this).addClass('active');
+        });
+
+        $('#btnFiltrarTodos').on('click', function () {
+            table.search('').draw();
+            $('.btn-outline-primary').removeClass('active');
+            $(this).addClass('active');
+        });
+
+        // Datos para el gráfico (estos deberían venir del controlador)
+        const comprasPorMesData = /*[[${comprasPorMes}]]*/ [];
+
+        // Crear gráfico de evolución de compras
+        const ctx = document.getElementById('comprasPorMesChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: comprasPorMesData.map ? comprasPorMesData.map(item => item.mes) : [],
+                datasets: [{
+                    label: 'Compras ($)',
+                    data: comprasPorMesData.map ? comprasPorMesData.map(item => item.total) : [],
+                    backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                    borderColor: 'rgba(13, 110, 253, 1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function (value) {
+                                return '$' + value.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+</body>
+</html>

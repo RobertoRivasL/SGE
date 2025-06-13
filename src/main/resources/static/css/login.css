@@ -1,0 +1,77 @@
+/* src/main/resources/static/css/login.css */
+
+/* Estilos básicos para el cuerpo y el fondo */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f4; /* Fondo suave */
+    display: flex; /* Usa flexbox para centrar */
+    justify-content: center; /* Centra horizontalmente */
+    align-items: center; /* Centra verticalmente */
+    min-height: 100vh; /* Altura mínima del 100% del viewport */
+    margin: 0;
+}
+
+/* Contenedor principal del formulario de login */
+.login-container {
+    background-color: #fff; /* Fondo blanco */
+    padding: 30px;
+    border-radius: 8px; /* Bordes redondeados */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Sombra */
+    width: 100%;
+    max-width: 400px; /* Ancho máximo */
+    text-align: center; /* Centra el texto dentro del contenedor */
+}
+
+/* Título del formulario */
+.login-container h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+/* Grupo de formulario (label e input) */
+.form-group {
+    margin-bottom: 20px;
+    text-align: left; /* Alinea las etiquetas e inputs a la izquierda */
+}
+
+.form-group label {
+    display: block; /* Hace que la etiqueta ocupe su propia línea */
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+}
+
+.form-group input[type="text"],
+.form-group input[type="password"] {
+    width: 100%; /* El input ocupa todo el ancho del contenedor padre */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+/* Botón de envío */
+button[type="submit"] {
+    background-color: #50b3a2; /* Color de fondo */
+    color: white; /* Color de texto */
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    font-size: 1.1rem;
+    cursor: pointer; /* Indicador de que es clickeable */
+    transition: background-color 0.3s ease; /* Transición suave */
+    width: 100%; /* Ocupa todo el ancho */
+}
+
+button[type="submit"]:hover {
+    background-color: #3a8d81; /* Color más oscuro al pasar el ratón */
+}
+
+/* Mensaje de error */
+.error-message {
+    color: #d9534f; /* Color rojo para errores */
+    margin-top: 15px;
+    font-weight: bold;
+    min-height: 1.2em; /* Reserva espacio para el mensaje incluso si está vacío */
+}

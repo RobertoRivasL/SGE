@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Centro de Exportación - InformViva</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --secondary-color: #6c757d;
+            --success-color: #198754;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --dark-color: #212529;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .export-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #0056b3 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .export-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            border: none;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .export-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .export-type-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 2rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .export-type-icon::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.3));
+            border-radius: 50%;
+        }
+
+        .users-icon { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .clients-icon { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .products-icon { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .sales-icon { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        .reports-icon { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+
+        .format-selector {
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+
+        .format-selector.show {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .format-option {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1rem;
+        }
+
+        .format-option:hover {
+            border-color: var(--primary-color);
+            background-color: rgba(13, 110, 253, 0.05);
+        }
+
+        .format-option.selected {
+            border-color: var(--primary-color);
+            background-color: rgba(13, 110, 253, 0.1);
+        }
+
+        .date-filter {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .progress-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .progress-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .spinner {
+            width: 3rem;
+            height: 3rem;
+            border: 0.4em solid #f3f3f3;
+            border-top: 0.4em solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .export-history {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid #e9ecef;
+            transition: background-color 0.3s ease;
+        }
+
+        .history-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .status-completed { background-color: #d1edff; color: #0969da; }
+        .status-processing { background-color: #fff3cd; color: #856404; }
+        .status-error { background-color: #f8d7da; color: #721c24; }
+
+        .btn-export {
+            background: linear-gradient(135deg, var(--success-color) 0%, #157347 100%);
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 50px;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-export:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(25, 135, 84, 0.3);
+            color: white;
+        }
+
+        .btn-export:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .filter-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .notification-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 10px;
+            padding: 1rem 1.5rem;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            z-index: 10000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+
+        .notification-toast.show {
+            transform: translateX(0);
+        }
+
+        .alert-success { border-left: 4px solid var(--success-color); }
+        .alert-error { border-left: 4px solid var(--danger-color); }
+        .alert-warning { border-left: 4px solid var(--warning-color); }
+    </style>
+</head>
+<body>
+<!-- Header -->
+<div class="export-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="mb-0">
+                    <i class="fas fa-download me-3"></i>
+                    Centro de Exportación
+                </h1>
+                <p class="mb-0 mt-2 opacity-75">Exporta y descarga tus datos en múltiples formatos</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="d-flex align-items-center justify-content-end">
+                    <div class="me-3">
+                        <small class="opacity-75">Última exportación:</small><br>
+                        <span id="lastExportTime">Hace 2 horas</span>
+                    </div>
+                    <i class="fas fa-clock fa-2x opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <!-- Tipos de Exportación -->
+        <div class="col-lg-8">
+            <div class="row">
+                <!-- Usuarios -->
+                <div class="col-md-6 mb-4">
+                    <div class="export-card card h-100" data-export-type="users">
+                        <div class="card-body text-center">
+                            <div class="export-type-icon users-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <h4 class="card-title">Usuarios</h4>
+                            <p class="card-text text-muted">Exportar lista de usuarios del sistema con roles y permisos</p>
+                            <button class="btn btn-outline-primary btn-sm" onclick="selectExportType('users')">
+                                <i class="fas fa-cog me-2"></i>Configurar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Clientes -->
+                <div class="col-md-6 mb-4">
+                    <div class="export-card card h-100" data-export-type="clients">
+                        <div class="card-body text-center">
+                            <div class="export-type-icon clients-icon">
+                                <i class="fas fa-user-friends"></i>
+                            </div>
+                            <h4 class="card-title">Clientes</h4>
+                            <p class="card-text text-muted">Exportar base de datos de clientes con información de contacto</p>
+                            <button class="btn btn-outline-primary btn-sm" onclick="selectExportType('clients')">
+                                <i class="fas fa-cog me-2"></i>Configurar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Productos -->
+                <div class="col-md-6 mb-4">
+                    <div class="export-card card h-100" data-export-type="products">
+                        <div class="card-body text-center">
+                            <div class="export-type-icon products-icon">
+                                <i class="fas fa-box"></i>
+                            </div>
+                            <h4 class="card-title">Productos</h4>
+                            <p class="card-text text-muted">Exportar inventario con precios, stock y categorías</p>
+                            <button class="btn btn-outline-primary btn-sm" onclick="selectExportType('products')">
+                                <i class="fas fa-cog me-2"></i>Configurar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ventas -->
+                <div class="col-md-6 mb-4">
+                    <div class="export-card card h-100" data-export-type="sales">
+                        <div class="card-body text-center">
+                            <div class="export-type-icon sales-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <h4 class="card-title">Ventas</h4>
+                            <p class="card-text text-muted">Exportar registros de ventas con detalles y totales</p>
+                            <button class="btn btn-outline-primary btn-sm" onclick="selectExportType('sales')">
+                                <i class="fas fa-cog me-2"></i>Configurar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reportes -->
+                <div class="col-md-12 mb-4">
+                    <div class="export-card card h-100" data-export-type="reports">
+                        <div class="card-body text-center">
+                            <div class="export-type-icon reports-icon">
+                                <i class="fas fa-chart-bar"></i>
+                            </div>
+                            <h4 class="card-title">Reportes Completos</h4>
+                            <p class="card-text text-muted">Generar reportes ejecutivos con análisis y gráficos</p>
+                            <button class="btn btn-outline-primary btn-sm" onclick="selectExportType('reports')">
+                                <i class="fas fa-cog me-2"></i>Configurar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel de Configuración -->
+        <div class="col-lg-4">
+            <div class="export-card card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-cogs me-2"></i>
+                        Configuración de Exportación
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="noSelectionMessage" class="text-center text-muted py-4">
+                        <i class="fas fa-mouse-pointer fa-3x mb-3 opacity-50"></i>
+                        <p>Selecciona un tipo de datos para configurar la exportación</p>
+                    </div>
+
+                    <div id="exportConfiguration" style="display: none;">
+                        <!-- Selector de Formato -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-file-alt me-2"></i>Formato de Exportación
+                            </label>
+                            <div id="formatOptions">
+                                <!-- Se llena dinámicamente -->
+                            </div>
+                        </div>
+
+                        <!-- Filtros de Fecha -->
+                        <div class="filter-section">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-calendar me-2"></i>Rango de Fechas
+                            </label>
+                            <div class="row">
+                                <div class="col-6">
+                                    <label class="form-label small">Desde</label>
+                                    <input type="date" class="form-control form-control-sm" id="startDate">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small">Hasta</label>
+                                    <input type="date" class="form-control form-control-sm" id="endDate">
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <button class="btn btn-outline-secondary btn-sm me-2" onclick="setDateRange('today')">Hoy</button>
+                                <button class="btn btn-outline-secondary btn-sm me-2" onclick="setDateRange('week')">Esta semana</button>
+                                <button class="btn btn-outline-secondary btn-sm me-2" onclick="setDateRange('month')">Este mes</button>
+                                <button class="btn btn-outline-secondary btn-sm" onclick="setDateRange('year')">Este año</button>
+                            </div>
+                        </div>
+
+                        <!-- Filtros Adicionales -->
+                        <div id="additionalFilters" class="filter-section">
+                            <!-- Se llena dinámicamente según el tipo -->
+                        </div>
+
+                        <!-- Botón de Exportación -->
+                        <div class="d-grid">
+                            <button class="btn btn-export" id="exportButton" onclick="startExport()">
+                                <i class="fas fa-download me-2"></i>
+                                <span id="exportButtonText">Exportar Datos</span>
+                            </button>
+                        </div>
+
+                        <!-- Información del Archivo -->
+                        <div class="mt-3 p-3 bg-light rounded">
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <strong>Tamaño estimado:</strong> <span id="estimatedSize">Calculando...</span><br>
+                                <strong>Tiempo estimado:</strong> <span id="estimatedTime">Calculando...</span>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Historial de Exportaciones -->
+            <div class="export-history mt-4">
+                <h6 class="fw-bold mb-3">
+                    <i class="fas fa-history me-2"></i>
+                    Exportaciones Recientes
+                </h6>
+                <div id="exportHistory">
+                    <div class="history-item">
+                        <div>
+                            <strong>Clientes Excel</strong><br>
+                            <small class="text-muted">Hace 2 horas</small>
+                        </div>
+                        <div>
+                            <span class="status-badge status-completed">Completado</span>
+                            <button class="btn btn-sm btn-outline-primary ms-2">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="history-item">
+                        <div>
+                            <strong>Ventas PDF</strong><br>
+                            <small class="text-muted">Hace 1 día</small>
+                        </div>
+                        <div>
+                            <span class="status-badge status-completed">Completado</span>
+                            <button class="btn btn-sm btn-outline-primary ms-2">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="history-item">
+                        <div>
+                            <strong>Productos CSV</strong><br>
+                            <small class="text-muted">Hace 3 días</small>
+                        </div>
+                        <div>
+                            <span class="status-badge status-error">Error</span>
+                            <button class="btn btn-sm btn-outline-secondary ms-2">
+                                <i class="fas fa-redo"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Progreso -->
+<div class="progress-container" id="progressModal">
+    <div class="progress-card">
+        <div class="spinner"></div>
+        <h5>Generando Exportación</h5>
+        <p class="text-muted mb-4">Por favor espera mientras procesamos tus datos...</p>
+        <div class="progress mb-3">
+            <div class="progress-bar progress-bar-striped progress-bar-animated"
+                 role="progressbar" style="width: 0%" id="progressBar"></div>
+        </div>
+        <small class="text-muted" id="progressText">Iniciando...</small>
+    </div>
+</div>
+
+<!-- Notificaciones -->
+<div class="notification-toast" id="notificationToast">
+    <div class="d-flex align-items-center">
+        <i class="fas fa-check-circle text-success me-3"></i>
+        <div>
+            <strong id="notificationTitle">Éxito</strong><br>
+            <span id="notificationMessage">Exportación completada</span>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+<script>
+    let currentExportType = null;
+    let selectedFormat = null;
+
+    // Configuraciones por tipo de exportación
+    const exportConfigs = {
+        users: {
+            name: 'Usuarios',
+            formats: [
+                { id: 'pdf', name: 'PDF', icon: 'fas fa-file-pdf', description: 'Documento imprimible' },
+                { id: 'excel', name: 'Excel', icon: 'fas fa-file-excel', description: 'Hoja de cálculo' },
+                { id: 'csv', name: 'CSV', icon: 'fas fa-file-csv', description: 'Datos separados por comas' }
+            ],
+            additionalFilters: [
+                { type: 'select', name: 'rol', label: 'Filtrar por Rol', options: ['Todos', 'ADMIN', 'VENTAS', 'PRODUCTOS'] },
+                { type: 'checkbox', name: 'activeOnly', label: 'Solo usuarios activos', checked: true }
+            ]
+        },
+        clients: {
+            name: 'Clientes',
+            formats: [
+                { id: 'excel', name: 'Excel', icon: 'fas fa-file-excel', description: 'Hoja de cálculo completa' },
+                { id: 'csv', name: 'CSV', icon: 'fas fa-file-csv', description: 'Datos separados por comas' },
+                { id: 'pdf', name: 'PDF', icon: 'fas fa-file-pdf', description: 'Lista imprimible' }
+            ],
+            additionalFilters: [
+                { type: 'select', name: 'categoria', label: 'Categoría', options: ['Todas', 'Premium', 'Regular', 'Nuevo'] },
+                { type: 'checkbox', name: 'withPurchases', label: 'Solo clientes con compras', checked: false }
+            ]
+        },
+        products: {
+            name: 'Productos',
+            formats: [
+                { id: 'excel', name: 'Excel', icon: 'fas fa-file-excel', description: 'Inventario completo' },
+                { id: 'csv', name: 'CSV', icon: 'fas fa-file-csv', description: 'Lista simple' },
+                { id: 'pdf', name: 'PDF', icon: 'fas fa-file-pdf', description: 'Catálogo imprimible' }
+            ],
+            additionalFilters: [
+                { type: 'select', name: 'categoria', label: 'Categoría', options: ['Todas', 'Electrónicos', 'Ropa', 'Hogar'] },
+                { type: 'checkbox', name: 'lowStock', label: 'Solo productos con bajo stock', checked: false },
+                { type: 'checkbox', name: 'activeOnly', label: 'Solo productos activos', checked: true }
+            ]
+        },
+        sales: {
+            name: 'Ventas',
+            formats: [
+                { id: 'excel', name: 'Excel', icon: 'fas fa-file-excel', description: 'Análisis detallado' },
+                { id: 'pdf', name: 'PDF', icon: 'fas fa-file-pdf', description: 'Reporte ejecutivo' },
+                { id: 'csv', name: 'CSV', icon: 'fas fa-file-csv', description: 'Datos para análisis' }
+            ],
+            additionalFilters: [
+                { type: 'select', name: 'vendedor', label: 'Vendedor', options: ['Todos', 'Juan Pérez', 'María García', 'Carlos López'] },
+                { type: 'select', name: 'estado', label: 'Estado', options: ['Todos', 'Completada', 'Pendiente', 'Anulada'] }
+            ]
+        },
+        reports: {
+            name: 'Reportes',
+            formats: [
+                { id: 'pdf', name: 'PDF Ejecutivo', icon: 'fas fa-file-pdf', description: 'Reporte completo con gráficos' },
+                { id: 'excel', name: 'Excel Analítico', icon: 'fas fa-file-excel', description: 'Datos para análisis avanzado' }
+            ],
+            additionalFilters: [
+                { type: 'select', name: 'reportType', label: 'Tipo de Reporte', options: ['Resumen Ejecutivo', 'Análisis de Ventas', 'Rendimiento por Producto', 'Análisis de Clientes'] },
+                { type: 'checkbox', name: 'includeCharts', label: 'Incluir gráficos', checked: true }
+            ]
+        }
+    };
+
+    function selectExportType(type) {
+        currentExportType = type;
+        selectedFormat = null;
+
+        // Actualizar UI
+        document.querySelectorAll('.export-card').forEach(card => {
+            card.classList.remove('border-primary');
+        });
+        document.querySelector(`[data-export-type="${type}"]`).classList.add('border-primary');
+
+        // Mostrar configuración
+        document.getElementById('noSelectionMessage').style.display = 'none';
+        document.getElementById('exportConfiguration').style.display = 'block';
+
+        // Cargar formatos
+        loadFormats(type);
+
+        // Cargar filtros adicionales
+        loadAdditionalFilters(type);
+
+        // Establecer fechas por defecto
+        setDateRange('month');
+
+        // Calcular estimaciones
+        updateEstimates();
+    }
+
+    function loadFormats(type) {
+        const config = exportConfigs[type];
+        const formatOptions = document.getElementById('formatOptions');
+
+        formatOptions.innerHTML = config.formats.map(format => `
+                <div class="format-option" onclick="selectFormat('${format.id}')" data-format="${format.id}">
+                    <div class="d-flex align-items-center">
+                        <i class="${format.icon} fa-2x me-3" style="color: var(--primary-color);"></i>
+                        <div class="flex-grow-1">
+                            <strong>${format.name}</strong><br>
+                            <small class="text-muted">${format.description}</small>
+                        </div>
+                        <i class="fas fa-check text-success" style="display: none;"></i>
+                    </div>
+                </div>
+            `).join('');
+    }
+
+    function selectFormat(formatId) {
+        selectedFormat = formatId;
+
+        // Actualizar UI
+        document.querySelectorAll('.format-option').forEach(option => {
+            option.classList.remove('selected');
+            option.querySelector('.fa-check').style.display = 'none';
+        });
+
+        const selectedOption = document.querySelector(`[data-format="${formatId}"]`);
+        selectedOption.classList.add('selected');
+        selectedOption.querySelector('.fa-check').style.display = 'block';
+
+        // Actualizar botón
+        updateExportButton();
+        updateEstimates();
+    }
+
+    function loadAdditionalFilters(type) {
+        const config = exportConfigs[type];
+        const container = document.getElementById('additionalFilters');
+
+        if (!config.additionalFilters || config.additionalFilters.length === 0) {
+            container.style.display = 'none';
+            return;
+        }
+
+        container.style.display = 'block';
+        container.innerHTML = `
+                <label class="form-label fw-bold">
+                    <i class="fas fa-filter me-2"></i>Filtros Adicionales
+                </label>
+                ${config.additionalFilters.map(filter => {
+            if (filter.type === 'select') {
+                return `
+                            <div class="mb-3">
+                                <label class="form-label small">${filter.label}</label>
+                                <select class="form-select form-select-sm" name="${filter.name}">
+                                    ${filter.options.map(option => `<option value="${option}">${option}</option>`).join('')}
+                                </select>
+                            </div>
+                        `;
+            } else if (filter.type === 'checkbox') {
+                return `
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="${filter.name}" ${filter.checked ? 'checked' : ''}>
+                                <label class="form-check-label small">${filter.label}</label>
+                            </div>
+                        `;
+            }
+            return '';
+        }).join('')}
+            `;
+    }
+
+    function setDateRange(range) {
+        const now = new Date();
+        const startDate = document.getElementById('startDate');
+        const endDate = document.getElementById('endDate');
+
+        endDate.value = now.toISOString().split('T')[0];
+
+        switch (range) {
+            case 'today':
+                startDate.value = now.toISOString().split('T')[0];
+                break;
+            case 'week':
+                const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                startDate.value = weekAgo.toISOString().split('T')[0];
+                break;
+            case 'month':
+                const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                startDate.value = monthAgo.toISOString().split('T')[0];
+                break;
+            case 'year':
+                const yearAgo = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+                startDate.value = yearAgo.toISOString().split('T')[0];
+                break;
+        }
+
+        updateEstimates();
+    }
+
+    function updateExportButton() {
+        const button = document.getElementById('exportButton');
+        const buttonText = document.getElementById('exportButtonText');
+
+        if (currentExportType && selectedFormat) {
+            button.disabled = false;
+            buttonText.textContent = `Exportar ${exportConfigs[currentExportType].name} (${selectedFormat.toUpperCase()})`;
+        } else {
+            button.disabled = true;
+            buttonText.textContent = 'Selecciona formato';
+        }
+    }
+
+    function updateEstimates() {
+        if (!currentExportType || !selectedFormat) {
+            document.getElementById('estimatedSize').textContent = 'N/A';
+            document.getElementById('estimatedTime').textContent = 'N/A';
+            return;
+        }
+
+        // Simulación de cálculo de estimaciones
+        const baseSizes = { pdf: 2.5, excel: 1.2, csv: 0.8 };
+        const baseSize = baseSizes[selectedFormat] || 1.0;
+        const recordCounts = { users: 50, clients: 200, products: 150, sales: 500, reports: 10 };
+        const recordCount = recordCounts[currentExportType] || 100;
+
+        const estimatedSizeMB = (baseSize * recordCount / 100).toFixed(1);
+        const estimatedTimeSeconds = Math.max(3, Math.floor(estimatedSizeMB * 2));
+
+        document.getElementById('estimatedSize').textContent = `~${estimatedSizeMB} MB`;
+        document.getElementById('estimatedTime').textContent = `~${estimatedTimeSeconds} segundos`;
+    }
+
+    function startExport() {
+        if (!currentExportType || !selectedFormat) {
+            showNotification('Error', 'Selecciona un tipo y formato de exportación', 'error');
+            return;
+        }
+
+        // Recopilar datos del formulario
+        const exportData = {
+            type: currentExportType,
+            format: selectedFormat,
+            startDate: document.getElementById('startDate').value,
+            endDate: document.getElementById('endDate').value,
+            filters: getAdditionalFilters()
+        };
+
+        // Mostrar modal de progreso
+        showProgressModal();
+
+        // Simular proceso de exportación
+        simulateExport(exportData);
+    }
+
+    function getAdditionalFilters() {
+        const filters = {};
+        const filterContainer = document.getElementById('additionalFilters');
+
+        filterContainer.querySelectorAll('select, input[type="checkbox"]').forEach(element => {
+            if (element.type === 'checkbox') {
+                filters[element.name] = element.checked;
+            } else {
+                filters[element.name] = element.value;
+            }
+        });
+
+        return filters;
+    }
+
+    function showProgressModal() {
+        document.getElementById('progressModal').style.display = 'flex';
+    }
+
+    function hideProgressModal() {
+        document.getElementById('progressModal').style.display = 'none';
+    }
+
+    function simulateExport(exportData) {
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress += Math.random() * 15;
+            if (progress > 100) progress = 100;
+
+            progressBar.style.width = progress + '%';
+
+            if (progress < 30) {
+                progressText.textContent = 'Preparando datos...';
+            } else if (progress < 60) {
+                progressText.textContent = 'Aplicando filtros...';
+            } else if (progress < 90) {
+                progressText.textContent = 'Generando archivo...';
+            } else {
+                progressText.textContent = 'Finalizando...';
+            }
+
+            if (progress >= 100) {
+                clearInterval(interval);
+                setTimeout(() => {
+                    hideProgressModal();
+                    completeExport(exportData);
+                }, 1000);
+            }
+        }, 200);
+    }
+
+    function completeExport(exportData) {
+        // Simular descarga
+        const fileName = `${exportData.type}_${exportData.startDate}_${exportData.endDate}.${exportData.format}`;
+
+        // En una implementación real, aquí harías la llamada a tu API
+        // downloadFile(`/api/export/${exportData.type}/${exportData.format}`, exportData);
+
+        // Simular descarga
+        const link = document.createElement('a');
+        link.href = '#';
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        // Mostrar notificación de éxito
+        showNotification('Exportación Completada', `Archivo ${fileName} descargado exitosamente`, 'success');
+
+        // Agregar al historial
+        addToHistory(exportData, fileName);
+    }
+
+    function addToHistory(exportData, fileName) {
+        const historyContainer = document.getElementById('exportHistory');
+        const now = new Date().toLocaleString();
+
+        const historyItem = document.createElement('div');
+        historyItem.className = 'history-item';
+        historyItem.innerHTML = `
+                <div>
+                    <strong>${exportConfigs[exportData.type].name} ${exportData.format.toUpperCase()}</strong><br>
+                    <small class="text-muted">Ahora</small>
+                </div>
+                <div>
+                    <span class="status-badge status-completed">Completado</span>
+                    <button class="btn btn-sm btn-outline-primary ms-2" onclick="downloadFile('${fileName}')">
+                        <i class="fas fa-download"></i>
+                    </button>
+                </div>
+            `;
+
+        historyContainer.insertBefore(historyItem, historyContainer.firstChild);
+    }
+
+    function showNotification(title, message, type = 'success') {
+        const toast = document.getElementById('notificationToast');
+        const titleElement = document.getElementById('notificationTitle');
+        const messageElement = document.getElementById('notificationMessage');
+
+        titleElement.textContent = title;
+        messageElement.textContent = message;
+
+        // Configurar clase e icono según el tipo
+        toast.className = 'notification-toast alert-' + type;
+        const icon = toast.querySelector('i');
+
+        if (type === 'success') {
+            icon.className = 'fas fa-check-circle text-success me-3';
+        } else if (type === 'error') {
+            icon.className = 'fas fa-exclamation-circle text-danger me-3';
+        } else if (type === 'warning') {
+            icon.className = 'fas fa-exclamation-triangle text-warning me-3';
+        }
+
+        // Mostrar notificación
+        toast.classList.add('show');
+
+        // Ocultar después de 5 segundos
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 5000);
+    }
+
+    function downloadFile(fileName) {
+        // En una implementación real, aquí harías la descarga del archivo
+        showNotification('Descarga', `Descargando ${fileName}`, 'success');
+    }
+
+    // Inicialización
+    document.addEventListener('DOMContentLoaded', function() {
+        // Establecer fecha actual como máximo
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('startDate').max = today;
+        document.getElementById('endDate').max = today;
+
+        // Listeners para cambios en fechas
+        document.getElementById('startDate').addEventListener('change', updateEstimates);
+        document.getElementById('endDate').addEventListener('change', updateEstimates);
+    });
+</script>
+</body>
+</html>

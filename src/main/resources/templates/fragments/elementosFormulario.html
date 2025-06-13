@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="inputField(label, fieldName, type, required, placeholder, helpText, min, max)" class="mb-3">
+    <label class="form-label" th:for="${fieldName}">
+        <span th:text="${label}">Label</span>
+        <span th:if="${required}" class="text-danger">*</span>
+    </label>
+    <input class="form-control"
+           th:type="${type}"
+           th:id="${fieldName}"
+           th:field="*{__${fieldName}__}"
+           th:required="${required}"
+           th:placeholder="${placeholder}"
+           th:classappend="${#fields.hasErrors(fieldName)} ? 'is-invalid' : ''"
+           th:attr="min=${min}, max=${max}" />
+    <div class="invalid-feedback" th:if="${#fields.hasErrors(fieldName)}" th:errors="*{__${fieldName}__}">
+        Mensaje de error específico aquí.
+    </div>
+    <small th:if="${helpText != null && !#strings.isEmpty(helpText)}" class="form-text text-muted" th:text="${helpText}"></small>
+</div>
+
+<div th:fragment="switchField(label, fieldName)" class="form-check form-switch mb-3">
+    <input class="form-check-input" type="checkbox" role="switch"
+           th:id="${fieldName}"
+           th:field="*{__${fieldName}__}"
+           th:classappend="${#fields.hasErrors(fieldName)} ? 'is-invalid' : ''" />
+    <label class="form-check-label" th:for="${fieldName}" th:text="${label}">Label</label>
+    <div class="invalid-feedback" th:if="${#fields.hasErrors(fieldName)}" th:errors="*{__${fieldName}__}">
+        Mensaje de error específico aquí.
+    </div>
+</div>
+
+<div th:fragment="colorField(label, fieldName, defaultHex, helpText)" class="mb-3">
+    <label class="form-label" th:for="${fieldName}" th:text="${label}">Label</label>
+    <div class="input-group color-picker-group">
+        <input class="form-control form-control-color"
+               th:id="${fieldName + 'Picker'}"
+               th:value="*{__${fieldName}__}"
+               th:title="'Elegir ' + ${label.toLowerCase()}"
+               type="color" />
+        <input class="form-control"
+               th:id="${fieldName}"
+               th:placeholder="${defaultHex}"
+               th:field="*{__${fieldName}__}"
+               type="text"
+               th:classappend="${#fields.hasErrors(fieldName)} ? 'is-invalid' : ''" />
+    </div>
+    <div class="invalid-feedback" th:if="${#fields.hasErrors(fieldName)}" th:errors="*{__${fieldName}__}">
+        Mensaje de error específico aquí.
+    </div>
+    <small th:if="${helpText != null && !#strings.isEmpty(helpText)}" class="form-text text-muted" th:text="${helpText}"></small>
+</div>
+
+</body>
+</html>

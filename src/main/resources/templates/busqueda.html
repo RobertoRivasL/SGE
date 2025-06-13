@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Búsqueda Avanzada - Sistema de Gestión</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <nav class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse">
+            <div class="position-sticky pt-3">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/inicio">
+                            <i class="fas fa-home"></i> Inicio
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/productos">
+                            <i class="fas fa-box"></i> Productos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/ventas">
+                            <i class="fas fa-shopping-cart"></i> Ventas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/clientes">
+                            <i class="fas fa-users"></i> Clientes
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main content -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">
+                    <i class="fas fa-search text-primary"></i> Búsqueda Avanzada
+                </h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <button type="button" class="btn btn-outline-secondary" onclick="history.back()">
+                            <i class="fas fa-arrow-left"></i> Volver
+                        </button>
+                        <button type="button" class="btn btn-outline-info" onclick="limpiarBusqueda()">
+                            <i class="fas fa-eraser"></i> Limpiar Todo
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alertas -->
+            <div th:if="${mensajeExito}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle"></i> <span th:text="${mensajeExito}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <div th:if="${mensajeError}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle"></i> <span th:text="${mensajeError}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <div class="row">
+                <!-- Panel de Filtros -->
+                <div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-filter"></i> Criterios de Búsqueda
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="searchForm" method="get" action="/buscar">
+                                <!-- Búsqueda General -->
+                                <div class="mb-3">
+                                    <label for="searchText" class="form-label">
+                                        <i class="fas fa-search"></i> Búsqueda General:
+                                    </label>
+                                    <input type="text" class="form-control" id="searchText" name="q"
+                                           th:value="${searchParams.q}"
+                                           placeholder="Buscar en nombre, código, descripción...">
+                                    <div class="form-text">Busca en todos los campos principales</div>
+                                </div>
+
+                                <!-- Categorías -->
+                                <div class="mb-3">
+                                    <label for="categoria" class="form-label">
+                                        <i class="fas fa-tags"></i> Categoría:
+                                    </label>
+                                    <select class="form-select" id="categoria" name="categoria">
+                                        <option value="">Todas las categorías</option>
+                                        <option th:each="cat : ${categorias}"
+                                                th:value="${cat.id}"
+                                                th:text="${cat.nombre}"
+                                                th:selected="${cat.id == searchParams.categoria}">Categoría
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <!-- Estado -->
+                                <div class="mb-3">
+                                    <label class="form-label">
+                                        <i class="fas fa-toggle-on"></i> Estado:
+                                    </label>
+                                    <div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="estado"
+                                                   id="estadoTodos" value=""
+                                                   th:checked="${#strings.isEmpty(searchParams.estado)}">
+                                            <label class="form-check-label" for="estadoTodos">Todos</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="estado"
+                                                   id="estadoActivo" value="true"
+                                                   th:checked="${searchParams.estado == 'true'}">
+                                            <label class="form-check-label" for="estadoActivo">
+                                                <span class="badge bg-success">Activos</span>
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="estado"
+                                                   id="estadoInactivo" value="false"
+                                                   th:checked="${searchParams.estado == 'false'}">
+                                            <label class="form-check-label" for="estadoInactivo">
+                                                <span class="badge bg-danger">Inactivos</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Rango de Fechas -->
+                                <div class="mb-3">
+                                    <label class="form-label">
+                                        <i class="fas fa-calendar-alt"></i> Rango de Fechas:
+                                    </label>
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <input type="date" class="form-control" name="fechaInicio"
+                                                   th:value="${searchParams.fechaInicio}" placeholder="Desde">
+                                        </div>
+                                        <div class="col-6">
+                                            <input type="date" class="form-control" name="fechaFin"
+                                                   th:value="${searchParams.fechaFin}" placeholder="Hasta">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Filtros específicos por módulo -->
+                                <!-- Para Productos -->
+                                <div class="mb-3" id="filtrosProductos">
+                                    <label class="form-label">
+                                        <i class="fas fa-box"></i> Filtros de Productos:
+                                    </label>
+
+                                    <div class="mb-2">
+                                        <label for="precioMin" class="form-label small">Rango de Precio:</label>
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <input type="number" class="form-control form-control-sm"
+                                                       id="precioMin" name="precioMin"
+                                                       th:value="${searchParams.precioMin}"
+                                                       placeholder="Mínimo" step="0.01">
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="number" class="form-control form-control-sm"
+                                                       id="precioMax" name="precioMax"
+                                                       th:value="${searchParams.precioMax}"
+                                                       placeholder="Máximo" step="0.01">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-2">
+                                        <label for="stockMin" class="form-label small">Stock Mínimo:</label>
+                                        <input type="number" class="form-control form-control-sm"
+                                               id="stockMin" name="stockMin"
+                                               th:value="${searchParams.stockMin}"
+                                               placeholder="Stock mínimo">
+                                    </div>
+
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="soloConStock"
+                                               id="soloConStock" th:checked="${searchParams.soloConStock}">
+                                        <label class="form-check-label" for="soloConStock">
+                                            Solo con stock disponible
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Para Clientes -->
+                                <div class="mb-3" id="filtrosClientes">
+                                    <label class="form-label">
+                                        <i class="fas fa-users"></i> Filtros de Clientes:
+                                    </label>
+
+                                    <div class="mb-2">
+                                        <select class="form-select form-select-sm" name="tipoCliente">
+                                            <option value="">Todos los tipos</option>
+                                            <option value="NUEVO" th:selected="${searchParams.tipoCliente == 'NUEVO'}">
+                                                Clientes Nuevos
+                                            </option>
+                                            <option value="FRECUENTE"
+                                                    th:selected="${searchParams.tipoCliente == 'FRECUENTE'}">Clientes
+                                                Frecuentes
+                                            </option>
+                                            <option value="VIP" th:selected="${searchParams.tipoCliente == 'VIP'}">
+                                                Clientes VIP
+                                            </option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="conCompras"
+                                               id="conCompras" th:checked="${searchParams.conCompras}">
+                                        <label class="form-check-label" for="conCompras">
+                                            Solo con compras realizadas
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Ordenamiento -->
+                                <div class="mb-3">
+                                    <label for="ordenarPor" class="form-label">
+                                        <i class="fas fa-sort"></i> Ordenar por:
+                                    </label>
+                                    <select class="form-select" id="ordenarPor" name="sort">
+                                        <option value="id,asc" th:selected="${searchParams.sort == 'id,asc'}">ID
+                                            (Ascendente)
+                                        </option>
+                                        <option value="id,desc" th:selected="${searchParams.sort == 'id,desc'}">ID
+                                            (Descendente)
+                                        </option>
+                                        <option value="nombre,asc" th:selected="${searchParams.sort == 'nombre,asc'}">
+                                            Nombre (A-Z)
+                                        </option>
+                                        <option value="nombre,desc" th:selected="${searchParams.sort == 'nombre,desc'}">
+                                            Nombre (Z-A)
+                                        </option>
+                                        <option value="fechaCreacion,desc"
+                                                th:selected="${searchParams.sort == 'fechaCreacion,desc'}">Más recientes
+                                        </option>
+                                        <option value="fechaCreacion,asc"
+                                                th:selected="${searchParams.sort == 'fechaCreacion,asc'}">Más antiguos
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <!-- Botones de Acción -->
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-search"></i> Buscar
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary" onclick="limpiarBusqueda()">
+                                        <i class="fas fa-eraser"></i> Limpiar Filtros
+                                    </button>
+                                    <button type="button" class="btn btn-outline-info" onclick="guardarBusqueda()">
+                                        <i class="fas fa-bookmark"></i> Guardar Búsqueda
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Búsquedas Guardadas -->
+                    <div class="card mt-3" id="busquedas-guardadas">
+                        <div class="card-header bg-info text-white">
+                            <h6 class="mb-0">
+                                <i class="fas fa-bookmark"></i> Búsquedas Guardadas
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="list-group list-group-flush" id="lista-busquedas">
+                                <!-- Las búsquedas guardadas se cargarán aquí via JavaScript -->
+                                <div class="text-muted text-center">
+                                    <i class="fas fa-search"></i><br>
+                                    No hay búsquedas guardadas
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resultados -->
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                <i class="fas fa-list"></i> Resultados de Búsqueda
+                                <span class="badge bg-light text-dark ms-2" th:if="${resultados != null}"
+                                      th:text="${#lists.size(resultados)} + ' encontrados'">0 encontrados</span>
+                            </h5>
+                            <div class="btn-group btn-group-sm">
+                                <button type="button" class="btn btn-outline-light"
+                                        onclick="exportarResultados('excel')">
+                                    <i class="fas fa-file-excel"></i> Excel
+                                </button>
+                                <button type="button" class="btn btn-outline-light" onclick="exportarResultados('pdf')">
+                                    <i class="fas fa-file-pdf"></i> PDF
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <!-- Sin resultados -->
+                            <div th:if="${resultados == null or #lists.isEmpty(resultados)}" class="text-center py-5">
+                                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">No se encontraron resultados</h5>
+                                <p class="text-muted">Ajusta los criterios de búsqueda e intenta nuevamente</p>
+                            </div>
+
+                            <!-- Con resultados -->
+                            <div th:if="${resultados != null and !#lists.isEmpty(resultados)}">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead class="table-light">
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Información Principal</th>
+                                            <th>Estado</th>
+                                            <th>Fecha</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr th:each="resultado : ${resultados}">
+                                            <td th:text="${resultado.id}">1</td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div>
+                                                        <h6 class="mb-0">
+                                                            <a th:href="@{'/detalle/' + ${resultado.id}}"
+                                                               class="text-decoration-none"
+                                                               th:text="${resultado.nombre}">Nombre</a>
+                                                        </h6>
+                                                        <small class="text-muted"
+                                                               th:text="${resultado.codigo}">Código</small>
+                                                        <br>
+                                                        <small class="text-muted" th:text="${resultado.descripcion}">Descripción</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                        <span th:if="${resultado.activo}" class="badge bg-success">
+                                                            <i class="fas fa-check"></i> Activo
+                                                        </span>
+                                                <span th:unless="${resultado.activo}" class="badge bg-danger">
+                                                            <i class="fas fa-times"></i> Inactivo
+                                                        </span>
+                                            </td>
+                                            <td th:text="${#temporals.format(resultado.fechaCreacion, 'dd/MM/yyyy')}">
+                                                01/01/2024
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <a th:href="@{'/detalle/' + ${resultado.id}}"
+                                                       class="btn btn-outline-info" title="Ver">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a th:href="@{'/editar/' + ${resultado.id}}"
+                                                       class="btn btn-outline-primary" title="Editar">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <!-- Paginación de resultados -->
+                                <div class="row mt-3" th:if="${paginaResultados != null}">
+                                    <div class="col-md-6">
+                                        <p class="text-muted">
+                                            Mostrando
+                                            <span th:text="${paginaResultados.numberOfElements}">0</span> de
+                                            <span th:text="${paginaResultados.totalElements}">0</span> resultados
+                                        </p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <nav>
+                                            <ul class="pagination pagination-sm justify-content-end">
+                                                <li class="page-item"
+                                                    th:classappend="${!paginaResultados.hasPrevious()} ? 'disabled'">
+                                                    <a class="page-link" th:href="@{/buscar(page=0)}">Primera</a>
+                                                </li>
+                                                <li class="page-item"
+                                                    th:classappend="${!paginaResultados.hasPrevious()} ? 'disabled'">
+                                                    <a class="page-link"
+                                                       th:href="@{/buscar(page=${paginaResultados.number - 1})}">Anterior</a>
+                                                </li>
+                                                <li class="page-item"
+                                                    th:classappend="${!paginaResultados.hasNext()} ? 'disabled'">
+                                                    <a class="page-link"
+                                                       th:href="@{/buscar(page=${paginaResultados.number + 1})}">Siguiente</a>
+                                                </li>
+                                                <li class="page-item"
+                                                    th:classappend="${!paginaResultados.hasNext()} ? 'disabled'">
+                                                    <a class="page-link"
+                                                       th:href="@{/buscar(page=${paginaResultados.totalPages - 1})}">Última</a>
+                                                </li>
+                                            </ul>
+                                        </nav>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
+
+<script>
+    // Inicializar selectores de fecha
+    flatpickr('input[type="date"]', {
+        locale: 'es',
+        dateFormat: 'Y-m-d'
+    });
+
+    // Limpiar formulario de búsqueda
+    function limpiarBusqueda() {
+        document.getElementById('searchForm').reset();
+        window.location.href = window.location.pathname;
+    }
+
+    // Guardar búsqueda actual
+    function guardarBusqueda() {
+        const nombre = prompt('Nombre para esta búsqueda:');
+        if (nombre) {
+            const params = new URLSearchParams(new FormData(document.getElementById('searchForm')));
+            const busqueda = {
+                nombre: nombre,
+                params: params.toString(),
+                fecha: new Date().toLocaleDateString()
+            };
+
+            // Guardar en localStorage
+            let busquedasGuardadas = JSON.parse(localStorage.getItem('busquedasGuardadas') || '[]');
+            busquedasGuardadas.push(busqueda);
+            localStorage.setItem('busquedasGuardadas', JSON.stringify(busquedasGuardadas));
+
+            cargarBusquedasGuardadas();
+            alert('Búsqueda guardada correctamente');
+        }
+    }
+
+    // Cargar búsquedas guardadas
+    function cargarBusquedasGuardadas() {
+        const busquedasGuardadas = JSON.parse(localStorage.getItem('busquedasGuardadas') || '[]');
+        const lista = document.getElementById('lista-busquedas');
+
+        if (busquedasGuardadas.length === 0) {
+            lista.innerHTML = `
+                    <div class="text-muted text-center">
+                        <i class="fas fa-search"></i><br>
+                        No hay búsquedas guardadas
+                    </div>
+                `;
+            return;
+        }
+
+        lista.innerHTML = '';
+        busquedasGuardadas.forEach((busqueda, index) => {
+            const item = document.createElement('div');
+            item.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center';
+            item.innerHTML = `
+                    <div>
+                        <h6 class="mb-1">${busqueda.nombre}</h6>
+                        <small class="text-muted">${busqueda.fecha}</small>
+                    </div>
+                    <div>
+                        <button class="btn btn-sm btn-outline-primary me-1" onclick="aplicarBusqueda(${index})">
+                            <i class="fas fa-play"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="eliminarBusqueda(${index})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+            lista.appendChild(item);
+        });
+    }
+
+    // Aplicar búsqueda guardada
+    function aplicarBusqueda(index) {
+        const busquedasGuardadas = JSON.parse(localStorage.getItem('busquedasGuardadas') || '[]');
+        if (busquedasGuardadas[index]) {
+            window.location.href = '/buscar?' + busquedasGuardadas[index].params;
+        }
+    }
+
+    // Eliminar búsqueda guardada
+    function eliminarBusqueda(index) {
+        if (confirm('¿Eliminar esta búsqueda guardada?')) {
+            let busquedasGuardadas = JSON.parse(localStorage.getItem('busquedasGuardadas') || '[]');
+            busquedasGuardadas.splice(index, 1);
+            localStorage.setItem('busquedasGuardadas', JSON.stringify(busquedasGuardadas));
+            cargarBusquedasGuardadas();
+        }
+    }
+
+    // Exportar resultados
+    function exportarResultados(formato) {
+        const params = new URLSearchParams(window.location.search);
+        params.set('export', formato);
+        window.location.href = '/exportar?' + params.toString();
+    }
+
+    // Búsqueda en tiempo real (opcional)
+    let searchTimeout;
+    document.getElementById('searchText').addEventListener('input', function () {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            if (this.value.length > 2) {
+                // Implementar búsqueda en tiempo real aquí
+                console.log('Búsqueda en tiempo real:', this.value);
+            }
+        }, 500);
+    });
+
+    // Cargar búsquedas guardadas al inicializar
+    document.addEventListener('DOMContentLoaded', function () {
+        cargarBusquedasGuardadas();
+    });
+
+    // Auto-hide alerts after 5 seconds
+    setTimeout(function () {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => {
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        });
+    }, 5000);
+</script>
+</body>
+</html>

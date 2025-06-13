@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultado de Importación - [[${tipoEntidadCapitalizado}]]s</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .result-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+        }
+        .stats-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        .stats-card:hover {
+            transform: translateY(-5px);
+        }
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        .progress-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 0 auto 1rem;
+        }
+        .message-item {
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            border-radius: 8px;
+            border-left: 4px solid;
+        }
+        .message-error {
+            background: #f8d7da;
+            border-left-color: #dc3545;
+            color: #721c24;
+        }
+        .message-warning {
+            background: #fff3cd;
+            border-left-color: #ffc107;
+            color: #856404;
+        }
+        .message-info {
+            background: #d1ecf1;
+            border-left-color: #17a2b8;
+            color: #0c5460;
+        }
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #dee2e6;
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+        .timeline-icon {
+            position: absolute;
+            left: -22px;
+            top: 0;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+<!-- Navegación -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+        <a class="navbar-brand" href="/inicio">
+            <i class="fas fa-chart-line"></i> Sistema de Gestión
+        </a>
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link" th:href="@{/importacion/{tipo}(tipo=${tipoEntidad})}">
+                <i class="fas fa-redo"></i> Nueva Importación
+            </a>
+            <a class="nav-link" href="/importacion">
+                <i class="fas fa-home"></i> Inicio
+            </a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <!-- Encabezado del Resultado -->
+    <div class="result-header text-center">
+        <div th:if="${resultado.estado.name() == 'EXITOSO'}">
+            <i class="fas fa-check-circle fa-4x mb-3"></i>
+            <h1>¡Importación Exitosa!</h1>
+            <p class="lead mb-0">Los [[${tipoEntidad}]]s se han importado correctamente</p>
+        </div>
+        <div th:if="${resultado.estado.name() == 'EXITOSO_CON_ADVERTENCIAS'}">
+            <i class="fas fa-exclamation-triangle fa-4x mb-3"></i>
+            <h1>Importación Completada con Advertencias</h1>
+            <p class="lead mb-0">La mayoría de registros se importaron correctamente</p>
+        </div>
+        <div th:if="${resultado.estado.name() == 'PARCIAL'}">
+            <i class="fas fa-info-circle fa-4x mb-3"></i>
+            <h1>Importación Parcial</h1>
+            <p class="lead mb-0">Algunos registros se importaron con éxito</p>
+        </div>
+        <div th:if="${resultado.estado.name() == 'FALLIDO'}">
+            <i class="fas fa-times-circle fa-4x mb-3"></i>
+            <h1>Error en la Importación</h1>
+            <p class="lead mb-0">No se pudieron importar los registros</p>
+        </div>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="row g-4 mb-4">
+        <!-- Resumen General -->
+        <div class="col-lg-3 col-md-6">
+            <div class="card stats-card text-center">
+                <div class="card-body">
+                    <div th:classappend="${resultado.porcentajeExito >= 90} ? 'bg-success' : (${resultado.porcentajeExito >= 70} ? 'bg-warning' : 'bg-danger')"
+                         class="progress-circle text-white">
+                        <span th:text="${#numbers.formatDecimal(resultado.porcentajeExito, 0, 0)} + '%'">95%</span>
+                    </div>
+                    <h5 class="card-title">Tasa de Éxito</h5>
+                    <p class="card-text text-muted">
+                        <span th:text="${resultado.registrosExitosos}">85</span> de
+                        <span th:text="${resultado.registrosProcesados}">90</span> registros
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Registros Exitosos -->
+        <div class="col-lg-3 col-md-6">
+            <div class="card stats-card text-center">
+                <div class="card-body">
+                    <div class="stat-icon text-success">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h2 class="text-success" th:text="${resultado.registrosExitosos}">85</h2>
+                    <h5 class="card-title">Exitosos</h5>
+                    <p class="card-text text-muted">Registros importados correctamente</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Registros con Error -->
+        <div class="col-lg-3 col-md-6">
+            <div class="card stats-card text-center">
+                <div class="card-body">
+                    <div class="stat-icon text-danger">
+                        <i class="fas fa-times-circle"></i>
+                    </div>
+                    <h2 class="text-danger" th:text="${resultado.registrosConError}">3</h2>
+                    <h5 class="card-title">Con Errores</h5>
+                    <p class="card-text text-muted">Registros que fallaron</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Registros Omitidos -->
+        <div class="col-lg-3 col-md-6">
+            <div class="card stats-card text-center">
+                <div class="card-body">
+                    <div class="stat-icon text-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <h2 class="text-warning" th:text="${resultado.registrosOmitidos}">2</h2>
+                    <h5 class="card-title">Omitidos</h5>
+                    <p class="card-text text-muted">Registros duplicados</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Detalles de la Importación -->
+        <div class="col-lg-8">
+            <!-- Información del Archivo -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-file-alt me-2"></i>Detalles de la Importación
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>Archivo:</strong>
+                            <span th:text="${resultado.nombreArchivo}">datos.xlsx</span>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Tipo:</strong>
+                            <span th:text="${resultado.tipoEntidad}">Cliente</span>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-md-6">
+                            <strong>Fecha:</strong>
+                            <span th:text="${#temporals.format(resultado.fechaImportacion, 'dd/MM/yyyy HH:mm:ss')}">08/06/2025 14:30:25</span>
+                        </div>
+                        <div class="col-md-6" th:if="${resultado.tiempoProcesamientoMs > 0}">
+                            <strong>Tiempo:</strong>
+                            <span th:text="${resultado.tiempoProcesamientoMs} + ' ms'">1,250 ms</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mensajes de Error -->
+            <div th:if="${not #lists.isEmpty(resultado.errores)}" class="card mb-4">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Errores Encontrados
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div th:each="error : ${resultado.errores}" class="message-item message-error">
+                        <i class="fas fa-times-circle me-2"></i>
+                        <span th:text="${error}">Error message</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mensajes de Advertencia -->
+            <div th:if="${not #lists.isEmpty(resultado.advertencias)}" class="card mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Advertencias
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div th:each="advertencia : ${resultado.advertencias}" class="message-item message-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <span th:text="${advertencia}">Warning message</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mensajes Informativos -->
+            <div th:if="${not #lists.isEmpty(resultado.mensajesInfo)}" class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Información Adicional
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div th:each="mensaje : ${resultado.mensajesInfo}" class="message-item message-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <span th:text="${mensaje}">Info message</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Lateral -->
+        <div class="col-lg-4">
+            <!-- Resumen Textual -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-clipboard-list me-2"></i>Resumen
+                    </h6>
+                </div>
+                <div class="card-body">
+                        <pre class="small mb-0" th:text="${resultado.resumen}" style="white-space: pre-wrap; font-family: inherit;">
+Importación de Cliente completada.
+Archivo: datos.xlsx
+Fecha: 08/06/2025 14:30:25
+
+Resultados:
+- Total procesados: 90
+- Exitosos: 85
+- Con errores: 3
+- Omitidos: 2
+- Porcentaje de éxito: 94.44%
+- Tiempo de procesamiento: 1250 ms
+                        </pre>
+                </div>
+            </div>
+
+            <!-- Línea de Tiempo -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-clock me-2"></i>Proceso de Importación
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-icon bg-primary text-white">
+                                <i class="fas fa-upload"></i>
+                            </div>
+                            <div>
+                                <strong>Archivo Cargado</strong>
+                                <div class="text-muted small">
+                                    <span th:text="${resultado.nombreArchivo}">datos.xlsx</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item">
+                            <div class="timeline-icon bg-info text-white">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div>
+                                <strong>Validación Completada</strong>
+                                <div class="text-muted small">Estructura verificada</div>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item">
+                            <div class="timeline-icon bg-warning text-white">
+                                <i class="fas fa-cogs"></i>
+                            </div>
+                            <div>
+                                <strong>Procesamiento</strong>
+                                <div class="text-muted small">
+                                    <span th:text="${resultado.registrosProcesados}">90</span> registros procesados
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item">
+                            <div th:classappend="${resultado.estado.name() == 'EXITOSO'} ? 'bg-success' : (${resultado.registrosExitosos > 0} ? 'bg-warning' : 'bg-danger')"
+                                 class="timeline-icon text-white">
+                                <i th:class="${resultado.estado.name() == 'EXITOSO'} ? 'fas fa-check' : (${resultado.registrosExitosos > 0} ? 'fas fa-exclamation' : 'fas fa-times')"></i>
+                            </div>
+                            <div>
+                                <strong>Finalizado</strong>
+                                <div class="text-muted small" th:text="${resultado.estado.descripcion}">Exitoso</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Acciones -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-tools me-2"></i>Acciones
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a th:href="@{/importacion/{tipo}(tipo=${tipoEntidad})}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Nueva Importación
+                        </a>
+
+                        <a th:href="@{/{tipo}(tipo=${tipoEntidad == 'cliente' ? 'clientes' : (tipoEntidad == 'producto' ? 'productos' : 'admin/usuarios')})}"
+                           class="btn btn-outline-primary">
+                            <i class="fas fa-list me-2"></i>Ver [[${tipoEntidadCapitalizado}]]s
+                        </a>
+
+                        <a href="/importacion" class="btn btn-outline-secondary">
+                            <i class="fas fa-home me-2"></i>Volver a Importación
+                        </a>
+
+                        <button type="button" class="btn btn-outline-info btn-sm" onclick="window.print()">
+                            <i class="fas fa-print me-2"></i>Imprimir Reporte
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animación de entrada para las estadísticas
+        const statsCards = document.querySelectorAll('.stats-card');
+        statsCards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                card.style.transition = 'opacity 0.5s, transform 0.5s';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+
+        // Animación del círculo de progreso
+        const progressCircle = document.querySelector('.progress-circle');
+        if (progressCircle) {
+            const percentage = parseInt(progressCircle.textContent);
+            const circle = progressCircle;
+
+            // Crear efecto de conteo
+            let currentPercentage = 0;
+            const increment = percentage / 50;
+            const timer = setInterval(() => {
+                currentPercentage += increment;
+                if (currentPercentage >= percentage) {
+                    currentPercentage = percentage;
+                    clearInterval(timer);
+                }
+                circle.querySelector('span').textContent = Math.round(currentPercentage) + '%';
+            }, 20);
+        }
+
+        // Auto-scroll para ver mensajes de error si existen
+        const errorSection = document.querySelector('.card-header.bg-danger');
+        if (errorSection) {
+            setTimeout(() => {
+                errorSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 1000);
+        }
+    });
+
+    // Función para copiar resumen al portapapeles
+    function copyToClipboard() {
+        const resumen = document.querySelector('pre').textContent;
+        navigator.clipboard.writeText(resumen).then(() => {
+            alert('Resumen copiado al portapapeles');
+        });
+    }
+</script>
+
+<!-- CSS para impresión -->
+<style media="print">
+    .navbar, .btn, .card-footer { display: none !important; }
+    .container { max-width: none !important; margin: 0 !important; }
+    .card { border: 1px solid #ddd !important; break-inside: avoid; }
+    .result-header { background: #6c757d !important; -webkit-print-color-adjust: exact; }
+</style>
+</body>
+</html>

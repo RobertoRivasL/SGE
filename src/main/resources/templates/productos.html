@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+>
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Reporte de Productos</title>
+
+    <!-- Estilos -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+<!-- Navegación -->
+<div th:replace="~{fragments/navegacion-unificada :: nav}"></div>
+
+<div class="container-fluid mt-4">
+
+    <!-- Título y botón de exportación -->
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+            <h1>Reporte de Productos</h1>
+            <a class="btn btn-outline-success"
+               th:href="@{/reportes/exportar/productos/excel(startDate=${startDate}, endDate=${endDate}, categoria=${categoriaSeleccionada})}">
+                <i class="fas fa-file-excel me-1"></i> Exportar Excel
+            </a>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="row mb-4">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Filtros</h5>
+                </div>
+                <div class="card-body">
+                    <form class="row g-3" id="filtroForm" method="get" th:action="@{/reportes/productos}">
+                        <div class="col-md-3">
+                            <label class="form-label" for="startDate">Fecha Inicio</label>
+                            <input class="form-control" id="startDate" name="startDate" th:value="${startDate}"
+                                   type="date">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label" for="endDate">Fecha Fin</label>
+                            <input class="form-control" id="endDate" name="endDate" th:value="${endDate}" type="date">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label" for="categoria">Categoría</label>
+                            <select class="form-select" id="categoria" name="categoria">
+                                <option value="">Todas las categorías</option>
+                                <option th:each="cat : ${categorias}"
+                                        th:selected="${cat == categoriaSeleccionada}"
+                                        th:text="${cat}"
+                                        th:value="${cat}"></option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button class="btn btn-primary w-100" type="submit">
+                                <i class="fas fa-filter me-1"></i> Filtrar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de productos -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Productos Vendidos</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped" id="productosTable">
+                            <thead class="table-light">
+                            <tr>
+                                <th>Código</th>
+                                <th>Producto</th>
+                                <th>Categoría</th>
+                                <th>Stock Actual</th>
+                                <th>Unidades Vendidas</th>
+                                <th>Ingresos</th>
+                                <th>Precio Promedio</th>
+                                <th>% del Total</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="producto : ${productos}">
+                                <td th:text="${producto.codigo}">ABC123</td>
+                                <td th:text="${producto.nombre}">Producto</td>
+                                <td th:text="${producto.categoria}">Categoría</td>
+                                <td th:text="${producto.stock}">100</td>
+                                <td th:text="${producto.unidadesVendidas}">0</td>
+                                <td th:text="${#numbers.formatCurrency(producto.ingresos)}">$0</td>
+                                <td th:text="${#numbers.formatCurrency(producto.precioPromedio)}">$0</td>
+                                <td>
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar bg-success" role="progressbar"
+                                             th:style="'width: ' + ${producto.porcentajeTotal} + '%'"
+                                             th:text="${#numbers.formatDecimal(producto.porcentajeTotal, 1, 1) + '%'}">
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráficos -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Top 10 Productos por Ventas</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="height: 400px;">
+                        <canvas id="topProductosChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Ventas por Categoría</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="height: 400px;">
+                        <canvas id="ventasCategoriaChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function () {
+        // Inicializar DataTable
+        $('#productosTable').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json'
+            },
+            order: [[5, 'desc']]
+        });
+
+        // Datos para los gráficos
+        const productos = /*[[${productos}]]*/ [];
+
+        // Top 10 productos
+        const top10Productos = productos.slice(0, 10);
+
+        // Ventas por categoría
+        const ventasPorCategoria = {};
+        productos.forEach(producto => {
+            const categoria = producto.categoria || 'Sin categoría';
+            ventasPorCategoria[categoria] = (ventasPorCategoria[categoria] || 0) + producto.ingresos;
+        });
+
+        const categoriasOrdenadas = {labels: [], data: []};
+        Object.entries(ventasPorCategoria)
+            .sort((a, b) => b[1] - a[1])
+            .forEach(([cat, val]) => {
+                categoriasOrdenadas.labels.push(cat);
+                categoriasOrdenadas.data.push(val);
+            });
+
+        // Gráfico de Top 10
+        new Chart(document.getElementById('topProductosChart').getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: top10Productos.map(p => p.nombre),
+                datasets: [{
+                    label: 'Ingresos',
+                    data: top10Productos.map(p => p.ingresos),
+                    backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: value => '$' + value.toLocaleString()
+                        }
+                    }
+                }
+            }
+        });
+
+        // Gráfico por categoría
+        new Chart(document.getElementById('ventasCategoriaChart').getContext('2d'), {
+            type: 'pie',
+            data: {
+                labels: categoriasOrdenadas.labels,
+                datasets: [{
+                    data: categoriasOrdenadas.data,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.7)',
+                        'rgba(54, 162, 235, 0.7)',
+                        'rgba(255, 206, 86, 0.7)',
+                        'rgba(75, 192, 192, 0.7)',
+                        'rgba(153, 102, 255, 0.7)',
+                        'rgba(255, 159, 64, 0.7)',
+                        'rgba(199, 199, 199, 0.7)',
+                        'rgba(83, 102, 255, 0.7)',
+                        'rgba(60, 179, 113, 0.7)',
+                        'rgba(220, 20, 60, 0.7)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    });
+</script>
+</body>
+</html>

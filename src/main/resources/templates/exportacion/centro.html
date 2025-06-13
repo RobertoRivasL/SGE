@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Centro de Exportación - InformViva</title>
+    <link th:href="@{/webjars/bootstrap/5.3.2/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/webjars/font-awesome/6.4.0/css/all.min.css}" rel="stylesheet">
+    <link th:href="@{/css/dashboard.css}" rel="stylesheet">
+    <style>
+        .export-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            border: none;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .export-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .export-type-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 2rem;
+            color: white;
+        }
+
+        .users-icon { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .clients-icon { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .products-icon { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .sales-icon { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        .reports-icon { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+        }
+
+        .history-item {
+            padding: 1rem;
+            border-bottom: 1px solid #e9ecef;
+            transition: background-color 0.3s ease;
+        }
+
+        .history-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .status-completed { background-color: #d1edff; color: #0969da; }
+        .status-error { background-color: #f8d7da; color: #721c24; }
+        .status-processing { background-color: #fff3cd; color: #856404; }
+    </style>
+</head>
+<body>
+<!-- Navegación -->
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <nav th:replace="~{fragments/sidebar :: sidebar}"></nav>
+
+        <!-- Contenido Principal -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <!-- Header -->
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">
+                    <i class="fas fa-download me-2 text-primary"></i>
+                    Centro de Exportación
+                </h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="refreshData()">
+                            <i class="fas fa-sync-alt"></i> Actualizar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estadísticas Generales -->
+            <div class="row mb-4">
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="stats-card">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-0 text-white-50">Exportaciones Hoy</h6>
+                                <h3 class="mb-0" th:text="${estadisticas?.exportacionesHoy ?: 0}">0</h3>
+                            </div>
+                            <i class="fas fa-calendar-day fa-2x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="stats-card bg-success">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-0 text-white-50">Este Mes</h6>
+                                <h3 class="mb-0" th:text="${estadisticas?.exportacionesEsteMes ?: 0}">0</h3>
+                            </div>
+                            <i class="fas fa-chart-line fa-2x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="stats-card bg-warning">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-0 text-white-50">Formato Popular</h6>
+                                <h3 class="mb-0" th:text="${estadisticas?.formatoMasUsado ?: 'Excel'}">Excel</h3>
+                            </div>
+                            <i class="fas fa-star fa-2x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="stats-card bg-info">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-0 text-white-50">Total Registros</h6>
+                                <h3 class="mb-0" th:text="${(estadisticas?.totalUsuarios ?: 0) + (estadisticas?.totalClientes ?: 0) + (estadisticas?.totalProductos ?: 0)}">0</h3>
+                            </div>
+                            <i class="fas fa-database fa-2x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tipos de Exportación -->
+            <div class="row">
+                <!-- Usuarios -->
+                <div class="col-lg-6 col-md-6 mb-4" sec:authorize="hasRole('ADMIN')">
+                    <div class="export-card card h-100">
+                        <div class="card-body text-center">
+                            <div class="export-type-icon users-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <h4 class="card-title">Usuarios del Sistema</h4>
+                            <p class="card-text text-muted">
+                                Exportar lista completa de usuarios con roles y permisos.
+                                <br><strong th:text="${estadisticas?.totalUsuarios ?: 0}">0</strong> usuarios registrados.
+                            </p>
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-primary" onclick="abrirModalExportacion('usuarios')">
+                                    <i class="fas fa-download me-2"></i>Exportar Usuarios
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Clientes -->
+                <div class="col-lg-6 col-md-6 mb-4" sec:authorize="hasAnyRole('ADMIN', 'GERENTE', 'VENTAS')">
+                    <div class="export-card card h-100">
+                        <div class="card-body text-center">
+                            <div class="export-type-icon clients-icon">
+                                <i class="fas fa-user-friends"></i>
+                            </div>
+                            <h4 class="card-title">Base de Clientes</h4>
+                            <p class="card-text text-muted">
+                                Exportar información de clientes con estadísticas de compras.
+                                <br><strong th:text="${estadisticas?.totalClientes ?: 0}">0</strong> clientes registrados.
+                            </p>
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-primary" onclick="abrirModalExportacion('clientes')">
+                                    <i class="fas fa-download me-2"></i>Exportar Clientes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Productos -->
+                <div class="col-lg-6 col-md-6 mb-4" sec:authorize="hasAnyRole('ADMIN', 'GERENTE', 'PRODUCTOS', 'VENTAS')">
+                    <div class="export-card card h-100">
+                        <div class="card-body text-center">
+                            <div class="export-type-icon products-icon">
+                                <i class="fas fa-box"></i>
+                            </div>
+                            <h4 class="card-title">Inventario de Productos</h4>
+                            <p class="card-text text-muted">
+                                Exportar catálogo completo con precios, stock y categorías.
+                                <br><strong th:text="${estadisticas?.totalProductos ?: 0}">0</strong> productos en inventario.
+                            </p>
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-primary" onclick="abrirModalExportacion('productos')">
+                                    <i class="fas fa-download me-2"></i>Exportar Productos
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ventas -->
+                <div class="col-lg-6 col-md-6 mb-4" sec:authorize="hasAnyRole('ADMIN', 'GERENTE', 'VENTAS')">
+                    <div class="export-card card h-100">
+                        <div class="card-body text-center">
+                            <div class="export-type-icon sales-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <h4 class="card-title">Registro de Ventas</h4>
+                            <p class="card-text text-muted">
+                                Exportar transacciones de venta con detalles completos.
+                                <br><strong th:text="${estadisticas?.totalVentasEsteMes ?: 0}">0</strong> ventas este mes.
+                            </p>
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-primary" onclick="abrirModalExportacion('ventas')">
+                                    <i class="fas fa-download me-2"></i>Exportar Ventas
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Historial de Exportaciones -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="export-card card">
+                        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                <i class="fas fa-history me-2"></i>
+                                Historial de Exportaciones
+                            </h5>
+                            <button class="btn btn-sm btn-outline-primary" onclick="cargarHistorial()">
+                                <i class="fas fa-sync-alt"></i> Actualizar
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div id="historialContainer">
+                                <div th:if="${historialReciente != null and not #lists.isEmpty(historialReciente)}">
+                                    <div th:each="item : ${historialReciente}" class="history-item">
+                                        <div class="row align-items-center">
+                                            <div class="col-md-8">
+                                                <h6 class="mb-1"
+                                                    th:text="${#strings.capitalize(item.tipo)} + ' (' + #strings.toUpperCase(item.formato) + ')'">
+                                                    Usuarios (PDF)
+                                                </h6>
+                                                <small class="text-muted">
+                                                    Por <span th:text="${item.usuario}">admin</span> -
+                                                    <span th:text="${#temporals.format(item.fecha, 'dd/MM/yyyy HH:mm')}">12/01/2025 10:30</span>
+                                                </small>
+                                            </div>
+                                            <div class="col-md-2 text-center">
+                                                    <span th:class="|status-badge status-${#strings.toLowerCase(item.estado)}|"
+                                                          th:text="${item.estado}">Completado</span>
+                                            </div>
+                                            <div class="col-md-2 text-end">
+                                                <small class="text-muted" th:text="${item.tamaño}">1.2 MB</small>
+                                                <br>
+                                                <small class="text-muted" th:text="${item.registros + ' registros'}">25 registros</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div th:if="${historialReciente == null or #lists.isEmpty(historialReciente)}"
+                                     class="text-center py-5 text-muted">
+                                    <i class="fas fa-inbox fa-3x mb-3 opacity-50"></i>
+                                    <p>No hay exportaciones recientes</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Modal de Exportación -->
+<div class="modal fade" id="modalExportacion" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-download me-2"></i>
+                    Exportar <span id="modalTipoTexto">Datos</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formExportacion">
+                    <!-- Selector de Formato -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">
+                            <i class="fas fa-file-alt me-2"></i>Formato de Exportación
+                        </label>
+                        <div id="formatosContainer">
+                            <!-- Se llena dinámicamente -->
+                        </div>
+                    </div>
+
+                    <!-- Filtros de Fecha -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label">Fecha Inicio</label>
+                            <input type="date" class="form-control" id="fechaInicio" name="fechaInicio">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Fecha Fin</label>
+                            <input type="date" class="form-control" id="fechaFin" name="fechaFin">
+                        </div>
+                    </div>
+
+                    <!-- Filtros Adicionales -->
+                    <div id="filtrosAdicionales">
+                        <!-- Se llena dinámicamente según el tipo -->
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="iniciarExportacion()">
+                    <i class="fas fa-download me-2"></i>
+                    <span id="btnExportarTexto">Exportar</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Progreso -->
+<div class="modal fade" id="modalProgreso" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <div class="spinner-border text-primary mb-3" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+                <h6>Generando Exportación</h6>
+                <p class="text-muted mb-0">Por favor espere...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script th:src="@{/webjars/bootstrap/5.3.2/js/bootstrap.bundle.min.js}"></script>
+<script th:inline="javascript">
+    let tipoExportacionActual = null;
+    let formatoSeleccionado = null;
+
+    const configuracionesTipo = {
+        usuarios: {
+            formatos: ['PDF', 'Excel', 'CSV', 'JSON'],
+            filtros: [
+                {tipo: 'select', nombre: 'rol', etiqueta: 'Filtrar por Rol', opciones: ['Todos', 'ADMIN', 'VENTAS', 'PRODUCTOS']},
+                {tipo: 'checkbox', nombre: 'soloActivos', etiqueta: 'Solo usuarios activos', marcado: true}
+            ]
+        },
+        clientes: {
+            formatos: ['Excel', 'CSV', 'PDF'],
+            filtros: [
+                {tipo: 'select', nombre: 'categoria', etiqueta: 'Categoría', opciones: ['Todas', 'Premium', 'Regular', 'Nuevo']},
+                {tipo: 'checkbox', nombre: 'soloConCompras', etiqueta: 'Solo clientes con compras', marcado: false}
+            ]
+        },
+        productos: {
+            formatos: ['Excel', 'CSV', 'PDF', 'JSON'],
+            filtros: [
+                {tipo: 'select', nombre: 'categoria', etiqueta: 'Categoría', opciones: ['Todas', 'Electrónicos', 'Ropa', 'Hogar']},
+                {tipo: 'checkbox', nombre: 'soloBajoStock', etiqueta: 'Solo productos con bajo stock', marcado: false},
+                {tipo: 'checkbox', nombre: 'soloActivos', etiqueta: 'Solo productos activos', marcado: true}
+            ]
+        },
+        ventas: {
+            formatos: ['Excel', 'PDF', 'CSV', 'JSON'],
+            filtros: [
+                {tipo: 'select', nombre: 'vendedor', etiqueta: 'Vendedor', opciones: ['Todos', 'Juan Pérez', 'María García']},
+                {tipo: 'select', nombre: 'estado', etiqueta: 'Estado', opciones: ['Todos', 'Completada', 'Pendiente', 'Anulada']}
+            ]
+        }
+    };
+
+    function abrirModalExportacion(tipo) {
+        tipoExportacionActual = tipo;
+        formatoSeleccionado = null;
+
+        document.getElementById('modalTipoTexto').textContent = tipo.charAt(0).toUpperCase() + tipo.slice(1);
+
+        cargarFormatos(tipo);
+        cargarFiltrosAdicionales(tipo);
+        establecerFechasPorDefecto();
+
+        new bootstrap.Modal(document.getElementById('modalExportacion')).show();
+    }
+
+    function cargarFormatos(tipo) {
+        const config = configuracionesTipo[tipo];
+        const container = document.getElementById('formatosContainer');
+
+        container.innerHTML = config.formatos.map(formato => `
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="formato" value="${formato.toLowerCase()}"
+                           id="formato${formato}" onchange="seleccionarFormato('${formato.toLowerCase()}')">
+                    <label class="form-check-label" for="formato${formato}">
+                        <i class="fas fa-file-${getIconoFormato(formato)} me-1"></i>${formato}
+                    </label>
+                </div>
+            `).join('');
+    }
+
+    function cargarFiltrosAdicionales(tipo) {
+        const config = configuracionesTipo[tipo];
+        const container = document.getElementById('filtrosAdicionales');
+
+        if (!config.filtros || config.filtros.length === 0) {
+            container.innerHTML = '';
+            return;
+        }
+
+        container.innerHTML = `
+                <label class="form-label fw-bold">
+                    <i class="fas fa-filter me-2"></i>Filtros Adicionales
+                </label>
+                ${config.filtros.map(filtro => {
+            if (filtro.tipo === 'select') {
+                return `
+                            <div class="mb-3">
+                                <label class="form-label">${filtro.etiqueta}</label>
+                                <select class="form-select" name="${filtro.nombre}">
+                                    ${filtro.opciones.map(opcion => `<option value="${opcion}">${opcion}</option>`).join('')}
+                                </select>
+                            </div>
+                        `;
+            } else if (filtro.tipo === 'checkbox') {
+                return `
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="${filtro.nombre}" ${filtro.marcado ? 'checked' : ''}>
+                                <label class="form-check-label">${filtro.etiqueta}</label>
+                            </div>
+                        `;
+            }
+            return '';
+        }).join('')}
+            `;
+    }
+
+    function seleccionarFormato(formato) {
+        formatoSeleccionado = formato;
+        document.getElementById('btnExportarTexto').textContent = `Exportar como ${formato.toUpperCase()}`;
+    }
+
+    function establecerFechasPorDefecto() {
+        const hoy = new Date();
+        const unMesAtras = new Date();
+        unMesAtras.setMonth(hoy.getMonth() - 1);
+
+        document.getElementById('fechaInicio').value = unMesAtras.toISOString().split('T')[0];
+        document.getElementById('fechaFin').value = hoy.toISOString().split('T')[0];
+    }
+
+    function iniciarExportacion() {
+        if (!tipoExportacionActual || !formatoSeleccionado) {
+            alert('Seleccione un formato de exportación');
+            return;
+        }
+
+        // Mostrar modal de progreso
+        bootstrap.Modal.getInstance(document.getElementById('modalExportacion')).hide();
+        new bootstrap.Modal(document.getElementById('modalProgreso')).show();
+
+        // Recopilar datos del formulario
+        const formData = new FormData(document.getElementById('formExportacion'));
+        const params = new URLSearchParams();
+
+        for (let [key, value] of formData.entries()) {
+            if (key !== 'formato') {
+                params.append(key, value);
+            }
+        }
+
+        // Realizar petición de exportación
+        const url = `/exportacion/api/${tipoExportacionActual}/${formatoSeleccionado}?${params.toString()}`;
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+            .then(response => {
+                if (response.ok) {
+                    return response.blob();
+                }
+                throw new Error('Error en la exportación');
+            })
+            .then(blob => {
+                // Descargar archivo
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${tipoExportacionActual}_${new Date().toISOString().split('T')[0]}.${getExtensionFormato(formatoSeleccionado)}`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+
+                // Ocultar modal de progreso
+                bootstrap.Modal.getInstance(document.getElementById('modalProgreso')).hide();
+
+                // Actualizar historial
+                setTimeout(cargarHistorial, 1000);
+
+                // Mostrar notificación de éxito
+                mostrarNotificacion('Exportación completada exitosamente', 'success');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                bootstrap.Modal.getInstance(document.getElementById('modalProgreso')).hide();
+                mostrarNotificacion('Error en la exportación', 'error');
+            });
+    }
+
+    function cargarHistorial() {
+        fetch('/exportacion/api/historial')
+            .then(response => response.json())
+            .then(data => {
+                // Actualizar la vista del historial
+                console.log('Historial actualizado');
+            })
+            .catch(error => console.error('Error cargando historial:', error));
+    }
+
+    function refreshData() {
+        location.reload();
+    }
+
+    function getIconoFormato(formato) {
+        const iconos = {
+            'PDF': 'pdf',
+            'Excel': 'excel',
+            'CSV': 'csv',
+            'JSON': 'code'
+        };
+        return iconos[formato] || 'file';
+    }
+
+    function getExtensionFormato(formato) {
+        const extensiones = {
+            'pdf': 'pdf',
+            'excel': 'xlsx',
+            'csv': 'csv',
+            'json': 'json'
+        };
+        return extensiones[formato] || 'dat';
+    }
+
+    function mostrarNotificacion(mensaje, tipo) {
+        // Implementar sistema de notificaciones
+        alert(mensaje);
+    }
+</script>
+</body>
+</html>

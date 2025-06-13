@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Listado de Clientes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<!-- Navegación -->
+<div th:replace="~{fragments/menu :: menu}"></div>
+
+<div class="container mt-4">
+    <!-- Encabezado -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1>
+                    <i class="fas fa-users me-2"></i>
+                    Gestión de Clientes
+                </h1>
+                <!-- Botón Nuevo Cliente - Solo ADMIN/GERENTE -->
+                <div sec:authorize="hasAnyRole('ADMIN', 'GERENTE')">
+                    <a class="btn btn-primary" th:href="@{/clientes/nuevo}">
+                        <i class="fas fa-plus me-1"></i> Nuevo Cliente
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mensajes de Alerta -->
+    <div class="alert alert-success alert-dismissible fade show" th:if="${mensajeExito}">
+        <i class="fas fa-check-circle me-2"></i>
+        <span th:text="${mensajeExito}">Operación exitosa</span>
+        <button class="btn-close" data-bs-dismiss="alert" type="button"></button>
+    </div>
+
+    <div class="alert alert-success alert-dismissible fade show" th:if="${mensaje}">
+        <i class="fas fa-check-circle me-2"></i>
+        <span th:text="${mensaje}">Mensaje</span>
+        <button class="btn-close" data-bs-dismiss="alert" type="button"></button>
+    </div>
+
+    <div class="alert alert-danger alert-dismissible fade show" th:if="${mensajeError}">
+        <i class="fas fa-exclamation-circle me-2"></i>
+        <span th:text="${mensajeError}">Error</span>
+        <button class="btn-close" data-bs-dismiss="alert" type="button"></button>
+    </div>
+
+    <!-- Barra de Búsqueda y Estadísticas -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <form class="row g-3" method="get" th:action="@{/clientes}">
+                        <div class="col-md-10">
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                                <input class="form-control" name="search"
+                                       placeholder="Buscar por nombre, apellido, email o RUT..."
+                                       th:value="${search}" type="text">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-primary w-100" type="submit">
+                                <i class="fas fa-search me-1"></i> Buscar
+                            </button>
+                        </div>
+                        <div class="col-12" th:if="${search}">
+                            <a class="btn btn-outline-secondary btn-sm" th:href="@{/clientes}">
+                                <i class="fas fa-times me-1"></i> Limpiar búsqueda
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Total de Clientes</h5>
+                    <p class="card-text fs-2 fw-bold" th:text="${totalClientes}">0</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de Clientes -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <span th:if="${search}">
+                            Resultados de búsqueda: "<span th:text="${search}"></span>"
+                        </span>
+                        <span th:unless="${search}">Lista de Clientes</span>
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <!-- Tabla Responsiva -->
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>RUT</th>
+                                <th>Nombre Completo</th>
+                                <th>Email</th>
+                                <th>Teléfono</th>
+                                <th>Fecha Registro</th>
+                                <th>Acciones</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="cliente : ${clientes}">
+                                <td th:text="${cliente.id}">1</td>
+                                <td th:text="${cliente.rut}">11.111.111-1</td>
+                                <td>
+                                    <strong th:text="${cliente.nombreCompleto}">Nombre Apellido</strong>
+                                    <br>
+                                    <small class="text-muted" th:if="${cliente.categoria}"
+                                           th:text="${cliente.categoria}">Categoría</small>
+                                </td>
+                                <td th:text="${cliente.email}">email@ejemplo.com</td>
+                                <td th:text="${cliente.telefono}">+56 9 1234 5678</td>
+                                <td th:text="${#temporals.format(cliente.fechaRegistro, 'dd/MM/yyyy')}">01/01/2023</td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <!-- Ver Detalle - Todos los roles -->
+                                        <a class="btn btn-outline-info"
+                                           th:href="@{/clientes/detalle/{id}(id=${cliente.id})}" title="Ver detalle">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <!-- Editar - Solo ADMIN/GERENTE -->
+                                        <a class="btn btn-outline-warning"
+                                           sec:authorize="hasAnyRole('ADMIN', 'GERENTE')"
+                                           th:href="@{/clientes/editar/{id}(id=${cliente.id})}" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <!-- Eliminar - Solo ADMIN -->
+                                        <a class="btn btn-outline-danger"
+                                           onclick="return confirm('¿Estás seguro de eliminar este cliente?')"
+                                           sec:authorize="hasRole('ADMIN')"
+                                           th:href="@{/clientes/eliminar/{id}(id=${cliente.id})}"
+                                           title="Eliminar">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Mensaje si no hay clientes -->
+                    <div class="text-center py-4" th:if="${#lists.isEmpty(clientes)}">
+                        <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                        <p class="text-muted" th:if="${search}">
+                            No se encontraron clientes que coincidan con la búsqueda.
+                        </p>
+                        <p class="text-muted" th:unless="${search}">
+                            No hay clientes registrados en el sistema.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Paginación -->
+                <div class="card-footer bg-light" th:if="${clientesPage.totalPages > 1}">
+                    <nav aria-label="Paginación de clientes">
+                        <ul class="pagination justify-content-center mb-0">
+                            <!-- Página anterior -->
+                            <li class="page-item" th:classappend="${clientesPage.first} ? 'disabled'">
+                                <a class="page-link"
+                                   th:href="@{/clientes(page=${currentPage - 1}, search=${search})}"
+                                   th:unless="${clientesPage.first}">
+                                    <i class="fas fa-chevron-left"></i> Anterior
+                                </a>
+                                <span class="page-link" th:if="${clientesPage.first}">
+                                    <i class="fas fa-chevron-left"></i> Anterior
+                                </span>
+                            </li>
+
+                            <!-- Números de página -->
+                            <li class="page-item"
+                                th:classappend="${pageNum == currentPage} ? 'active'"
+                                th:each="pageNum : ${#numbers.sequence(0, clientesPage.totalPages - 1)}"
+                                th:if="${pageNum >= (currentPage - 2) and pageNum <= (currentPage + 2)}">
+                                <a class="page-link"
+                                   th:href="@{/clientes(page=${pageNum}, search=${search})}"
+                                   th:text="${pageNum + 1}"
+                                   th:unless="${pageNum == currentPage}">1</a>
+                                <span class="page-link"
+                                      th:if="${pageNum == currentPage}"
+                                      th:text="${pageNum + 1}">1</span>
+                            </li>
+
+                            <!-- Página siguiente -->
+                            <li class="page-item" th:classappend="${clientesPage.last} ? 'disabled'">
+                                <a class="page-link"
+                                   th:href="@{/clientes(page=${currentPage + 1}, search=${search})}"
+                                   th:unless="${clientesPage.last}">
+                                    Siguiente <i class="fas fa-chevron-right"></i>
+                                </a>
+                                <span class="page-link" th:if="${clientesPage.last}">
+                                    Siguiente <i class="fas fa-chevron-right"></i>
+                                </span>
+                            </li>
+                        </ul>
+                    </nav>
+
+                    <!-- Información de paginación -->
+                    <div class="text-center mt-2">
+                        <small class="text-muted">
+                            Mostrando
+                            <span th:text="${(currentPage * 10) + 1}">1</span> -
+                            <span th:text="${(currentPage * 10) + #lists.size(clientes)}">10</span>
+                            de <span th:text="${clientesPage.totalElements}">100</span> clientes
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

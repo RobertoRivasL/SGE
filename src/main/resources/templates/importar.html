@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Importar Datos - Sistema de Gestión</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/6.0.0-beta.1/dropzone.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <nav class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse">
+            <div class="position-sticky pt-3">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/inicio">
+                            <i class="fas fa-home"></i> Inicio
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/productos">
+                            <i class="fas fa-box"></i> Productos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/ventas">
+                            <i class="fas fa-shopping-cart"></i> Ventas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/clientes">
+                            <i class="fas fa-users"></i> Clientes
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white active" href="/importar">
+                            <i class="fas fa-upload"></i> Importar Datos
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main content -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">
+                    <i class="fas fa-upload text-primary"></i> Importar Datos
+                </h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <button type="button" class="btn btn-outline-secondary" onclick="history.back()">
+                            <i class="fas fa-arrow-left"></i> Volver
+                        </button>
+                        <button type="button" class="btn btn-outline-info" onclick="mostrarAyuda()">
+                            <i class="fas fa-question-circle"></i> Ayuda
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alertas -->
+            <div th:if="${mensajeExito}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle"></i> <span th:text="${mensajeExito}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <div th:if="${mensajeError}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle"></i> <span th:text="${mensajeError}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!-- Selector de tipo de importación -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-list"></i> Seleccionar Tipo de Datos a Importar
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <div class="card import-type-card" data-type="productos">
+                                        <div class="card-body text-center">
+                                            <i class="fas fa-box fa-3x text-primary mb-3"></i>
+                                            <h5>Productos</h5>
+                                            <p class="text-muted small">Importar catálogo de productos con precios y
+                                                stock</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <div class="card import-type-card" data-type="clientes">
+                                        <div class="card-body text-center">
+                                            <i class="fas fa-users fa-3x text-success mb-3"></i>
+                                            <h5>Clientes</h5>
+                                            <p class="text-muted small">Importar base de datos de clientes</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <div class="card import-type-card" data-type="ventas">
+                                        <div class="card-body text-center">
+                                            <i class="fas fa-shopping-cart fa-3x text-info mb-3"></i>
+                                            <h5>Ventas</h5>
+                                            <p class="text-muted small">Importar historial de ventas</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <div class="card import-type-card" data-type="inventario">
+                                        <div class="card-body text-center">
+                                            <i class="fas fa-warehouse fa-3x text-warning mb-3"></i>
+                                            <h5>Inventario</h5>
+                                            <p class="text-muted small">Actualizar stock de productos</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Área de carga de archivos -->
+            <div class="row mb-4" id="uploadArea" style="display: none;">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-cloud-upload-alt"></i> Cargar Archivo
+                                <span class="badge bg-light text-dark ms-2" id="selectedType"></span>
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <!-- Dropzone -->
+                            <div id="fileDropzone" class="dropzone">
+                                <div class="dz-message">
+                                    <div class="text-center">
+                                        <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                                        <h4>Arrastra tu archivo aquí o haz clic para seleccionar</h4>
+                                        <p class="text-muted">Formatos soportados: CSV, XLSX, XLS</p>
+                                        <div class="mt-3">
+                                            <span class="badge bg-primary">CSV</span>
+                                            <span class="badge bg-success">XLSX</span>
+                                            <span class="badge bg-info">XLS</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Opciones de importación -->
+                            <div class="row mt-4" id="importOptions" style="display: none;">
+                                <div class="col-md-6">
+                                    <h6><i class="fas fa-cog"></i> Opciones de Importación</h6>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="skipFirstRow" checked>
+                                        <label class="form-check-label" for="skipFirstRow">
+                                            Omitir primera fila (encabezados)
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="updateExisting">
+                                        <label class="form-check-label" for="updateExisting">
+                                            Actualizar registros existentes
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="validateData" checked>
+                                        <label class="form-check-label" for="validateData">
+                                            Validar datos antes de importar
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6><i class="fas fa-exclamation-triangle"></i> Manejo de Errores</h6>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="errorHandling"
+                                               id="stopOnError" value="stop" checked>
+                                        <label class="form-check-label" for="stopOnError">
+                                            Detener en el primer error
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="errorHandling"
+                                               id="skipErrors" value="skip">
+                                        <label class="form-check-label" for="skipErrors">
+                                            Omitir filas con errores
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="errorHandling"
+                                               id="reportErrors" value="report">
+                                        <label class="form-check-label" for="reportErrors">
+                                            Generar reporte de errores
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Botones de acción -->
+                            <div class="row mt-4" id="actionButtons" style="display: none;">
+                                <div class="col-12">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <button type="button" class="btn btn-outline-secondary"
+                                                    onclick="resetImport()">
+                                                <i class="fas fa-times"></i> Cancelar
+                                            </button>
+                                            <button type="button" class="btn btn-info me-2" onclick="previewData()">
+                                                <i class="fas fa-eye"></i> Vista Previa
+                                            </button>
+                                        </div>
+                                        <div>
+                                            <button type="button" class="btn btn-success" onclick="startImport()">
+                                                <i class="fas fa-play"></i> Iniciar Importación
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vista previa de datos -->
+            <div class="row mb-4" id="previewArea" style="display: none;">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-eye"></i> Vista Previa de Datos
+                                <button type="button" class="btn btn-sm btn-outline-light float-end"
+                                        onclick="closePreview()">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <div class="bg-light p-3 rounded text-center">
+                                        <h5 class="text-primary mb-1" id="totalRows">0</h5>
+                                        <small class="text-muted">Total de filas</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="bg-light p-3 rounded text-center">
+                                        <h5 class="text-success mb-1" id="validRows">0</h5>
+                                        <small class="text-muted">Filas válidas</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="bg-light p-3 rounded text-center">
+                                        <h5 class="text-danger mb-1" id="errorRows">0</h5>
+                                        <small class="text-muted">Filas con errores</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered" id="previewTable">
+                                    <thead class="table-dark">
+                                    <tr id="previewHeaders">
+                                        <!-- Headers se generan dinámicamente -->
+                                    </tr>
+                                    </thead>
+                                    <tbody id="previewBody">
+                                    <!-- Datos de vista previa se generan dinámicamente -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Área de progreso -->
+            <div class="row mb-4" id="progressArea" style="display: none;">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-warning text-dark">
+                            <h5 class="mb-0">
+                                <i class="fas fa-spinner fa-spin"></i> Importando Datos...
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="progress mb-3" style="height: 25px;">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated"
+                                     id="importProgress"
+                                     role="progressbar"
+                                     style="width: 0%">
+                                    <span id="progressText">0%</span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="text-center">
+                                        <h6 class="text-muted">Procesadas</h6>
+                                        <h4 class="text-primary" id="processedCount">0</h4>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="text-center">
+                                        <h6 class="text-muted">Exitosas</h6>
+                                        <h4 class="text-success" id="successCount">0</h4>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="text-center">
+                                        <h6 class="text-muted">Con Errores</h6>
+                                        <h4 class="text-danger" id="errorCount">0</h4>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="text-center">
+                                        <h6 class="text-muted">Tiempo Restante</h6>
+                                        <h4 class="text-info" id="timeRemaining">--</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resultados de importación -->
+            <div class="row mb-4" id="resultsArea" style="display: none;">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-check-circle"></i> Resultados de la Importación
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <div class="bg-success text-white p-3 rounded text-center">
+                                        <h4 id="finalSuccessCount">0</h4>
+                                        <small>Registros Importados</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="bg-danger text-white p-3 rounded text-center">
+                                        <h4 id="finalErrorCount">0</h4>
+                                        <small>Registros con Errores</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="bg-warning text-dark p-3 rounded text-center">
+                                        <h4 id="finalWarningCount">0</h4>
+                                        <small>Advertencias</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="bg-info text-white p-3 rounded text-center">
+                                        <h4 id="importDuration">0s</h4>
+                                        <small>Tiempo Total</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Reporte de errores -->
+                            <div id="errorReport" style="display: none;">
+                                <h6>Reporte de Errores:</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-bordered">
+                                        <thead class="table-danger">
+                                        <tr>
+                                            <th>Fila</th>
+                                            <th>Error</th>
+                                            <th>Datos</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody id="errorReportBody">
+                                        <!-- Errores se generan dinámicamente -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Acciones post-importación -->
+                            <div class="mt-4">
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-primary" onclick="downloadErrorReport()">
+                                        <i class="fas fa-download"></i> Descargar Reporte de Errores
+                                    </button>
+                                    <button type="button" class="btn btn-success" onclick="viewImportedData()">
+                                        <i class="fas fa-eye"></i> Ver Datos Importados
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary" onclick="startNewImport()">
+                                        <i class="fas fa-plus"></i> Nueva Importación
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Plantillas y ejemplos -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-secondary text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-download"></i> Plantillas y Ejemplos
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted">Descarga las plantillas para asegurar el formato correcto de tus
+                                datos:</p>
+                            <div class="row">
+                                <div class="col-md-3 mb-2">
+                                    <a href="/templates/productos.xlsx" class="btn btn-outline-primary w-100">
+                                        <i class="fas fa-file-excel"></i> Plantilla Productos
+                                    </a>
+                                </div>
+                                <div class="col-md-3 mb-2">
+                                    <a href="/templates/clientes.xlsx" class="btn btn-outline-success w-100">
+                                        <i class="fas fa-file-excel"></i> Plantilla Clientes
+                                    </a>
+                                </div>
+                                <div class="col-md-3 mb-2">
+                                    <a href="/templates/ventas.xlsx" class="btn btn-outline-info w-100">
+                                        <i class="fas fa-file-excel"></i> Plantilla Ventas
+                                    </a>
+                                </div>
+                                <div class="col-md-3 mb-2">
+                                    <a href="/templates/inventario.xlsx" class="btn btn-outline-warning w-100">
+                                        <i class="fas fa-file-excel"></i> Plantilla Inventario
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Modal de ayuda -->
+<div class="modal fade" id="helpModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-question-circle"></i> Ayuda para Importación de Datos
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="accordion" id="helpAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#formatosAdmitidos">
+                                Formatos de Archivo Admitidos
+                            </button>
+                        </h2>
+                        <div id="formatosAdmitidos" class="accordion-collapse collapse show">
+                            <div class="accordion-body">
+                                <ul>
+                                    <li><strong>CSV:</strong> Archivo de valores separados por comas. Usar codificación
+                                        UTF-8.
+                                    </li>
+                                    <li><strong>XLSX:</strong> Archivo de Excel moderno (2007 o posterior).</li>
+                                    <li><strong>XLS:</strong> Archivo de Excel legacy (97-2003).</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#estructuraDatos">
+                                Estructura de Datos
+                            </button>
+                        </h2>
+                        <div id="estructuraDatos" class="accordion-collapse collapse">
+                            <div class="accordion-body">
+                                <p>Cada tipo de dato requiere una estructura específica:</p>
+                                <ul>
+                                    <li><strong>Productos:</strong> Código, Nombre, Descripción, Precio, Stock,
+                                        Categoría
+                                    </li>
+                                    <li><strong>Clientes:</strong> RUT, Nombre, Apellido, Email, Teléfono, Dirección
+                                    </li>
+                                    <li><strong>Ventas:</strong> Fecha, Cliente ID, Producto ID, Cantidad, Precio</li>
+                                    <li><strong>Inventario:</strong> Código Producto, Stock Actual, Stock Nuevo</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/6.0.0-beta.1/dropzone.min.js"></script>
+
+<script>
+    let selectedImportType = null;
+    let uploadedFile = null;
+    let dropzone = null;
+
+    // Inicializar
+    document.addEventListener('DOMContentLoaded', function () {
+        initializeImportTypeSelection();
+        initializeDropzone();
+    });
+
+    // Selección de tipo de importación
+    function initializeImportTypeSelection() {
+        document.querySelectorAll('.import-type-card').forEach(card => {
+            card.addEventListener('click', function () {
+                // Remover selección previa
+                document.querySelectorAll('.import-type-card').forEach(c => c.classList.remove('border-primary', 'bg-light'));
+
+                // Seleccionar nueva tarjeta
+                this.classList.add('border-primary', 'bg-light');
+                selectedImportType = this.dataset.type;
+
+                // Mostrar área de carga
+                document.getElementById('uploadArea').style.display = 'block';
+                document.getElementById('selectedType').textContent = this.querySelector('h5').textContent;
+
+                // Actualizar dropzone para el tipo seleccionado
+                updateDropzoneForType(selectedImportType);
+            });
+        });
+    }
+
+    // Inicializar Dropzone
+    function initializeDropzone() {
+        dropzone = new Dropzone("#fileDropzone", {
+            url: "/api/upload/temp", // URL temporal para subir archivos
+            maxFiles: 1,
+            acceptedFiles: ".csv,.xlsx,.xls",
+            addRemoveLinks: true,
+            dictDefaultMessage: "",
+            init: function () {
+                this.on("addedfile", function (file) {
+                    uploadedFile = file;
+                    document.getElementById('importOptions').style.display = 'block';
+                    document.getElementById('actionButtons').style.display = 'block';
+                });
+
+                this.on("removedfile", function (file) {
+                    uploadedFile = null;
+                    document.getElementById('importOptions').style.display = 'none';
+                    document.getElementById('actionButtons').style.display = 'none';
+                    document.getElementById('previewArea').style.display = 'none';
+                });
+            }
+        });
+    }
+
+    // Actualizar dropzone según tipo
+    function updateDropzoneForType(type) {
+        const typeConfig = {
+            productos: {maxFilesize: 10},
+            clientes: {maxFilesize: 5},
+            ventas: {maxFilesize: 20},
+            inventario: {maxFilesize: 5}
+        };
+
+        dropzone.options.maxFilesize = typeConfig[type].maxFilesize;
+    }
+
+    // Vista previa de datos
+    function previewData() {
+        if (!uploadedFile) {
+            alert('Por favor seleccione un archivo primero');
+            return;
+        }
+
+        // Simular carga de vista previa
+        document.getElementById('previewArea').style.display = 'block';
+
+        // Datos de ejemplo (en implementación real vendría del servidor)
+        const mockData = generateMockPreviewData(selectedImportType);
+        populatePreviewTable(mockData);
+    }
+
+    // Generar datos de ejemplo para vista previa
+    function generateMockPreviewData(type) {
+        const data = {
+            productos: {
+                headers: ['Código', 'Nombre', 'Precio', 'Stock', 'Categoría'],
+                rows: [
+                    ['PROD001', 'Producto 1', '$100', '50', 'Electrónicos'],
+                    ['PROD002', 'Producto 2', '$200', '30', 'Ropa'],
+                    ['PROD003', 'Producto 3', '$150', '0', 'Hogar']
+                ],
+                errors: 1
+            },
+            clientes: {
+                headers: ['RUT', 'Nombre', 'Email', 'Teléfono'],
+                rows: [
+                    ['12345678-9', 'Juan Pérez', 'juan@email.com', '+56912345678'],
+                    ['98765432-1', 'María García', 'maria@email.com', '+56987654321']
+                ],
+                errors: 0
+            }
+        };
+
+        return data[type] || data.productos;
+    }
+
+    // Poblar tabla de vista previa
+    function populatePreviewTable(data) {
+        document.getElementById('totalRows').textContent = data.rows.length;
+        document.getElementById('validRows').textContent = data.rows.length - data.errors;
+        document.getElementById('errorRows').textContent = data.errors;
+
+        // Headers
+        const headersRow = document.getElementById('previewHeaders');
+        headersRow.innerHTML = data.headers.map(header => `<th>${header}</th>`).join('');
+
+        // Rows
+        const tbody = document.getElementById('previewBody');
+        tbody.innerHTML = data.rows.map((row, index) => {
+            const isError = index === data.rows.length - 1 && data.errors > 0;
+            const rowClass = isError ? 'table-danger' : '';
+            return `<tr class="${rowClass}">${row.map(cell => `<td>${cell}</td>`).join('')}</tr>`;
+        }).join('');
+    }
+
+    // Iniciar importación
+    function startImport() {
+        if (!uploadedFile) {
+            alert('Por favor seleccione un archivo primero');
+            return;
+        }
+
+        // Ocultar otras áreas y mostrar progreso
+        document.getElementById('previewArea').style.display = 'none';
+        document.getElementById('progressArea').style.display = 'block';
+
+        // Simular importación
+        simulateImport();
+    }
+
+    // Simular proceso de importación
+    function simulateImport() {
+        let progress = 0;
+        let processed = 0;
+        let success = 0;
+        let errors = 0;
+        const total = 150; // Simular 150 registros
+        const startTime = Date.now();
+
+        const interval = setInterval(() => {
+            progress += Math.random() * 10;
+            processed = Math.floor((progress / 100) * total);
+            success = processed - Math.floor(Math.random() * 5);
+            errors = processed - success;
+
+            if (progress >= 100) {
+                progress = 100;
+                processed = total;
+                clearInterval(interval);
+                showResults(success, errors, Date.now() - startTime);
+            }
+
+            updateProgress(progress, processed, success, errors, startTime);
+        }, 100);
+    }
+
+    // Actualizar barra de progreso
+    function updateProgress(progress, processed, success, errors, startTime) {
+        document.getElementById('importProgress').style.width = progress + '%';
+        document.getElementById('progressText').textContent = Math.round(progress) + '%';
+        document.getElementById('processedCount').textContent = processed;
+        document.getElementById('successCount').textContent = success;
+        document.getElementById('errorCount').textContent = errors;
+
+        // Calcular tiempo restante
+        const elapsed = Date.now() - startTime;
+        const rate = progress / elapsed;
+        const remaining = (100 - progress) / rate;
+        document.getElementById('timeRemaining').textContent = Math.round(remaining / 1000) + 's';
+    }
+
+    // Mostrar resultados
+    function showResults(success, errors, duration) {
+        document.getElementById('progressArea').style.display = 'none';
+        document.getElementById('resultsArea').style.display = 'block';
+
+        document.getElementById('finalSuccessCount').textContent = success;
+        document.getElementById('finalErrorCount').textContent = errors;
+        document.getElementById('finalWarningCount').textContent = Math.floor(Math.random() * 3);
+        document.getElementById('importDuration').textContent = Math.round(duration / 1000) + 's';
+
+        if (errors > 0) {
+            document.getElementById('errorReport').style.display = 'block';
+            generateErrorReport(errors);
+        }
+    }
+
+    // Generar reporte de errores
+    function generateErrorReport(errorCount) {
+        const tbody = document.getElementById('errorReportBody');
+        const errors = [];
+
+        for (let i = 0; i < errorCount; i++) {
+            errors.push(`
+                    <tr>
+                        <td>${Math.floor(Math.random() * 150) + 1}</td>
+                        <td>Campo requerido faltante</td>
+                        <td>Nombre: "", Email: "invalid-email"</td>
+                    </tr>
+                `);
+        }
+
+        tbody.innerHTML = errors.join('');
+    }
+
+    // Funciones auxiliares
+    function resetImport() {
+        selectedImportType = null;
+        uploadedFile = null;
+        document.getElementById('uploadArea').style.display = 'none';
+        document.getElementById('previewArea').style.display = 'none';
+        document.getElementById('progressArea').style.display = 'none';
+        document.getElementById('resultsArea').style.display = 'none';
+        document.querySelectorAll('.import-type-card').forEach(c => c.classList.remove('border-primary', 'bg-light'));
+        dropzone.removeAllFiles();
+    }
+
+    function closePreview() {
+        document.getElementById('previewArea').style.display = 'none';
+    }
+
+    function mostrarAyuda() {
+        const modal = new bootstrap.Modal(document.getElementById('helpModal'));
+        modal.show();
+    }
+
+    function downloadErrorReport() {
+        // Implementar descarga de reporte
+        alert('Descargando reporte de errores...');
+    }
+
+    function viewImportedData() {
+        // Redirigir a la vista de datos importados
+        window.location.href = `/${selectedImportType}`;
+    }
+
+    function startNewImport() {
+        resetImport();
+    }
+
+    // Auto-hide alerts after 5 seconds
+    setTimeout(function () {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => {
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        });
+    }, 5000);
+</script>
+
+<!-- Estilos personalizados -->
+<style>
+    .import-type-card {
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+
+    .import-type-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .dropzone {
+        border: 2px dashed #ccc;
+        border-radius: 10px;
+        text-align: center;
+        padding: 50px 20px;
+        transition: all 0.3s ease;
+    }
+
+    .dropzone.dz-drag-hover {
+        border-color: #007bff;
+        background-color: #f8f9fa;
+    }
+
+    .progress {
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .table-responsive {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    .sidebar {
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 100;
+        padding: 0;
+        box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+    }
+
+    .nav-link:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 5px;
+    }
+
+    .nav-link.active {
+        background-color: rgba(255, 255, 255, 0.2);
+        border-radius: 5px;
+    }
+
+    @media (max-width: 768px) {
+        .sidebar {
+            position: relative;
+            height: auto;
+        }
+    }
+</style>
+</body>
+</html>
