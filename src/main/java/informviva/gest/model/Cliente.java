@@ -8,10 +8,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * Entidad que representa un cliente en el sistema
+ * ACTUALIZADA: Ahora usa LocalDateTime para consistencia
  */
 @Entity
 @Table(name = "clientes")
@@ -38,10 +39,11 @@ public class Cliente {
 
     private String direccion;
 
-    @ValidadorRut(message = "El RUT debe tener un formato válido")  // Aplicando la validación del RUT
+    @ValidadorRut(message = "El RUT debe tener un formato válido")
     private String rut;
 
-    private LocalDate fechaRegistro;
+    // CAMBIADO: Ahora usa LocalDateTime para consistencia
+    private LocalDateTime fechaRegistro;
 
     private String categoria;
 
@@ -61,7 +63,16 @@ public class Cliente {
     @PrePersist
     public void establecerFechaRegistro() {
         if (fechaRegistro == null) {
-            this.fechaRegistro = LocalDate.now(); // Establece la fecha actual si no está definida
+            this.fechaRegistro = LocalDateTime.now(); // Usa LocalDateTime
         }
+    }
+
+    /**
+     * Método auxiliar para obtener la fecha de registro como LocalDate para compatibilidad
+     * con código existente que espera LocalDate
+     */
+    @Transient
+    public java.time.LocalDate getFechaRegistroAsLocalDate() {
+        return fechaRegistro != null ? fechaRegistro.toLocalDate() : null;
     }
 }

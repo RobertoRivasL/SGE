@@ -1,6 +1,5 @@
 package informviva.gest.dto;
 
-
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

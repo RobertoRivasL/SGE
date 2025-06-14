@@ -111,4 +111,42 @@ public final class ValidacionConstantes {
     private ValidacionConstantes() {
         throw new UnsupportedOperationException("Esta es una clase de constantes y no debe ser instanciada");
     }
+
+    // Mensajes de validación de archivos de importación
+    public static final String ARCHIVO_VALIDO = "Archivo válido para importación";
+    public static final String ARCHIVO_INVALIDO = "Archivo no válido para importación";
+    public static final String ARCHIVO_VACIO = "El archivo está vacío";
+    public static final String ARCHIVO_CORRUPTO = "El archivo está corrupto o dañado";
+    public static final String ARCHIVO_MUY_GRANDE = "El archivo excede el tamaño máximo";
+
+    // Mensajes de validación de formato
+    public static final String FORMATO_VALIDO = "Formato de archivo soportado";
+    public static final String FORMATO_INVALIDO = "Formato de archivo no soportado";
+    public static final String FORMATO_CSV_VALIDO = "Archivo CSV válido";
+    public static final String FORMATO_EXCEL_VALIDO = "Archivo Excel válido";
+
+    // Mensajes de validación de columnas
+    public static final String COLUMNAS_COMPLETAS = "Todas las columnas requeridas están presentes";
+    public static final String COLUMNAS_FALTANTES = "Faltan columnas requeridas en el archivo";
+    public static final String ENCABEZADOS_VALIDOS = "Encabezados del archivo son válidos";
+    public static final String ENCABEZADOS_INVALIDOS = "Encabezados del archivo no son válidos";
+
+    // Mensajes de validación de datos
+    public static final String DATOS_VALIDOS = "Datos del archivo son válidos";
+    public static final String DATOS_INVALIDOS = "Se encontraron datos inválidos";
+    public static final String FILA_VALIDA = "Fila procesada correctamente";
+    public static final String FILA_INVALIDA = "Error en la fila: ";
+
+    // Mensajes de validación específicos por entidad
+    public static final String CLIENTE_VALIDO = "Datos de cliente válidos";
+    public static final String CLIENTE_INVALIDO = "Datos de cliente inválidos";
+    public static final String PRODUCTO_VALIDO = "Datos de producto válidos";
+    public static final String PRODUCTO_INVALIDO = "Datos de producto inválidos";
+    public static final String USUARIO_VALIDO = "Datos de usuario válidos";
+    public static final String USUARIO_INVALIDO = "Datos de usuario inválidos";
+
+    // Patrones de validación para importación
+    public static final String PATRON_PRECIO = "^[0-9]+(\\.[0-9]{1,2})?$";
+    public static final String PATRON_STOCK = "^[0-9]+$";
+    public static final String PATRON_CODIGO_PRODUCTO = "^[A-Z0-9]{3,20}$";
 }

@@ -89,4 +89,37 @@ public final class RutasConstantes {
     // Evitar instanciación
     private RutasConstantes() {
     }
+
+    // Rutas de importación
+    public static final String IMPORTACION = "/importacion/**";
+    public static final String API_IMPORTACION = "/api/importacion/**";
+
+    // Rutas específicas de importación
+    public static final String RUTA_IMPORTACION = "/importacion";
+    public static final String RUTA_IMPORTACION_CLIENTE = "/importacion/cliente";
+    public static final String RUTA_IMPORTACION_PRODUCTO = "/importacion/producto";
+    public static final String RUTA_IMPORTACION_USUARIO = "/importacion/usuario";
+    public static final String RUTA_PROCESAR = "/procesar";
+    public static final String RUTA_VALIDAR = "/validar";
+    public static final String RUTA_PLANTILLA = "/plantilla";
+    public static final String RUTA_VISTA_PREVIA = "/vista-previa";
+
+    // Vistas de importación
+    public static final String VISTA_IMPORTACION_INDEX = "importacion/index";
+    public static final String VISTA_IMPORTACION_FORMULARIO = "importacion/formulario";
+    public static final String VISTA_IMPORTACION_RESULTADO = "importacion/resultado";
+    public static final String VISTA_IMPORTACION_AYUDA = "importacion/ayuda";
+
+    // Redirecciones de importación
+    public static final String REDIRECT_IMPORTACION = "redirect:/importacion";
+    public static final String REDIRECT_IMPORTACION_RESULTADO = "redirect:/importacion/resultado";
+
+    // Atributos del modelo para importación
+    public static final String ATTR_RESULTADO_IMPORTACION = "resultadoImportacion";
+    public static final String ATTR_FORMATOS_SOPORTADOS = "formatosSoportados";
+    public static final String ATTR_TIPOS_ENTIDAD = "tiposEntidad";
+    public static final String ATTR_COLUMNAS_REQUERIDAS = "columnasRequeridas";
+    public static final String ATTR_VISTA_PREVIA = "vistaPrevia";
+    public static final String ATTR_TIPO_ENTIDAD = "tipoEntidad";
+    public static final String ATTR_ARCHIVO_IMPORTACION = "archivoImportacion";
 }

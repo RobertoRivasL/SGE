@@ -6,13 +6,14 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
 /**
  * Entidad que representa un usuario del sistema.
+ * ACTUALIZADA: Ahora usa LocalDateTime consistentemente en lugar de LocalDate
  */
 @Entity
 @Table(name = "usuarios")
@@ -22,26 +23,35 @@ public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @NotBlank(message = "El nombre de usuario no puede estar vacío")
     @Column(unique = true)
     private String username;
+
     @NotBlank(message = "La contraseña no puede estar vacía")
     private String password;
+
     @NotBlank(message = "El nombre no puede estar vacío")
     private String nombre;
+
     @NotBlank(message = "El apellido no puede estar vacío")
     private String apellido;
+
     @Email(message = "El correo debe tener un formato válido")
     @Column(unique = true)
     private String email;
+
     private boolean activo = true;
-    // Se registran la fecha de creación y el último acceso del usuario.
-    private LocalDate fechaCreacion;
-    private LocalDate ultimoAcceso;
-    @ElementCollection(fetch = FetchType.EAGER) // <-- Cambiado a EAGER
+
+    // CAMBIADO: Ahora usa LocalDateTime para consistencia
+    private LocalDateTime fechaCreacion;
+    private LocalDateTime ultimoAcceso;
+
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "usuario_roles", joinColumns = @JoinColumn(name = "usuario_id"))
     @Column(name = "rol")
     private Set<String> roles = new HashSet<>();
+
     // Constructor simplificado para inicializar username y password.
     public Usuario(String username, String password) {
         this.username = username;
@@ -53,7 +63,7 @@ public class Usuario {
      */
     @PrePersist
     private void onCreate() {
-        LocalDate now = LocalDate.now();
+        LocalDateTime now = LocalDateTime.now();
         this.fechaCreacion = now;
         this.ultimoAcceso = now;
     }
@@ -63,7 +73,7 @@ public class Usuario {
      */
     @PreUpdate
     private void onUpdate() {
-        this.ultimoAcceso = LocalDate.now();
+        this.ultimoAcceso = LocalDateTime.now();
     }
 
     /**
@@ -90,7 +100,8 @@ public class Usuario {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Usuario usuario)) return false;
+        if (!(o instanceof Usuario)) return false;
+        Usuario usuario = (Usuario) o;
         return Objects.equals(id, usuario.id) &&
                 Objects.equals(username, usuario.username);
     }
@@ -157,19 +168,19 @@ public class Usuario {
         this.activo = activo;
     }
 
-    public LocalDate getFechaCreacion() {
+    public LocalDateTime getFechaCreacion() {
         return fechaCreacion;
     }
 
-    public void setFechaCreacion(LocalDate fechaCreacion) {
+    public void setFechaCreacion(LocalDateTime fechaCreacion) {
         this.fechaCreacion = fechaCreacion;
     }
 
-    public LocalDate getUltimoAcceso() {
+    public LocalDateTime getUltimoAcceso() {
         return ultimoAcceso;
     }
 
-    public void setUltimoAcceso(LocalDate ultimoAcceso) {
+    public void setUltimoAcceso(LocalDateTime ultimoAcceso) {
         this.ultimoAcceso = ultimoAcceso;
     }
 

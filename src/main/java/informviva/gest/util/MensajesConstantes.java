@@ -40,4 +40,26 @@ public final class MensajesConstantes {
     // Evitar instanciación
     private MensajesConstantes() {
     }
+
+    // Mensajes de importación - éxito
+    public static final String IMPORTACION_EXITOSA = "Importación completada exitosamente";
+    public static final String IMPORTACION_PARCIAL = "Importación completada con algunos errores";
+    public static final String PLANTILLA_GENERADA = "Plantilla generada correctamente";
+
+    // Mensajes de importación - error
+    public static final String ERROR_IMPORTACION = "Error durante la importación: ";
+    public static final String ERROR_ARCHIVO_VACIO = "El archivo está vacío o no contiene datos válidos";
+    public static final String ERROR_FORMATO_NO_SOPORTADO = "Formato de archivo no soportado";
+    public static final String ERROR_ARCHIVO_CORRUPTO = "El archivo parece estar corrupto o dañado";
+    public static final String ERROR_COLUMNAS_FALTANTES = "El archivo no contiene todas las columnas requeridas";
+    public static final String ERROR_VISTA_PREVIA = "Error procesando vista previa del archivo";
+    public static final String ERROR_GENERAR_PLANTILLA = "Error generando plantilla de importación";
+    public static final String ERROR_ARCHIVO_MUY_GRANDE = "El archivo excede el tamaño máximo permitido";
+    public static final String ERROR_TIPO_ENTIDAD_INVALIDO = "Tipo de entidad no válido para importación";
+
+    // Mensajes informativos de importación
+    public static final String INFO_PROCESANDO_BASE = "Procesando archivo: ";
+    public static final String INFO_FILAS_PROCESADAS = " filas procesadas";
+    public static final String INFO_REGISTROS_EXITOSOS = " registros importados exitosamente";
+    public static final String INFO_REGISTROS_CON_ERROR = " registros con errores";
 }

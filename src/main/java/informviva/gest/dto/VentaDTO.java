@@ -1,42 +1,28 @@
 package informviva.gest.dto;
 
-/**
- * @author Roberto Rivas
- * @version 2.0
- */
-
-
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class VentaDTO {
 
-    private Long id;
-
-    private LocalDateTime fecha;
-
-    @NotNull(message = "El cliente es obligatorio")
+    @NotNull(message = "Debe seleccionar un cliente.")
     private Long clienteId;
 
-    @NotNull(message = "El vendedor es obligatorio")
-    private Long vendedorId;
-
-    private String metodoPago;
-
-    private String observaciones;
-
+    @NotEmpty(message = "Debe añadir al menos un producto a la venta.")
     @Valid
-    @NotNull(message = "Debe incluir al menos un producto")
-    @Size(min = 1, message = "Debe incluir al menos un producto")
-    private List<VentaDetalleDTO> detalles;
+    private List<ProductoVentaDTO> productos;
+
+    @Data
+    public static class ProductoVentaDTO {
+        @NotNull
+        private Long productoId;
+
+        @Min(value = 1, message = "La cantidad debe ser al menos 1.")
+        private int cantidad;
+    }
 }

@@ -1,97 +1,139 @@
 package informviva.gest.exception;
 
-
 /**
- * Excepción específica para errores durante el proceso de importación
+ * Excepción personalizada para errores relacionados con el proceso de importación.
+ * Proporciona un manejo de errores más específico y granular.
  *
  * @author Roberto Rivas
- * @version 2.0
+ * @version 1.0
  */
 public class ImportacionException extends RuntimeException {
 
-    private final String tipoEntidad;
-    private final String nombreArchivo;
-    private final int numeroFila;
+    private static final long serialVersionUID = 1L;
+
+    private final String codigoError;
+    private final String archivoAfectado;
+    private final Integer filaAfectada;
 
     /**
-     * Constructor básico
+     * Constructor básico con mensaje.
      */
     public ImportacionException(String mensaje) {
         super(mensaje);
-        this.tipoEntidad = null;
-        this.nombreArchivo = null;
-        this.numeroFila = -1;
+        this.codigoError = null;
+        this.archivoAfectado = null;
+        this.filaAfectada = null;
     }
 
     /**
-     * Constructor con información detallada
-     */
-    public ImportacionException(String mensaje, String tipoEntidad, String nombreArchivo) {
-        super(mensaje);
-        this.tipoEntidad = tipoEntidad;
-        this.nombreArchivo = nombreArchivo;
-        this.numeroFila = -1;
-    }
-
-    /**
-     * Constructor con número de fila específico
-     */
-    public ImportacionException(String mensaje, String tipoEntidad, String nombreArchivo, int numeroFila) {
-        super(mensaje);
-        this.tipoEntidad = tipoEntidad;
-        this.nombreArchivo = nombreArchivo;
-        this.numeroFila = numeroFila;
-    }
-
-    /**
-     * Constructor con causa
+     * Constructor con mensaje y causa.
      */
     public ImportacionException(String mensaje, Throwable causa) {
         super(mensaje, causa);
-        this.tipoEntidad = null;
-        this.nombreArchivo = null;
-        this.numeroFila = -1;
+        this.codigoError = null;
+        this.archivoAfectado = null;
+        this.filaAfectada = null;
     }
 
     /**
-     * Constructor completo
+     * Constructor completo con información detallada del error.
      */
-    public ImportacionException(String mensaje, Throwable causa, String tipoEntidad, String nombreArchivo, int numeroFila) {
+    public ImportacionException(String mensaje, String codigoError, String archivoAfectado, Integer filaAfectada) {
+        super(mensaje);
+        this.codigoError = codigoError;
+        this.archivoAfectado = archivoAfectado;
+        this.filaAfectada = filaAfectada;
+    }
+
+    /**
+     * Constructor completo con causa.
+     */
+    public ImportacionException(String mensaje, Throwable causa, String codigoError,
+                                String archivoAfectado, Integer filaAfectada) {
         super(mensaje, causa);
-        this.tipoEntidad = tipoEntidad;
-        this.nombreArchivo = nombreArchivo;
-        this.numeroFila = numeroFila;
+        this.codigoError = codigoError;
+        this.archivoAfectado = archivoAfectado;
+        this.filaAfectada = filaAfectada;
     }
 
-    // Getters
-    public String getTipoEntidad() {
-        return tipoEntidad;
+    public String getCodigoError() {
+        return codigoError;
     }
 
-    public String getNombreArchivo() {
-        return nombreArchivo;
+    public String getArchivoAfectado() {
+        return archivoAfectado;
     }
 
-    public int getNumeroFila() {
-        return numeroFila;
+    public Integer getFilaAfectada() {
+        return filaAfectada;
     }
 
     @Override
-    public String getMessage() {
-        StringBuilder mensaje = new StringBuilder(super.getMessage());
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("ImportacionException: ").append(getMessage());
 
-        if (tipoEntidad != null) {
-            mensaje.append(" [Tipo: ").append(tipoEntidad).append("]");
+        if (codigoError != null) {
+            sb.append(" [Código: ").append(codigoError).append("]");
         }
 
-        if (nombreArchivo != null) {
-            mensaje.append(" [Archivo: ").append(nombreArchivo).append("]");
+        if (archivoAfectado != null) {
+            sb.append(" [Archivo: ").append(archivoAfectado).append("]");
         }
 
-        if (numeroFila > 0) {
-            mensaje.append(" [Fila: ").append(numeroFila).append("]");
+        if (filaAfectada != null) {
+            sb.append(" [Fila: ").append(filaAfectada).append("]");
         }
 
-        return mensaje.toString();
+        return sb.toString();
+    }
+
+    /**
+     * Métodos de factory para crear excepciones específicas
+     */
+    public static ImportacionException archivoVacio(String nombreArchivo) {
+        return new ImportacionException(
+                "El archivo está vacío o no contiene datos válidos",
+                "ARCHIVO_VACIO",
+                nombreArchivo,
+                null
+        );
+    }
+
+    public static ImportacionException formatoNoSoportado(String nombreArchivo, String formato) {
+        return new ImportacionException(
+                String.format("Formato de archivo no soportado: %s", formato),
+                "FORMATO_NO_SOPORTADO",
+                nombreArchivo,
+                null
+        );
+    }
+
+    public static ImportacionException errorEnFila(String nombreArchivo, int numeroFila, String detalle) {
+        return new ImportacionException(
+                String.format("Error procesando fila %d: %s", numeroFila, detalle),
+                "ERROR_FILA",
+                nombreArchivo,
+                numeroFila
+        );
+    }
+
+    public static ImportacionException columnasFaltantes(String nombreArchivo, String columnasFaltantes) {
+        return new ImportacionException(
+                String.format("Columnas requeridas faltantes: %s", columnasFaltantes),
+                "COLUMNAS_FALTANTES",
+                nombreArchivo,
+                null
+        );
+    }
+
+    public static ImportacionException archivoCorrupto(String nombreArchivo, Throwable causa) {
+        return new ImportacionException(
+                "El archivo parece estar corrupto o dañado",
+                causa,
+                "ARCHIVO_CORRUPTO",
+                nombreArchivo,
+                null
+        );
     }
 }

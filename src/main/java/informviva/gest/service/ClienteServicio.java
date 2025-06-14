@@ -234,4 +234,121 @@ public interface ClienteServicio {
     List<Venta> buscarVentasRecientesPorProducto(Long productoId, int limite);
 
     List<Venta> buscarVentasRecientesPorCliente(Long clienteId, int limite);
+
+    /**
+     * Busca clientes por término de búsqueda con límite
+     * @param termino Término a buscar en nombre, apellido, email, RUT
+     * @param limite Número máximo de resultados
+     * @return Lista de clientes que coinciden
+     */
+    List<Cliente> buscarPorTermino(String termino, int limite);
+
+    /**
+     * Busca clientes por término con paginación
+     * @param termino Término a buscar
+     * @param pageable Configuración de paginación
+     * @return Página de clientes
+     */
+    Page<Cliente> buscarPorTermino(String termino, Pageable pageable);
+
+    /**
+     * Busca clientes por término y ciudad
+     */
+    Page<Cliente> buscarPorTerminoYCiudad(String termino, String ciudad, Pageable pageable);
+
+    /**
+     * Busca clientes por término y que estén activos
+     */
+    Page<Cliente> buscarPorTerminoYActivos(String termino, Pageable pageable);
+
+    /**
+     * Busca clientes por término, ciudad y activos
+     */
+    Page<Cliente> buscarPorTerminoYCiudadYActivos(String termino, String ciudad, Pageable pageable);
+
+    /**
+     * Busca clientes por ciudad
+     */
+    Page<Cliente> buscarPorCiudad(String ciudad, Pageable pageable);
+
+    /**
+     * Busca clientes por ciudad y activos
+     */
+    Page<Cliente> buscarPorCiudadYActivos(String ciudad, Pageable pageable);
+
+// ========== MÉTODOS DE OBTENCIÓN ESPECÍFICA ==========
+
+    /**
+     * Obtiene solo clientes activos
+     * @return Lista de clientes activos
+     */
+    List<Cliente> obtenerActivos();
+
+    /**
+     * Obtiene clientes activos con paginación
+     * @param pageable Configuración de paginación
+     * @return Página de clientes activos
+     */
+    Page<Cliente> obtenerActivosPaginados(Pageable pageable);
+
+    /**
+     * Lista todas las ciudades donde hay clientes
+     * @return Lista de ciudades únicas
+     */
+    List<String> listarCiudades();
+
+// ========== MÉTODOS DE CONTEO ==========
+
+    /**
+     * Cuenta clientes activos
+     * @return Número de clientes activos
+     */
+    Long contarActivos();
+
+    /**
+     * Cuenta clientes inactivos
+     * @return Número de clientes inactivos
+     */
+    Long contarInactivos();
+
+    /**
+     * Cuenta clientes nuevos hoy
+     * @return Número de clientes registrados hoy
+     */
+    Long contarNuevosHoy();
+
+    /**
+     * Cuenta clientes nuevos este mes
+     * @return Número de clientes registrados este mes
+     */
+    Long contarNuevosMes();
+
+    /**
+     * Cuenta el total de clientes
+     * @return Número total de clientes
+     */
+    Long contarTodos();
+
+    /**
+     * Cuenta ciudades únicas con clientes
+     * @return Número de ciudades diferentes
+     */
+    Long contarCiudades();
+
+// ========== MÉTODOS DE VALIDACIÓN ==========
+
+    /**
+     * Verifica si existe un email en otro cliente
+     * @param email Email a verificar
+     * @param clienteId ID del cliente actual (para edición)
+     * @return true si el email existe en otro cliente
+     */
+    boolean existeEmailOtroCliente(String email, Long clienteId);
+
+    /**
+     * Verifica si existe un email
+     * @param email Email a verificar
+     * @return true si el email existe
+     */
+    boolean existeEmail(String email);
 }

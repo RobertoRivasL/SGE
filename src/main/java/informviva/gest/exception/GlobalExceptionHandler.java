@@ -123,4 +123,23 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    /**
+     * Maneja excepciones de tipo ReglaDeNegocioException
+     *
+     * @param ex      La excepción capturada
+     * @param request La solicitud web actual
+     * @return ResponseEntity con detalles del error
+     */
+    @ExceptionHandler(ReglaDeNegocioException.class)
+    public ResponseEntity<ErrorResponse> manejarReglaDeNegocio(ReglaDeNegocioException ex, WebRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.CONFLICT.value(),
+                ex.getMessage(),
+                request.getDescription(false),
+                LocalDateTime.now()
+        );
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+    }
 }
