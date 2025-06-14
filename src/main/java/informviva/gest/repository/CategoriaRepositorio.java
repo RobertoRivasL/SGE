@@ -1,6 +1,5 @@
 package informviva.gest.repository;
 
-
 import informviva.gest.model.Categoria;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,10 +16,12 @@ import java.util.Optional;
  * Proporciona métodos para consultas específicas relacionadas con categorías.
  *
  * @author Roberto Rivas
- * @version 2.0
+ * @version 2.1
  */
 @Repository
 public interface CategoriaRepositorio extends JpaRepository<Categoria, Long> {
+
+    // ===================== MÉTODOS DE BÚSQUEDA POR NOMBRE =====================
 
     /**
      * Verifica si existe una categoría con el nombre especificado
@@ -40,7 +41,7 @@ public interface CategoriaRepositorio extends JpaRepository<Categoria, Long> {
     boolean existsByNombreAndIdNot(String nombre, Long id);
 
     /**
-     * Busca una categoría por su nombre
+     * Busca una categoría por su nombre exacto
      *
      * @param nombre Nombre de la categoría
      * @return Categoría encontrada o vacío si no existe
@@ -55,19 +56,15 @@ public interface CategoriaRepositorio extends JpaRepository<Categoria, Long> {
      */
     List<Categoria> findByNombreContainingIgnoreCase(String nombre);
 
+    // ===================== MÉTODOS POR ESTADO ACTIVO =====================
+
     /**
-     * Obtiene solo las categorías activas
+     * Obtiene solo las categorías activas ordenadas por nombre
      *
      * @return Lista de categorías activas
      */
+    @Query("SELECT c FROM Categoria c WHERE c.activa = true ORDER BY c.nombre ASC")
     List<Categoria> findByActivaTrue();
-
-    /**
-     * Obtiene categorías inactivas
-     *
-     * @return Lista de categorías inactivas
-     */
-    List<Categoria> findByActivaFalse();
 
     /**
      * Obtiene categorías activas paginadas
@@ -75,82 +72,119 @@ public interface CategoriaRepositorio extends JpaRepository<Categoria, Long> {
      * @param pageable Configuración de paginación
      * @return Página de categorías activas
      */
+    @Query("SELECT c FROM Categoria c WHERE c.activa = true ORDER BY c.nombre ASC")
     Page<Categoria> findByActivaTrue(Pageable pageable);
 
     /**
-     * Busca categorías por nombre con paginación
+     * Obtiene categorías inactivas
      *
-     * @param nombre   Texto a buscar en el nombre
-     * @param pageable Configuración de paginación
-     * @return Página de categorías que coinciden
+     * @return Lista de categorías inactivas
      */
-    Page<Categoria> findByNombreContainingIgnoreCase(String nombre, Pageable pageable);
+    @Query("SELECT c FROM Categoria c WHERE c.activa = false ORDER BY c.nombre ASC")
+    List<Categoria> findByActivaFalse();
 
     /**
-     * Cuenta categorías activas
+     * Obtiene todas las categorías ordenadas por nombre
+     *
+     * @return Lista de categorías ordenadas
+     */
+    @Query("SELECT c FROM Categoria c ORDER BY c.nombre ASC")
+    List<Categoria> findAllByOrderByNombreAsc();
+
+    // ===================== MÉTODOS DE CONTEO =====================
+
+    /**
+     * Cuenta las categorías activas
      *
      * @return Número de categorías activas
      */
+    @Query("SELECT COUNT(c) FROM Categoria c WHERE c.activa = true")
     Long countByActivaTrue();
 
     /**
-     * Cuenta categorías inactivas
+     * Cuenta las categorías inactivas
      *
      * @return Número de categorías inactivas
      */
+    @Query("SELECT COUNT(c) FROM Categoria c WHERE c.activa = false")
     Long countByActivaFalse();
 
+    // ===================== MÉTODOS PARA VALIDACIONES DE NEGOCIO =====================
+
     /**
-     * Obtiene categorías ordenadas por nombre ascendente
+     * Busca categorías que tienen productos asociados
      *
-     * @return Lista de categorías ordenadas por nombre
+     * @return Lista de categorías con productos
      */
-    List<Categoria> findAllByOrderByNombreAsc();
+    @Query("SELECT DISTINCT c FROM Categoria c WHERE EXISTS (SELECT 1 FROM Producto p WHERE p.categoria = c)")
+    List<Categoria> findCategoriasConProductos();
 
     /**
-     * Busca categorías por descripción que contenga el texto especificado
+     * Busca categorías que NO tienen productos asociados
      *
-     * @param descripcion Texto a buscar en la descripción
-     * @return Lista de categorías que coinciden
+     * @return Lista de categorías sin productos
      */
-    List<Categoria> findByDescripcionContainingIgnoreCase(String descripcion);
-
-    // CategoriaRepositorio.java
-    Optional<Categoria> findFirstByNombreContainingIgnoreCase(String nombre);
+    @Query("SELECT c FROM Categoria c WHERE NOT EXISTS (SELECT 1 FROM Producto p WHERE p.categoria = c)")
+    List<Categoria> findCategoriasSinProductos();
 
     /**
-     * Búsqueda combinada por nombre o descripción
+     * Verifica si una categoría tiene productos asociados
+     *
+     * @param categoriaId ID de la categoría
+     * @return true si tiene productos, false en caso contrario
+     */
+    @Query("SELECT CASE WHEN COUNT(p) > 0 THEN true ELSE false END FROM Producto p WHERE p.categoria.id = :categoriaId")
+    boolean tieneProductosAsociados(@Param("categoriaId") Long categoriaId);
+
+    // ===================== MÉTODOS DE BÚSQUEDA AVANZADA =====================
+
+    /**
+     * Busca categorías por texto en nombre o descripción
      *
      * @param texto Texto a buscar
      * @return Lista de categorías que coinciden
      */
     @Query("SELECT c FROM Categoria c WHERE " +
             "LOWER(c.nombre) LIKE LOWER(CONCAT('%', :texto, '%')) OR " +
-            "LOWER(c.descripcion) LIKE LOWER(CONCAT('%', :texto, '%'))")
+            "LOWER(c.descripcion) LIKE LOWER(CONCAT('%', :texto, '%')) " +
+            "ORDER BY c.nombre ASC")
     List<Categoria> buscarPorTexto(@Param("texto") String texto);
 
     /**
-     * Búsqueda combinada por nombre o descripción con paginación
+     * Busca categorías activas por texto en nombre o descripción
      *
-     * @param texto    Texto a buscar
-     * @param pageable Configuración de paginación
-     * @return Página de categorías que coinciden
+     * @param texto Texto a buscar
+     * @return Lista de categorías activas que coinciden
      */
-    @Query("SELECT c FROM Categoria c WHERE " +
-            "LOWER(c.nombre) LIKE LOWER(CONCAT('%', :texto, '%')) OR " +
-            "LOWER(c.descripcion) LIKE LOWER(CONCAT('%', :texto, '%'))")
-    Page<Categoria> buscarPorTexto(@Param("texto") String texto, Pageable pageable);
+    @Query("SELECT c FROM Categoria c WHERE c.activa = true AND " +
+            "(LOWER(c.nombre) LIKE LOWER(CONCAT('%', :texto, '%')) OR " +
+            "LOWER(c.descripcion) LIKE LOWER(CONCAT('%', :texto, '%'))) " +
+            "ORDER BY c.nombre ASC")
+    List<Categoria> buscarActivasPorTexto(@Param("texto") String texto);
+
+    // ===================== MÉTODOS PARA REPORTES =====================
 
     /**
-     * Obtiene categorías más utilizadas (requiere relación con Producto)
+     * Obtiene estadísticas de categorías por estado
      *
-     * @param limite Número máximo de categorías a retornar
-     * @return Lista de categorías más utilizadas
+     * @return Array con [total, activas, inactivas]
      */
-    @Query("SELECT c FROM Categoria c WHERE c.id IN " +
-            "(SELECT p.categoria.id FROM Producto p " +
-            "GROUP BY p.categoria.id " +
-            "ORDER BY COUNT(p.categoria.id) DESC) " +
-            "ORDER BY (SELECT COUNT(p2.categoria.id) FROM Producto p2 WHERE p2.categoria.id = c.id) DESC")
-    List<Categoria> findCategoriasMasUtilizadas(@Param("limite") int limite);
+    @Query("SELECT " +
+            "COUNT(c), " +
+            "SUM(CASE WHEN c.activa = true THEN 1 ELSE 0 END), " +
+            "SUM(CASE WHEN c.activa = false THEN 1 ELSE 0 END) " +
+            "FROM Categoria c")
+    Object[] obtenerEstadisticas();
+
+    /**
+     * Obtiene las categorías más utilizadas (con más productos)
+     *
+//     * @param limite Número máximo de resultados
+     * @return Lista de arrays [categoria, cantidad_productos]
+     */
+    @Query("SELECT c, COUNT(p) as cantidad FROM Categoria c " +
+            "LEFT JOIN Producto p ON p.categoria = c " +
+            "GROUP BY c " +
+            "ORDER BY cantidad DESC")
+    List<Object[]> findCategoriasMasUtilizadas(Pageable pageable);
 }

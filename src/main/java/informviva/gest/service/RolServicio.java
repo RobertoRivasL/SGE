@@ -1,80 +1,101 @@
 package informviva.gest.service;
 
-/**
- * @author Roberto Rivas
- * @version 2.0
- */
-
-
 import informviva.gest.model.Rol;
-import informviva.gest.repository.RolRepositorio;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 
-@Service
-public class RolServicio {
+/**
+ * Interfaz para la gestión de roles del sistema.
+ * Define las operaciones disponibles para el manejo de roles y permisos.
+ *
+ * @author Roberto Rivas
+ * @version 2.1
+ */
+public interface RolServicio {
 
-    private final RolRepositorio rolRepositorio;
+    /**
+     * Obtiene todos los roles del sistema
+     *
+     * @return Lista de roles
+     */
+    List<Rol> listarTodos();
 
-    @Autowired
-    public RolServicio(RolRepositorio rolRepositorio) {
-        this.rolRepositorio = rolRepositorio;
-    }
+    /**
+     * Busca un rol por su ID
+     *
+     * @param id ID del rol
+     * @return Rol encontrado o null si no existe
+     */
+    Rol buscarPorId(Long id);
 
-    public List<Rol> listarTodos() {
-        return rolRepositorio.findAll();
-    }
+    /**
+     * Busca un rol por su nombre
+     *
+     * @param nombre Nombre del rol
+     * @return Rol encontrado o null si no existe
+     */
+    Rol buscarPorNombre(String nombre);
 
-    public Rol buscarPorId(Long id) {
-        return rolRepositorio.findById(id).orElse(null);
-    }
+    /**
+     * Guarda un nuevo rol o actualiza uno existente
+     *
+     * @param rol Rol a guardar
+     * @return Rol guardado
+     */
+    Rol guardar(Rol rol);
 
-    public Rol buscarPorNombre(String nombre) {
-        return rolRepositorio.findByNombre(nombre);
-    }
+    /**
+     * Elimina un rol por su ID
+     *
+     * @param id ID del rol a eliminar
+     * @return true si se eliminó correctamente, false en caso contrario
+     */
+    boolean eliminar(Long id);
 
-    @Transactional
-    public Rol guardar(Rol rol) {
-        return rolRepositorio.save(rol);
-    }
+    /**
+     * Actualiza los permisos de un rol
+     *
+     * @param rolId    ID del rol
+     * @param permisos Lista de permisos a asignar
+     */
+    void actualizarPermisos(Long rolId, List<String> permisos);
 
-    @Transactional
-    public boolean eliminar(Long id) {
-        if (rolRepositorio.existsById(id)) {
-            // Aquí puedes agregar validación para verificar si el rol está en uso
-            rolRepositorio.deleteById(id);
-            return true;
-        }
-        return false;
-    }
+    /**
+     * Obtiene la lista completa de permisos disponibles en la aplicación
+     *
+     * @return Lista de permisos disponibles
+     */
+    List<String> listarTodosLosPermisos();
 
-    @Transactional
-    public void actualizarPermisos(Long rolId, List<String> permisos) {
-        Rol rol = buscarPorId(rolId);
-        if (rol != null) {
-            if (permisos != null) {
-                rol.setPermisos(new HashSet<>(permisos));
-            } else {
-                rol.setPermisos(new HashSet<>());
-            }
-            rolRepositorio.save(rol);
-        }
-    }
+    /**
+     * Verifica si existe un rol con el nombre especificado
+     *
+     * @param nombre Nombre del rol
+     * @return true si existe, false en caso contrario
+     */
+    boolean existePorNombre(String nombre);
 
-    public List<String> listarTodosLosPermisos() {
-        // Lista de permisos disponibles en la aplicación
-        return Arrays.asList(
-                "CREAR_USUARIO", "EDITAR_USUARIO", "VER_USUARIO", "ELIMINAR_USUARIO",
-                "CREAR_PRODUCTO", "EDITAR_PRODUCTO", "VER_PRODUCTO", "ELIMINAR_PRODUCTO",
-                "CREAR_VENTA", "EDITAR_VENTA", "VER_VENTA", "ANULAR_VENTA",
-                "CREAR_CLIENTE", "EDITAR_CLIENTE", "VER_CLIENTE", "ELIMINAR_CLIENTE",
-                "VER_REPORTES", "EXPORTAR_REPORTES",
-                "CONFIGURACION_SISTEMA"
-        );
-    }
+    /**
+     * Verifica si un rol puede ser eliminado
+     * (no tiene usuarios asociados)
+     *
+     * @param id ID del rol
+     * @return true si puede ser eliminado, false en caso contrario
+     */
+    boolean puedeSerEliminado(Long id);
+
+    /**
+     * Cuenta el total de roles
+     *
+     * @return Número total de roles
+     */
+    Long contarTodos();
+
+    /**
+     * Obtiene los permisos de un rol específico
+     *
+     * @param rolId ID del rol
+     * @return Lista de permisos del rol
+     */
+    List<String> obtenerPermisosPorRol(Long rolId);
 }

@@ -3,6 +3,7 @@ package informviva.gest.service;
 import informviva.gest.model.Producto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -236,5 +237,21 @@ public interface ProductoServicio {
      * Obtiene productos activos solamente
      * @return Lista de productos activos
      */
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Producto> buscarPorNombre(String nombre, Pageable pageable) {
+        logger.debug("Buscando productos por nombre con paginación: {}", nombre);
+        if (nombre == null || nombre.trim().isEmpty()) {
+            return Page.empty(pageable);
+        }
+
+        try {
+            return productoRepositorio.findByNombreContainingIgnoreCase(nombre.trim(), pageable);
+        } catch (Exception e) {
+            logger.error("Error al buscar productos por nombre con paginación: {}", e.getMessage());
+            throw new RuntimeException("Error al buscar productos por nombre", e);
+        }
+    }
 
 }

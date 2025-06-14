@@ -1,6 +1,5 @@
 package informviva.gest.service;
 
-
 import informviva.gest.model.Categoria;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -8,20 +7,28 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 /**
- * Interfaz para la gestión de categorías
+ * Interfaz para la gestión de categorías.
+ * Define las operaciones disponibles para el manejo de categorías en el sistema.
  *
  * @author Roberto Rivas
- * @version 2.0
+ * @version 2.1
  */
 public interface CategoriaServicio {
 
+    // ===================== MÉTODOS DE CONSULTA =====================
+
     /**
-     * Obtiene todas las categorías
+     * Obtiene todas las categorías ordenadas por nombre
      *
      * @return Lista de categorías
      */
     List<Categoria> listarTodas();
 
+    /**
+     * Obtiene todas las categorías (alias para compatibilidad)
+     *
+     * @return Lista de categorías
+     */
     List<Categoria> findAll();
 
     /**
@@ -36,12 +43,13 @@ public interface CategoriaServicio {
      * Busca una categoría por su ID
      *
      * @param id ID de la categoría
-     * @return Categoría encontrada o null si no existe
+     * @return Categoría encontrada
+     * @throws informviva.gest.exception.RecursoNoEncontradoException si no existe
      */
     Categoria buscarPorId(Long id);
 
     /**
-     * Busca una categoría por su nombre
+     * Busca una categoría por su nombre exacto
      *
      * @param nombre Nombre de la categoría
      * @return Categoría encontrada o null si no existe
@@ -49,49 +57,7 @@ public interface CategoriaServicio {
     Categoria buscarPorNombre(String nombre);
 
     /**
-     * Guarda una nueva categoría o actualiza una existente
-     *
-     * @param categoria Categoría a guardar
-     * @return Categoría guardada
-     */
-    Categoria guardar(Categoria categoria);
-
-    /**
-     * Actualiza una categoría existente
-     *
-     * @param id        ID de la categoría
-     * @param categoria Datos actualizados de la categoría
-     * @return Categoría actualizada
-     */
-    Categoria actualizar(Long id, Categoria categoria);
-
-    /**
-     * Elimina una categoría por su ID
-     *
-     * @param id ID de la categoría
-     */
-    void eliminar(Long id);
-
-    /**
-     * Verifica si existe una categoría con el nombre dado
-     *
-     * @param nombre Nombre de la categoría
-     * @return true si existe, false en caso contrario
-     */
-    boolean existePorNombre(String nombre);
-
-    /**
-     * Verifica si existe una categoría con el nombre dado excluyendo un ID específico
-     *
-     * @param nombre    Nombre de la categoría
-     * @param excludeId ID a excluir de la búsqueda
-     * @return true si existe, false en caso contrario
-     */
-    boolean existePorNombre(String nombre, Long excludeId);
-
-
-    /**
-     * Obtiene categorías activas solamente
+     * Obtiene solo las categorías activas ordenadas por nombre
      *
      * @return Lista de categorías activas
      */
@@ -106,6 +72,45 @@ public interface CategoriaServicio {
     Page<Categoria> listarActivasPaginadas(Pageable pageable);
 
     /**
+     * Busca categorías por texto en el nombre (case insensitive)
+     *
+     * @param texto Texto a buscar en el nombre de las categorías
+     * @return Lista de categorías que contienen el texto
+     */
+    List<Categoria> buscarPorTexto(String texto);
+
+    // ===================== MÉTODOS DE PERSISTENCIA =====================
+
+    /**
+     * Guarda una nueva categoría o actualiza una existente
+     *
+     * @param categoria Categoría a guardar
+     * @return Categoría guardada
+     * @throws IllegalArgumentException si los datos son inválidos o el nombre ya existe
+     */
+    Categoria guardar(Categoria categoria);
+
+    /**
+     * Actualiza una categoría existente
+     *
+     * @param id        ID de la categoría a actualizar
+     * @param categoria Datos actualizados de la categoría
+     * @return Categoría actualizada
+     * @throws informviva.gest.exception.RecursoNoEncontradoException si no existe
+     * @throws IllegalArgumentException si los datos son inválidos
+     */
+    Categoria actualizar(Long id, Categoria categoria);
+
+    /**
+     * Elimina una categoría por su ID
+     *
+     * @param id ID de la categoría a eliminar
+     * @throws informviva.gest.exception.RecursoNoEncontradoException si no existe
+     * @throws IllegalStateException si la categoría tiene productos asociados
+     */
+    void eliminar(Long id);
+
+    /**
      * Activa o desactiva una categoría
      *
      * @param id     ID de la categoría
@@ -113,6 +118,37 @@ public interface CategoriaServicio {
      * @return true si se cambió correctamente, false en caso contrario
      */
     boolean cambiarEstado(Long id, boolean activa);
+
+    // ===================== MÉTODOS DE VALIDACIÓN =====================
+
+    /**
+     * Verifica si existe una categoría con el nombre dado
+     *
+     * @param nombre Nombre de la categoría
+     * @return true si existe, false en caso contrario
+     */
+    boolean existePorNombre(String nombre);
+
+    /**
+     * Verifica si existe una categoría con el nombre dado excluyendo un ID específico
+     * (útil para validaciones de actualización)
+     *
+     * @param nombre    Nombre de la categoría
+     * @param excludeId ID a excluir de la búsqueda
+     * @return true si existe otra categoría con el mismo nombre, false en caso contrario
+     */
+    boolean existePorNombre(String nombre, Long excludeId);
+
+    /**
+     * Verifica si una categoría puede ser eliminada
+     * (no tiene productos asociados)
+     *
+     * @param id ID de la categoría
+     * @return true si puede ser eliminada, false en caso contrario
+     */
+    boolean puedeSerEliminada(Long id);
+
+    // ===================== MÉTODOS DE CONTEO =====================
 
     /**
      * Cuenta el total de categorías
@@ -122,53 +158,16 @@ public interface CategoriaServicio {
     Long contarTodas();
 
     /**
-     * Cuenta categorías activas
+     * Cuenta las categorías activas
      *
      * @return Número de categorías activas
      */
     Long contarActivas();
 
     /**
-     * Cuenta categorías inactivas
+     * Cuenta las categorías inactivas
      *
      * @return Número de categorías inactivas
      */
     Long contarInactivas();
-
-    /**
-     * Busca categorías por texto en nombre o descripción
-     *
-     * @param texto Texto a buscar
-     * @return Lista de categorías que coinciden
-     */
-    List<Categoria> buscarPorTexto(String texto);
-
-    /**
-     * Busca categorías por texto con paginación
-     *
-     * @param texto    Texto a buscar
-     * @param pageable Configuración de paginación
-     * @return Página de categorías que coinciden
-     */
-    Page<Categoria> buscarPorTextoPaginado(String texto, Pageable pageable);
-
-    /**
-     * Obtiene las categorías más utilizadas
-     *
-     * @param limite Número máximo de categorías a retornar
-     * @return Lista de categorías más utilizadas
-     */
-    List<Categoria> obtenerMasUtilizadas(int limite);
-
-    /**
-     * Verifica si una categoría puede ser eliminada (no tiene productos asociados)
-     *
-     * @param id ID de la categoría
-     * @return true si puede ser eliminada, false en caso contrario
-     */
-    boolean puedeSerEliminada(Long id);
-
-    List<Categoria> findAllActivas();
-
-    Categoria save(Categoria categoria);
 }

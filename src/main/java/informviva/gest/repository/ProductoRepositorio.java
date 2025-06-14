@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Repositorio para acceder a las entidades Producto en la base de datos.
@@ -33,7 +34,7 @@ public interface ProductoRepositorio extends JpaRepository<Producto, Long> {
      * @param codigo Código del producto
      * @return Producto encontrado o null si no existe
      */
-    Producto findByCodigo(String codigo);
+    Optional<Producto> findByCodigo(String codigo);
 
     /**
      * Obtiene productos con stock menor al umbral especificado, ordenados por stock ascendente

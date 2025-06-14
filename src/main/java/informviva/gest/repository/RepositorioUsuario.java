@@ -18,11 +18,13 @@ public interface RepositorioUsuario extends JpaRepository<Usuario, Long> {
 
     Optional<Usuario> findByEmail(String email);
 
+    long countByRolesId(Long rolId);
+
     // NUEVOS MÉTODOS CON LocalDateTime
 
     /**
      * Encuentra usuarios que han accedido desde una fecha específica
-     * Nota: ultimoAcceso es LocalDate, así que convertimos
+     * Nota: ultimoAcceso es LocalDate, así que1 convertimos
      */
     @Query("SELECT u FROM Usuario u WHERE u.ultimoAcceso >= :fechaAcceso ORDER BY u.ultimoAcceso DESC")
     List<Usuario> findUsuariosActivosDesde(@Param("fechaAcceso") LocalDate fechaAcceso);
