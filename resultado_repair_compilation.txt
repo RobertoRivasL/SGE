@@ -1,0 +1,130 @@
+uman_@LAPTOP-B78MGBJP MINGW64 /d/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02 (main)
+$ ./repair_compilation.sh
+[11:19:32] 🚀 Iniciando reparación de errores de compilación...
+[11:19:32] 🔄 Creando backup antes de reparación...
+warning: in the working copy of 'fix_entities.sh', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'master_repair.sh', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'repair_compilation.sh', LF will be replaced by CRLF the next time Git touches it
+[main 3512a5d] BACKUP: Antes de reparación de errores de compilación - Sat Jun 14 11:19:33 HSP 2025
+ 5 files changed, 1730 insertions(+), 109 deletions(-)
+ create mode 100644 fix_entities.sh
+ create mode 100644 master_repair.sh
+ create mode 100644 repair_compilation.sh
+ create mode 100644 resultado_consolidacion.txt
+[SUCCESS] Backup creado
+[11:19:33] 🔧 Reparando duplicaciones en pom.xml...
+awk: cmd. line:9:             while (getline && !</plugin>/) { }
+awk: cmd. line:9:                                ^ syntax error
+[SUCCESS] POM reparado
+[11:19:36] 🔧 Moviendo archivos de test a ubicación correcta...
+[SUCCESS] Test movido a ubicación correcta
+[11:19:36] 🔧 Creando directorios faltantes...
+[SUCCESS] Directorios creados
+[11:19:36] 🔧 Creando clases faltantes...
+[SUCCESS] EmailServicio creado
+[SUCCESS] EmailServicioImpl creado
+[SUCCESS] ResultadoValidacionDTO creado
+[11:19:36] 🔧 Creando processors de importación faltantes...
+[SUCCESS] Processors de importación creados
+[11:19:37] 🔧 Creando validador de importación...
+[SUCCESS] ImportacionValidador creado
+[11:19:37] 🔧 Agregando constantes faltantes en ImportacionConstants...
+[SUCCESS] Constantes agregadas a ImportacionConstants
+[11:19:37] 🔧 Reparando ProductoServicio...
+[SUCCESS] ProductoServicio reparado
+[11:19:37] 🔧 Reparando ValidacionConstantes...
+[SUCCESS] ValidacionConstantes reparado
+[11:19:37] 🔧 Agregando imports faltantes...
+[SUCCESS] Imports agregados
+[11:19:47] 🔍 Verificando compilación después de reparaciones...
+MINGW support requires --add-opens java.base/java.lang=ALL-UNNAMED
+MINGW support requires --add-opens java.base/java.lang=ALL-UNNAMED
+[ERROR] COMPILATION ERROR :
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/dto/ResultadoValidacionModulo.java:[2,1] class, interface, enum, or record expected
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/util/ImportacionConstants.java:[131,25] class, interface, enum, or record expected
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/util/ImportacionConstants.java:[132,25] class, interface, enum, or record expected
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/util/ImportacionConstants.java:[133,25] class, interface, enum, or record expected
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/ResultadoValidacionModulo.java:[2,1] class, interface, enum, or record expected
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/util/ValidacionConstantes.java:[7,2] class, interface, enum, or record expected
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/ValidacionDatosServicio.java:[2,1] class, interface, enum, or record expected
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.11.0:compile (default-compile) on project informviva-gest: Compilation failure: Compilation failure:
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/dto/ResultadoValidacionModulo.java:[2,1] class, interface, enum, or record expected
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/util/ImportacionConstants.java:[131,25] class, interface, enum, or record expected
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/util/ImportacionConstants.java:[132,25] class, interface, enum, or record expected
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/util/ImportacionConstants.java:[133,25] class, interface, enum, or record expected
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/ResultadoValidacionModulo.java:[2,1] class, interface, enum, or record expected
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/util/ValidacionConstantes.java:[7,2] class, interface, enum, or record expected
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/ValidacionDatosServicio.java:[2,1] class, interface, enum, or record expected
+[ERROR] -> [Help 1]
+[ERROR]
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR]
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+[ERROR] ❌ Aún hay errores de compilación. Revisar manualmente:
+MINGW support requires --add-opens java.base/java.lang=ALL-UNNAMED
+MINGW support requires --add-opens java.base/java.lang=ALL-UNNAMED
+[INFO] Scanning for projects...
+[WARNING]
+[WARNING] Some problems were encountered while building the effective model for informviva:informviva-gest:jar:1.0.0
+[WARNING] 'dependencies.dependency.(groupId:artifactId:type:classifier)' must be unique: org.apache.poi:poi-ooxml:jar -> duplicate declaration of version 5.2.3 @ line 163, column 21
+[WARNING] 'dependencies.dependency.(groupId:artifactId:type:classifier)' must be unique: com.fasterxml.jackson.datatype:jackson-datatype-jsr310:jar -> duplicate declaration of version (?) @ line 202, column 21
+[WARNING] 'build.plugins.plugin.(groupId:artifactId)' must be unique but found duplicate declaration of plugin org.apache.maven.plugins:maven-compiler-plugin @ line 248, column 21
+[WARNING] 'build.plugins.plugin.(groupId:artifactId)' must be unique but found duplicate declaration of plugin org.apache.maven.plugins:maven-compiler-plugin @ line 258, column 21
+[WARNING]
+[WARNING] It is highly recommended to fix these problems because they threaten the stability of your build.
+[WARNING]
+[WARNING] For this reason, future Maven versions might no longer support building such malformed projects.
+[WARNING]
+[INFO]
+[INFO] ---------------------< informviva:informviva-gest >---------------------
+[INFO] Building InformViva Gesti▒n 1.0.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO]
+[INFO] --- clean:3.2.0:clean (default-clean) @ informviva-gest ---
+[INFO] Deleting D:\Doc_HP_RRL\RRL\Sence\Iseg Spa\Dashboard de Ventas\02\target
+[INFO]
+[INFO] --- resources:3.3.1:resources (default-resources) @ informviva-gest ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 107 resources from src\main\resources to target\classes
+[INFO]
+[INFO] --- compiler:3.11.0:compile (default-compile) @ informviva-gest ---
+[INFO] Changes detected - recompiling the module! :source
+[INFO] Compiling 200 source files with javac [debug release 17] to target\classes
+[INFO] -------------------------------------------------------------
+[ERROR] COMPILATION ERROR :
+[INFO] -------------------------------------------------------------
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/dto/ResultadoValidacionModulo.java:[2,1] class, interface, enum, or record expected
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/util/ImportacionConstants.java:[131,25] class, interface, enum, or record expected
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/util/ImportacionConstants.java:[132,25] class, interface, enum, or record expected
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/util/ImportacionConstants.java:[133,25] class, interface, enum, or record expected
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/ResultadoValidacionModulo.java:[2,1] class, interface, enum, or record expected
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/util/ValidacionConstantes.java:[7,2] class, interface, enum, or record expected
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/ValidacionDatosServicio.java:[2,1] class, interface, enum, or record expected
+[INFO] 7 errors
+[INFO] -------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  5.308 s
+[INFO] Finished at: 2025-06-14T11:20:07-04:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.11.0:compile (default-compile) on project informviva-gest: Compilation failure: Compilation failure:
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/dto/ResultadoValidacionModulo.java:[2,1] class, interface, enum, or record expected
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/util/ImportacionConstants.java:[131,25] class, interface, enum, or record expected
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/util/ImportacionConstants.java:[132,25] class, interface, enum, or record expected
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/util/ImportacionConstants.java:[133,25] class, interface, enum, or record expected
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/ResultadoValidacionModulo.java:[2,1] class, interface, enum, or record expected
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/util/ValidacionConstantes.java:[7,2] class, interface, enum, or record expected
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/ValidacionDatosServicio.java:[2,1] class, interface, enum, or record expected
+[ERROR] -> [Help 1]
+[ERROR]
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR]
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+
+uman_@LAPTOP-B78MGBJP MINGW64 /d/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02 (main)

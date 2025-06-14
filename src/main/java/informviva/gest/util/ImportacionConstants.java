@@ -127,3 +127,7 @@ public final class ImportacionConstants {
         return nombreArchivo.substring(ultimoPunto + 1).toLowerCase();
     }
 }
+    // Patrones de validación
+    public static final String PATRON_EMAIL = "^[A-Za-z0-9+_.-]+@(.+)$";
+    public static final String PATRON_RUT = "^[0-9]{7,8}-[0-9Kk]$";
+    public static final String PATRON_TELEFONO = "^[+]?[0-9]{8,15}$";
