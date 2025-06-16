@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exportar Datos - Sistema de Gestión</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <nav class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse">
+            <div class="position-sticky pt-3">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/inicio">
+                            <i class="fas fa-home"></i> Inicio
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/productos">
+                            <i class="fas fa-box"></i> Productos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/ventas">
+                            <i class="fas fa-shopping-cart"></i> Ventas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/clientes">
+                            <i class="fas fa-users"></i> Clientes
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white active" href="/exportar">
+                            <i class="fas fa-download"></i> Exportar Datos
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main content -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">
+                    <i class="fas fa-download text-primary"></i> Exportar Datos
+                </h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <button type="button" class="btn btn-outline-secondary" onclick="history.back()">
+                            <i class="fas fa-arrow-left"></i> Volver
+                        </button>
+                        <button type="button" class="btn btn-outline-info" onclick="verHistorialExportaciones()">
+                            <i class="fas fa-history"></i> Historial
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alertas -->
+            <div th:if="${mensajeExito}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle"></i> <span th:text="${mensajeExito}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <div th:if="${mensajeError}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle"></i> <span th:text="${mensajeError}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!-- Selector de tipo de exportación -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-list"></i> Seleccionar Datos a Exportar
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <div class="card export-type-card" data-type="productos">
+                                        <div class="card-body text-center">
+                                            <i class="fas fa-box fa-3x text-primary mb-3"></i>
+                                            <h5>Productos</h5>
+                                            <p class="text-muted small">Catálogo completo de productos</p>
+                                            <div class="badge bg-secondary">
+                                                <span th:text="${totalProductos}">1,250</span> registros
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <div class="card export-type-card" data-type="clientes">
+                                        <div class="card-body text-center">
+                                            <i class="fas fa-users fa-3x text-success mb-3"></i>
+                                            <h5>Clientes</h5>
+                                            <p class="text-muted small">Base de datos de clientes</p>
+                                            <div class="badge bg-secondary">
+                                                <span th:text="${totalClientes}">850</span> registros
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <div class="card export-type-card" data-type="ventas">
+                                        <div class="card-body text-center">
+                                            <i class="fas fa-shopping-cart fa-3x text-info mb-3"></i>
+                                            <h5>Ventas</h5>
+                                            <p class="text-muted small">Historial de transacciones</p>
+                                            <div class="badge bg-secondary">
+                                                <span th:text="${totalVentas}">3,420</span> registros
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <div class="card export-type-card" data-type="reportes">
+                                        <div class="card-body text-center">
+                                            <i class="fas fa-chart-bar fa-3x text-warning mb-3"></i>
+                                            <h5>Reportes</h5>
+                                            <p class="text-muted small">Informes y estadísticas</p>
+                                            <div class="badge bg-secondary">
+                                                Múltiples formatos
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Configuración de exportación -->
+            <div class="row mb-4" id="configArea" style="display: none;">
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-cog"></i> Configuración de Exportación
+                                <span class="badge bg-light text-dark ms-2" id="selectedExportType"></span>
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="exportForm">
+                                <!-- Formato de exportación -->
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">
+                                            <i class="fas fa-file"></i> Formato de Archivo:
+                                        </label>
+                                        <div class="btn-group w-100" role="group">
+                                            <input type="radio" class="btn-check" name="formato" id="formatoExcel"
+                                                   value="excel" checked>
+                                            <label class="btn btn-outline-success" for="formatoExcel">
+                                                <i class="fas fa-file-excel"></i> Excel
+                                            </label>
+
+                                            <input type="radio" class="btn-check" name="formato" id="formatoCSV"
+                                                   value="csv">
+                                            <label class="btn btn-outline-primary" for="formatoCSV">
+                                                <i class="fas fa-file-csv"></i> CSV
+                                            </label>
+
+                                            <input type="radio" class="btn-check" name="formato" id="formatoPDF"
+                                                   value="pdf">
+                                            <label class="btn btn-outline-danger" for="formatoPDF">
+                                                <i class="fas fa-file-pdf"></i> PDF
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="nombreArchivo" class="form-label">
+                                            <i class="fas fa-tag"></i> Nombre del Archivo:
+                                        </label>
+                                        <input type="text" class="form-control" id="nombreArchivo"
+                                               placeholder="Ej: productos_2024" value="">
+                                        <div class="form-text">Se agregará automáticamente la fecha y extensión</div>
+                                    </div>
+                                </div>
+
+                                <!-- Filtros de datos -->
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <h6 class="border-bottom pb-2">
+                                            <i class="fas fa-filter"></i> Filtros de Datos
+                                        </h6>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="fechaInicio" class="form-label">Fecha Inicio:</label>
+                                        <input type="date" class="form-control" id="fechaInicio" name="fechaInicio">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="fechaFin" class="form-label">Fecha Fin:</label>
+                                        <input type="date" class="form-control" id="fechaFin" name="fechaFin">
+                                    </div>
+                                </div>
+
+                                <!-- Filtros específicos -->
+                                <div id="filtrosEspecificos">
+                                    <!-- Se llenan dinámicamente según el tipo seleccionado -->
+                                </div>
+
+                                <!-- Columnas a incluir -->
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <h6 class="border-bottom pb-2">
+                                            <i class="fas fa-columns"></i> Columnas a Incluir
+                                        </h6>
+                                        <div id="columnasDisponibles" class="row">
+                                            <!-- Se llenan dinámicamente -->
+                                        </div>
+                                        <div class="mt-2">
+                                            <button type="button" class="btn btn-sm btn-outline-primary"
+                                                    onclick="seleccionarTodas()">
+                                                <i class="fas fa-check-square"></i> Seleccionar Todas
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary"
+                                                    onclick="deseleccionarTodas()">
+                                                <i class="fas fa-square"></i> Deseleccionar Todas
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Opciones adicionales -->
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <h6 class="border-bottom pb-2">
+                                            <i class="fas fa-sliders-h"></i> Opciones Adicionales
+                                        </h6>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="incluirEncabezados"
+                                                   checked>
+                                            <label class="form-check-label" for="incluirEncabezados">
+                                                Incluir encabezados de columna
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="soloActivos">
+                                            <label class="form-check-label" for="soloActivos">
+                                                Solo registros activos
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="incluirAuditoria">
+                                            <label class="form-check-label" for="incluirAuditoria">
+                                                Incluir datos de auditoría
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="limitRegistros" class="form-label">Límite de registros:</label>
+                                        <select class="form-select" id="limitRegistros">
+                                            <option value="">Sin límite</option>
+                                            <option value="100">100 registros</option>
+                                            <option value="500">500 registros</option>
+                                            <option value="1000">1,000 registros</option>
+                                            <option value="5000">5,000 registros</option>
+                                        </select>
+
+                                        <label for="ordenarPor" class="form-label mt-2">Ordenar por:</label>
+                                        <select class="form-select" id="ordenarPor">
+                                            <option value="id_asc">ID (Ascendente)</option>
+                                            <option value="id_desc">ID (Descendente)</option>
+                                            <option value="fecha_desc">Fecha (Más reciente)</option>
+                                            <option value="fecha_asc">Fecha (Más antigua)</option>
+                                            <option value="nombre_asc">Nombre (A-Z)</option>
+                                            <option value="nombre_desc">Nombre (Z-A)</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Botones de acción -->
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <button type="button" class="btn btn-outline-secondary"
+                                                        onclick="resetExport()">
+                                                    <i class="fas fa-times"></i> Cancelar
+                                                </button>
+                                                <button type="button" class="btn btn-info me-2"
+                                                        onclick="previsualizarExport()">
+                                                    <i class="fas fa-eye"></i> Vista Previa
+                                                </button>
+                                            </div>
+                                            <div>
+                                                <button type="button" class="btn btn-primary me-2"
+                                                        onclick="programarExport()">
+                                                    <i class="fas fa-clock"></i> Programar
+                                                </button>
+                                                <button type="button" class="btn btn-success" onclick="iniciarExport()">
+                                                    <i class="fas fa-download"></i> Exportar Ahora
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel de resumen -->
+                <div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-header bg-info text-white">
+                            <h6 class="mb-0">
+                                <i class="fas fa-info-circle"></i> Resumen de Exportación
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <strong>Tipo de datos:</strong>
+                                <div id="resumenTipo" class="text-muted">No seleccionado</div>
+                            </div>
+                            <div class="mb-3">
+                                <strong>Formato:</strong>
+                                <div id="resumenFormato" class="text-muted">Excel</div>
+                            </div>
+                            <div class="mb-3">
+                                <strong>Registros estimados:</strong>
+                                <div id="resumenRegistros" class="text-muted">0</div>
+                            </div>
+                            <div class="mb-3">
+                                <strong>Tamaño estimado:</strong>
+                                <div id="resumenTamano" class="text-muted">0 KB</div>
+                            </div>
+                            <div class="mb-3">
+                                <strong>Tiempo estimado:</strong>
+                                <div id="resumenTiempo" class="text-muted">< 1 min</div>
+                            </div>
+
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <strong>Nota:</strong> Las exportaciones grandes pueden tardar varios minutos.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Exportaciones programadas -->
+                    <div class="card mt-3">
+                        <div class="card-header bg-warning text-dark">
+                            <h6 class="mb-0">
+                                <i class="fas fa-calendar"></i> Exportaciones Programadas
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div id="exportacionesProgramadas">
+                                <div class="text-muted text-center">
+                                    <i class="fas fa-calendar-plus"></i><br>
+                                    No hay exportaciones programadas
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Área de progreso -->
+            <div class="row mb-4" id="progressArea" style="display: none;">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-warning text-dark">
+                            <h5 class="mb-0">
+                                <i class="fas fa-spinner fa-spin"></i> Generando Exportación...
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="progress mb-3" style="height: 25px;">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated"
+                                     id="exportProgress"
+                                     role="progressbar"
+                                     style="width: 0%">
+                                    <span id="progressText">0%</span>
+                                </div>
+                            </div>
+                            <div class="row text-center">
+                                <div class="col-md-3">
+                                    <h6 class="text-muted">Procesados</h6>
+                                    <h4 class="text-primary" id="processedRecords">0</h4>
+                                </div>
+                                <div class="col-md-3">
+                                    <h6 class="text-muted">Velocidad</h6>
+                                    <h4 class="text-info" id="processSpeed">0/s</h4>
+                                </div>
+                                <div class="col-md-3">
+                                    <h6 class="text-muted">Tiempo Transcurrido</h6>
+                                    <h4 class="text-warning" id="elapsedTime">0s</h4>
+                                </div>
+                                <div class="col-md-3">
+                                    <h6 class="text-muted">Tiempo Restante</h6>
+                                    <h4 class="text-danger" id="remainingTime">--</h4>
+                                </div>
+                            </div>
+                            <div class="text-center mt-3">
+                                <button type="button" class="btn btn-outline-danger" onclick="cancelarExport()">
+                                    <i class="fas fa-stop"></i> Cancelar Exportación
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Historial de exportaciones -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-history"></i> Historial de Exportaciones Recientes
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Tipo</th>
+                                        <th>Formato</th>
+                                        <th>Registros</th>
+                                        <th>Tamaño</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="historialExportaciones">
+                                    <!-- Se llena dinámicamente -->
+                                    <tr>
+                                        <td>06/01/2024 14:30</td>
+                                        <td><span class="badge bg-primary">Productos</span></td>
+                                        <td><i class="fas fa-file-excel text-success"></i> Excel</td>
+                                        <td>1,250</td>
+                                        <td>2.3 MB</td>
+                                        <td><span class="badge bg-success">Completado</span></td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <button class="btn btn-outline-primary" title="Descargar">
+                                                    <i class="fas fa-download"></i>
+                                                </button>
+                                                <button class="btn btn-outline-info" title="Ver detalles">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button class="btn btn-outline-danger" title="Eliminar">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>05/01/2024 09:15</td>
+                                        <td><span class="badge bg-success">Clientes</span></td>
+                                        <td><i class="fas fa-file-csv text-primary"></i> CSV</td>
+                                        <td>850</td>
+                                        <td>420 KB</td>
+                                        <td><span class="badge bg-success">Completado</span></td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <button class="btn btn-outline-primary" title="Descargar">
+                                                    <i class="fas fa-download"></i>
+                                                </button>
+                                                <button class="btn btn-outline-info" title="Ver detalles">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button class="btn btn-outline-danger" title="Eliminar">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Modal para programar exportación -->
+<div class="modal fade" id="programarModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-calendar-plus"></i> Programar Exportación
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="programarForm">
+                    <div class="mb-3">
+                        <label for="fechaProgramada" class="form-label">Fecha y Hora:</label>
+                        <input type="datetime-local" class="form-control" id="fechaProgramada" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="frecuencia" class="form-label">Frecuencia:</label>
+                        <select class="form-select" id="frecuencia">
+                            <option value="una_vez">Una sola vez</option>
+                            <option value="diario">Diario</option>
+                            <option value="semanal">Semanal</option>
+                            <option value="mensual">Mensual</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="emailNotificacion" class="form-label">Email de notificación:</label>
+                        <input type="email" class="form-control" id="emailNotificacion"
+                               placeholder="usuario@empresa.com">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="confirmarProgramacion()">
+                    <i class="fas fa-save"></i> Programar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
+
+<script>
+    let selectedExportType = null;
+    let exportInProgress = false;
+
+    // Configuraciones por tipo de exportación
+    const exportConfigs = {
+        productos: {
+            columnas: ['id', 'codigo', 'nombre', 'descripcion', 'precio', 'stock', 'categoria', 'marca', 'activo'],
+            filtros: ['categoria', 'marca', 'estado', 'stockMinimo']
+        },
+        clientes: {
+            columnas: ['id', 'rut', 'nombre', 'apellido', 'email', 'telefono', 'direccion', 'fechaRegistro'],
+            filtros: ['categoria', 'estado', 'fechaRegistro']
+        },
+        ventas: {
+            columnas: ['id', 'fecha', 'cliente', 'vendedor', 'total', 'metodoPago', 'estado'],
+            filtros: ['vendedor', 'cliente', 'metodoPago', 'estado']
+        },
+        reportes: {
+            columnas: ['personalizadas'],
+            filtros: ['tipoReporte', 'periodo']
+        }
+    };
+
+    // Inicializar
+    document.addEventListener('DOMContentLoaded', function () {
+        initializeExportTypeSelection();
+        initializeDatePickers();
+        updateFileName();
+    });
+
+    // Selección de tipo de exportación
+    function initializeExportTypeSelection() {
+        document.querySelectorAll('.export-type-card').forEach(card => {
+            card.addEventListener('click', function () {
+                // Remover selección previa
+                document.querySelectorAll('.export-type-card').forEach(c =>
+                    c.classList.remove('border-primary', 'bg-light'));
+
+                // Seleccionar nueva tarjeta
+                this.classList.add('border-primary', 'bg-light');
+                selectedExportType = this.dataset.type;
+
+                // Mostrar área de configuración
+                document.getElementById('configArea').style.display = 'block';
+                document.getElementById('selectedExportType').textContent =
+                    this.querySelector('h5').textContent;
+
+                // Configurar opciones específicas
+                setupExportOptions(selectedExportType);
+                updateResumen();
+            });
+        });
+    }
+
+    // Configurar opciones específicas por tipo
+    function setupExportOptions(type) {
+        const config = exportConfigs[type];
+        setupColumnas(config.columnas);
+        setupFiltrosEspecificos(config.filtros);
+    }
+
+    // Configurar columnas disponibles
+    function setupColumnas(columnas) {
+        const container = document.getElementById('columnasDisponibles');
+        container.innerHTML = '';
+
+        columnas.forEach(columna => {
+            const div = document.createElement('div');
+            div.className = 'col-md-4 mb-2';
+            div.innerHTML = `
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox"
+                               id="col_${columna}" value="${columna}" checked>
+                        <label class="form-check-label" for="col_${columna}">
+                            ${columna.charAt(0).toUpperCase() + columna.slice(1)}
+                        </label>
+                    </div>
+                `;
+            container.appendChild(div);
+        });
+    }
+
+    // Configurar filtros específicos
+    function setupFiltrosEspecificos(filtros) {
+        const container = document.getElementById('filtrosEspecificos');
+        container.innerHTML = '';
+
+        if (filtros.length > 0) {
+            const row = document.createElement('div');
+            row.className = 'row mb-3';
+            row.innerHTML = '<div class="col-12"><h6 class="border-bottom pb-2"><i class="fas fa-sliders-h"></i> Filtros Específicos</h6></div>';
+
+            filtros.forEach(filtro => {
+                const col = document.createElement('div');
+                col.className = 'col-md-6 mb-2';
+                col.innerHTML = `
+                        <label class="form-label">${filtro.charAt(0).toUpperCase() + filtro.slice(1)}:</label>
+                        <select class="form-select" name="${filtro}">
+                            <option value="">Todos</option>
+                        </select>
+                    `;
+                row.appendChild(col);
+            });
+
+            container.appendChild(row);
+        }
+    }
+
+    // Inicializar selectores de fecha
+    function initializeDatePickers() {
+        flatpickr('#fechaInicio, #fechaFin', {
+            locale: 'es',
+            dateFormat: 'Y-m-d'
+        });
+
+        flatpickr('#fechaProgramada', {
+            locale: 'es',
+            enableTime: true,
+            dateFormat: 'Y-m-d H:i',
+            minDate: 'today'
+        });
+    }
+
+    // Actualizar nombre de archivo automáticamente
+    function updateFileName() {
+        document.querySelectorAll('input[name="formato"]').forEach(radio => {
+            radio.addEventListener('change', function () {
+                if (selectedExportType) {
+                    const fecha = new Date().toISOString().slice(0, 10);
+                    document.getElementById('nombreArchivo').value =
+                        `${selectedExportType}_${fecha}`;
+                    updateResumen();
+                }
+            });
+        });
+    }
+
+    // Actualizar resumen
+    function updateResumen() {
+        if (!selectedExportType) return;
+
+        const formato = document.querySelector('input[name="formato"]:checked').value;
+        const registros = getEstimatedRecords();
+
+        document.getElementById('resumenTipo').textContent = selectedExportType.charAt(0).toUpperCase() + selectedExportType.slice(1);
+        document.getElementById('resumenFormato').textContent = formato.toUpperCase();
+        document.getElementById('resumenRegistros').textContent = registros.toLocaleString();
+        document.getElementById('resumenTamano').textContent = estimateFileSize(registros, formato);
+        document.getElementById('resumenTiempo').textContent = estimateProcessingTime(registros);
+    }
+
+    // Estimar cantidad de registros
+    function getEstimatedRecords() {
+        const totals = {
+            productos: 1250,
+            clientes: 850,
+            ventas: 3420,
+            reportes: 500
+        };
+
+        const limit = document.getElementById('limitRegistros').value;
+        const total = totals[selectedExportType] || 0;
+
+        return limit ? Math.min(parseInt(limit), total) : total;
+    }
+
+    // Estimar tamaño de archivo
+    function estimateFileSize(records, format) {
+        const bytesPerRecord = {
+            excel: 150,
+            csv: 80,
+            pdf: 200
+        };
+
+        const bytes = records * (bytesPerRecord[format] || 100);
+
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1024 * 1024) return Math.round(bytes / 1024) + ' KB';
+        return Math.round(bytes / (1024 * 1024) * 10) / 10 + ' MB';
+    }
+
+    // Estimar tiempo de procesamiento
+    function estimateProcessingTime(records) {
+        const recordsPerSecond = 1000;
+        const seconds = Math.ceil(records / recordsPerSecond);
+
+        if (seconds < 60) return '< 1 min';
+        return Math.ceil(seconds / 60) + ' min';
+    }
+
+    // Funciones de control de columnas
+    function seleccionarTodas() {
+        document.querySelectorAll('#columnasDisponibles input[type="checkbox"]').forEach(cb => {
+            cb.checked = true;
+        });
+    }
+
+    function deseleccionarTodas() {
+        document.querySelectorAll('#columnasDisponibles input[type="checkbox"]').forEach(cb => {
+            cb.checked = false;
+        });
+    }
+
+    // Vista previa
+    function previsualizarExport() {
+        if (!selectedExportType) {
+            alert('Selecciona un tipo de datos primero');
+            return;
+        }
+
+        alert('Vista previa no implementada en demo. Mostraría las primeras 10 filas del resultado.');
+    }
+
+    // Programar exportación
+    function programarExport() {
+        const modal = new bootstrap.Modal(document.getElementById('programarModal'));
+        modal.show();
+    }
+
+    function confirmarProgramacion() {
+        const fecha = document.getElementById('fechaProgramada').value;
+        const frecuencia = document.getElementById('frecuencia').value;
+
+        if (!fecha) {
+            alert('Selecciona una fecha y hora');
+            return;
+        }
+
+        // Simular programación exitosa
+        alert('Exportación programada correctamente para ' + fecha);
+        bootstrap.Modal.getInstance(document.getElementById('programarModal')).hide();
+    }
+
+    // Iniciar exportación
+    function iniciarExport() {
+        if (!selectedExportType) {
+            alert('Selecciona un tipo de datos primero');
+            return;
+        }
+
+        if (exportInProgress) {
+            alert('Ya hay una exportación en progreso');
+            return;
+        }
+
+        exportInProgress = true;
+        document.getElementById('configArea').style.display = 'none';
+        document.getElementById('progressArea').style.display = 'block';
+
+        simulateExport();
+    }
+
+    // Simular exportación
+    function simulateExport() {
+        let progress = 0;
+        let processed = 0;
+        const total = getEstimatedRecords();
+        const startTime = Date.now();
+
+        const interval = setInterval(() => {
+            progress += Math.random() * 5;
+            processed = Math.floor((progress / 100) * total);
+
+            if (progress >= 100) {
+                progress = 100;
+                processed = total;
+                clearInterval(interval);
+                completeExport();
+            }
+
+            updateProgress(progress, processed, total, startTime);
+        }, 200);
+    }
+
+    // Actualizar progreso
+    function updateProgress(progress, processed, total, startTime) {
+        document.getElementById('exportProgress').style.width = progress + '%';
+        document.getElementById('progressText').textContent = Math.round(progress) + '%';
+        document.getElementById('processedRecords').textContent = processed.toLocaleString();
+
+        const elapsed = (Date.now() - startTime) / 1000;
+        const speed = processed / elapsed;
+        const remaining = (total - processed) / speed;
+
+        document.getElementById('processSpeed').textContent = Math.round(speed) + '/s';
+        document.getElementById('elapsedTime').textContent = Math.round(elapsed) + 's';
+        document.getElementById('remainingTime').textContent =
+            remaining > 0 ? Math.round(remaining) + 's' : '0s';
+    }
+
+    // Completar exportación
+    function completeExport() {
+        exportInProgress = false;
+        document.getElementById('progressArea').style.display = 'none';
+
+        // Simular descarga automática
+        const formato = document.querySelector('input[name="formato"]:checked').value;
+        const filename = document.getElementById('nombreArchivo').value || 'exportacion';
+
+        // Crear enlace de descarga simulado
+        const link = document.createElement('a');
+        link.href = '#';
+        link.download = `${filename}.${formato}`;
+        link.click();
+
+        alert('Exportación completada. El archivo se ha descargado automáticamente.');
+
+        // Resetear y volver al inicio
+        resetExport();
+    }
+
+    // Cancelar exportación
+    function cancelarExport() {
+        if (confirm('¿Estás seguro de que quieres cancelar la exportación?')) {
+            exportInProgress = false;
+            document.getElementById('progressArea').style.display = 'none';
+            document.getElementById('configArea').style.display = 'block';
+        }
+    }
+
+    // Reset exportación
+    function resetExport() {
+        selectedExportType = null;
+        exportInProgress = false;
+        document.getElementById('configArea').style.display = 'none';
+        document.getElementById('progressArea').style.display = 'none';
+        document.querySelectorAll('.export-type-card').forEach(c =>
+            c.classList.remove('border-primary', 'bg-light'));
+        document.getElementById('exportForm').reset();
+    }
+
+    // Ver historial
+    function verHistorialExportaciones() {
+        document.querySelector('#historialExportaciones').scrollIntoView({
+            behavior: 'smooth'
+        });
+    }
+
+    // Auto-hide alerts after 5 seconds
+    setTimeout(function () {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => {
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        });
+    }, 5000);
+
+    // Event listeners para actualizar resumen
+    document.addEventListener('change', function (e) {
+        if (e.target.matches('#limitRegistros, input[name="formato"]')) {
+            updateResumen();
+        }
+    });
+</script>
+
+<!-- Estilos personalizados -->
+<style>
+    .export-type-card {
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+
+    .export-type-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .progress {
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .btn-check:checked + .btn {
+        background-color: var(--bs-primary);
+        border-color: var(--bs-primary);
+        color: white;
+    }
+
+    .sidebar {
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 100;
+        padding: 0;
+        box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+    }
+
+    .nav-link:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 5px;
+    }
+
+    .nav-link.active {
+        background-color: rgba(255, 255, 255, 0.2);
+        border-radius: 5px;
+    }
+
+    @media (max-width: 768px) {
+        .sidebar {
+            position: relative;
+            height: auto;
+        }
+    }
+</style>
+</body>
+</html>

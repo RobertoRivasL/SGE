@@ -13,6 +13,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -88,7 +90,7 @@ public class ImportacionProcessorFactory {
      * @return Lista de todos los procesadores
      */
     public List<ImportacionProcessor> getAllProcessors() {
-        return List.of(csvProcessor, excelProcessor);
+        return Arrays.asList(csvProcessor, excelProcessor);
     }
 
     /**
@@ -134,11 +136,11 @@ public class ImportacionProcessorFactory {
      * @return Mapa con información de procesadores
      */
     public Map<String, Object> getProcessorInfo() {
-        return Map.of(
-                "procesadores_disponibles", processorCache.keySet(),
-                "total_procesadores", processorCache.size(),
-                "tipos_soportados", ImportacionConstants.FORMATOS_SOPORTADOS
-        );
+        Map<String, Object> info = new HashMap<>();
+        info.put("procesadores_disponibles", processorCache.keySet());
+        info.put("total_procesadores", processorCache.size());
+        info.put("tipos_soportados", ImportacionConstants.FORMATOS_SOPORTADOS);
+        return info;
     }
 
     /**

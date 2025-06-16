@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<footer class="bg-dark text-white mt-5 py-3 shadow-sm" th:fragment="footer">
+    <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center">
+
+        <!-- Columna izquierda -->
+        <div>
+            <strong>Informática Viva</strong> &copy; <span th:text="${T(java.time.Year).now()}">2025</span>. Todos los
+            derechos reservados.
+        </div>
+
+        <!-- Columna derecha -->
+        <div class="mt-2 mt-md-0 d-flex align-items-center gap-3">
+
+            <!-- Contacto destacado -->
+            <a class="text-decoration-none" style="color: #90ee90;" th:href="@{/contacto}">
+                <i class="fas fa-envelope me-1"></i>Contacto
+            </a>
+
+            <!-- Redes sociales -->
+            <a class="text-white-50 text-decoration-none " href="https://facebook.com" target="_blank">
+                <i class="fab fa-facebook fa-lg"></i>
+            </a>
+            <a class="text-white-50 text-decoration-none" href="https://twitter.com" target="_blank">
+                <i class="fab fa-twitter fa-lg"></i>
+            </a>
+            <a class="text-white-50 text-decoration-none" href="https://linkedin.com" target="_blank">
+                <i class="fab fa-linkedin fa-lg"></i>
+            </a>
+
+            <!-- Versión -->
+            <span class="text-white-50 small">Versión 1.0</span>
+        </div>
+    </div>
+</footer>
+</body>
+</html>

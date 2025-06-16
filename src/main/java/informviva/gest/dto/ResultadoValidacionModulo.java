@@ -1,5 +1,5 @@
-import informviva.gest.dto.ResultadoValidacionModulo;
-package informviva.gest.service;
+package informviva.gest.dto;
+
 
 import informviva.gest.dto.ErrorValidacion;
 import informviva.gest.enums.NivelSeveridad;

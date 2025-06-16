@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- Menú de navegación principal -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark" th:fragment="nav">
+    <div class="container-fluid">
+        <!-- Logo y nombre -->
+        <a class="navbar-brand d-flex align-items-center" th:href="@{/}">
+            <i class="fas fa-laptop-code me-2"></i>
+            <span>Sistema de Gestión</span>
+        </a>
+        <button class="navbar-toggler" data-bs-target="#navbarMain" data-bs-toggle="collapse" type="button">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarMain">
+            <!-- Menú para usuarios autenticados -->
+            <ul class="navbar-nav me-auto" sec:authorize="isAuthenticated()">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/}">
+                        <i class="fas fa-home"></i> Inicio
+                    </a>
+                </li>
+
+                <!-- Menú de Productos - ADMIN y PRODUCTOS -->
+                <li class="nav-item dropdown" sec:authorize="hasAnyRole('ADMIN', 'PRODUCTOS')">
+                    <a class="nav-link dropdown-toggle role-productos" data-bs-toggle="dropdown" href="#"
+                       id="productosDropdown"
+                       role="button">
+                        <i class="fas fa-box"></i> Productos
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" th:href="@{/productos}">Lista de Productos</a></li>
+                        <li><a class="dropdown-item" th:href="@{/productos/nuevo}">Nuevo Producto</a></li>
+                        <li><a class="dropdown-item" th:href="@{/productos/categorias}">Categorías</a></li>
+                        <li sec:authorize="hasRole('ADMIN')">
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li sec:authorize="hasRole('ADMIN')">
+                            <a class="dropdown-item" th:href="@{/productos/importar}">Importar Productos</a>
+                        </li>
+                        <li sec:authorize="hasRole('ADMIN')">
+                            <a class="dropdown-item" th:href="@{/productos/exportar}">Exportar Productos</a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- Menú de Ventas - ADMIN y VENTAS -->
+                <li class="nav-item dropdown" sec:authorize="hasAnyRole('ADMIN', 'VENTAS')">
+                    <a class="nav-link dropdown-toggle role-ventas" data-bs-toggle="dropdown" href="#"
+                       id="ventasDropdown"
+                       role="button">
+                        <i class="fas fa-shopping-cart"></i> Ventas
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" th:href="@{/ventas/lista}">Historial de Ventas</a></li>
+                        <li><a class="dropdown-item" th:href="@{/ventas/nueva}">Nueva Venta</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item" th:href="@{/panel-ventas}">Panel de Ventas</a></li>
+                    </ul>
+                </li>
+
+                <!-- Menú de Clientes - ADMIN y VENTAS -->
+                <li class="nav-item dropdown" sec:authorize="hasAnyRole('ADMIN', 'VENTAS')">
+                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" id="clientesDropdown"
+                       role="button">
+                        <i class="fas fa-users"></i> Clientes
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" th:href="@{/clientes}">Lista de Clientes</a></li>
+                        <li><a class="dropdown-item" th:href="@{/clientes/nuevo}">Nuevo Cliente</a></li>
+                        <li sec:authorize="hasRole('ADMIN')">
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li sec:authorize="hasRole('ADMIN')">
+                            <a class="dropdown-item" th:href="@{/clientes/importar}">Importar Clientes</a>
+                        </li>
+                        <li sec:authorize="hasRole('ADMIN')">
+                            <a class="dropdown-item" th:href="@{/clientes/exportar}">Exportar Clientes</a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- Menú de Reportes - ADMIN y GERENTE -->
+                <li class="nav-item dropdown" sec:authorize="hasAnyRole('ADMIN', 'GERENTE')">
+                    <a class="nav-link dropdown-toggle role-gerente" data-bs-toggle="dropdown" href="#"
+                       id="reportesDropdown"
+                       role="button">
+                        <i class="fas fa-chart-bar"></i> Reportes
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" th:href="@{/reportes/panel-ventas}">Ventas por Período</a></li>
+                        <li><a class="dropdown-item" th:href="@{/reportes/productos}">Reporte de Productos</a></li>
+                        <li><a class="dropdown-item" th:href="@{/reportes/clientes}">Reporte de Clientes</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item" th:href="@{/dashboard}">Panel de Control</a></li>
+                    </ul>
+                </li>
+
+                <!-- Menú de Administración - Solo ADMIN -->
+                <li class="nav-item dropdown" sec:authorize="hasRole('ADMIN')">
+                    <a class="nav-link dropdown-toggle role-admin" data-bs-toggle="dropdown" href="#" id="adminDropdown"
+                       role="button">
+                        <i class="fas fa-user-cog"></i> Administración
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" th:href="@{/admin/usuarios}">Usuarios</a></li>
+                        <li><a class="dropdown-item" th:href="@{/admin/usuarios/ultimas-vistas}">Últimas Vistas de
+                            Roles</a></li>
+                        <li><a class="dropdown-item" th:href="@{/admin/roles}">Roles y Permisos</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item" th:href="@{/admin/configuracion}">Configuración</a></li>
+                    </ul>
+                </li>
+            </ul>
+
+            <!-- Menú para usuarios no autenticados -->
+            <ul class="navbar-nav me-auto" sec:authorize="!isAuthenticated()">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/}">Inicio</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/contacto}">Contacto</a>
+                </li>
+            </ul>
+
+            <!-- Menú de usuario y cerrar sesión -->
+            <ul class="navbar-nav" sec:authorize="isAuthenticated()">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" id="userDropdown"
+                       role="button">
+                        <i class="fas fa-user"></i> <span sec:authentication="name">Usuario</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" th:href="@{/perfil}">Mi Perfil</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li>
+                            <form method="post" th:action="@{/logout}">
+                                <button class="dropdown-item" type="submit">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+
+            <!-- Botón de Login para usuarios no autenticados -->
+            <ul class="navbar-nav" sec:authorize="!isAuthenticated()">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/login}">
+                        <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+</body>
+</html>

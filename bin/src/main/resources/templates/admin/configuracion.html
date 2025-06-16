@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Configuración del Sistema</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<!-- Navegación -->
+<div th:replace="~{fragments/menu :: menu}"></div>
+
+<div class="container mt-4">
+    <div class="row mb-3">
+        <div class="col-12">
+            <h2 class="border-bottom pb-2">Administración del Sistema</h2>
+        </div>
+    </div>
+
+    <!-- Navegación de pestañas para Administración -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                    <a class="nav-link" href="#" th:href="@{/admin/usuarios}">
+                        <i class="fas fa-users me-1"></i> Usuarios
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" th:href="@{/admin/usuarios/ultimas-vistas}">
+                        <i class="fas fa-history me-1"></i> Últimas Vistas de Roles
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" th:href="@{/admin/roles}">
+                        <i class="fas fa-user-shield me-1"></i> Roles y Permisos
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="#" th:href="@{/admin/configuracion}">
+                        <i class="fas fa-cogs me-1"></i> Configuración
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Mensajes de alerta -->
+    <div class="alert alert-success alert-dismissible fade show" th:if="${mensajeExito != null}">
+        <i class="fas fa-check-circle me-2"></i>
+        <span th:text="${mensajeExito}">Operación exitosa</span>
+        <button class="btn-close" data-bs-dismiss="alert" type="button"></button>
+    </div>
+
+    <div class="alert alert-danger alert-dismissible fade show" th:if="${mensajeError != null}">
+        <i class="fas fa-exclamation-circle me-2"></i>
+        <span th:text="${mensajeError}">Error en la operación</span>
+        <button class="btn-close" data-bs-dismiss="alert" type="button"></button>
+    </div>
+
+    <!-- Formulario de Configuración -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-cogs me-2"></i>
+                        Configuración del Sistema
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" th:action="@{/admin/configuracion/guardar}" th:object="${configuracion}">
+                        <input th:field="*{id}" type="hidden">
+
+                        <!-- Pestañas para organizar la configuración -->
+                        <ul class="nav nav-tabs mb-4" id="configTabs" role="tablist">
+                            <li class="nav-item">
+                                <a aria-controls="general" aria-selected="true" class="nav-link active"
+                                   data-bs-toggle="tab"
+                                   href="#general" id="general-tab" role="tab">
+                                    <i class="fas fa-building me-1"></i> General
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a aria-controls="email" aria-selected="false" class="nav-link" data-bs-toggle="tab"
+                                   href="#email"
+                                   id="email-tab" role="tab">
+                                    <i class="fas fa-envelope me-1"></i> Correo Electrónico
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a aria-controls="notificaciones" aria-selected="false" class="nav-link"
+                                   data-bs-toggle="tab"
+                                   href="#notificaciones" id="notificaciones-tab" role="tab">
+                                    <i class="fas fa-bell me-1"></i> Notificaciones
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a aria-controls="apariencia" aria-selected="false" class="nav-link"
+                                   data-bs-toggle="tab"
+                                   href="#apariencia" id="apariencia-tab" role="tab">
+                                    <i class="fas fa-palette me-1"></i> Apariencia
+                                </a>
+                            </li>
+                        </ul>
+
+                        <!-- Contenido de las pestañas -->
+                        <div class="tab-content" id="configTabsContent">
+                            <!-- Pestaña General -->
+                            <div aria-labelledby="general-tab" class="tab-pane fade show active" id="general"
+                                 role="tabpanel">
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label" for="nombreEmpresa">Nombre de la Empresa <span
+                                                    class="text-danger">*</span></label>
+                                            <input class="form-control" required
+                                                   th:classappend="${#fields.hasErrors('nombreEmpresa')} ? 'is-invalid' : ''"
+                                                   th:field="*{nombreEmpresa}"
+                                                   type="text">
+                                            <div class="invalid-feedback" th:errors="*{nombreEmpresa}"
+                                                 th:if="${#fields.hasErrors('nombreEmpresa')}">
+                                                Error en el nombre de la empresa
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label" for="emailContacto">Email de Contacto <span
+                                                    class="text-danger">*</span></label>
+                                            <input class="form-control" required
+                                                   th:classappend="${#fields.hasErrors('emailContacto')} ? 'is-invalid' : ''"
+                                                   th:field="*{emailContacto}"
+                                                   type="email">
+                                            <div class="invalid-feedback" th:errors="*{emailContacto}"
+                                                 th:if="${#fields.hasErrors('emailContacto')}">
+                                                Error en el email de contacto
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label" for="direccionEmpresa">Dirección</label>
+                                            <input class="form-control"
+                                                   th:classappend="${#fields.hasErrors('direccionEmpresa')} ? 'is-invalid' : ''"
+                                                   th:field="*{direccionEmpresa}"
+                                                   type="text">
+                                            <div class="invalid-feedback"
+                                                 th:errors="*{direccionEmpresa}"
+                                                 th:if="${#fields.hasErrors('direccionEmpresa')}">
+                                                Error en la dirección
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label" for="telefonoEmpresa">Teléfono</label>
+                                            <input class="form-control"
+                                                   th:classappend="${#fields.hasErrors('telefonoEmpresa')} ? 'is-invalid' : ''"
+                                                   th:field="*{telefonoEmpresa}"
+                                                   type="text">
+                                            <div class="invalid-feedback"
+                                                 th:errors="*{telefonoEmpresa}"
+                                                 th:if="${#fields.hasErrors('telefonoEmpresa')}">
+                                                Error en el teléfono
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-4">
+                                    <div class="col-12">
+                                        <div class="mb-3">
+                                            <label class="form-label" for="logoUrl">URL del Logo</label>
+                                            <input class="form-control"
+                                                   th:classappend="${#fields.hasErrors('logoUrl')} ? 'is-invalid' : ''"
+                                                   th:field="*{logoUrl}"
+                                                   type="text">
+                                            <div class="invalid-feedback" th:errors="*{logoUrl}"
+                                                 th:if="${#fields.hasErrors('logoUrl')}">
+                                                Error en la URL del logo
+                                            </div>
+                                            <small class="form-text text-muted">URL completa de la imagen del logo de la
+                                                empresa.</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Pestaña Correo Electrónico -->
+                            <div aria-labelledby="email-tab" class="tab-pane fade" id="email" role="tabpanel">
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label" for="smtpHost">Servidor SMTP</label>
+                                            <input class="form-control" placeholder="smtp.miempresa.com"
+                                                   th:field="*{smtpHost}"
+                                                   type="text">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label" for="smtpPort">Puerto SMTP</label>
+                                            <input class="form-control" placeholder="587" th:field="*{smtpPort}"
+                                                   type="number">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label" for="smtpUsuario">Usuario SMTP</label>
+                                            <input class="form-control" placeholder="usuario@miempresa.com"
+                                                   th:field="*{smtpUsuario}"
+                                                   type="text">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label" for="smtpPassword">Contraseña SMTP</label>
+                                            <input class="form-control" th:field="*{smtpPassword}" type="password">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" id="smtpSslHabilitado"
+                                                   th:field="*{smtpSslHabilitado}" type="checkbox">
+                                            <label class="form-check-label" for="smtpSslHabilitado">Habilitar
+                                                SSL/TLS</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 d-flex align-items-end">
+                                        <div class="input-group">
+                                            <input class="form-control" id="emailPrueba"
+                                                   placeholder="Correo para prueba"
+                                                   type="email">
+                                            <button class="btn btn-info" id="btnProbarCorreo" type="button">
+                                                <i class="fas fa-paper-plane me-1"></i> Probar
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    Configure los parámetros SMTP para habilitar el envío de correos electrónicos desde
+                                    el sistema.
+                                </div>
+                            </div>
+
+                            <!-- Pestaña Notificaciones -->
+                            <div aria-labelledby="notificaciones-tab" class="tab-pane fade" id="notificaciones"
+                                 role="tabpanel">
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" id="habilitarNotificaciones"
+                                                   th:field="*{habilitarNotificaciones}" type="checkbox">
+                                            <label class="form-check-label" for="habilitarNotificaciones">Habilitar
+                                                notificaciones</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label" for="diasInactividadAlerta">Días de inactividad
+                                                para alertas</label>
+                                            <input class="form-control" max="365"
+                                                   min="1"
+                                                   th:field="*{diasInactividadAlerta}" type="number">
+                                            <small class="form-text text-muted">Número de días de inactividad de un
+                                                usuario antes de enviar una alerta.</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    Configure las notificaciones automáticas del sistema. Estas notificaciones se
+                                    enviarán por correo electrónico.
+                                </div>
+                            </div>
+
+                            <!-- Pestaña Apariencia -->
+                            <div aria-labelledby="apariencia-tab" class="tab-pane fade" id="apariencia" role="tabpanel">
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label" for="colorPrimario">Color primario</label>
+                                            <div class="input-group">
+                                                <input class="form-control form-control-color"
+                                                       th:field="*{colorPrimario}"
+                                                       title="Elegir color primario"
+                                                       type="color">
+                                                <input class="form-control" placeholder="#0d6efd"
+                                                       th:field="*{colorPrimario}"
+                                                       type="text">
+                                            </div>
+                                            <small class="form-text text-muted">Color principal para botones,
+                                                encabezados, etc.</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Información de última actualización -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <p class="mb-0 text-muted">
+                                            <i class="fas fa-info-circle me-2"></i>
+                                            Última actualización:
+                                            <span th:if="${configuracion.ultimaActualizacion != null}"
+                                                  th:text="${#temporals.format(configuracion.ultimaActualizacion, 'dd/MM/yyyy HH:mm')}">
+                                                01/01/2025 12:00
+                                            </span>
+                                            <span th:if="${configuracion.ultimaActualizacion == null}">
+                                                Nunca
+                                            </span>
+                                            por
+                                            <strong th:text="${configuracion.usuarioActualizacion != null ? configuracion.usuarioActualizacion : 'Sistema'}">
+                                                Sistema
+                                            </strong>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="d-flex justify-content-end mt-4">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-save me-1"></i> Guardar Configuración
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Función para probar el envío de correos
+        const btnProbarCorreo = document.getElementById('btnProbarCorreo');
+        const emailPrueba = document.getElementById('emailPrueba');
+
+        if (btnProbarCorreo) {
+            btnProbarCorreo.addEventListener('click', function () {
+                const email = emailPrueba.value.trim();
+
+                if (!email) {
+                    alert('Por favor, ingrese un correo electrónico para la prueba');
+                    return;
+                }
+
+                // Verificar formato de email básico
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    alert('Por favor, ingrese un correo electrónico válido');
+                    return;
+                }
+
+                // Mostrar indicador de carga
+                btnProbarCorreo.disabled = true;
+                btnProbarCorreo.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Enviando...';
+
+                // Enviar solicitud AJAX
+                fetch('/admin/configuracion/probar-correo?email=' + encodeURIComponent(email), {
+                    method: 'POST'
+                })
+                    .then(response => response.text())
+                    .then(data => {
+                        alert(data);
+                    })
+                    .catch(error => {
+                        alert('Error: ' + error);
+                    })
+                    .finally(() => {
+                        // Restaurar botón
+                        btnProbarCorreo.disabled = false;
+                        btnProbarCorreo.innerHTML = '<i class="fas fa-paper-plane me-1"></i> Probar';
+                    });
+            });
+        }
+
+        // Sincronizar inputs de color
+        const colorPicker = document.querySelector('input[type="color"]');
+        const colorText = colorPicker.nextElementSibling;
+
+        colorPicker.addEventListener('input', function () {
+            colorText.value = this.value;
+        });
+
+        colorText.addEventListener('input', function () {
+            // Validar formato de color hexadecimal
+            if (/^#[0-9A-F]{6}$/i.test(this.value)) {
+                colorPicker.value = this.value;
+            }
+        });
+    });
+</script>
+</body>
+</html>

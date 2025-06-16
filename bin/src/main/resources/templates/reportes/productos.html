@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reporte de Productos - InformViva</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-light">
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/inicio">
+      <i class="fas fa-chart-line me-2"></i>InformViva
+    </a>
+    <div class="navbar-nav ms-auto">
+                <span class="navbar-text text-white me-3">
+                    <i class="fas fa-user me-1"></i>
+                    <span sec:authentication="name">Usuario</span>
+                </span>
+      <a class="nav-link text-white" href="/logout">
+        <i class="fas fa-sign-out-alt"></i> Salir
+      </a>
+    </div>
+  </div>
+</nav>
+
+<div class="container-fluid mt-4">
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-md-8">
+      <h2><i class="fas fa-boxes text-primary"></i> Reporte de Productos</h2>
+      <p class="text-muted">Análisis detallado del inventario y ventas por producto</p>
+    </div>
+    <div class="col-md-4 text-end">
+      <div class="btn-group">
+        <button type="button" class="btn btn-success" onclick="exportarExcel()">
+          <i class="fas fa-file-excel"></i> Excel
+        </button>
+        <button type="button" class="btn btn-danger" onclick="exportarPDF()">
+          <i class="fas fa-file-pdf"></i> PDF
+        </button>
+        <button type="button" class="btn btn-info" onclick="actualizarReporte()">
+          <i class="fas fa-sync-alt"></i> Actualizar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="card mb-4">
+    <div class="card-header">
+      <h5><i class="fas fa-filter"></i> Filtros de Análisis</h5>
+    </div>
+    <div class="card-body">
+      <form id="filtrosForm" class="row g-3">
+        <div class="col-md-3">
+          <label class="form-label">Categoría</label>
+          <select class="form-select" id="filtroCategoria">
+            <option value="">Todas las categorías</option>
+            <option th:each="categoria : ${categorias}"
+                    th:value="${categoria}"
+                    th:text="${categoria}">Categoría</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Estado de Stock</label>
+          <select class="form-select" id="filtroStock">
+            <option value="">Todos los estados</option>
+            <option value="alto">Stock Alto (>50)</option>
+            <option value="medio">Stock Medio (10-50)</option>
+            <option value="bajo">Stock Bajo (<10)</option>
+            <option value="agotado">Agotado (0)</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Rango de Ventas</label>
+          <select class="form-select" id="filtroVentas">
+            <option value="">Todos los productos</option>
+            <option value="mas_vendidos">Más Vendidos (Top 20)</option>
+            <option value="menos_vendidos">Menos Vendidos</option>
+            <option value="sin_ventas">Sin Ventas</option>
+          </select>
+        </div>
+        <div class="col-md-3 d-flex align-items-end">
+          <button type="button" class="btn btn-primary me-2" onclick="aplicarFiltros()">
+            <i class="fas fa-search"></i> Filtrar
+          </button>
+          <button type="button" class="btn btn-secondary" onclick="limpiarFiltros()">
+            <i class="fas fa-eraser"></i> Limpiar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Métricas generales -->
+  <div class="row mb-4">
+    <div class="col-md-3">
+      <div class="card border-primary shadow-sm">
+        <div class="card-body text-center">
+          <div class="text-primary">
+            <i class="fas fa-boxes fa-2x mb-2"></i>
+          </div>
+          <h4 class="text-primary fw-bold" th:text="${estadisticas?.totalProductos ?: 0}">0</h4>
+          <p class="text-muted mb-0">Total Productos</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-success shadow-sm">
+        <div class="card-body text-center">
+          <div class="text-success">
+            <i class="fas fa-check-circle fa-2x mb-2"></i>
+          </div>
+          <h4 class="text-success fw-bold" th:text="${estadisticas?.productosActivos ?: 0}">0</h4>
+          <p class="text-muted mb-0">Productos Activos</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-warning shadow-sm">
+        <div class="card-body text-center">
+          <div class="text-warning">
+            <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
+          </div>
+          <h4 class="text-warning fw-bold" th:text="${estadisticas?.productosBajoStock ?: 0}">0</h4>
+          <p class="text-muted mb-0">Stock Bajo</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-danger shadow-sm">
+        <div class="card-body text-center">
+          <div class="text-danger">
+            <i class="fas fa-times-circle fa-2x mb-2"></i>
+          </div>
+          <h4 class="text-danger fw-bold" th:text="${estadisticas?.productosAgotados ?: 0}">0</h4>
+          <p class="text-muted mb-0">Agotados</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gráficos -->
+  <div class="row mb-4">
+    <!-- Distribución por categoría -->
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h5><i class="fas fa-chart-pie"></i> Distribución por Categoría</h5>
+        </div>
+        <div class="card-body">
+          <canvas id="categoriasChart" height="300"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Estado de stock -->
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h5><i class="fas fa-chart-bar"></i> Estado de Stock</h5>
+        </div>
+        <div class="card-body">
+          <canvas id="stockChart" height="300"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top productos -->
+  <div class="row mb-4">
+    <!-- Más vendidos -->
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header bg-success text-white">
+          <h5><i class="fas fa-trophy"></i> Top Productos Más Vendidos</h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-sm">
+              <thead>
+              <tr>
+                <th>Pos.</th>
+                <th>Producto</th>
+                <th>Vendidos</th>
+                <th>Ingresos</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr th:each="producto, iterStat : ${topVendidos}" th:if="${topVendidos != null}">
+                <td>
+                                            <span th:switch="${iterStat.index}">
+                                                <i th:case="0" class="fas fa-trophy text-warning"></i>
+                                                <i th:case="1" class="fas fa-medal text-secondary"></i>
+                                                <i th:case="2" class="fas fa-award text-warning"></i>
+                                                <span th:case="*" th:text="${iterStat.index + 1}">4</span>
+                                            </span>
+                </td>
+                <td>
+                  <strong th:text="${producto.nombre}">Producto</strong>
+                  <div class="small text-muted" th:text="${producto.codigo}">COD123</div>
+                </td>
+                <td>
+                  <span class="badge bg-primary" th:text="${producto.unidadesVendidas}">0</span>
+                </td>
+                <td th:text="${#numbers.formatCurrency(producto.ingresos)}">$0</td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bajo stock -->
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header bg-warning text-dark">
+          <h5><i class="fas fa-exclamation-triangle"></i> Productos con Stock Bajo</h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-sm">
+              <thead>
+              <tr>
+                <th>Producto</th>
+                <th>Stock</th>
+                <th>Estado</th>
+                <th>Acción</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr th:each="producto : ${productosBajoStock}" th:if="${productosBajoStock != null}">
+                <td>
+                  <strong th:text="${producto.nombre}">Producto</strong>
+                  <div class="small text-muted" th:text="${producto.codigo}">COD123</div>
+                </td>
+                <td>
+                                            <span th:switch="${producto.stock}">
+                                                <span th:case="0" class="badge bg-danger" th:text="${producto.stock}">0</span>
+                                                <span th:case="*" class="badge bg-warning"
+                                                      th:classappend="${producto.stock <= 5} ? 'bg-danger' : ''"
+                                                      th:text="${producto.stock}">5</span>
+                                            </span>
+                </td>
+                <td>
+                  <span th:if="${producto.stock == 0}" class="badge bg-danger">Agotado</span>
+                  <span th:unless="${producto.stock == 0}" class="badge bg-warning">Bajo</span>
+                </td>
+                <td>
+                  <a th:href="@{/productos/editar/{id}(id=${producto.id})}"
+                     class="btn btn-outline-primary btn-sm"
+                     sec:authorize="hasAnyRole('ADMIN', 'PRODUCTOS')">
+                    <i class="fas fa-edit"></i>
+                  </a>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla detallada -->
+  <div class="card">
+    <div class="card-header">
+      <h5><i class="fas fa-list"></i> Listado Detallado de Productos</h5>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table id="productosTable" class="table table-striped table-hover">
+          <thead class="table-dark">
+          <tr>
+            <th>Código</th>
+            <th>Producto</th>
+            <th>Categoría</th>
+            <th>Precio</th>
+            <th>Stock</th>
+            <th>Vendidos</th>
+            <th>Ingresos</th>
+            <th>Última Venta</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="producto : ${productos}" th:if="${productos != null}">
+            <td>
+              <code th:text="${producto.codigo}">COD123</code>
+            </td>
+            <td>
+              <div>
+                <strong th:text="${producto.nombre}">Producto</strong>
+                <div class="small text-muted" th:text="${producto.descripcion}">Descripción</div>
+              </div>
+            </td>
+            <td>
+              <span class="badge bg-secondary" th:text="${producto.categoria?.nombre ?: 'Sin categoría'}">Categoría</span>
+            </td>
+            <td th:text="${#numbers.formatCurrency(producto.precio)}">$0.00</td>
+            <td>
+                                    <span th:switch="${producto.stock}">
+                                        <span th:case="0" class="badge bg-danger" th:text="${producto.stock}">0</span>
+                                        <span th:case="*"
+                                              <span th:class="${producto.stock <= 5} ? 'badge bg-danger' :
+                 (producto.stock <= 10) ? 'badge bg-warning' : 'badge bg-success'">
+    [[${producto.stock}]]
+</span>
+                                    </span>
+            </td>
+            <td>
+              <span class="badge bg-info" th:text="${producto.unidadesVendidas ?: 0}">0</span>
+            </td>
+            <td>
+              <strong th:text="${#numbers.formatCurrency(producto.ingresos != null ? producto.ingresos : 0)}">$0.00</strong>
+            </td>
+            <td>
+                                    <span th:if="${producto.ultimaVenta}"
+                                          th:text="${#temporals.format(producto.ultimaVenta, 'dd/MM/yyyy')}">01/01/2024</span>
+              <span th:unless="${producto.ultimaVenta}" class="text-muted">Sin ventas</span>
+            </td>
+            <td>
+              <span th:if="${producto.activo}" class="badge bg-success">Activo</span>
+              <span th:unless="${producto.activo}" class="badge bg-secondary">Inactivo</span>
+            </td>
+            <td>
+              <div class="btn-group btn-group-sm">
+                <a th:href="@{/productos/detalle/{id}(id=${producto.id})}"
+                   class="btn btn-outline-primary btn-sm" title="Ver detalle">
+                  <i class="fas fa-eye"></i>
+                </a>
+                <a th:href="@{/productos/editar/{id}(id=${producto.id})}"
+                   class="btn btn-outline-warning btn-sm"
+                   sec:authorize="hasAnyRole('ADMIN', 'PRODUCTOS')"
+                   title="Editar">
+                  <i class="fas fa-edit"></i>
+                </a>
+                <button type="button"
+                        class="btn btn-outline-info btn-sm"
+                        th:onclick="'mostrarHistorialVentas(' + ${producto.id} + ')'"
+                        title="Historial de ventas">
+                  <i class="fas fa-history"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para historial de ventas -->
+<div class="modal fade" id="modalHistorialVentas" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fas fa-history"></i> Historial de Ventas</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="historialContent">
+          <!-- Contenido dinámico -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+<script th:inline="javascript">
+  // Datos desde el servidor
+  const datosGraficos = {
+    categorias: /*[[${estadisticas?.distribucionCategorias}]]*/ {},
+    stock: /*[[${estadisticas?.distribucionStock}]]*/ {}
+  };
+
+  $(document).ready(function() {
+    // Inicializar DataTable
+    $('#productosTable').DataTable({
+      language: {
+        url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+      },
+      pageLength: 25,
+      order: [[6, 'desc']], // Ordenar por ingresos descendente
+      columnDefs: [
+        { targets: [3, 6], className: 'text-end' }, // Alinear precios a la derecha
+        { targets: 9, orderable: false } // Columna de acciones no ordenable
+      ]
+    });
+
+    // Inicializar gráficos
+    inicializarGraficos();
+  });
+
+  function inicializarGraficos() {
+    // Gráfico de categorías
+    const ctxCategorias = document.getElementById('categoriasChart').getContext('2d');
+    new Chart(ctxCategorias, {
+      type: 'doughnut',
+      data: {
+        labels: Object.keys(datosGraficos.categorias),
+        datasets: [{
+          data: Object.values(datosGraficos.categorias),
+          backgroundColor: [
+            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
+            '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF'
+          ]
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom'
+          }
+        }
+      }
+    });
+
+    // Gráfico de stock
+    const ctxStock = document.getElementById('stockChart').getContext('2d');
+    new Chart(ctxStock, {
+      type: 'bar',
+      data: {
+        labels: ['Stock Alto', 'Stock Medio', 'Stock Bajo', 'Agotado'],
+        datasets: [{
+          label: 'Productos',
+          data: [
+            datosGraficos.stock.alto || 0,
+            datosGraficos.stock.medio || 0,
+            datosGraficos.stock.bajo || 0,
+            datosGraficos.stock.agotado || 0
+          ],
+          backgroundColor: ['#28a745', '#ffc107', '#fd7e14', '#dc3545']
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+  }
+
+  function aplicarFiltros() {
+    const categoria = document.getElementById('filtroCategoria').value;
+    const stock = document.getElementById('filtroStock').value;
+    const ventas = document.getElementById('filtroVentas').value;
+
+    // Construir URL con filtros
+    const params = new URLSearchParams();
+    if (categoria) params.append('categoria', categoria);
+    if (stock) params.append('stock', stock);
+    if (ventas) params.append('ventas', ventas);
+
+    // Recargar página con filtros
+    window.location.href = `/reportes/productos?${params.toString()}`;
+  }
+
+  function limpiarFiltros() {
+    window.location.href = '/reportes/productos';
+  }
+
+  function exportarExcel() {
+    const params = new URLSearchParams(window.location.search);
+    params.set('formato', 'excel');
+    window.open(`/reportes/productos/exportar?${params.toString()}`, '_blank');
+  }
+
+  function exportarPDF() {
+    const params = new URLSearchParams(window.location.search);
+    params.set('formato', 'pdf');
+    window.open(`/reportes/productos/exportar?${params.toString()}`, '_blank');
+  }
+
+  function actualizarReporte() {
+    window.location.reload();
+  }
+
+  function mostrarHistorialVentas(productoId) {
+    fetch(`/api/productos/${productoId}/historial-ventas`)
+            .then(response => response.json())
+            .then(data => {
+              let html = '<div class="table-responsive">';
+              html += '<table class="table table-sm">';
+              html += '<thead><tr><th>Fecha</th><th>Cliente</th><th>Cantidad</th><th>Precio</th><th>Total</th></tr></thead>';
+              html += '<tbody>';
+
+              if (data.length === 0) {
+                html += '<tr><td colspan="5" class="text-center text-muted">No hay ventas registradas</td></tr>';
+              } else {
+                data.forEach(venta => {
+                  html += `<tr>
+                                <td>${new Date(venta.fecha).toLocaleDateString()}</td>
+                                <td>${venta.cliente}</td>
+                                <td>${venta.cantidad}</td>
+                                <td>$${venta.precio.toFixed(2)}</td>
+                                <td>$${venta.total.toFixed(2)}</td>
+                            </tr>`;
+                });
+              }
+
+              html += '</tbody></table></div>';
+
+              document.getElementById('historialContent').innerHTML = html;
+              const modal = new bootstrap.Modal(document.getElementById('modalHistorialVentas'));
+              modal.show();
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              document.getElementById('historialContent').innerHTML =
+                      '<div class="alert alert-danger">Error al cargar el historial</div>';
+              const modal = new bootstrap.Modal(document.getElementById('modalHistorialVentas'));
+              modal.show();
+            });
+  }
+
+  // Auto-refresh cada 5 minutos
+  setInterval(actualizarReporte, 5 * 60 * 1000);
+</script>
+</body>
+</html>

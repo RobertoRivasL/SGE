@@ -56,4 +56,5 @@ public class ReglaDeNegocioException extends RuntimeException {
     public ReglaDeNegocioException(String entidad, String operacion, String motivo) {
         super(String.format("No se puede %s %s: %s", operacion, entidad, motivo));
     }
-}
+
+  }

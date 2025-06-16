@@ -16,7 +16,9 @@ import java.util.Map;
  */
 public interface ImportacionServicio {
 
-
+    ImportacionResultadoDTO importarClientes(MultipartFile archivo);
+    ImportacionResultadoDTO importarProductos(MultipartFile archivo);
+    ImportacionResultadoDTO importarUsuarios(MultipartFile archivo);
 
     /**
      * Importa productos desde un archivo CSV o Excel

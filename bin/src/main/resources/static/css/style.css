@@ -1,0 +1,775 @@
+/**
+ * style.css - Estilos para Sistema de Gestión Integrado
+ * @version 1.0
+ */
+
+/* Variables de colores y efectos */
+:root {
+    /* Paleta de colores principal */
+    --color-primario: #304D63; /* Azul oscuro */
+    --color-secundario: #00A19D; /* Verde/azul */
+    --color-acento: #FFC857; /* Amarillo/naranja */
+    --color-gris-claro: #F5F7FA; /* Fondo gris claro */
+    --color-texto: #2C3E50; /* Texto principal */
+    --color-blanco: #FFFFFF; /* Blanco */
+
+    /* Roles por color */
+    --color-admin: #E74C3C; /* Rojo para ADMIN */
+    --color-ventas: #3498DB; /* Azul para VENTAS */
+    --color-productos: #2ECC71; /* Verde para PRODUCTOS */
+    --color-gerente: #9B59B6; /* Morado para GERENTE */
+
+    /* Estados */
+    --color-exito: #27AE60; /* Verde exito */
+    --color-advertencia: #F39C12; /* Naranja advertencia */
+    --color-peligro: #E74C3C; /* Rojo peligro */
+    --color-info: #3498DB; /* Azul info */
+
+    /* Efectos */
+    --sombra-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+    --sombra-md: 0 4px 8px rgba(0, 0, 0, 0.1);
+    --transicion: all 0.3s ease;
+    --borde-radio: 8px;
+    --borde-radio-sm: 4px;
+}
+
+/* Estilos generales */
+body {
+    font-family: 'Segoe UI', 'Roboto', sans-serif;
+    background-color: var(--color-gris-claro);
+    color: var(--color-texto);
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.container-fluid {
+    padding-left: 2rem;
+    padding-right: 2rem;
+}
+
+/* Navbar personalizada */
+.navbar-dark {
+    background-color: var(--color-primario) !important;
+    box-shadow: var(--sombra-sm);
+}
+
+.navbar-brand {
+    font-weight: 600;
+    color: var(--color-acento) !important;
+    font-size: 1.5rem;
+}
+
+.sistema-nombre {
+    color: var(--color-acento);
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.navbar-dark .nav-link {
+    color: rgba(255, 255, 255, 0.85) !important;
+    font-weight: 500;
+    padding: 0.75rem 1rem;
+    transition: var(--transicion);
+}
+
+.navbar-dark .nav-link:hover,
+.navbar-dark .nav-link:focus {
+    color: var(--color-acento) !important;
+    transform: translateY(-2px);
+}
+
+.dropdown-menu {
+    border: none;
+    border-radius: var(--borde-radio);
+    box-shadow: var(--sombra-md);
+    overflow: hidden;
+}
+
+.dropdown-item {
+    padding: 0.7rem 1.5rem;
+    transition: var(--transicion);
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+    background-color: rgba(0, 161, 157, 0.1);
+    color: var(--color-secundario);
+}
+
+/* Roles con colores */
+.nav-link.role-admin {
+    border-bottom: 3px solid var(--color-admin);
+}
+
+.nav-link.role-ventas {
+    border-bottom: 3px solid var(--color-ventas);
+}
+
+.nav-link.role-productos {
+    border-bottom: 3px solid var(--color-productos);
+}
+
+.nav-link.role-gerente {
+    border-bottom: 3px solid var(--color-gerente);
+}
+
+/* Tarjetas principales */
+.card {
+    border: none;
+    border-radius: var(--borde-radio);
+    box-shadow: var(--sombra-sm);
+    transition: var(--transicion);
+    overflow: hidden;
+    height: 100%;
+}
+
+.card:hover {
+    box-shadow: var(--sombra-md);
+    transform: translateY(-3px);
+}
+
+.card-header {
+    background-color: rgba(0, 0, 0, 0.02);
+    font-weight: 600;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.card-title {
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: var(--color-primario);
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+/* Íconos en tarjetas */
+.card .fas,
+.card .far,
+.card .fab,
+.card .fa {
+    transition: var(--transicion);
+}
+
+.card:hover .fas,
+.card:hover .far,
+.card:hover .fab,
+.card:hover .fa {
+    transform: scale(1.1);
+}
+
+/* Colores de fondo personalizados */
+.bg-primary {
+    background-color: var(--color-primario) !important;
+}
+
+.bg-secondary {
+    background-color: var(--color-secundario) !important;
+}
+
+.bg-success {
+    background-color: var(--color-exito) !important;
+}
+
+.bg-warning {
+    background-color: var(--color-advertencia) !important;
+}
+
+.bg-danger {
+    background-color: var(--color-peligro) !important;
+}
+
+.bg-info {
+    background-color: var(--color-info) !important;
+}
+
+.bg-admin {
+    background-color: var(--color-admin) !important;
+    color: var(--color-blanco) !important;
+}
+
+.bg-ventas {
+    background-color: var(--color-ventas) !important;
+    color: var(--color-blanco) !important;
+}
+
+.bg-productos {
+    background-color: var(--color-productos) !important;
+    color: var(--color-blanco) !important;
+}
+
+.bg-gerente {
+    background-color: var(--color-gerente) !important;
+    color: var(--color-blanco) !important;
+}
+
+/* Colores de texto personalizados */
+.text-primary {
+    color: var(--color-primario) !important;
+}
+
+.text-secondary {
+    color: var(--color-secundario) !important;
+}
+
+.text-success {
+    color: var(--color-exito) !important;
+}
+
+.text-warning {
+    color: var(--color-advertencia) !important;
+}
+
+.text-danger {
+    color: var(--color-peligro) !important;
+}
+
+.text-info {
+    color: var(--color-info) !important;
+}
+
+.text-admin {
+    color: var(--color-admin) !important;
+}
+
+.text-ventas {
+    color: var(--color-ventas) !important;
+}
+
+.text-productos {
+    color: var(--color-productos) !important;
+}
+
+.text-gerente {
+    color: var(--color-gerente) !important;
+}
+
+/* Botones personalizados */
+.btn {
+    border-radius: var(--borde-radio);
+    font-weight: 500;
+    padding: 0.6rem 1.5rem;
+    transition: var(--transicion);
+    border: none;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--sombra-sm);
+}
+
+.btn-primary {
+    background-color: var(--color-primario);
+}
+
+.btn-primary:hover {
+    background-color: var(--color-primario);
+    filter: brightness(110%);
+}
+
+.btn-secondary {
+    background-color: var(--color-secundario);
+}
+
+.btn-secondary:hover {
+    background-color: var(--color-secundario);
+    filter: brightness(110%);
+}
+
+.btn-success {
+    background-color: var(--color-exito);
+}
+
+.btn-success:hover {
+    background-color: var(--color-exito);
+    filter: brightness(110%);
+}
+
+.btn-warning {
+    background-color: var(--color-advertencia);
+}
+
+.btn-warning:hover {
+    background-color: var(--color-advertencia);
+    filter: brightness(110%);
+}
+
+.btn-danger {
+    background-color: var(--color-peligro);
+}
+
+.btn-danger:hover {
+    background-color: var(--color-peligro);
+    filter: brightness(110%);
+}
+
+.btn-info {
+    background-color: var(--color-info);
+}
+
+.btn-info:hover {
+    background-color: var(--color-info);
+    filter: brightness(110%);
+}
+
+.btn-outline-primary {
+    color: var(--color-primario);
+    border: 1px solid var(--color-primario);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--color-primario);
+    color: var(--color-blanco);
+}
+
+.btn-outline-secondary {
+    color: var(--color-secundario);
+    border: 1px solid var(--color-secundario);
+}
+
+.btn-outline-secondary:hover {
+    background-color: var(--color-secundario);
+    color: var(--color-blanco);
+}
+
+.btn-sm {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+}
+
+/* Tablas mejoradas */
+.table {
+    width: 100%;
+    margin-bottom: 0;
+    color: var(--color-texto);
+}
+
+.table thead th {
+    background-color: rgba(0, 0, 0, 0.03);
+    font-weight: 600;
+    border-top: none;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+    padding: 0.75rem 1.25rem;
+}
+
+.table tbody td {
+    padding: 0.75rem 1.25rem;
+    vertical-align: middle;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 161, 157, 0.05);
+}
+
+.table-responsive {
+    border-radius: var(--borde-radio);
+    overflow: hidden;
+}
+
+/* Clases para métricas y estadísticas */
+.metric-card {
+    text-align: center;
+    padding: 1.5rem;
+}
+
+.metric-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: var(--color-acento);
+}
+
+.metric-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 0.5rem;
+}
+
+.metric-label {
+    font-size: 1rem;
+    color: rgba(0, 0, 0, 0.6);
+    margin-bottom: 0;
+}
+
+.metric-change {
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    display: inline-block;
+    margin-top: 0.5rem;
+}
+
+.metric-change.positive {
+    background-color: rgba(46, 204, 113, 0.1);
+    color: var(--color-exito);
+}
+
+.metric-change.negative {
+    background-color: rgba(231, 76, 60, 0.1);
+    color: var(--color-peligro);
+}
+
+/* Estilos para badges */
+.badge {
+    font-weight: 500;
+    font-size: 0.85rem;
+    padding: 0.4em 0.8em;
+    border-radius: 50rem;
+}
+
+.badge-stock-low {
+    background-color: var(--color-peligro);
+    color: white;
+}
+
+.badge-stock-medium {
+    background-color: var(--color-advertencia);
+    color: white;
+}
+
+.badge-stock-ok {
+    background-color: var(--color-exito);
+    color: white;
+}
+
+/* Estilos para tarjetas de productos */
+.product-card {
+    transition: var(--transicion);
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--sombra-md);
+}
+
+.product-image {
+    height: 180px;
+    object-fit: contain;
+    padding: 1rem;
+}
+
+.product-price {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-primario);
+}
+
+.product-stock {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+}
+
+/* Estilos para formularios */
+.form-control {
+    border-radius: var(--borde-radio);
+    padding: 0.75rem 1rem;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    transition: var(--transicion);
+}
+
+.form-control:focus {
+    border-color: var(--color-secundario);
+    box-shadow: 0 0 0 0.2rem rgba(0, 161, 157, 0.25);
+}
+
+.form-label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: var(--color-texto);
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+/* Estilos para alertas */
+.alert {
+    border: none;
+    border-radius: var(--borde-radio);
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--sombra-sm);
+}
+
+.alert-success {
+    background-color: rgba(46, 204, 113, 0.1);
+    color: var(--color-exito);
+}
+
+.alert-danger {
+    background-color: rgba(231, 76, 60, 0.1);
+    color: var(--color-peligro);
+}
+
+.alert-warning {
+    background-color: rgba(243, 156, 18, 0.1);
+    color: var(--color-advertencia);
+}
+
+.alert-info {
+    background-color: rgba(52, 152, 219, 0.1);
+    color: var(--color-info);
+}
+
+/* Animaciones para iconos y elementos destacados */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.pulse-animation {
+    animation: pulse 2s infinite;
+}
+
+/* Pie de página */
+footer {
+    background-color: var(--color-primario);
+    color: var(--color-blanco);
+    padding: 2rem 0 1rem;
+    margin-top: auto;
+}
+
+footer h5 {
+    color: var(--color-acento);
+    font-weight: 600;
+    margin-bottom: 1.25rem;
+}
+
+footer .list-unstyled li {
+    margin-bottom: 0.75rem;
+}
+
+footer a {
+    color: rgba(255, 255, 255, 0.7);
+    transition: var(--transicion);
+    text-decoration: none;
+}
+
+footer a:hover {
+    color: var(--color-acento);
+    text-decoration: none;
+}
+
+/* Estilo para línea divisoria */
+footer hr {
+    border-color: rgba(255, 255, 255, 0.1);
+    margin: 1.5rem 0;
+}
+
+/* Estilos para gráficos */
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+    margin-bottom: 2rem;
+}
+
+/* Login y formularios de autenticación */
+.login-container {
+    max-width: 450px;
+    margin: 3rem auto;
+    padding: 2rem;
+    background-color: var(--color-blanco);
+    border-radius: var(--borde-radio);
+    box-shadow: var(--sombra-md);
+}
+
+.login-title {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: var(--color-primario);
+}
+
+.login-footer {
+    text-align: center;
+    margin-top: 2rem;
+    font-size: 0.9rem;
+    color: rgba(0, 0, 0, 0.5);
+}
+
+/* Personalización específica para estados de venta */
+.estado-completada {
+    background-color: rgba(46, 204, 113, 0.1);
+    color: var(--color-exito);
+    padding: 0.25rem 0.75rem;
+    border-radius: 50rem;
+    font-weight: 500;
+}
+
+.estado-pendiente {
+    background-color: rgba(243, 156, 18, 0.1);
+    color: var(--color-advertencia);
+    padding: 0.25rem 0.75rem;
+    border-radius: 50rem;
+    font-weight: 500;
+}
+
+.estado-anulada {
+    background-color: rgba(231, 76, 60, 0.1);
+    color: var(--color-peligro);
+    padding: 0.25rem 0.75rem;
+    border-radius: 50rem;
+    font-weight: 500;
+}
+
+/* Estilos para formulario de venta */
+.producto-seleccionado {
+    background-color: rgba(0, 161, 157, 0.1);
+    border-radius: var(--borde-radio);
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-left: 4px solid var(--color-secundario);
+}
+
+.resumen-venta {
+    background-color: var(--color-gris-claro);
+    border-radius: var(--borde-radio);
+    padding: 1.5rem;
+    position: sticky;
+    top: 1rem;
+}
+
+.total-venta {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-primario);
+    margin-top: 1rem;
+    text-align: center;
+}
+
+/* Validación de RUT chileno */
+.rut-valid {
+    color: var(--color-exito);
+}
+
+.rut-invalid {
+    color: var(--color-peligro);
+}
+
+/* Custom styles for the modal confirmation */
+.modal-confirm {
+    color: #636363;
+    width: 400px;
+}
+
+.modal-confirm .modal-content {
+    padding: 20px;
+    border-radius: 5px;
+    border: none;
+    text-align: center;
+}
+
+.modal-confirm .modal-header {
+    border-bottom: none;
+    position: relative;
+}
+
+.modal-confirm h4 {
+    text-align: center;
+    font-size: 26px;
+    margin: 30px 0 -10px;
+}
+
+.modal-confirm .modal-body {
+    color: #999;
+}
+
+.modal-confirm .icon-box {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+    border-radius: 50%;
+    z-index: 9;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-confirm .icon-box i {
+    font-size: 46px;
+}
+
+.modal-confirm.delete .icon-box {
+    background: #ffefef;
+    color: #f15e5e;
+}
+
+.modal-confirm.success .icon-box {
+    background: #efffef;
+    color: #42c25e;
+}
+
+.modal-confirm.warning .icon-box {
+    background: #fff7ef;
+    color: #f1945e;
+}
+
+/* Adaptaciones responsive */
+@media (max-width: 992px) {
+    .container-fluid {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .card {
+        margin-bottom: 1.5rem;
+    }
+
+    .metric-value {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .card-body {
+        padding: 1.25rem;
+    }
+
+    .metric-value {
+        font-size: 1.75rem;
+    }
+
+    .table thead th,
+    .table tbody td {
+        padding: 0.6rem 1rem;
+    }
+
+    .navbar-nav .dropdown-menu {
+        box-shadow: none;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+}
+
+@media (max-width: 576px) {
+    .container-fluid {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+
+    .table-responsive {
+        border-radius: 0;
+    }
+
+    .card {
+        border-radius: var(--borde-radio);
+    }
+
+    .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+}

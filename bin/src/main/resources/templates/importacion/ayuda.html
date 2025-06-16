@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Centro de Ayuda - Importación de Datos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .help-section {
+            padding: 2rem 0;
+        }
+        .faq-item {
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+        .faq-header {
+            background: #f8f9fa;
+            padding: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .faq-header:hover {
+            background: #e9ecef;
+        }
+        .faq-content {
+            padding: 1rem;
+            display: none;
+        }
+        .faq-content.show {
+            display: block;
+        }
+        .format-example {
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        .step-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        .step-card:hover {
+            transform: translateY(-5px);
+        }
+        .step-number {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #007bff;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin: 0 auto 1rem;
+        }
+        .table-example {
+            font-size: 0.875rem;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+<!-- Navegación -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+        <a class="navbar-brand" href="/inicio">
+            <i class="fas fa-chart-line"></i> Sistema de Gestión
+        </a>
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link" href="/importacion">
+                <i class="fas fa-arrow-left"></i> Volver a Importación
+            </a>
+        </div>
+    </div>
+</nav>
+
+<!-- Encabezado -->
+<div class="bg-primary text-white py-5">
+    <div class="container text-center">
+        <h1 class="display-4 mb-3">
+            <i class="fas fa-question-circle me-3"></i>Centro de Ayuda
+        </h1>
+        <p class="lead">Guía completa para importar datos al sistema</p>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Navegación interna -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <nav class="nav nav-pills nav-fill">
+                <a class="nav-link active" href="#guia-rapida">Guía Rápida</a>
+                <a class="nav-link" href="#formatos">Formatos</a>
+                <a class="nav-link" href="#columnas">Columnas</a>
+                <a class="nav-link" href="#ejemplos">Ejemplos</a>
+                <a class="nav-link" href="#faq">FAQ</a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Guía Rápida -->
+    <section id="guia-rapida" class="help-section">
+        <h2 class="text-center mb-5">
+            <i class="fas fa-rocket me-2 text-primary"></i>Guía Rápida de Importación
+        </h2>
+
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="card step-card text-center h-100">
+                    <div class="card-body">
+                        <div class="step-number">1</div>
+                        <h5 class="card-title">Preparar Archivo</h5>
+                        <p class="card-text">Descargue la plantilla y complete con sus datos</p>
+                        <div class="mt-auto">
+                            <small class="text-muted">CSV o Excel</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="card step-card text-center h-100">
+                    <div class="card-body">
+                        <div class="step-number">2</div>
+                        <h5 class="card-title">Subir Archivo</h5>
+                        <p class="card-text">Seleccione su archivo y valide la estructura</p>
+                        <div class="mt-auto">
+                            <small class="text-muted">Máximo 10MB</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="card step-card text-center h-100">
+                    <div class="card-body">
+                        <div class="step-number">3</div>
+                        <h5 class="card-title">Revisar Vista</h5>
+                        <p class="card-text">Verifique los datos en la vista previa</p>
+                        <div class="mt-auto">
+                            <small class="text-muted">Primeras 10 filas</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="card step-card text-center h-100">
+                    <div class="card-body">
+                        <div class="step-number">4</div>
+                        <h5 class="card-title">Importar</h5>
+                        <p class="card-text">Ejecute la importación y revise los resultados</p>
+                        <div class="mt-auto">
+                            <small class="text-muted">Reporte detallado</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Formatos Soportados -->
+    <section id="formatos" class="help-section">
+        <h2 class="mb-4">
+            <i class="fas fa-file-alt me-2 text-primary"></i>Formatos Soportados
+        </h2>
+
+        <div class="row">
+            <div class="col-md-4" th:each="formato : ${formatosSoportados}">
+                <div class="card mb-3">
+                    <div class="card-body text-center">
+                        <i th:class="${formato == 'csv'} ? 'fas fa-file-csv fa-3x text-success' : 'fas fa-file-excel fa-3x text-primary'" class="mb-3"></i>
+                        <h5 th:text="${formato.toUpperCase()}">CSV</h5>
+                        <p class="small text-muted" th:if="${formato == 'csv'}">
+                            Valores separados por comas<br>
+                            Rápido y ligero<br>
+                            UTF-8 recomendado
+                        </p>
+                        <p class="small text-muted" th:if="${formato != 'csv'}">
+                            Hoja de cálculo<br>
+                            Formato visual<br>
+                            Múltiples hojas
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="alert alert-info">
+            <h6><i class="fas fa-info-circle me-2"></i>Recomendaciones:</h6>
+            <ul class="mb-0">
+                <li><strong>CSV:</strong> Más rápido para archivos grandes (>1000 registros)</li>
+                <li><strong>Excel:</strong> Más cómodo para preparar y visualizar datos</li>
+                <li><strong>Codificación:</strong> Use UTF-8 para caracteres especiales</li>
+                <li><strong>Tamaño:</strong> Máximo 10MB por archivo</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Columnas Requeridas -->
+    <section id="columnas" class="help-section">
+        <h2 class="mb-4">
+            <i class="fas fa-columns me-2 text-primary"></i>Columnas Requeridas por Tipo
+        </h2>
+
+        <div class="row">
+            <!-- Clientes -->
+            <div class="col-lg-4 mb-4">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-users me-2"></i>Clientes
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-sm table-example">
+                            <thead>
+                            <tr><th>Columna</th><th>Requerida</th></tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="columna : ${columnasCliente}">
+                                <td th:text="${columna}">nombre</td>
+                                <td>
+                                    <i th:class="${columna in {'nombre', 'apellido', 'email', 'rut'}} ? 'fas fa-asterisk text-danger' : 'fas fa-minus text-muted'"
+                                       style="font-size: 0.7rem;"></i>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <small class="text-muted">
+                            <i class="fas fa-asterisk text-danger me-1" style="font-size: 0.6rem;"></i>
+                            Campos obligatorios
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Productos -->
+            <div class="col-lg-4 mb-4">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-box me-2"></i>Productos
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-sm table-example">
+                            <thead>
+                            <tr><th>Columna</th><th>Requerida</th></tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="columna : ${columnasProducto}">
+                                <td th:text="${columna}">codigo</td>
+                                <td>
+                                    <i th:class="${columna in {'codigo', 'nombre', 'precio'}} ? 'fas fa-asterisk text-danger' : 'fas fa-minus text-muted'"
+                                       style="font-size: 0.7rem;"></i>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <small class="text-muted">
+                            <i class="fas fa-asterisk text-danger me-1" style="font-size: 0.6rem;"></i>
+                            Campos obligatorios
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Usuarios -->
+            <div class="col-lg-4 mb-4">
+                <div class="card">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0">
+                            <i class="fas fa-user-cog me-2"></i>Usuarios
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-sm table-example">
+                            <thead>
+                            <tr><th>Columna</th><th>Requerida</th></tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="columna : ${columnasUsuario}">
+                                <td th:text="${columna}">username</td>
+                                <td>
+                                    <i th:class="${columna in {'username', 'password', 'nombre', 'apellido', 'email'}} ? 'fas fa-asterisk text-danger' : 'fas fa-minus text-muted'"
+                                       style="font-size: 0.7rem;"></i>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <small class="text-muted">
+                            <i class="fas fa-asterisk text-danger me-1" style="font-size: 0.6rem;"></i>
+                            Campos obligatorios
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Ejemplos -->
+    <section id="ejemplos" class="help-section">
+        <h2 class="mb-4">
+            <i class="fas fa-code me-2 text-primary"></i>Ejemplos de Formato
+        </h2>
+
+        <!-- Ejemplo CSV -->
+        <div class="format-example">
+            <h5><i class="fas fa-file-csv text-success me-2"></i>Formato CSV - Clientes</h5>
+            <pre class="mb-0"><code>nombre,apellido,email,rut,telefono,direccion,categoria
+Juan,Pérez,juan.perez@email.com,12345678-9,987654321,Av. Principal 123,VIP
+María,González,maria.gonzalez@email.com,98765432-1,912345678,Calle Secundaria 456,Regular</code></pre>
+        </div>
+
+        <!-- Ejemplo Excel -->
+        <div class="format-example">
+            <h5><i class="fas fa-file-excel text-primary me-2"></i>Formato Excel - Productos</h5>
+            <div class="table-responsive">
+                <table class="table table-bordered table-sm">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>codigo</th>
+                        <th>nombre</th>
+                        <th>descripcion</th>
+                        <th>precio</th>
+                        <th>stock</th>
+                        <th>marca</th>
+                        <th>modelo</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>PROD001</td>
+                        <td>Laptop Dell</td>
+                        <td>Laptop Dell Inspiron 15</td>
+                        <td>599990</td>
+                        <td>10</td>
+                        <td>Dell</td>
+                        <td>Inspiron 15</td>
+                    </tr>
+                    <tr>
+                        <td>PROD002</td>
+                        <td>Mouse Logitech</td>
+                        <td>Mouse óptico inalámbrico</td>
+                        <td>25990</td>
+                        <td>50</td>
+                        <td>Logitech</td>
+                        <td>M220</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Notas importantes -->
+        <div class="alert alert-warning">
+            <h6><i class="fas fa-exclamation-triangle me-2"></i>Notas Importantes:</h6>
+            <ul class="mb-0">
+                <li>Los encabezados deben coincidir exactamente con los nombres mostrados</li>
+                <li>No use espacios adicionales en los nombres de columnas</li>
+                <li>Para campos de texto con comas, use comillas dobles en CSV</li>
+                <li>Los precios deben ser números sin símbolos de moneda</li>
+                <li>Los RUTs deben incluir el guión y dígito verificador</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq" class="help-section">
+        <h2 class="mb-4">
+            <i class="fas fa-question-circle me-2 text-primary"></i>Preguntas Frecuentes
+        </h2>
+
+        <div class="faq-item">
+            <div class="faq-header" onclick="toggleFaq(this)">
+                <h6 class="mb-0">
+                    ¿Qué sucede si mi archivo tiene errores?
+                    <i class="fas fa-chevron-down float-end"></i>
+                </h6>
+            </div>
+            <div class="faq-content">
+                <p>El sistema validará su archivo antes de la importación. Si hay errores:</p>
+                <ul>
+                    <li>Se mostrará un reporte detallado con los errores encontrados</li>
+                    <li>Los registros correctos se importarán exitosamente</li>
+                    <li>Los registros con errores se omitirán con explicación del problema</li>
+                    <li>Podrá corregir los errores y volver a importar solo los registros fallidos</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-header" onclick="toggleFaq(this)">
+                <h6 class="mb-0">
+                    ¿Puedo importar registros duplicados?
+                    <i class="fas fa-chevron-down float-end"></i>
+                </h6>
+            </div>
+            <div class="faq-content">
+                <p>El sistema detecta automáticamente registros duplicados basándose en:</p>
+                <ul>
+                    <li><strong>Clientes:</strong> RUT único</li>
+                    <li><strong>Productos:</strong> Código único</li>
+                    <li><strong>Usuarios:</strong> Username único</li>
+                </ul>
+                <p>Los registros duplicados se omiten automáticamente y se reportan en el resumen.</p>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-header" onclick="toggleFaq(this)">
+                <h6 class="mb-0">
+                    ¿Cuál es el tamaño máximo de archivo?
+                    <i class="fas fa-chevron-down float-end"></i>
+                </h6>
+            </div>
+            <div class="faq-content">
+                <p>Límites recomendados:</p>
+                <ul>
+                    <li><strong>Tamaño:</strong> Máximo 10MB por archivo</li>
+                    <li><strong>Registros:</strong> Hasta 10,000 clientes, 5,000 productos, o 1,000 usuarios</li>
+                    <li><strong>Rendimiento:</strong> Para archivos grandes, use CSV en lugar de Excel</li>
+                </ul>
+                <p>Si necesita importar más datos, divida el archivo en lotes más pequeños.</p>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-header" onclick="toggleFaq(this)">
+                <h6 class="mb-0">
+                    ¿Cómo manejo caracteres especiales?
+                    <i class="fas fa-chevron-down float-end"></i>
+                </h6>
+            </div>
+            <div class="faq-content">
+                <p>Para evitar problemas con caracteres especiales (ñ, acentos, etc.):</p>
+                <ul>
+                    <li><strong>CSV:</strong> Guarde con codificación UTF-8</li>
+                    <li><strong>Excel:</strong> Use versiones recientes (.xlsx)</li>
+                    <li><strong>Comas en texto:</strong> Encierre el texto entre comillas dobles</li>
+                    <li><strong>Saltos de línea:</strong> Evítelos dentro de las celdas</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-header" onclick="toggleFaq(this)">
+                <h6 class="mb-0">
+                    ¿Puedo deshacer una importación?
+                    <i class="fas fa-chevron-down float-end"></i>
+                </h6>
+            </div>
+            <div class="faq-content">
+                <p>Actualmente no hay función de deshacer automático. Sin embargo:</p>
+                <ul>
+                    <li>El sistema mantiene registros detallados de todas las importaciones</li>
+                    <li>Puede exportar los datos antes de importar como respaldo</li>
+                    <li>Los registros duplicados no se importan, preservando los datos originales</li>
+                    <li>Contacte al administrador si necesita revertir una importación</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Enlaces útiles -->
+    <section class="help-section">
+        <div class="text-center">
+            <h3 class="mb-4">¿Necesita más ayuda?</h3>
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <a href="/importacion" class="btn btn-primary btn-lg w-100">
+                                <i class="fas fa-upload me-2"></i>Comenzar Importación
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a href="/contacto" class="btn btn-outline-primary btn-lg w-100">
+                                <i class="fas fa-envelope me-2"></i>Contactar Soporte
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a href="/inicio" class="btn btn-outline-secondary btn-lg w-100">
+                                <i class="fas fa-home me-2"></i>Volver al Inicio
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Navegación suave
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+
+                // Actualizar navegación activa
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.classList.remove('active');
+                });
+                this.classList.add('active');
+            }
+        });
+    });
+
+    // Toggle FAQ
+    function toggleFaq(element) {
+        const content = element.nextElementSibling;
+        const icon = element.querySelector('.fa-chevron-down');
+
+        if (content.classList.contains('show')) {
+            content.classList.remove('show');
+            icon.style.transform = 'rotate(0deg)';
+        } else {
+            // Cerrar otros FAQs
+            document.querySelectorAll('.faq-content.show').forEach(item => {
+                item.classList.remove('show');
+            });
+            document.querySelectorAll('.fa-chevron-down').forEach(icon => {
+                icon.style.transform = 'rotate(0deg)';
+            });
+
+            // Abrir este FAQ
+            content.classList.add('show');
+            icon.style.transform = 'rotate(180deg)';
+        }
+    }
+
+    // Detectar sección visible
+    window.addEventListener('scroll', function() {
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('.nav-link[href^="#"]');
+
+        let current = '';
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop - 100;
+            const sectionHeight = section.offsetHeight;
+            if (window.pageYOffset >= sectionTop &&
+                window.pageYOffset < sectionTop + sectionHeight) {
+                current = section.getAttribute('id');
+            }
+        });
+
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === '#' + current) {
+                link.classList.add('active');
+            }
+        });
+    });
+</script>
+</body>
+</html>

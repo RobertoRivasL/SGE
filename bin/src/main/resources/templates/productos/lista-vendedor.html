@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+>
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Productos - Consulta de Inventario</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<!-- Navegación -->
+<div th:replace="~{fragments/menu :: menu}"></div>
+
+<div class="container-fluid mt-4">
+    <!-- Encabezado -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1><i class="fas fa-boxes text-success me-2"></i>Consulta de Inventario</h1>
+                    <p class="text-muted mb-0">Productos disponibles para venta</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <div class="badge bg-info fs-6">
+                        <i class="fas fa-boxes me-1"></i>
+                        <span th:text="${totalProductos}">0</span> Productos
+                    </div>
+                    <div class="badge bg-warning fs-6" th:if="${productosConBajoStock > 0}">
+                        <i class="fas fa-exclamation-triangle me-1"></i>
+                        <span th:text="${productosConBajoStock}">0</span> Bajo Stock
+                    </div>
+                    <a class="btn btn-success" th:href="@{/ventas/nueva}">
+                        <i class="fas fa-plus me-1"></i>Nueva Venta
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros de búsqueda -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <form class="row g-3" method="get" th:action="@{/productos}">
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                                <input class="form-control" name="search" placeholder="Buscar por nombre o código"
+                                       th:value="${search}" type="text">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" name="categoria">
+                                <option value="">Todas las categorías</option>
+                                <option th:each="cat : ${categorias}"
+                                        th:selected="${cat == categoria}"
+                                        th:text="${cat}"
+                                        th:value="${cat}">Categoría
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-check form-switch mt-2">
+                                <input class="form-check-input" id="soloConStock" name="soloConStock"
+                                       th:checked="${soloConStock}" type="checkbox">
+                                <label class="form-check-label" for="soloConStock">
+                                    Solo con stock
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-2 d-flex gap-2">
+                            <button class="btn btn-primary w-100" type="submit">
+                                <i class="fas fa-search me-1"></i>Filtrar
+                            </button>
+                        </div>
+                        <div class="col-12" th:if="${search or categoria or soloConStock}">
+                            <a class="btn btn-outline-secondary btn-sm" th:href="@{/productos}">
+                                <i class="fas fa-times me-1"></i>Limpiar filtros
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla/Grid de productos -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-list me-2"></i>Productos Disponibles
+                        </h5>
+                        <div class="d-flex gap-2">
+                            <span class="badge bg-primary">
+                                Página <span th:text="${productosPage.number + 1}">1</span>
+                                de <span th:text="${productosPage.totalPages}">1</span>
+                            </span>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <input checked class="btn-check" id="vista-tabla" name="vista" type="radio">
+                                <label class="btn btn-outline-secondary" for="vista-tabla">
+                                    <i class="fas fa-list"></i>
+                                </label>
+                                <input class="btn-check" id="vista-tarjetas" name="vista" type="radio">
+                                <label class="btn btn-outline-secondary" for="vista-tarjetas">
+                                    <i class="fas fa-th"></i>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <!-- Vista de tabla -->
+                    <div class="table-responsive" id="tabla-productos">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                            <tr>
+                                <th><i class="fas fa-barcode me-1"></i>Código</th>
+                                <th><i class="fas fa-box me-1"></i>Producto</th>
+                                <th><i class="fas fa-tags me-1"></i>Categoría</th>
+                                <th><i class="fas fa-dollar-sign me-1"></i>Precio</th>
+                                <th><i class="fas fa-cubes me-1"></i>Stock</th>
+                                <th><i class="fas fa-info-circle me-1"></i>Estado</th>
+                                <th><i class="fas fa-eye me-1"></i>Acciones</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="producto : ${productosPage.content}">
+                                <td>
+                                    <code th:text="${producto.codigo}">ABC123</code>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="product-icon bg-success text-white rounded d-flex align-items-center justify-content-center me-3"
+                                             style="width: 40px; height: 40px;">
+                                            <i class="fas fa-box"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-medium" th:text="${producto.nombre}">Producto</div>
+                                            <small class="text-muted" th:if="${producto.descripcion}"
+                                                   th:text="${producto.descripcion}">Descripción</small>
+                                            <div th:if="${producto.marca or producto.modelo}">
+                                                <small class="text-muted">
+                                                    <span th:if="${producto.marca}"
+                                                          th:text="${producto.marca}">Marca</span>
+                                                    <span th:if="${producto.marca and producto.modelo}"> - </span>
+                                                    <span th:if="${producto.modelo}"
+                                                          th:text="${producto.modelo}">Modelo</span>
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                        <span class="badge bg-secondary"
+                                              th:if="${producto.categoria}"
+                                              th:text="${producto.categoria.nombre}">Categoría</span>
+                                    <span class="text-muted"
+                                          th:unless="${producto.categoria}">Sin categoría</span>
+                                </td>
+                                <td>
+                                    <span class="fw-bold fs-6"
+                                          th:text="${#numbers.formatCurrency(producto.precio)}">$0</span>
+                                </td>
+                                <td>
+                                        <span th:classappend="${producto.stock <= 5 ? 'badge bg-danger' : (producto.stock <= 10 ? 'badge bg-warning text-dark' : 'badge bg-success')}"
+                                              th:text="${producto.stock}">0</span>
+                                    <small class="text-muted d-block">unidades</small>
+                                </td>
+                                <td>
+                                        <span class="badge bg-success"
+                                              th:if="${producto.activo and producto.stock > 0}">Disponible</span>
+                                    <span class="badge bg-warning text-dark"
+                                          th:if="${producto.activo and producto.stock == 0}">Sin Stock</span>
+                                    <span class="badge bg-secondary"
+                                          th:unless="${producto.activo}">Inactivo</span>
+                                </td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a class="btn btn-sm btn-outline-info"
+                                           th:href="@{/productos/detalle/{id}(id=${producto.id})}"
+                                           title="Ver detalles">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a class="btn btn-sm btn-outline-success"
+                                           th:href="@{/ventas/nueva(productoId=${producto.id})}"
+                                           th:if="${producto.activo and producto.stock > 0}"
+                                           title="Vender este producto">
+                                            <i class="fas fa-shopping-cart"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Vista de tarjetas (oculta por defecto) -->
+                    <div class="row g-3 p-3" id="tarjetas-productos" style="display: none;">
+                        <div class="col-md-6 col-lg-4 col-xl-3" th:each="producto : ${productosPage.content}">
+                            <div class="card h-100 product-card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h6 class="card-title mb-0" th:text="${producto.nombre}">Producto</h6>
+                                        <span th:classappend="${producto.stock <= 5 ? 'badge bg-danger' : (producto.stock <= 10 ? 'badge bg-warning text-dark' : 'badge bg-success')}"
+                                              th:text="${producto.stock}">0</span>
+                                    </div>
+                                    <p class="card-text">
+                                        <small class="text-muted" th:text="${producto.codigo}">ABC123</small><br>
+                                        <span th:if="${producto.descripcion}" th:text="${producto.descripcion}">Descripción</span>
+                                    </p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="fw-bold text-success"
+                                              th:text="${#numbers.formatCurrency(producto.precio)}">$0</span>
+                                        <div class="btn-group btn-group-sm">
+                                            <a class="btn btn-outline-info"
+                                               th:href="@{/productos/detalle/{id}(id=${producto.id})}">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a class="btn btn-outline-success"
+                                               th:href="@{/ventas/nueva(productoId=${producto.id})}"
+                                               th:if="${producto.activo and producto.stock > 0}">
+                                                <i class="fas fa-shopping-cart"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mensaje si no hay resultados -->
+                    <div class="text-center py-5" th:if="${productosPage.totalElements == 0}">
+                        <i class="fas fa-boxes fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No se encontraron productos</h5>
+                        <p class="text-muted" th:if="${search or categoria}">
+                            Intente con otros filtros de búsqueda
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Paginación -->
+                <div class="card-footer" th:if="${productosPage.totalPages > 1}">
+                    <nav aria-label="Navegación de productos">
+                        <ul class="pagination justify-content-center mb-0">
+                            <!-- Página anterior -->
+                            <li class="page-item" th:classappend="${!productosPage.hasPrevious()} ? 'disabled'">
+                                <a class="page-link"
+                                   th:href="@{/productos(page=${productosPage.number - 1}, search=${search}, categoria=${categoria}, soloConStock=${soloConStock})}">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            </li>
+
+                            <!-- Páginas -->
+                            <li class="page-item"
+                                th:classappend="${pageNum == productosPage.number} ? 'active'"
+                                th:each="pageNum : ${#numbers.sequence(0, productosPage.totalPages - 1)}">
+                                <a class="page-link"
+                                   th:href="@{/productos(page=${pageNum}, search=${search}, categoria=${categoria}, soloConStock=${soloConStock})}"
+                                   th:text="${pageNum + 1}">1</a>
+                            </li>
+
+                            <!-- Página siguiente -->
+                            <li class="page-item" th:classappend="${!productosPage.hasNext()} ? 'disabled'">
+                                <a class="page-link"
+                                   th:href="@{/productos(page=${productosPage.number + 1}, search=${search}, categoria=${categoria}, soloConStock=${soloConStock})}">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Auto-focus en el campo de búsqueda
+        const searchInput = document.querySelector('input[name="search"]');
+        if (searchInput && !searchInput.value) {
+            searchInput.focus();
+        }
+
+        // Cambio de vista tabla/tarjetas
+        const vistaTabla = document.getElementById('vista-tabla');
+        const vistaTarjetas = document.getElementById('vista-tarjetas');
+        const tablaProductos = document.getElementById('tabla-productos');
+        const tarjetasProductos = document.getElementById('tarjetas-productos');
+
+        vistaTabla.addEventListener('change', function () {
+            if (this.checked) {
+                tablaProductos.style.display = 'block';
+                tarjetasProductos.style.display = 'none';
+            }
+        });
+
+        vistaTarjetas.addEventListener('change', function () {
+            if (this.checked) {
+                tablaProductos.style.display = 'none';
+                tarjetasProductos.style.display = 'block';
+            }
+        });
+
+        // Recordar preferencia de vista
+        const vistaPreferida = localStorage.getItem('vista-productos');
+        if (vistaPreferida === 'tarjetas') {
+            vistaTarjetas.click();
+        }
+
+        vistaTabla.addEventListener('change', () => localStorage.setItem('vista-productos', 'tabla'));
+        vistaTarjetas.addEventListener('change', () => localStorage.setItem('vista-productos', 'tarjetas'));
+    });
+</script>
+</body>
+</html>

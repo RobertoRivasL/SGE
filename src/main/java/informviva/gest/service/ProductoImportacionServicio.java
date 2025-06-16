@@ -31,8 +31,11 @@ public class ProductoImportacionServicio {
             "codigo", "nombre", "descripcion", "precio", "stock", "marca", "modelo"
     };
 
-    @Autowired
-    private ProductoServicio productoServicio;
+    private final ProductoServicio productoServicio;
+
+    public ProductoImportacionServicio(ProductoServicio productoServicio) {
+        this.productoServicio = productoServicio;
+    }
 
     /**
      * Importa productos desde archivo Excel o CSV

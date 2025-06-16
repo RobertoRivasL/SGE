@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Ejecutivo - InformViva</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- CSS personalizado -->
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/inicio">
+            <i class="fas fa-chart-line"></i> InformViva
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/inicio">
+                        <i class="fas fa-home"></i> Inicio
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/ventas/lista">
+                        <i class="fas fa-shopping-cart"></i> Ventas
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/productos/admin">
+                        <i class="fas fa-box"></i> Productos
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/clientes">
+                        <i class="fas fa-users"></i> Clientes
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/reportes/dashboard-ejecutivo">
+                        <i class="fas fa-chart-bar"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout">
+                        <i class="fas fa-sign-out-alt"></i> Salir
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Contenido principal -->
+<div class="container-fluid mt-4">
+    <!-- Título y filtros -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h1><i class="fas fa-tachometer-alt"></i> Dashboard Ejecutivo</h1>
+        </div>
+        <div class="col-md-6">
+            <form method="get" action="/reportes/dashboard-ejecutivo" class="row g-3">
+                <div class="col-md-5">
+                    <label class="form-label">Fecha Inicio:</label>
+                    <input type="date" class="form-control" name="inicio"
+                           th:value="${fechaInicio}" required>
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label">Fecha Fin:</label>
+                    <input type="date" class="form-control" name="fin"
+                           th:value="${fechaFin}" required>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">&nbsp;</label>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-filter"></i> Filtrar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Alerta de error si existe -->
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-triangle"></i> <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- KPIs principales -->
+    <div class="row mb-4">
+        <!-- Total Ventas -->
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-0">Total Ventas</h6>
+                            <h3 class="mb-2" th:text="${kpis.totalVentas != null ? '$' + #numbers.formatDecimal(kpis.totalVentas, 1, 'COMMA', 2, 'POINT') : '$0.00'}">$0.00</h3>
+                            <small>
+                                <i class="fas" th:classappend="${kpis.variacionVentas >= 0} ? 'fa-arrow-up text-success' : 'fa-arrow-down text-danger'"></i>
+                                <span th:text="${kpis.variacionVentas != null ? #numbers.formatDecimal(kpis.variacionVentas, 1, 'COMMA', 1, 'POINT') + '%' : '0%'}">0%</span>
+                            </small>
+                        </div>
+                        <div class="fs-1">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Transacciones -->
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-0">Transacciones</h6>
+                            <h3 class="mb-2" th:text="${kpis.totalTransacciones ?: 0}">0</h3>
+                            <small>
+                                <i class="fas" th:classappend="${kpis.variacionTransacciones >= 0} ? 'fa-arrow-up text-white' : 'fa-arrow-down text-warning'"></i>
+                                <span th:text="${kpis.variacionTransacciones != null ? #numbers.formatDecimal(kpis.variacionTransacciones, 1, 'COMMA', 1, 'POINT') + '%' : '0%'}">0%</span>
+                            </small>
+                        </div>
+                        <div class="fs-1">
+                            <i class="fas fa-receipt"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ticket Promedio -->
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-0">Ticket Promedio</h6>
+                            <h3 class="mb-2" th:text="${kpis.ticketPromedio != null ? '$' + #numbers.formatDecimal(kpis.ticketPromedio, 1, 'COMMA', 2, 'POINT') : '$0.00'}">$0.00</h3>
+                            <small>vs período anterior</small>
+                        </div>
+                        <div class="fs-1">
+                            <i class="fas fa-calculator"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Clientes Activos -->
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-warning">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title mb-0">Clientes Activos</h6>
+                            <h3 class="mb-2" th:text="${kpis.clientesActivos ?: 0}">0</h3>
+                            <small th:text="${'Nuevos: ' + (kpis.clientesNuevos ?: 0)}">Nuevos: 0</small>
+                        </div>
+                        <div class="fs-1">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráficos -->
+    <div class="row mb-4">
+        <!-- Ventas por Período -->
+        <div class="col-md-8 mb-3">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-chart-line"></i> Ventas por Período</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="ventasPorPeriodoChart" style="height: 300px;"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ventas por Categoría -->
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-chart-pie"></i> Ventas por Categoría</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="ventasPorCategoriaChart" style="height: 300px;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tablas -->
+    <div class="row">
+        <!-- Top Clientes -->
+        <div class="col-md-6 mb-3">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-trophy"></i> Top 10 Clientes</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Cliente</th>
+                                <th>Compras</th>
+                                <th class="text-end">Total</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="cliente, iter : ${topClientes}">
+                                <td th:text="${iter.count}">1</td>
+                                <td th:text="${cliente.nombreCompleto}">Cliente</td>
+                                <td th:text="${cliente.comprasRealizadas}">0</td>
+                                <td class="text-end" th:text="${'$' + #numbers.formatDecimal(cliente.totalCompras, 1, 'COMMA', 2, 'POINT')}">$0.00</td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(topClientes)}">
+                                <td colspan="4" class="text-center text-muted">No hay datos disponibles</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Productos Más Vendidos -->
+        <div class="col-md-6 mb-3">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-star"></i> Productos Más Vendidos</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Producto</th>
+                                <th>Unidades</th>
+                                <th class="text-end">Ingresos</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="producto, iter : ${resumenVentas.productosMasVendidos}" th:if="${iter.index < 10}">
+                                <td th:text="${iter.count}">1</td>
+                                <td th:text="${producto.nombre}">Producto</td>
+                                <td th:text="${producto.unidadesVendidas}">0</td>
+                                <td class="text-end" th:text="${'$' + #numbers.formatDecimal(producto.ingresos, 1, 'COMMA', 2, 'POINT')}">$0.00</td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(resumenVentas.productosMasVendidos)}">
+                                <td colspan="4" class="text-center text-muted">No hay datos disponibles</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Métricas adicionales -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-info-circle"></i> Métricas Adicionales</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <h6>Total Productos</h6>
+                            <p class="fs-4 mb-0" th:text="${kpis.totalProductos ?: 0}">0</p>
+                            <small class="text-muted">Activos: <span th:text="${kpis.productosActivos ?: 0}">0</span></small>
+                        </div>
+                        <div class="col-md-3">
+                            <h6>Productos Bajo Stock</h6>
+                            <p class="fs-4 mb-0 text-warning" th:text="${kpis.productosBajoStock ?: 0}">0</p>
+                            <small class="text-muted">Requieren atención</small>
+                        </div>
+                        <div class="col-md-3">
+                            <h6>Total Clientes</h6>
+                            <p class="fs-4 mb-0" th:text="${kpis.totalClientes ?: 0}">0</p>
+                            <small class="text-muted">En el sistema</small>
+                        </div>
+                        <div class="col-md-3">
+                            <h6>Tasa de Retención</h6>
+                            <p class="fs-4 mb-0" th:text="${(metricasRetencion.tasaRetencion ?: 0) + '%'}">0%</p>
+                            <small class="text-muted">Clientes recurrentes</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer class="bg-dark text-white text-center py-3 mt-5">
+    <p class="mb-0">&copy; 2025 InformViva - Sistema de Gestión</p>
+</footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Script para los gráficos -->
+<script th:inline="javascript">
+    // Datos desde el servidor
+    const ventasPorPeriodo = /*[[${resumenVentas.ventasPorPeriodo}]]*/ [];
+    const ventasPorCategoria = /*[[${resumenVentas.ventasPorCategoria}]]*/ [];
+
+    // Gráfico de Ventas por Período
+    if (ventasPorPeriodo && ventasPorPeriodo.length > 0) {
+        const ctx1 = document.getElementById('ventasPorPeriodoChart').getContext('2d');
+        new Chart(ctx1, {
+            type: 'line',
+            data: {
+                labels: ventasPorPeriodo.map(v => v.periodo),
+                datasets: [{
+                    label: 'Ventas',
+                    data: ventasPorPeriodo.map(v => v.total),
+                    borderColor: 'rgb(75, 192, 192)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value.toLocaleString();
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': $' + context.parsed.y.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Gráfico de Ventas por Categoría
+    if (ventasPorCategoria && ventasPorCategoria.length > 0) {
+        const ctx2 = document.getElementById('ventasPorCategoriaChart').getContext('2d');
+        new Chart(ctx2, {
+            type: 'doughnut',
+            data: {
+                labels: ventasPorCategoria.map(v => v.categoria),
+                datasets: [{
+                    data: ventasPorCategoria.map(v => v.total),
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.8)',
+                        'rgba(54, 162, 235, 0.8)',
+                        'rgba(255, 205, 86, 0.8)',
+                        'rgba(75, 192, 192, 0.8)',
+                        'rgba(153, 102, 255, 0.8)',
+                        'rgba(255, 159, 64, 0.8)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = '$' + context.parsed.toLocaleString();
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                return label + ': ' + value + ' (' + percentage + '%)';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+</script>
+</body>
+</html>

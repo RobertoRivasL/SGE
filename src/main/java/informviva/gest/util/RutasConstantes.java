@@ -122,4 +122,5 @@ public final class RutasConstantes {
     public static final String ATTR_VISTA_PREVIA = "vistaPrevia";
     public static final String ATTR_TIPO_ENTIDAD = "tipoEntidad";
     public static final String ATTR_ARCHIVO_IMPORTACION = "archivoImportacion";
-}
+
+ }

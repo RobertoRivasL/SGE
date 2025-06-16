@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title th:text="${cliente.id == null ? 'Nuevo Cliente' : 'Editar Cliente'}">Formulario Cliente</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div th:replace="~{fragments/navegacion-unificada :: nav}"></div>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg">
+                <div class="card-header text-white"
+                     th:class="${cliente.id == null ? 'bg-success' : 'bg-primary'}">
+                    <h4 class="mb-0">
+                        <i th:class="${cliente.id == null ? 'fas fa-user-plus' : 'fas fa-user-edit'} me-2"></i>
+                        <span th:text="${cliente.id == null ? 'Nuevo Cliente' : 'Editar Cliente'}">Formulario Cliente</span>
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form class="needs-validation" method="post" novalidate th:action="@{/clientes/guardar}"
+                          th:object="${cliente}">
+                        <input th:field="*{id}" type="hidden">
+                        <input th:field="*{fechaRegistro}" type="hidden">
+
+                        <div class="row g-3">
+                            <!-- RUT -->
+                            <div class="col-md-6">
+                                <label for="rut" class="form-label">
+                                    <i class="fas fa-id-card me-1"></i>RUT <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="rut" maxlength="12"
+                                       placeholder="12.345.678-9" required
+                                       th:classappend="${#fields.hasErrors('rut')} ? 'is-invalid' : ''"
+                                       th:field="*{rut}">
+                                <div class="invalid-feedback" th:errors="*{rut}">Error en el RUT</div>
+                                <small class="form-text text-muted">Ingrese el RUT sin puntos, con guión. Ej:
+                                    12345678-9</small>
+                            </div>
+
+                            <!-- Categoría -->
+                            <div class="col-md-6">
+                                <label for="categoria" class="form-label">
+                                    <i class="fas fa-tags me-1"></i>Categoría
+                                </label>
+                                <select class="form-select" id="categoria" th:field="*{categoria}">
+                                    <option value="">Seleccionar categoría</option>
+                                    <option value="VIP">VIP - Cliente Preferencial</option>
+                                    <option value="Premium">Premium - Cliente Premium</option>
+                                    <option value="Regular">Regular - Cliente Regular</option>
+                                </select>
+                                <small class="form-text text-muted">Clasifique al cliente según su importancia</small>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mt-3">
+                            <!-- Nombre -->
+                            <div class="col-md-6">
+                                <label for="nombre" class="form-label">
+                                    <i class="fas fa-user me-1"></i>Nombre <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="nombre" maxlength="50"
+                                       placeholder="Ingrese el nombre" required
+                                       th:classappend="${#fields.hasErrors('nombre')} ? 'is-invalid' : ''"
+                                       th:field="*{nombre}">
+                                <div class="invalid-feedback" th:errors="*{nombre}">Error en el nombre</div>
+                            </div>
+
+                            <!-- Apellido -->
+                            <div class="col-md-6">
+                                <label for="apellido" class="form-label">
+                                    <i class="fas fa-user me-1"></i>Apellido <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="apellido" maxlength="50"
+                                       placeholder="Ingrese el apellido" required
+                                       th:classappend="${#fields.hasErrors('apellido')} ? 'is-invalid' : ''"
+                                       th:field="*{apellido}">
+                                <div class="invalid-feedback" th:errors="*{apellido}">Error en el apellido</div>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mt-3">
+                            <!-- Email -->
+                            <div class="col-md-6">
+                                <label for="email" class="form-label">
+                                    <i class="fas fa-envelope me-1"></i>Correo Electrónico <span
+                                        class="text-danger">*</span>
+                                </label>
+                                <input type="email" class="form-control" id="email" maxlength="100"
+                                       placeholder="correo@ejemplo.com" required
+                                       th:classappend="${#fields.hasErrors('email')} ? 'is-invalid' : ''"
+                                       th:field="*{email}">
+                                <div class="invalid-feedback" th:errors="*{email}">Error en el email</div>
+                            </div>
+
+                            <!-- Teléfono -->
+                            <div class="col-md-6">
+                                <label for="telefono" class="form-label">
+                                    <i class="fas fa-phone me-1"></i>Teléfono
+                                </label>
+                                <input type="tel" class="form-control" id="telefono" maxlength="20"
+                                       placeholder="+56 9 1234 5678"
+                                       th:classappend="${#fields.hasErrors('telefono')} ? 'is-invalid' : ''"
+                                       th:field="*{telefono}">
+                                <div class="invalid-feedback" th:errors="*{telefono}">Error en el teléfono</div>
+                            </div>
+                        </div>
+
+                        <!-- Dirección -->
+                        <div class="mt-3">
+                            <label for="direccion" class="form-label">
+                                <i class="fas fa-map-marker-alt me-1"></i>Dirección
+                            </label>
+                            <textarea class="form-control" id="direccion" maxlength="200"
+                                      placeholder="Ingrese la dirección completa" rows="2"
+                                      th:classappend="${#fields.hasErrors('direccion')} ? 'is-invalid' : ''"
+                                      th:field="*{direccion}"></textarea>
+                            <div class="invalid-feedback" th:errors="*{direccion}">Error en la dirección</div>
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="d-flex justify-content-between mt-4">
+                            <a class="btn btn-secondary" th:href="@{/clientes}">
+                                <i class="fas fa-arrow-left me-1"></i> Volver
+                            </a>
+                            <div>
+                                <button class="btn btn-outline-secondary me-2" type="reset">
+                                    <i class="fas fa-undo me-1"></i> Limpiar
+                                </button>
+                                <button class="btn"
+                                        th:classappend="${cliente.id == null ? 'btn-success' : 'btn-primary'}"
+                                        type="submit">
+                                    <i th:class="${cliente.id == null ? 'fas fa-save' : 'fas fa-edit'} me-1"></i>
+                                    <span th:text="${cliente.id == null ? 'Crear Cliente' : 'Actualizar Cliente'}">Guardar</span>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Validación y formateo del RUT
+    document.addEventListener('DOMContentLoaded', function () {
+        const rutInput = document.getElementById('rut');
+        rutInput.addEventListener('input', function () {
+            let valor = this.value.replace(/[^\dkK]/g, '');
+            if (valor.length > 1) {
+                valor = valor.slice(0, -1).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + '-' + valor.slice(-1);
+            }
+            this.value = valor;
+        });
+    });
+</script>
+</body>
+</html>

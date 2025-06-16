@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Gestión de Usuarios</title>
+    <link rel="stylesheet" th:href="@{https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css}"/>
+</head>
+<body>
+<div class="container mt-5">
+    <h1 class="mb-4">Gestión de Usuarios</h1>
+
+    <!-- Mensajes de éxito/error -->
+    <div class="alert alert-success" th:if="${mensajeExito}" th:text="${mensajeExito}"></div>
+    <div class="alert alert-danger" th:if="${mensajeError}" th:text="${mensajeError}"></div>
+
+    <div sec:authorize="hasAnyRole('ADMIN','GERENTE_GENERAL')">
+        <!-- Formulario de búsqueda y botón Nuevo Usuario -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <form class="d-flex" method="get" th:action="@{/admin/usuarios}">
+                <input class="form-control me-2" name="search" placeholder="Buscar por nombre o usuario"
+                       th:value="${search}"
+                       type="text"/>
+                <button class="btn btn-outline-secondary" type="submit">Buscar</button>
+            </form>
+            <a class="btn btn-primary" th:href="@{/admin/usuarios/nuevo}">Nuevo Usuario</a>
+        </div>
+
+        <!-- Tabla de usuarios -->
+        <div class="card">
+            <div class="card-body">
+                <table class="table table-bordered table-hover">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre completo</th>
+                        <th>Usuario</th>
+                        <th>Correo electrónico</th>
+                        <th>Estado</th>
+                        <th>Roles</th>
+                        <th>Fecha creación</th>
+                        <th>Último acceso</th>
+                        <th>Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <!-- Si no hay usuarios -->
+                    <tr th:if="${usuariosPage.empty}">
+                        <td colspan="9">No se encontraron usuarios.</td>
+                    </tr>
+                    <!-- Iterar usuarios -->
+                    <tr th:each="usuario : ${usuariosPage.content}">
+                        <td th:text="${usuario.id}">1</td>
+                        <td>
+                            <span th:text="${usuario.nombre}">Nombre</span>
+                            <span th:text="${usuario.apellido}">Apellido</span>
+                        </td>
+                        <td th:text="${usuario.username}">usuario1</td>
+                        <td th:text="${usuario.email}">user@example.com</td>
+                        <td>
+                            <span th:text="${usuario.activo} ? 'Activo' : 'Inactivo'">Activo</span>
+                        </td>
+                        <td>
+                                <span th:each="rol, iterStat : ${usuario.roles}">
+                                    <span th:text="${rol.nombre}">ROL</span>
+                                    <span th:if="${!iterStat.last}">, </span>
+                                </span>
+                        </td>
+                        <td th:text="${#temporals.format(usuario.fechaCreacion, 'dd/MM/yyyy HH:mm')}">01/01/2025 12:00
+                        </td>
+                        <td th:text="${#temporals.format(usuario.ultimoAcceso, 'dd/MM/yyyy HH:mm')}">02/01/2025 08:30
+                        </td>
+                        <td>
+                            <!-- Editar -->
+                            <a class="btn btn-sm btn-primary me-1"
+                               th:href="@{/admin/usuarios/editar/{id}(id=${usuario.id})}">Editar</a>
+                            <!-- Activar/Desactivar -->
+                            <form class="d-inline" method="post"
+                                  th:action="@{/admin/usuarios/estado/{id}(id=${usuario.id})}">
+                                <input th:name="${_csrf.parameterName}" th:value="${_csrf.token}" type="hidden"/>
+                                <button th:classappend="${usuario.activo} ? 'btn btn-sm btn-warning' : 'btn btn-sm btn-success'"
+                                        type="submit">
+                                    <span th:text="${usuario.activo} ? 'Desactivar' : 'Activar'">Activar</span>
+                                </button>
+                            </form>
+                            <!-- Asignar Roles -->
+                            <a class="btn btn-sm btn-secondary ms-1"
+                               th:href="@{/admin/usuarios/roles/{id}(id=${usuario.id})}">Asignar Roles</a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <!-- Paginación -->
+                <nav th:if="${usuariosPage.totalPages > 1}">
+                    <ul class="pagination justify-content-center mt-3">
+                        <li th:classappend="${!usuariosPage.hasPrevious()}? 'disabled'">
+                            <a class="page-link"
+                               th:href="@{/admin/usuarios(page=${usuariosPage.number-1}, search=${search})}">Anterior</a>
+                        </li>
+                        <li th:classappend="${i == usuariosPage.number} ? 'active'"
+                            th:each="i : ${#numbers.sequence(0, usuariosPage.totalPages-1)}">
+                            <a class="page-link" th:href="@{/admin/usuarios(page=${i}, search=${search})}"
+                               th:text="${i + 1}">1</a>
+                        </li>
+                        <li th:classappend="${!usuariosPage.hasNext()}? 'disabled'">
+                            <a class="page-link"
+                               th:href="@{/admin/usuarios(page=${usuariosPage.number+1}, search=${search})}">Siguiente</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mensaje si no tiene el rol adecuado -->
+    <div sec:authorize="!hasAnyRole('ADMIN','GERENTE_GENERAL')">
+        <div class="alert alert-danger">No tienes permiso para ver esta página.</div>
+    </div>
+
+</div>
+<script th:src="@{https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>

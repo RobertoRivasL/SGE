@@ -35,8 +35,11 @@ public class ClienteImportacionServicio {
             "rut", "nombre", "apellido", "email", "telefono", "direccion", "categoria"
     };
 
-    @Autowired
-    private ClienteServicio clienteServicio;
+    private final ClienteServicio clienteServicio;
+
+    public ClienteImportacionServicio(ClienteServicio clienteServicio) {
+        this.clienteServicio = clienteServicio;
+    }
 
     /**
      * Importa clientes desde archivo Excel o CSV

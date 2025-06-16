@@ -237,5 +237,16 @@ public interface VentaRepositorio extends JpaRepository<Venta, Long> {
         return contarArticulosVendidos(inicio, fin);
     }
 
+    @Query("SELECT COUNT(v) FROM Venta v WHERE v.fecha BETWEEN :fechaInicio AND :fechaFin AND v.estado != 'ANULADA'")
+    long countByFechaBetween(@Param("fechaInicio") LocalDateTime fechaInicio, @Param("fechaFin") LocalDateTime fechaFin);
+
+    @Query("SELECT SUM(v.total) FROM Venta v WHERE v.cliente.id = :clienteId")
+    Double sumTotalByClienteId(Long clienteId);
+
+    @Query("SELECT SUM(v.total) FROM Venta v WHERE v.fecha BETWEEN :inicio AND :fin")
+    Double sumTotalByFechaBetween(LocalDateTime inicio, LocalDateTime fin);
+
+    @Query("SELECT SUM(vd.cantidad) FROM VentaDetalle vd WHERE vd.venta.fecha BETWEEN :inicio AND :fin")
+    Long sumCantidadByFechaBetween(@Param("inicio") LocalDateTime inicio, @Param("fin") LocalDateTime fin);
 
 }

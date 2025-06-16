@@ -21,7 +21,7 @@ import java.util.Optional;
 @Repository
 public interface CategoriaRepositorio extends JpaRepository<Categoria, Long> {
 
-    // ===================== MÉTODOS DE BÚSQUEDA POR NOMBRE =====================
+   // ===================== MÉTODOS DE BÚSQUEDA POR NOMBRE =====================
 
     /**
      * Verifica si existe una categoría con el nombre especificado

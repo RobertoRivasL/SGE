@@ -17,13 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-/**
- * Implementación del servicio para la gestión de categorías.
- * Proporciona operaciones CRUD y validaciones de negocio para las categorías.
- *
- * @author Roberto Rivas
- * @version 2.1
- */
 @Service
 @Transactional
 public class CategoriaServicioImpl implements CategoriaServicio {
@@ -47,6 +40,17 @@ public class CategoriaServicioImpl implements CategoriaServicio {
         this.categoriaRepositorio = categoriaRepositorio;
         this.productoRepositorio = productoRepositorio;
     }
+
+    @Override
+    public List<Categoria> findAllActivas() {
+        return categoriaRepositorio.findByActivaTrue();
+    }
+
+    @Override
+    public Categoria save(Categoria categoria) {
+        return categoriaRepositorio.save(categoria);
+    }
+
 
     // ===================== MÉTODOS DE CONSULTA =====================
 

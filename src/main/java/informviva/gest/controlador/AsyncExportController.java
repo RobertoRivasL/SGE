@@ -1,7 +1,3 @@
-// ===================================================================
-// CONTROLADOR PARA EXPORTACIONES ASÍNCRONAS - AsyncExportController.java
-// ===================================================================
-
 package informviva.gest.controlador;
 
 import informviva.gest.dto.ExportConfigDTO;
@@ -113,10 +109,11 @@ public class AsyncExportController {
     }
 
     /**
+     * 🔧 CORRECCIÓN: Cambiar de private a public para que Spring pueda crear proxy
      * Procesa la exportación de forma asíncrona
      */
     @Async("exportacionTaskExecutor")
-    private CompletableFuture<Void> procesarExportacionAsync(ExportConfigDTO config, String taskId, String usuario) {
+    public CompletableFuture<Void> procesarExportacionAsync(ExportConfigDTO config, String taskId, String usuario) {
         return CompletableFuture.runAsync(() -> {
             try {
                 // Actualizar estado a "procesando"
@@ -150,7 +147,7 @@ public class AsyncExportController {
                     default -> throw new IllegalArgumentException("Tipo no soportado: " + config.getTipo());
                 }
 
-                // Guardar archivo temporalmente (en un sistema real, usar almacenamiento persistente)
+                // Guardar archivo temporalmente
                 String fileKey = "export_file_" + taskId;
                 cacheService.almacenarDatosTemporales(fileKey, archivo);
 
@@ -166,9 +163,6 @@ public class AsyncExportController {
 
                 logger.info("Exportación asíncrona completada: {} - {} bytes", taskId, archivo.length);
 
-                // Enviar notificación por email (si está configurado)
-                // notificationService.notificarExportacionCompletada(historial, userEmail);
-
             } catch (Exception e) {
                 logger.error("Error en exportación asíncrona {}: {}", taskId, e.getMessage());
 
@@ -179,9 +173,6 @@ public class AsyncExportController {
                         "progreso", 0,
                         "mensaje", "Error en exportación: " + e.getMessage()
                 ));
-
-                // Enviar notificación de error
-                // notificationService.notificarErrorExportacion(historial, userEmail);
             }
         });
     }

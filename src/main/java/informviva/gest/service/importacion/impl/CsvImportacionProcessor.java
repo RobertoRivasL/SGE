@@ -8,8 +8,11 @@ import org.springframework.web.multipart.MultipartFile;
 public class CsvImportacionProcessor implements ImportacionProcessor {
 
     @Override
-    public boolean puedeProcesar(String tipoArchivo) {
-        return "csv".equalsIgnoreCase(tipoArchivo);
+    public boolean puedeProcesar(MultipartFile archivo) {
+        if (archivo == null || archivo.getOriginalFilename() == null) {
+            return false;
+        }
+        return archivo.getOriginalFilename().endsWith(".csv");
     }
 
     @Override

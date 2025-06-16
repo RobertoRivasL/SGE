@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -77,5 +78,86 @@ public class VentaServicioImpl implements VentaServicio {
     @Override
     public Venta obtenerVentaPorId(Long id) {
         return ventaRepositorio.findById(id).orElse(null);
+    }
+
+    @Override
+    public List<Venta> buscarPorRangoFechas(LocalDateTime fechaInicio, LocalDateTime fechaFin) {
+        return ventaRepositorio.findByFechaBetween(fechaInicio, fechaFin);
+    }
+
+    @Override
+    public Long contarTransacciones(LocalDateTime fechaInicio, LocalDateTime fechaFin) {
+        return ventaRepositorio.countByFechaBetween(fechaInicio, fechaFin);
+    }
+
+    @Override
+    public Long contarVentasPorCliente(Long clienteId) {
+        return ventaRepositorio.countByClienteId(clienteId);
+    }
+
+    @Override
+    public Double calcularTotalVentasPorCliente(Long clienteId) {
+        Double total = ventaRepositorio.sumTotalByClienteId(clienteId);
+        return total != null ? total : 0.0;
+    }
+
+    @Override
+    public Double calcularTotalVentas(LocalDateTime inicio, LocalDateTime fin) {
+        Double total = ventaRepositorio.sumTotalByFechaBetween(inicio, fin);
+        return total != null ? total : 0.0;
+    }
+
+    @Override
+    public Double calcularPorcentajeCambio(Double actual, Double anterior) {
+        if (anterior == null || anterior == 0) {
+            return null;
+        }
+        return ((actual - anterior) / anterior) * 100;
+    }
+
+    @Override
+    public boolean existenVentasPorCliente(Long clienteId) {
+        return ventaRepositorio.existsByClienteId(clienteId);
+    }
+
+    @Override
+    public Long contarArticulosVendidos(LocalDateTime fechaInicio, LocalDateTime fechaFin) {
+        Long total = ventaDetalleRepositorio.sumCantidadByFechaBetween(fechaInicio, fechaFin);
+        return total != null ? total : 0L;
+    }
+
+    @Override
+    public boolean existenVentasPorProducto(Long productoId) {
+        return ventaDetalleRepositorio.existsByProductoId(productoId);
+    }
+
+    @Override
+    public Long contarUnidadesVendidasPorProducto(Long productoId) {
+        return 0L;
+    }
+
+    @Override
+    public Double calcularIngresosPorProducto(Long productoId) {
+        return 0.0;
+    }
+
+    @Override
+    public List<Venta> buscarVentasRecientesPorProducto(Long productoId, int limite) {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<Venta> buscarVentasRecientesPorCliente(Long clienteId, int limite) {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<Venta> buscarPorCliente(Cliente cliente) {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Double calcularTicketPromedio(LocalDateTime inicio, LocalDateTime fin) {
+        return 0.0;
     }
 }

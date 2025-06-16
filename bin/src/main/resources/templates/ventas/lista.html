@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Ventas - InformViva</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/inicio">
+            <i class="fas fa-cash-register me-2"></i>InformViva
+        </a>
+        <div class="navbar-nav ms-auto">
+                <span class="navbar-text text-white me-3">
+                    <i class="fas fa-user me-1"></i>
+                    <span sec:authentication="name">Usuario</span>
+                </span>
+            <a class="nav-link text-white" href="/logout">
+                <i class="fas fa-sign-out-alt"></i> Salir
+            </a>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid mt-4">
+    <!-- Alertas -->
+    <div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>
+        <span th:text="${mensaje}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Header con acciones -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2><i class="fas fa-shopping-cart text-primary"></i> Gestión de Ventas</h2>
+            <p class="text-muted">Administra todas las transacciones de venta del sistema</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="/ventas/nueva" class="btn btn-success btn-lg" sec:authorize="hasAnyRole('ADMIN', 'VENTAS')">
+                <i class="fas fa-plus"></i> Nueva Venta
+            </a>
+        </div>
+    </div>
+
+    <!-- Filtros y búsqueda -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5><i class="fas fa-filter"></i> Filtros de Búsqueda</h5>
+        </div>
+        <div class="card-body">
+            <form th:action="@{/ventas/filtrar}" method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Fecha Inicio</label>
+                    <input type="date" class="form-control" name="fechaInicio"
+                           th:value="${fechaInicio}" id="fechaInicio">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Fecha Fin</label>
+                    <input type="date" class="form-control" name="fechaFin"
+                           th:value="${fechaFin}" id="fechaFin">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Estado</label>
+                    <select class="form-select" name="estado">
+                        <option value="">Todos los estados</option>
+                        <option value="COMPLETADA">Completada</option>
+                        <option value="PENDIENTE">Pendiente</option>
+                        <option value="ANULADA">Anulada</option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary me-2">
+                        <i class="fas fa-search"></i> Buscar
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="limpiarFiltros()">
+                        <i class="fas fa-eraser"></i> Limpiar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Estadísticas rápidas -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-primary">
+                <div class="card-body text-center">
+                    <div class="text-primary">
+                        <i class="fas fa-shopping-bag fa-2x"></i>
+                    </div>
+                    <h4 class="text-primary" th:text="${ventasRecientes?.size() ?: 0}">0</h4>
+                    <p class="text-muted mb-0">Ventas del Período</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-success">
+                <div class="card-body text-center">
+                    <div class="text-success">
+                        <i class="fas fa-dollar-sign fa-2x"></i>
+                    </div>
+                    <h4 class="text-success" th:text="${#numbers.formatCurrency(totalVentas ?: 0)}">$0</h4>
+                    <p class="text-muted mb-0">Total Vendido</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-warning">
+                <div class="card-body text-center">
+                    <div class="text-warning">
+                        <i class="fas fa-receipt fa-2x"></i>
+                    </div>
+                    <h4 class="text-warning" th:text="${#numbers.formatCurrency(ticketPromedio ?: 0)}">$0</h4>
+                    <p class="text-muted mb-0">Ticket Promedio</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-info">
+                <div class="card-body text-center">
+                    <div class="text-info">
+                        <i class="fas fa-clock fa-2x"></i>
+                    </div>
+                    <h4 class="text-info">Hoy</h4>
+                    <p class="text-muted mb-0">Último Período</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de ventas -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5><i class="fas fa-list"></i> Lista de Ventas</h5>
+            <div class="btn-group">
+                <button type="button" class="btn btn-outline-success btn-sm" onclick="exportarExcel()">
+                    <i class="fas fa-file-excel"></i> Excel
+                </button>
+                <button type="button" class="btn btn-outline-danger btn-sm" onclick="exportarPDF()">
+                    <i class="fas fa-file-pdf"></i> PDF
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table id="ventasTable" class="table table-striped table-hover">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Fecha</th>
+                        <th>Cliente</th>
+                        <th>Vendedor</th>
+                        <th>Subtotal</th>
+                        <th>Impuestos</th>
+                        <th>Total</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="venta : ${ventasRecientes}" th:if="${ventasRecientes != null}">
+                        <td>
+                            <strong th:text="'#' + ${venta.id}">001</strong>
+                        </td>
+                        <td>
+                            <span th:text="${#temporals.format(venta.fecha, 'dd/MM/yyyy HH:mm')}">01/01/2024</span>
+                        </td>
+                        <td>
+                            <div>
+                                <strong th:text="${venta.cliente.nombreCompleto}">Cliente</strong>
+                                <br>
+                                <small class="text-muted" th:text="${venta.cliente.email}">email@example.com</small>
+                            </div>
+                        </td>
+                        <td th:text="${venta.vendedor.nombreCompleto}">Vendedor</td>
+                        <td th:text="${#numbers.formatCurrency(venta.subtotal)}">$0</td>
+                        <td th:text="${#numbers.formatCurrency(venta.impuesto)}">$0</td>
+                        <td>
+                            <strong th:text="${#numbers.formatCurrency(venta.total)}">$0</strong>
+                        </td>
+                        <td>
+                                    <span th:switch="${venta.estado}">
+                                        <span th:case="'COMPLETADA'" class="badge bg-success">Completada</span>
+                                        <span th:case="'PENDIENTE'" class="badge bg-warning">Pendiente</span>
+                                        <span th:case="'ANULADA'" class="badge bg-danger">Anulada</span>
+                                        <span th:case="*" class="badge bg-secondary" th:text="${venta.estado}">Estado</span>
+                                    </span>
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a th:href="@{/ventas/detalle/{id}(id=${venta.id})}"
+                                   class="btn btn-outline-primary btn-sm" title="Ver detalle">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a th:href="@{/ventas/editar/{id}(id=${venta.id})}"
+                                   class="btn btn-outline-warning btn-sm"
+                                   th:if="${venta.estado != 'ANULADA'}"
+                                   sec:authorize="hasAnyRole('ADMIN', 'VENTAS')"
+                                   title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button type="button"
+                                        class="btn btn-outline-danger btn-sm"
+                                        th:if="${venta.estado != 'ANULADA'}"
+                                        sec:authorize="hasAnyRole('ADMIN', 'VENTAS')"
+                                        th:onclick="'confirmarAnulacion(' + ${venta.id} + ')'"
+                                        title="Anular">
+                                    <i class="fas fa-ban"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <!-- Mensaje si no hay ventas -->
+                <div th:if="${ventasRecientes == null or #lists.isEmpty(ventasRecientes)}"
+                     class="text-center py-5">
+                    <i class="fas fa-shopping-cart fa-3x text-muted"></i>
+                    <h5 class="text-muted mt-3">No se encontraron ventas</h5>
+                    <p class="text-muted">No hay ventas registradas en el período seleccionado</p>
+                    <a href="/ventas/nueva" class="btn btn-primary" sec:authorize="hasAnyRole('ADMIN', 'VENTAS')">
+                        <i class="fas fa-plus"></i> Crear Primera Venta
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmación para anular -->
+<div class="modal fade" id="modalAnularVenta" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="fas fa-exclamation-triangle"></i> Confirmar Anulación</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Está seguro que desea anular esta venta?</p>
+                <p class="text-muted"><strong>Nota:</strong> Esta acción no se puede deshacer.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <form id="formAnularVenta" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-ban"></i> Anular Venta
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        // Inicializar DataTable
+        $('#ventasTable').DataTable({
+            language: {
+                url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+            },
+            order: [[0, 'desc']], // Ordenar por ID descendente
+            pageLength: 25,
+            responsive: true,
+            columnDefs: [
+                { targets: [4, 5, 6], className: 'text-end' }, // Alinear números a la derecha
+                { targets: 8, orderable: false } // Columna de acciones no ordenable
+            ]
+        });
+
+        // Establecer fecha fin como hoy si no está establecida
+        const fechaFinInput = document.getElementById('fechaFin');
+        if (!fechaFinInput.value) {
+            fechaFinInput.value = new Date().toISOString().split('T')[0];
+        }
+
+        // Establecer fecha inicio como hace 30 días si no está establecida
+        const fechaInicioInput = document.getElementById('fechaInicio');
+        if (!fechaInicioInput.value) {
+            const hace30Dias = new Date();
+            hace30Dias.setDate(hace30Dias.getDate() - 30);
+            fechaInicioInput.value = hace30Dias.toISOString().split('T')[0];
+        }
+    });
+
+    function limpiarFiltros() {
+        window.location.href = '/ventas/lista';
+    }
+
+    function confirmarAnulacion(ventaId) {
+        const form = document.getElementById('formAnularVenta');
+        form.action = `/ventas/anular/${ventaId}`;
+
+        const modal = new bootstrap.Modal(document.getElementById('modalAnularVenta'));
+        modal.show();
+    }
+
+    function exportarExcel() {
+        const params = new URLSearchParams(window.location.search);
+        params.set('formato', 'excel');
+        window.open(`/ventas/exportar?${params.toString()}`, '_blank');
+    }
+
+    function exportarPDF() {
+        const params = new URLSearchParams(window.location.search);
+        params.set('formato', 'pdf');
+        window.open(`/ventas/exportar?${params.toString()}`, '_blank');
+    }
+
+    // Auto-refresh cada 30 segundos para ventas en tiempo real
+    setInterval(function() {
+        if (document.visibilityState === 'visible') {
+            // Solo actualizar si la página está visible
+            const url = new URL(window.location);
+            url.searchParams.set('autoRefresh', 'true');
+
+            fetch(url.toString())
+                .then(response => response.text())
+                .then(html => {
+                    // Actualizar solo la tabla sin recargar toda la página
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const nuevaTabla = doc.querySelector('#ventasTable tbody');
+                    if (nuevaTabla) {
+                        document.querySelector('#ventasTable tbody').innerHTML = nuevaTabla.innerHTML;
+                    }
+                })
+                .catch(console.error);
+        }
+    }, 30000);
+</script>
+</body>
+</html>

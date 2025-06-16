@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle del Registro - Sistema de Gestión</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <nav class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse">
+            <div class="position-sticky pt-3">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/inicio">
+                            <i class="fas fa-home"></i> Inicio
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/productos">
+                            <i class="fas fa-box"></i> Productos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/ventas">
+                            <i class="fas fa-shopping-cart"></i> Ventas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/clientes">
+                            <i class="fas fa-users"></i> Clientes
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main content -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">
+                    <i class="fas fa-eye text-info"></i> Detalle del Registro
+                </h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <button type="button" class="btn btn-outline-primary"
+                                th:onclick="'window.location.href=\'/editar/' + ${entidad.id} + '\''">
+                            <i class="fas fa-edit"></i> Editar
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="history.back()">
+                            <i class="fas fa-arrow-left"></i> Volver
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alertas -->
+            <div th:if="${mensajeExito}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle"></i> <span th:text="${mensajeExito}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <div th:if="${mensajeError}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle"></i> <span th:text="${mensajeError}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <div class="row">
+                <!-- Información Principal -->
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-info-circle"></i> Información General
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted">ID:</label>
+                                    <p class="fw-bold" th:text="${entidad.id}">001</p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted">Nombre:</label>
+                                    <p class="fw-bold" th:text="${entidad.nombre}">Nombre del registro</p>
+                                </div>
+                                <div class="col-md-6 mb-3" th:if="${entidad.codigo != null}">
+                                    <label class="form-label text-muted">Código:</label>
+                                    <p class="fw-bold" th:text="${entidad.codigo}">COD001</p>
+                                </div>
+                                <div class="col-md-6 mb-3" th:if="${entidad.email != null}">
+                                    <label class="form-label text-muted">Email:</label>
+                                    <p class="fw-bold">
+                                        <a th:href="'mailto:' + ${entidad.email}" th:text="${entidad.email}">email@ejemplo.com</a>
+                                    </p>
+                                </div>
+                                <div class="col-md-6 mb-3" th:if="${entidad.telefono != null}">
+                                    <label class="form-label text-muted">Teléfono:</label>
+                                    <p class="fw-bold" th:text="${entidad.telefono}">+56 9 1234 5678</p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted">Estado:</label>
+                                    <p>
+                                            <span th:if="${entidad.activo}" class="badge bg-success">
+                                                <i class="fas fa-check"></i> Activo
+                                            </span>
+                                        <span th:unless="${entidad.activo}" class="badge bg-danger">
+                                                <i class="fas fa-times"></i> Inactivo
+                                            </span>
+                                    </p>
+                                </div>
+                                <div class="col-12 mb-3"
+                                     th:if="${entidad.descripcion != null and !#strings.isEmpty(entidad.descripcion)}">
+                                    <label class="form-label text-muted">Descripción:</label>
+                                    <p th:text="${entidad.descripcion}">Descripción detallada del registro</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Información adicional específica por tipo de entidad -->
+                    <!-- Para Productos -->
+                    <div class="card mt-3" th:if="${entidad.precio != null}">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-dollar-sign"></i> Información Comercial
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label text-muted">Precio:</label>
+                                    <p class="fw-bold fs-4 text-success"
+                                       th:text="'$' + ${#numbers.formatDecimal(entidad.precio, 0, 'COMMA', 0, 'POINT')}">
+                                        $0</p>
+                                </div>
+                                <div class="col-md-4 mb-3" th:if="${entidad.stock != null}">
+                                    <label class="form-label text-muted">Stock:</label>
+                                    <p class="fw-bold fs-4"
+                                       th:classappend="${entidad.stock <= 5} ? 'text-danger' : 'text-primary'"
+                                       th:text="${entidad.stock}">0</p>
+                                </div>
+                                <div class="col-md-4 mb-3" th:if="${entidad.categoria != null}">
+                                    <label class="form-label text-muted">Categoría:</label>
+                                    <p class="fw-bold" th:text="${entidad.categoria.nombre}">Categoría</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Para Ventas -->
+                    <div class="card mt-3" th:if="${entidad.total != null}">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-receipt"></i> Resumen de Venta
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3 mb-3" th:if="${entidad.subtotal != null}">
+                                    <label class="form-label text-muted">Subtotal:</label>
+                                    <p class="fw-bold"
+                                       th:text="'$' + ${#numbers.formatDecimal(entidad.subtotal, 0, 'COMMA', 0, 'POINT')}">
+                                        $0</p>
+                                </div>
+                                <div class="col-md-3 mb-3" th:if="${entidad.impuesto != null}">
+                                    <label class="form-label text-muted">Impuesto:</label>
+                                    <p class="fw-bold"
+                                       th:text="'$' + ${#numbers.formatDecimal(entidad.impuesto, 0, 'COMMA', 0, 'POINT')}">
+                                        $0</p>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label text-muted">Total:</label>
+                                    <p class="fw-bold fs-4 text-primary"
+                                       th:text="'$' + ${#numbers.formatDecimal(entidad.total, 0, 'COMMA', 0, 'POINT')}">
+                                        $0</p>
+                                </div>
+                                <div class="col-md-3 mb-3" th:if="${entidad.metodoPago != null}">
+                                    <label class="form-label text-muted">Método de Pago:</label>
+                                    <p class="fw-bold" th:text="${entidad.metodoPago}">Efectivo</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel lateral -->
+                <div class="col-lg-4">
+                    <!-- Información de Auditoría -->
+                    <div class="card">
+                        <div class="card-header bg-secondary text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-clock"></i> Información de Auditoría
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3" th:if="${entidad.fechaCreacion != null}">
+                                <label class="form-label text-muted">Fecha de Creación:</label>
+                                <p class="fw-bold"
+                                   th:text="${#temporals.format(entidad.fechaCreacion, 'dd/MM/yyyy HH:mm')}">01/01/2024
+                                    10:30</p>
+                            </div>
+                            <div class="mb-3" th:if="${entidad.fechaActualizacion != null}">
+                                <label class="form-label text-muted">Última Modificación:</label>
+                                <p class="fw-bold"
+                                   th:text="${#temporals.format(entidad.fechaActualizacion, 'dd/MM/yyyy HH:mm')}">
+                                    01/01/2024 10:30</p>
+                            </div>
+                            <div class="mb-3" th:if="${entidad.fechaRegistro != null}">
+                                <label class="form-label text-muted">Fecha de Registro:</label>
+                                <p class="fw-bold" th:text="${#temporals.format(entidad.fechaRegistro, 'dd/MM/yyyy')}">
+                                    01/01/2024</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Acciones Rápidas -->
+                    <div class="card mt-3">
+                        <div class="card-header bg-warning text-dark">
+                            <h5 class="mb-0">
+                                <i class="fas fa-bolt"></i> Acciones Rápidas
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <button type="button" class="btn btn-outline-primary"
+                                        th:onclick="'window.location.href=\'/editar/' + ${entidad.id} + '\''">
+                                    <i class="fas fa-edit"></i> Editar Registro
+                                </button>
+                                <button type="button" class="btn btn-outline-info" onclick="window.print()">
+                                    <i class="fas fa-print"></i> Imprimir
+                                </button>
+                                <button type="button" class="btn btn-outline-success" onclick="exportToPDF()">
+                                    <i class="fas fa-file-pdf"></i> Exportar PDF
+                                </button>
+                                <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal"
+                                        data-bs-target="#deleteModal">
+                                    <i class="fas fa-trash"></i> Eliminar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Estadísticas (si aplica) -->
+                    <div class="card mt-3" th:if="${estadisticas != null}">
+                        <div class="card-header bg-dark text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-chart-bar"></i> Estadísticas
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-2" th:if="${estadisticas.totalCompras != null}">
+                                <small class="text-muted">Total de Compras:</small>
+                                <p class="fw-bold mb-1" th:text="${estadisticas.totalCompras}">0</p>
+                            </div>
+                            <div class="mb-2" th:if="${estadisticas.montoTotal != null}">
+                                <small class="text-muted">Monto Total:</small>
+                                <p class="fw-bold mb-1"
+                                   th:text="'$' + ${#numbers.formatDecimal(estadisticas.montoTotal, 0, 'COMMA', 0, 'POINT')}">
+                                    $0</p>
+                            </div>
+                            <div class="mb-2" th:if="${estadisticas.promedio != null}">
+                                <small class="text-muted">Promedio por Compra:</small>
+                                <p class="fw-bold mb-1"
+                                   th:text="'$' + ${#numbers.formatDecimal(estadisticas.promedio, 0, 'COMMA', 0, 'POINT')}">
+                                    $0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Historial/Actividad relacionada -->
+            <div class="row mt-4" th:if="${historial != null and !historial.isEmpty()}">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-history"></i> Historial de Actividad
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Acción</th>
+                                        <th>Descripción</th>
+                                        <th>Usuario</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr th:each="actividad : ${historial}">
+                                        <td th:text="${#temporals.format(actividad.fecha, 'dd/MM/yyyy HH:mm')}">
+                                            01/01/2024 10:30
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-info" th:text="${actividad.accion}">Creación</span>
+                                        </td>
+                                        <td th:text="${actividad.descripcion}">Registro creado</td>
+                                        <td th:text="${actividad.usuario}">Usuario</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Modal de confirmación de eliminación -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle"></i> Confirmar Eliminación
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Está seguro que desea eliminar este registro?</p>
+                <div class="alert alert-warning">
+                    <i class="fas fa-warning"></i>
+                    <strong>Advertencia:</strong> Esta acción no se puede deshacer.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <form th:action="@{/eliminar/{id}(id=${entidad.id})}" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Eliminar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Función para exportar a PDF
+    function exportToPDF() {
+        window.print();
+    }
+
+    // Auto-hide alerts after 5 seconds
+    setTimeout(function () {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => {
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        });
+    }, 5000);
+
+    // Confirmación antes de eliminar
+    document.querySelector('#deleteModal form').addEventListener('submit', function (e) {
+        if (!confirm('¿Está completamente seguro de eliminar este registro?')) {
+            e.preventDefault();
+        }
+    });
+</script>
+
+<!-- Estilos para impresión -->
+<style media="print">
+    .sidebar, .btn-toolbar, .card-header, .btn, .modal {
+        display: none !important;
+    }
+
+    .card {
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    body {
+        background: white !important;
+    }
+</style>
+</body>
+</html>

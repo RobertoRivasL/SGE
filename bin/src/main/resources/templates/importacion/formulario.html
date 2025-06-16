@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Importar [[${tipoEntidadCapitalizado}]]s - Sistema de Gestión</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .upload-area {
+            border: 2px dashed #007bff;
+            border-radius: 10px;
+            padding: 3rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: #f8f9ff;
+        }
+        .upload-area:hover, .upload-area.dragover {
+            border-color: #0056b3;
+            background: #e7f3ff;
+        }
+        .upload-area.has-file {
+            border-color: #28a745;
+            background: #f8fff8;
+        }
+        .file-info {
+            display: none;
+            background: #e9ecef;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+        .progress {
+            height: 8px;
+            margin-top: 1rem;
+        }
+        .preview-table {
+            font-size: 0.875rem;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .required-column {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .step-indicator {
+            margin-bottom: 2rem;
+        }
+        .step {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .step-number {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #6c757d;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-weight: bold;
+        }
+        .step-number.active {
+            background: #007bff;
+        }
+        .step-number.completed {
+            background: #28a745;
+        }
+    </style>
+</head>
+<body>
+<!-- Navegación -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+        <a class="navbar-brand" href="/inicio">
+            <i class="fas fa-chart-line"></i> Sistema de Gestión
+        </a>
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link" href="/importacion">
+                <i class="fas fa-arrow-left"></i> Volver a Importación
+            </a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <!-- Encabezado -->
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex align-items-center mb-4">
+                <div class="me-3">
+                    <i class="fas fa-upload fa-2x text-primary"></i>
+                </div>
+                <div>
+                    <h2 class="mb-1">Importar [[${tipoEntidadCapitalizado}]]s</h2>
+                    <p class="text-muted mb-0">Suba su archivo y siga los pasos para completar la importación</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alertas -->
+    <div th:if="${mensajeError}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <span th:text="${mensajeError}">Error message</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div th:if="${mensajeAdvertencia}" class="alert alert-warning alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>
+        <span th:text="${mensajeAdvertencia}">Warning message</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Indicador de Pasos -->
+    <div class="step-indicator">
+        <div class="step">
+            <div class="step-number active" id="step1">1</div>
+            <div class="step-text">
+                <strong>Seleccionar Archivo</strong>
+                <div class="text-muted small">Suba su archivo CSV o Excel</div>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-number" id="step2">2</div>
+            <div class="step-text">
+                <strong>Validar Datos</strong>
+                <div class="text-muted small">Revise la vista previa</div>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-number" id="step3">3</div>
+            <div class="step-text">
+                <strong>Importar</strong>
+                <div class="text-muted small">Procese los datos</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Panel Principal -->
+        <div class="col-lg-8">
+            <!-- Área de Carga -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-file-upload me-2"></i>Seleccionar Archivo
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form id="uploadForm" th:action="@{/importacion/{tipo}/procesar(tipo=${tipoEntidad})}"
+                          method="post" enctype="multipart/form-data">
+
+                        <div class="upload-area" id="uploadArea">
+                            <div id="uploadPrompt">
+                                <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                                <h5>Arrastre su archivo aquí o haga clic para seleccionar</h5>
+                                <p class="text-muted">
+                                    Formatos soportados:
+                                    <span th:each="formato, iterStat : ${formatosSoportados}">
+                                            <strong th:text="${formato.toUpperCase()}">CSV</strong><span th:if="!${iterStat.last}">, </span>
+                                        </span>
+                                </p>
+                                <p class="text-muted small">Tamaño máximo: 10MB</p>
+                            </div>
+
+                            <input type="file" id="fileInput" name="archivo"
+                                   accept=".csv,.xlsx,.xls" style="display: none;" required>
+                        </div>
+
+                        <!-- Información del archivo -->
+                        <div class="file-info" id="fileInfo">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-file-alt fa-2x text-success me-3"></i>
+                                        <div>
+                                            <div class="fw-bold" id="fileName">archivo.csv</div>
+                                            <div class="text-muted small" id="fileSize">1.2 MB</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <button type="button" class="btn btn-outline-secondary btn-sm" id="changeFile">
+                                        <i class="fas fa-edit me-1"></i>Cambiar
+                                    </button>
+                                    <button type="button" class="btn btn-outline-primary btn-sm ms-2" id="previewBtn">
+                                        <i class="fas fa-eye me-1"></i>Vista Previa
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Barra de progreso para validación -->
+                            <div class="progress" id="validationProgress" style="display: none;">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated"
+                                     role="progressbar" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Botones de acción -->
+                        <div class="text-end mt-3">
+                            <button type="button" class="btn btn-outline-secondary" id="validateBtn" style="display: none;">
+                                <i class="fas fa-check-circle me-2"></i>Validar Archivo
+                            </button>
+                            <button type="submit" class="btn btn-primary" id="importBtn" style="display: none;">
+                                <i class="fas fa-upload me-2"></i>Importar [[${tipoEntidadCapitalizado}]]s
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Vista Previa -->
+            <div class="card" id="previewCard" style="display: none;">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-table me-2"></i>Vista Previa de Datos
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="previewContent">
+                        <!-- El contenido se carga dinámicamente -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Lateral -->
+        <div class="col-lg-4">
+            <!-- Información de Columnas -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-columns me-2"></i>Columnas Requeridas
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item px-0" th:each="columna : ${columnasRequeridas}">
+                            <i class="fas fa-asterisk text-danger me-2" style="font-size: 0.6rem;"></i>
+                            <span th:text="${columna}" class="required-column">Columna</span>
+                        </div>
+                    </div>
+                    <hr>
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Todas las columnas marcadas con * son obligatorias
+                    </small>
+                </div>
+            </div>
+
+            <!-- Descargar Plantilla -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-download me-2"></i>Plantillas
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small mb-3">
+                        Descargue una plantilla con las columnas correctas y datos de ejemplo.
+                    </p>
+                    <div class="d-grid gap-2">
+                        <a th:href="@{/importacion/{tipo}/plantilla(tipo=${tipoEntidad}, formato='excel')}"
+                           class="btn btn-outline-success btn-sm">
+                            <i class="fas fa-file-excel me-2"></i>Plantilla Excel
+                        </a>
+                        <a th:href="@{/importacion/{tipo}/plantilla(tipo=${tipoEntidad}, formato='csv')}"
+                           class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-file-csv me-2"></i>Plantilla CSV
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Consejos -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-lightbulb me-2"></i>Consejos
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled small">
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Use la plantilla para evitar errores
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Revise los datos antes de importar
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Los registros duplicados se omitirán
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Mantenga copias de seguridad
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        const uploadPrompt = document.getElementById('uploadPrompt');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const validateBtn = document.getElementById('validateBtn');
+        const importBtn = document.getElementById('importBtn');
+        const previewBtn = document.getElementById('previewBtn');
+        const previewCard = document.getElementById('previewCard');
+        const changeFile = document.getElementById('changeFile');
+
+        // Eventos de drag & drop
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        // Click en área de carga
+        uploadArea.addEventListener('click', function() {
+            fileInput.click();
+        });
+
+        // Cambio en input de archivo
+        fileInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                handleFile(this.files[0]);
+            }
+        });
+
+        // Cambiar archivo
+        changeFile.addEventListener('click', function() {
+            fileInput.click();
+        });
+
+        // Función para manejar archivo seleccionado
+        function handleFile(file) {
+            // Validar tipo de archivo
+            const allowedTypes = ['text/csv', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
+            const allowedExtensions = ['.csv', '.xls', '.xlsx'];
+
+            const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+
+            if (!allowedTypes.includes(file.type) && !allowedExtensions.includes(fileExtension)) {
+                alert('Tipo de archivo no soportado. Use CSV o Excel (.xlsx, .xls)');
+                return;
+            }
+
+            // Validar tamaño (10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                alert('El archivo es demasiado grande. Máximo 10MB.');
+                return;
+            }
+
+            // Mostrar información del archivo
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+
+            uploadPrompt.style.display = 'none';
+            fileInfo.style.display = 'block';
+            uploadArea.classList.add('has-file');
+
+            validateBtn.style.display = 'inline-block';
+
+            updateSteps(2);
+        }
+
+        // Validar archivo
+        validateBtn.addEventListener('click', function() {
+            if (!fileInput.files[0]) return;
+
+            const formData = new FormData();
+            formData.append('archivo', fileInput.files[0]);
+
+            showValidationProgress();
+
+            fetch(`/importacion/[[${tipoEntidad}]]/vista-previa`, {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    hideValidationProgress();
+
+                    if (data.valido) {
+                        showPreview(data);
+                        importBtn.style.display = 'inline-block';
+                        updateSteps(3);
+                    } else {
+                        showValidationErrors(data.errores);
+                    }
+                })
+                .catch(error => {
+                    hideValidationProgress();
+                    console.error('Error:', error);
+                    alert('Error validando el archivo');
+                });
+        });
+
+        // Vista previa
+        previewBtn.addEventListener('click', function() {
+            if (previewCard.style.display === 'none') {
+                previewCard.style.display = 'block';
+                previewBtn.innerHTML = '<i class="fas fa-eye-slash me-1"></i>Ocultar Vista';
+            } else {
+                previewCard.style.display = 'none';
+                previewBtn.innerHTML = '<i class="fas fa-eye me-1"></i>Vista Previa';
+            }
+        });
+
+        // Funciones auxiliares
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function showValidationProgress() {
+            document.getElementById('validationProgress').style.display = 'block';
+            const progressBar = document.querySelector('#validationProgress .progress-bar');
+            let width = 0;
+            const interval = setInterval(function() {
+                width += 10;
+                progressBar.style.width = width + '%';
+                if (width >= 100) {
+                    clearInterval(interval);
+                }
+            }, 100);
+        }
+
+        function hideValidationProgress() {
+            document.getElementById('validationProgress').style.display = 'none';
+        }
+
+        function showPreview(data) {
+            if (data.vistaPrevia && data.vistaPrevia.length > 0) {
+                const preview = data.vistaPrevia;
+                const headers = Object.keys(preview[0]);
+
+                let table = '<div class="table-responsive preview-table">';
+                table += '<table class="table table-sm table-bordered">';
+                table += '<thead class="table-dark"><tr>';
+                headers.forEach(header => {
+                    table += `<th>${header}</th>`;
+                });
+                table += '</tr></thead><tbody>';
+
+                preview.forEach(row => {
+                    table += '<tr>';
+                    headers.forEach(header => {
+                        table += `<td>${row[header] || ''}</td>`;
+                    });
+                    table += '</tr>';
+                });
+
+                table += '</tbody></table></div>';
+                table += `<small class="text-muted">Mostrando ${preview.length} filas de muestra</small>`;
+
+                document.getElementById('previewContent').innerHTML = table;
+                previewCard.style.display = 'block';
+                previewBtn.innerHTML = '<i class="fas fa-eye-slash me-1"></i>Ocultar Vista';
+            }
+        }
+
+        function showValidationErrors(errores) {
+            let errorHtml = '<div class="alert alert-danger"><h6>Errores encontrados:</h6><ul class="mb-0">';
+            errores.forEach(error => {
+                errorHtml += `<li>${error}</li>`;
+            });
+            errorHtml += '</ul></div>';
+
+            document.getElementById('previewContent').innerHTML = errorHtml;
+            previewCard.style.display = 'block';
+        }
+
+        function updateSteps(currentStep) {
+            for (let i = 1; i <= 3; i++) {
+                const stepElement = document.getElementById(`step${i}`);
+                stepElement.classList.remove('active', 'completed');
+
+                if (i < currentStep) {
+                    stepElement.classList.add('completed');
+                    stepElement.innerHTML = '<i class="fas fa-check"></i>';
+                } else if (i === currentStep) {
+                    stepElement.classList.add('active');
+                    stepElement.textContent = i;
+                } else {
+                    stepElement.textContent = i;
+                }
+            }
+        }
+    });
+</script>
+</body>
+</html>

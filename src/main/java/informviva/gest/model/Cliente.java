@@ -17,8 +17,6 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "clientes")
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class Cliente {
 
     @Id
@@ -75,4 +73,5 @@ public class Cliente {
     public java.time.LocalDate getFechaRegistroAsLocalDate() {
         return fechaRegistro != null ? fechaRegistro.toLocalDate() : null;
     }
+
 }

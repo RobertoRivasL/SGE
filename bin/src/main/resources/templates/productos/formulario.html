@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${producto.id != null ? 'Editar Producto' : 'Nuevo Producto'}"></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+<div th:replace="fragments/navbar :: navbar"></div>
+
+<div class="container-fluid mt-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-2">
+            <div th:replace="fragments/sidebar :: sidebar"></div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h4>
+                        <i class="fas fa-box"></i>
+                        <span th:text="${producto.id != null ? 'Editar Producto' : 'Nuevo Producto'}"></span>
+                    </h4>
+                    <a th:href="@{/productos/admin}" class="btn btn-light btn-sm">
+                        <i class="fas fa-arrow-left"></i> Volver a Lista
+                    </a>
+                </div>
+                <div class="card-body">
+                    <!-- Formulario de producto -->
+                    <form th:action="@{/productos/guardar}"
+                          th:object="${producto}"
+                          method="post"
+                          enctype="multipart/form-data"
+                          novalidate>
+
+                        <input type="hidden" th:field="*{id}">
+
+                        <div class="row">
+                            <!-- Columna izquierda - Información básica -->
+                            <div class="col-md-8">
+                                <div class="row">
+                                    <!-- Nombre del producto -->
+                                    <div class="col-md-8 mb-3">
+                                        <label for="nombre" class="form-label">
+                                            <i class="fas fa-tag"></i> Nombre del Producto *
+                                        </label>
+                                        <input type="text"
+                                               class="form-control"
+                                               th:field="*{nombre}"
+                                               th:class="${#fields.hasErrors('nombre')} ? 'form-control is-invalid' : 'form-control'"
+                                               id="nombre"
+                                               placeholder="Ingrese el nombre del producto">
+                                        <div th:if="${#fields.hasErrors('nombre')}" class="invalid-feedback">
+                                            <span th:errors="*{nombre}"></span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Código del producto -->
+                                    <div class="col-md-4 mb-3">
+                                        <label for="codigo" class="form-label">
+                                            <i class="fas fa-barcode"></i> Código *
+                                        </label>
+                                        <div class="input-group">
+                                            <input type="text"
+                                                   class="form-control"
+                                                   th:field="*{codigo}"
+                                                   th:class="${#fields.hasErrors('codigo')} ? 'form-control is-invalid' : 'form-control'"
+                                                   id="codigo"
+                                                   placeholder="SKU-001">
+                                            <button type="button" class="btn btn-outline-secondary"
+                                                    onclick="generarCodigo()">
+                                                <i class="fas fa-random"></i>
+                                            </button>
+                                        </div>
+                                        <div th:if="${#fields.hasErrors('codigo')}" class="invalid-feedback">
+                                            <span th:errors="*{codigo}"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Descripción -->
+                                <div class="mb-3">
+                                    <label for="descripcion" class="form-label">
+                                        <i class="fas fa-align-left"></i> Descripción
+                                    </label>
+                                    <textarea class="form-control"
+                                              th:field="*{descripcion}"
+                                              id="descripcion"
+                                              rows="3"
+                                              placeholder="Describe las características del producto..."></textarea>
+                                </div>
+
+                                <div class="row">
+                                    <!-- Categoría -->
+                                    <div class="col-md-6 mb-3">
+                                        <label for="categoria" class="form-label">
+                                            <i class="fas fa-tags"></i> Categoría *
+                                        </label>
+                                        <select class="form-select"
+                                                th:field="*{categoria.id}"
+                                                th:class="${#fields.hasErrors('categoria')} ? 'form-select is-invalid' : 'form-select'"
+                                                id="categoria">
+                                            <option value="">Seleccione una categoría</option>
+                                            <option th:each="categoria : ${categorias}"
+                                                    th:value="${categoria.id}"
+                                                    th:text="${categoria.nombre}">
+                                            </option>
+                                        </select>
+                                        <div th:if="${#fields.hasErrors('categoria')}" class="invalid-feedback">
+                                            <span th:errors="*{categoria}"></span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Precio -->
+                                    <div class="col-md-6 mb-3">
+                                        <label for="precio" class="form-label">
+                                            <i class="fas fa-dollar-sign"></i> Precio *
+                                        </label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">$</span>
+                                            <input type="number"
+                                                   class="form-control"
+                                                   th:field="*{precio}"
+                                                   th:class="${#fields.hasErrors('precio')} ? 'form-control is-invalid' : 'form-control'"
+                                                   id="precio"
+                                                   step="0.01"
+                                                   min="0"
+                                                   placeholder="0.00">
+                                        </div>
+                                        <div th:if="${#fields.hasErrors('precio')}" class="invalid-feedback">
+                                            <span th:errors="*{precio}"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <!-- Stock actual -->
+                                    <div class="col-md-4 mb-3">
+                                        <label for="stock" class="form-label">
+                                            <i class="fas fa-cubes"></i> Stock Actual *
+                                        </label>
+                                        <input type="number"
+                                               class="form-control"
+                                               th:field="*{stock}"
+                                               th:class="${#fields.hasErrors('stock')} ? 'form-control is-invalid' : 'form-control'"
+                                               id="stock"
+                                               min="0"
+                                               placeholder="0">
+                                        <div th:if="${#fields.hasErrors('stock')}" class="invalid-feedback">
+                                            <span th:errors="*{stock}"></span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Stock mínimo -->
+                                    <div class="col-md-4 mb-3">
+                                        <label for="stockMinimo" class="form-label">
+                                            <i class="fas fa-exclamation-triangle"></i> Stock Mínimo *
+                                        </label>
+                                        <input type="number"
+                                               class="form-control"
+                                               th:field="*{stockMinimo}"
+                                               id="stockMinimo"
+                                               min="0"
+                                               placeholder="5">
+                                    </div>
+
+                                    <!-- Estado -->
+                                    <div class="col-md-4 mb-3">
+                                        <label for="activo" class="form-label">
+                                            <i class="fas fa-toggle-on"></i> Estado
+                                        </label>
+                                        <div class="form-check form-switch mt-2">
+                                            <input class="form-check-input"
+                                                   type="checkbox"
+                                                   th:field="*{activo}"
+                                                   id="activo">
+                                            <label class="form-check-label" for="activo">
+                                                Producto Activo
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Columna derecha - Imagen -->
+                            <div class="col-md-4">
+                                <div class="card h-100">
+                                    <div class="card-header">
+                                        <h6><i class="fas fa-image"></i> Imagen del Producto</h6>
+                                    </div>
+                                    <div class="card-body text-center">
+                                        <!-- Preview de imagen -->
+                                        <div class="mb-3">
+                                            <img id="imagenPreview"
+                                                 th:src="${producto.imagen != null ? '/uploads/' + producto.imagen : '#'}"
+                                                 th:style="${producto.imagen != null ? 'display: block;' : 'display: none;'}"
+                                                 class="img-fluid rounded border"
+                                                 style="max-height: 200px; width: auto;">
+                                            <div id="imagenPlaceholder"
+                                                 th:style="${producto.imagen != null ? 'display: none;' : 'display: flex;'}"
+                                                 class="border rounded d-flex align-items-center justify-content-center bg-light"
+                                                 style="height: 200px;">
+                                                <div class="text-muted">
+                                                    <i class="fas fa-image fa-3x mb-2"></i>
+                                                    <br>
+                                                    <small>Sin imagen</small>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Input de archivo -->
+                                        <div class="mb-3">
+                                            <input type="file"
+                                                   class="form-control"
+                                                   id="imagenFile"
+                                                   name="imagenFile"
+                                                   accept="image/*"
+                                                   onchange="previewImagen(this)">
+                                            <div class="form-text">
+                                                Formatos: JPG, PNG, GIF. Máx: 5MB
+                                            </div>
+                                        </div>
+
+                                        <!-- Imagen actual -->
+                                        <input type="hidden" th:field="*{imagen}">
+                                        <div th:if="${producto.imagen}" class="text-muted">
+                                            <small>
+                                                Imagen actual: <span th:text="${producto.imagen}"></span>
+                                                <br>
+                                                <button type="button" class="btn btn-sm btn-outline-danger mt-1"
+                                                        onclick="eliminarImagen()">
+                                                    <i class="fas fa-trash"></i> Eliminar
+                                                </button>
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botones de acción -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <button type="submit" class="btn btn-primary me-2">
+                                            <i class="fas fa-save"></i>
+                                            <span th:text="${producto.id != null ? 'Actualizar Producto' : 'Guardar Producto'}"></span>
+                                        </button>
+                                        <button type="reset" class="btn btn-outline-secondary me-2">
+                                            <i class="fas fa-undo"></i> Limpiar
+                                        </button>
+                                    </div>
+                                    <div>
+                                        <a th:href="@{/productos/admin}" class="btn btn-outline-danger">
+                                            <i class="fas fa-times"></i> Cancelar
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Preview de imagen
+    function previewImagen(input) {
+        const preview = document.getElementById('imagenPreview');
+        const placeholder = document.getElementById('imagenPlaceholder');
+
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+                placeholder.style.display = 'none';
+            };
+
+            reader.readAsDataURL(input.files[0]);
+        } else {
+            preview.style.display = 'none';
+            placeholder.style.display = 'flex';
+        }
+    }
+
+    // Eliminar imagen actual
+    function eliminarImagen() {
+        if (confirm('¿Está seguro de eliminar la imagen actual?')) {
+            document.querySelector('input[name="imagen"]').value = '';
+            document.getElementById('imagenPreview').style.display = 'none';
+            document.getElementById('imagenPlaceholder').style.display = 'flex';
+            document.getElementById('imagenFile').value = '';
+        }
+    }
+
+    // Generar código automático
+    function generarCodigo() {
+        const prefijo = 'SKU';
+        const timestamp = Date.now().toString().slice(-6);
+        const codigo = prefijo + '-' + timestamp;
+        document.getElementById('codigo').value = codigo;
+    }
+
+    // Validación en tiempo real
+    document.addEventListener('DOMContentLoaded', function () {
+        // Validar precio
+        const precioInput = document.getElementById('precio');
+        precioInput.addEventListener('input', function () {
+            if (this.value < 0) {
+                this.value = 0;
+            }
+        });
+
+        // Validar stock
+        const stockInput = document.getElementById('stock');
+        stockInput.addEventListener('input', function () {
+            if (this.value < 0) {
+                this.value = 0;
+            }
+        });
+
+        // Validar stock mínimo
+        const stockMinimoInput = document.getElementById('stockMinimo');
+        stockMinimoInput.addEventListener('input', function () {
+            if (this.value < 0) {
+                this.value = 0;
+            }
+        });
+
+        // Auto-generar código si está vacío en productos nuevos
+        const codigoInput = document.getElementById('codigo');
+        if (!codigoInput.value) {
+            generarCodigo();
+        }
+    });
+
+    // Prevenir envío de formulario con Enter en campos de texto
+    document.querySelectorAll('input[type="text"], input[type="number"]').forEach(input => {
+        input.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+            }
+        });
+    });
+</script>
+</body>
+</html>

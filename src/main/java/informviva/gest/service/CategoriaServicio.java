@@ -15,6 +15,10 @@ import java.util.List;
  */
 public interface CategoriaServicio {
 
+
+    List<Categoria> findAllActivas();
+    Categoria save(Categoria categoria);
+
     // ===================== MÉTODOS DE CONSULTA =====================
 
     /**

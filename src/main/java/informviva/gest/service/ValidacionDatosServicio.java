@@ -1,6 +1,6 @@
-import informviva.gest.dto.ResultadoValidacionModulo;
 package informviva.gest.service;
 
+import informviva.gest.dto.ResultadoValidacionModulo;
 import informviva.gest.dto.ResultadoValidacionSistema;
 
 /**

@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Registros - Sistema de Gestión</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <nav class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse">
+            <div class="position-sticky pt-3">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/inicio">
+                            <i class="fas fa-home"></i> Inicio
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/productos">
+                            <i class="fas fa-box"></i> Productos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/ventas">
+                            <i class="fas fa-shopping-cart"></i> Ventas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/clientes">
+                            <i class="fas fa-users"></i> Clientes
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main content -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">
+                    <i class="fas fa-list text-primary"></i> Lista de Registros
+                </h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <button type="button" class="btn btn-primary" onclick="window.location.href='/nuevo'">
+                            <i class="fas fa-plus"></i> Nuevo Registro
+                        </button>
+                        <button type="button" class="btn btn-outline-success" onclick="exportToExcel()">
+                            <i class="fas fa-file-excel"></i> Excel
+                        </button>
+                        <button type="button" class="btn btn-outline-danger" onclick="exportToPDF()">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alertas -->
+            <div th:if="${mensajeExito}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle"></i> <span th:text="${mensajeExito}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <div th:if="${mensajeError}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle"></i> <span th:text="${mensajeError}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!-- Filtros y Búsqueda -->
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-filter"></i> Filtros y Búsqueda
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="get" id="filterForm">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="search" class="form-label">Búsqueda General:</label>
+                                <input type="text" class="form-control" name="search" id="search"
+                                       th:value="${search}" placeholder="Buscar por nombre, código, email...">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="categoria" class="form-label">Categoría:</label>
+                                <select class="form-select" name="categoria" id="categoria">
+                                    <option value="">Todas las categorías</option>
+                                    <option th:each="cat : ${categorias}"
+                                            th:value="${cat}"
+                                            th:text="${cat}"
+                                            th:selected="${cat == categoria}">Categoría
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="estado" class="form-label">Estado:</label>
+                                <select class="form-select" name="estado" id="estado">
+                                    <option value="">Todos</option>
+                                    <option value="true" th:selected="${estado == 'true'}">Activos</option>
+                                    <option value="false" th:selected="${estado == 'false'}">Inactivos</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 d-flex align-items-end">
+                                <div class="btn-group w-100">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-search"></i> Buscar
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary" onclick="clearFilters()">
+                                        <i class="fas fa-times"></i> Limpiar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Tabla de Datos -->
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-table"></i> Lista de Registros
+                        <span class="badge bg-light text-dark ms-2" th:text="${#lists.size(registros)} + ' registros'">0 registros</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover" id="dataTable">
+                            <thead class="table-dark">
+                            <tr>
+                                <th>
+                                    <input type="checkbox" id="selectAll" class="form-check-input">
+                                </th>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Código</th>
+                                <th>Email</th>
+                                <th>Estado</th>
+                                <th>Fecha Creación</th>
+                                <th>Acciones</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="registro : ${registros}">
+                                <td>
+                                    <input type="checkbox" th:value="${registro.id}"
+                                           class="form-check-input row-checkbox">
+                                </td>
+                                <td th:text="${registro.id}">1</td>
+                                <td>
+                                    <a th:href="@{'/detalle/' + ${registro.id}}"
+                                       class="text-decoration-none fw-bold"
+                                       th:text="${registro.nombre}">Nombre del registro</a>
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary" th:text="${registro.codigo}">COD001</span>
+                                </td>
+                                <td th:text="${registro.email}">email@ejemplo.com</td>
+                                <td>
+                                    <span th:if="${registro.activo}" class="badge bg-success">
+                                        <i class="fas fa-check"></i> Activo
+                                    </span>
+                                    <span th:unless="${registro.activo}" class="badge bg-danger">
+                                        <i class="fas fa-times"></i> Inactivo
+                                    </span>
+                                </td>
+                                <td th:text="${#temporals.format(registro.fechaCreacion, 'dd/MM/yyyy')}">01/01/2024</td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a th:href="@{'/detalle/' + ${registro.id}}"
+                                           class="btn btn-outline-info" title="Ver detalle">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a th:href="@{'/editar/' + ${registro.id}}"
+                                           class="btn btn-outline-primary" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-outline-danger"
+                                                th:onclick="'confirmDelete(' + ${registro.id} + ', \'' + ${registro.nombre} + '\')'"
+                                                title="Eliminar">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Modal de confirmación de eliminación -->
+<div th:replace="fragments/modal-eliminar :: modal"></div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#dataTable').DataTable({
+            language: {
+                url: 'https://cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json'
+            },
+            pageLength: 25,
+            order: [[1, 'asc']],
+            columnDefs: [
+                {orderable: false, targets: [0, 7]}
+            ]
+        });
+    });
+
+    document.getElementById('selectAll').addEventListener('change', function () {
+        const checkboxes = document.querySelectorAll('.row-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = this.checked;
+        });
+        updateBulkActions();
+    });
+
+    document.addEventListener('change', function (e) {
+        if (e.target.classList.contains('row-checkbox')) {
+            updateBulkActions();
+        }
+    });
+
+    function updateBulkActions() {
+        const selectedCheckboxes = document.querySelectorAll('.row-checkbox:checked');
+        const bulkActions = document.getElementById('bulkActions');
+        const selectedCount = document.getElementById('selectedCount');
+
+        if (selectedCheckboxes.length > 0) {
+            bulkActions.style.display = 'block';
+            selectedCount.textContent = selectedCheckboxes.length + ' seleccionados';
+        } else {
+            bulkActions.style.display = 'none';
+        }
+    }
+
+    function confirmDelete(id, name) {
+        document.getElementById('deleteItemName').textContent = name;
+        document.getElementById('deleteForm').action = '/eliminar/' + id;
+        const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        modal.show();
+    }
+
+    function clearFilters() {
+        document.getElementById('search').value = '';
+        document.getElementById('categoria').value = '';
+        document.getElementById('estado').value = '';
+        document.getElementById('filterForm').submit();
+    }
+
+    function exportToExcel() {
+        window.location.href = '/exportar/excel' + window.location.search;
+    }
+
+    function exportToPDF() {
+        window.location.href = '/exportar/pdf' + window.location.search;
+    }
+</script>
+</body>
+</html>

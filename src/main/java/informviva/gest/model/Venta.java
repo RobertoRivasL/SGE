@@ -94,8 +94,8 @@ public class Venta {
     @Transient
     public boolean isClienteNuevo() {
         // Lógica simplificada para identificar a un cliente nuevo
-        return cliente != null && cliente.getFechaRegistro() != null &&
-                cliente.getFechaRegistro().isAfter(LocalDate.now().minusDays(30));
+        return cliente != null && cliente.getFechaRegistroAsLocalDate() != null &&
+                cliente.getFechaRegistroAsLocalDate().isAfter(LocalDate.now().minusDays(30));
     }
 
     /**

@@ -351,4 +351,5 @@ public interface ClienteServicio {
      * @return true si el email existe
      */
     boolean existeEmail(String email);
+
 }

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="mensajesAlerta(mensajeExito, mensajeError)" th:remove="tag">
+    <div class="alert alert-success alert-dismissible fade show" th:if="${mensajeExito != null and !#strings.isEmpty(mensajeExito)}">
+        <i class="fas fa-check-circle me-2"></i>
+        <span th:text="${mensajeExito}">Operación exitosa</span>
+        <button class="btn-close" data-bs-dismiss="alert" type="button" aria-label="Close"></button>
+    </div>
+    <div class="alert alert-danger alert-dismissible fade show" th:if="${mensajeError != null and !#strings.isEmpty(mensajeError)}">
+        <i class="fas fa-exclamation-circle me-2"></i>
+        <span th:text="${mensajeError}">Error en la operación</span>
+        <button class="btn-close" data-bs-dismiss="alert" type="button" aria-label="Close"></button>
+    </div>
+</div>
+
+<div th:fragment="infoUltimaActualizacion(fechaActualizacion, actualizadoPor, textoUsuarioPorDefecto)" class="row mt-4">
+    <div class="col-12">
+        <div class="card bg-light">
+            <div class="card-body">
+                <p class="mb-0 text-muted">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Última actualización:
+                    <span th:if="${fechaActualizacion != null}"
+                          th:text="${#temporals.format(fechaActualizacion, 'dd/MM/yyyy HH:mm')}">
+                            01/01/2025 12:00
+                        </span>
+                    <span th:if="${fechaActualizacion == null}">
+                            Nunca
+                        </span>
+                    por
+                    <strong th:text="${actualizadoPor != null ? actualizadoPor : (textoUsuarioPorDefecto ?: 'Sistema')}">
+                        Sistema
+                    </strong>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

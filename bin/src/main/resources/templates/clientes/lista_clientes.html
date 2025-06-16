@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Lista de Clientes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <!-- DataTables CSS -->
+    <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+</head>
+<body>
+<!-- Navegación -->
+<div th:replace="~{fragments/navegacion-unificada :: nav}"></div>
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1><i class="fas fa-users me-2"></i>Lista de Clientes</h1>
+                <div class="btn-group">
+                    <a class="btn btn-primary" sec:authorize="hasAnyRole('ADMIN', 'VENTAS')"
+                       th:href="@{/clientes/nuevo}">
+                        <i class="fas fa-plus me-1"></i> Nuevo Cliente
+                    </a>
+                    <a class="btn btn-outline-danger" sec:authorize="hasRole('ADMIN')"
+                       th:href="@{/clientes/exportar/pdf}">
+                        <i class="fas fa-file-pdf me-1"></i> Exportar PDF
+                    </a>
+                    <a class="btn btn-outline-success" sec:authorize="hasRole('ADMIN')"
+                       th:href="@{/clientes/exportar/excel}">
+                        <i class="fas fa-file-excel me-1"></i> Exportar Excel
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mensajes de alerta -->
+    <div class="alert alert-success alert-dismissible fade show" th:if="${mensaje != null}">
+        <i class="fas fa-check-circle me-2"></i>
+        <span th:text="${mensaje}">Operación exitosa</span>
+        <button class="btn-close" data-bs-dismiss="alert" type="button"></button>
+    </div>
+
+    <div class="alert alert-danger alert-dismissible fade show" th:if="${error != null}">
+        <i class="fas fa-exclamation-circle me-2"></i>
+        <span th:text="${error}">Error en la operación</span>
+        <button class="btn-close" data-bs-dismiss="alert" type="button"></button>
+    </div>
+
+    <!-- Filtros -->
+    <div class="row mb-4">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-filter me-2"></i>Filtros de Búsqueda</h5>
+                </div>
+                <div class="card-body">
+                    <form class="row g-3" id="filtroForm">
+                        <div class="col-md-4">
+                            <label class="form-label" for="filtroNombre">Nombre</label>
+                            <input class="form-control" id="filtroNombre" placeholder="Buscar por nombre..."
+                                   type="text">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label" for="filtroEmail">Email</label>
+                            <input class="form-control" id="filtroEmail" placeholder="Buscar por email..." type="email">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label" for="filtroCategoria">Categoría</label>
+                            <select class="form-select" id="filtroCategoria">
+                                <option value="">Todas las categorías</option>
+                                <option value="VIP">VIP</option>
+                                <option value="Premium">Premium</option>
+                                <option value="Regular">Regular</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estadísticas rápidas -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-users fa-2x mb-2"></i>
+                    <h4 th:text="${#lists.size(clientes)}">0</h4>
+                    <p class="mb-0">Total Clientes</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-user-check fa-2x mb-2"></i>
+                    <h4 th:text="${#lists.size(T(java.util.stream.Collectors).toList(clientes.stream().filter(c -> c.fechaRegistro != null && c.fechaRegistro.isAfter(T(java.time.LocalDate).now().minusDays(30)))))}">
+                        0</h4>
+                    <p class="mb-0">Nuevos (30 días)</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-star fa-2x mb-2"></i>
+                    <h4 th:text="${#lists.size(T(java.util.stream.Collectors).toList(clientes.stream().filter(c -> c.categoria != null && c.categoria.equals('VIP'))))}">
+                        0</h4>
+                    <p class="mb-0">Clientes VIP</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-warning text-white h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-envelope fa-2x mb-2"></i>
+                    <h4 th:text="${#lists.size(T(java.util.stream.Collectors).toList(clientes.stream().filter(c -> c.email != null && !c.email.isEmpty())))}">
+                        0</h4>
+                    <p class="mb-0">Con Email</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de clientes -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-table me-2"></i>Clientes Registrados</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped" id="clientesTable">
+                            <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>RUT</th>
+                                <th>Nombre Completo</th>
+                                <th>Email</th>
+                                <th>Teléfono</th>
+                                <th>Categoría</th>
+                                <th>Fecha Registro</th>
+                                <th>Acciones</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="cliente : ${clientes}">
+                                <td th:text="${cliente.id}">1</td>
+                                <td th:text="${cliente.rut}">11.111.111-1</td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2"
+                                             style="width: 35px; height: 35px; font-size: 14px;">
+                                            <span th:text="${#strings.substring(cliente.nombre, 0, 1) + #strings.substring(cliente.apellido, 0, 1)}">AB</span>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold" th:text="${cliente.nombreCompleto}">Nombre Apellido
+                                            </div>
+                                            <small class="text-muted" th:text="${cliente.direccion ?: 'Sin dirección'}">Dirección</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <a class="text-decoration-none" th:href="'mailto:' + ${cliente.email}"
+                                       th:if="${cliente.email != null}"
+                                       th:text="${cliente.email}">email@example.com</a>
+                                    <span class="text-muted" th:if="${cliente.email == null}">Sin email</span>
+                                </td>
+                                <td>
+                                    <a class="text-decoration-none" th:href="'tel:' + ${cliente.telefono}"
+                                       th:if="${cliente.telefono != null}" th:text="${cliente.telefono}">+56 9 1234
+                                        5678</a>
+                                    <span class="text-muted" th:if="${cliente.telefono == null}">Sin teléfono</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-warning text-dark" th:if="${cliente.categoria == 'VIP'}">
+                                        <i class="fas fa-star me-1"></i>VIP
+                                    </span>
+                                    <span class="badge bg-success" th:if="${cliente.categoria == 'Premium'}">
+                                        <i class="fas fa-gem me-1"></i>Premium
+                                    </span>
+                                    <span class="badge bg-info" th:if="${cliente.categoria == 'Regular'}">
+                                        <i class="fas fa-user me-1"></i>Regular
+                                    </span>
+                                    <span class="badge bg-secondary"
+                                          th:if="${cliente.categoria == null || cliente.categoria.isEmpty()}">
+                                        <i class="fas fa-user me-1"></i>Sin categoría
+                                    </span>
+                                </td>
+                                <td th:text="${#temporals.format(cliente.fechaRegistro, 'dd/MM/yyyy')}">01/01/2024</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a class="btn btn-sm btn-outline-info"
+                                           th:href="@{/clientes/detalle/{id}(id=${cliente.id})}" title="Ver detalle">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a class="btn btn-sm btn-outline-primary"
+                                           sec:authorize="hasAnyRole('ADMIN', 'VENTAS')"
+                                           th:href="@{/clientes/editar/{id}(id=${cliente.id})}"
+                                           title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button class="btn btn-sm btn-outline-danger" sec:authorize="hasRole('ADMIN')"
+                                                th:onclick="'confirmarEliminacion(' + ${cliente.id} + ', \'' + ${cliente.nombreCompleto} + '\')'"
+                                                title="Eliminar"
+                                                type="button">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(clientes)}">
+                                <td class="text-center py-4" colspan="8">
+                                    <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                                    <h5 class="text-muted">No hay clientes registrados</h5>
+                                    <p class="text-muted">Comience agregando su primer cliente.</p>
+                                    <a class="btn btn-primary" sec:authorize="hasAnyRole('ADMIN', 'VENTAS')"
+                                       th:href="@{/clientes/nuevo}">
+                                        <i class="fas fa-plus me-1"></i> Agregar Cliente
+                                    </a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmación para eliminar -->
+<div class="modal fade" id="confirmarEliminacionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                    Confirmar Eliminación
+                </h5>
+                <button class="btn-close" data-bs-dismiss="modal" type="button"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Está seguro que desea eliminar al cliente <strong id="nombreClienteEliminar"></strong>?</p>
+                <div class="alert alert-warning">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Esta acción no se puede deshacer. Si el cliente tiene ventas asociadas, no podrá ser eliminado.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">
+                    <i class="fas fa-times me-1"></i> Cancelar
+                </button>
+                <a class="btn btn-danger" href="#" id="btnConfirmarEliminacion">
+                    <i class="fas fa-trash me-1"></i> Eliminar Cliente
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Inicializar DataTable
+        const table = $('#clientesTable').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json'
+            },
+            pageLength: 10,
+            order: [[0, 'desc']], // Ordenar por ID descendente
+            columnDefs: [
+                {orderable: false, targets: [7]} // Desactivar ordenamiento en columna de acciones
+            ]
+        });
+
+        // Filtros personalizados
+        $('#filtroNombre').on('keyup', function () {
+            table.column(2).search(this.value).draw();
+        });
+
+        $('#filtroEmail').on('keyup', function () {
+            table.column(3).search(this.value).draw();
+        });
+
+        $('#filtroCategoria').on('change', function () {
+            table.column(5).search(this.value).draw();
+        });
+    });
+
+    function confirmarEliminacion(clienteId, nombreCliente) {
+        document.getElementById('nombreClienteEliminar').textContent = nombreCliente;
+        document.getElementById('btnConfirmarEliminacion').href = '/clientes/eliminar/' + clienteId;
+
+        const modal = new bootstrap.Modal(document.getElementById('confirmarEliminacionModal'));
+        modal.show();
+    }
+</script>
+</body>
+</html>

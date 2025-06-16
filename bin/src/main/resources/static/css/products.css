@@ -1,0 +1,106 @@
+/* src/main/resources/static/css/products.css */
+
+/* Puedes copiar aquí estilos generales de body, main, section, form-group, button de style.css
+   si no quieres que dependa de style.css o si quieres sobrescribirlos.
+   Para simplificar, este ejemplo asume que reutiliza algunos estilos o añade los mínimos. */
+
+/* Ejemplo básico para las secciones */
+.product-form-section,
+.product-list-section {
+    background: #fff;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.product-form-section h2,
+.product-list-section h2 {
+    margin-top: 0;
+    color: #50b3a2;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+/* Estilos para el formulario específico de producto */
+#productForm .form-group {
+    margin-bottom: 15px;
+}
+
+#productForm label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+#productForm input {
+    width: calc(100% - 22px); /* Ancho 100% menos padding y borde */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+#productForm button[type="submit"] {
+    /* Reutiliza estilos de botón si style.css está enlazado */
+    margin-top: 10px;
+}
+
+
+/* Estilos para la tabla de productos */
+#productListTable {
+    width: 100%; /* La tabla ocupa todo el ancho */
+    border-collapse: collapse; /* Elimina el espacio entre bordes de celdas */
+    margin-top: 15px;
+}
+
+#productListTable th,
+#productListTable td {
+    border: 1px solid #ddd; /* Bordes de celdas */
+    padding: 10px;
+    text-align: left; /* Alineación del texto */
+}
+
+#productListTable th {
+    background-color: #50b3a2; /* Fondo de encabezado */
+    color: white; /* Color de texto en encabezado */
+    font-weight: bold;
+}
+
+#productListTable tbody tr:nth-child(even) { /* Estilo para filas pares */
+    background-color: #f2f2f2;
+}
+
+/* Mensaje para formulario o lista */
+.message {
+    margin-top: 15px;
+    font-weight: bold;
+    min-height: 1.2em;
+}
+
+.message.success {
+    color: #5cb85c; /* Verde para éxito */
+}
+
+.message.error {
+    color: #d9534f; /* Rojo para error */
+}
+
+/* Estilos para el enlace de navegación */
+header nav {
+    margin-top: 10px;
+    font-size: 1.1rem;
+}
+
+header nav a {
+    color: white;
+    text-decoration: none;
+    padding: 5px 10px;
+    border: 1px solid white;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+header nav a:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}

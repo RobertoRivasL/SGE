@@ -1,0 +1,127 @@
+Error:  COMPILATION ERROR : 
+[INFO] -------------------------------------------------------------
+Error:  /home/runner/work/SGE/SGE/src/main/java/informviva/gest/service/ResultadoValidacionModulo.java:[21,8] duplicate class: informviva.gest.service.ResultadoValidacionModulo
+Error:  /home/runner/work/SGE/SGE/src/main/java/informviva/gest/service/importacion/factory/ImportacionProcessorFactory.java:[6,48] package informviva.gest.service.importacion.impl does not exist
+Error:  /home/runner/work/SGE/SGE/src/main/java/informviva/gest/service/importacion/factory/ImportacionProcessorFactory.java:[7,48] package informviva.gest.service.importacion.impl does not exist
+Error:  /home/runner/work/SGE/SGE/src/main/java/informviva/gest/service/importacion/factory/ImportacionProcessorFactory.java:[34,19] cannot find symbol
+  symbol:   class CsvImportacionProcessor
+  location: class informviva.gest.service.importacion.factory.ImportacionProcessorFactory
+Error:  /home/runner/work/SGE/SGE/src/main/java/informviva/gest/service/importacion/factory/ImportacionProcessorFactory.java:[35,19] cannot find symbol
+  symbol:   class ExcelImportacionProcessor
+  location: class informviva.gest.service.importacion.factory.ImportacionProcessorFactory
+Error:  /home/runner/work/SGE/SGE/src/main/java/informviva/gest/service/importacion/factory/ImportacionProcessorFactory.java:[38,40] cannot find symbol
+  symbol:   class CsvImportacionProcessor
+  location: class informviva.gest.service.importacion.factory.ImportacionProcessorFactory
+Error:  /home/runner/work/SGE/SGE/src/main/java/informviva/gest/service/importacion/factory/ImportacionProcessorFactory.java:[39,40] cannot find symbol
+  symbol:   class ExcelImportacionProcessor
+  location: class informviva.gest.service.importacion.factory.ImportacionProcessorFactory
+Error:  /home/runner/work/SGE/SGE/src/main/java/informviva/gest/service/RestauracionServicio.java:[51,12] cannot find symbol
+  symbol:   class InfoRestauracion
+  location: class informviva.gest.service.RestauracionServicio
+Error:  /home/runner/work/SGE/SGE/src/main/java/informviva/gest/service/RestauracionServicio.java:[70,12] cannot find symbol
+  symbol:   class ResultadoRestauracion
+  location: class informviva.gest.service.RestauracionServicio
+Error:  /home/runner/work/SGE/SGE/src/main/java/informviva/gest/service/RestauracionServicio.java:[89,12] cannot find symbol
+  symbol:   class ResultadoValidacion
+  location: class informviva.gest.service.RestauracionServicio
+Error:  /home/runner/work/SGE/SGE/src/main/java/informviva/gest/service/RestauracionServicio.java:[110,13] cannot find symbol
+  symbol:   class InfoRestauracion
+  location: class informviva.gest.service.RestauracionServicio
+Error:  /home/runner/work/SGE/SGE/src/main/java/informviva/gest/service/RestauracionServicio.java:[118,13] cannot find symbol
+  symbol:   class ResultadoRestauracion
+  location: class informviva.gest.service.RestauracionServicio
+Error:  /home/runner/work/SGE/SGE/src/main/java/informviva/gest/service/RestauracionServicio.java:[124,13] cannot find symbol
+  symbol:   class ResultadoValidacion
+  location: class informviva.gest.service.RestauracionServicio
+Error:  /home/runner/work/SGE/SGE/src/main/java/informviva/gest/service/RestauracionServicio.java:[131,39] cannot find symbol
+  symbol:   class InfoRestauracion
+  location: class informviva.gest.service.RestauracionServicio
+Error:  /home/runner/work/SGE/SGE/src/main/java/informviva/gest/service/RestauracionServicio.java:[137,43] cannot find symbol
+  symbol:   class ResultadoRestauracion
+  location: class informviva.gest.service.RestauracionServicio
+Error:  /home/runner/work/SGE/SGE/src/main/java/informviva/gest/service/RestauracionServicio.java:[144,41] cannot find symbol
+  symbol:   class ResultadoValidacion
+  location: class informviva.gest.service.RestauracionServicio
+Error:  /home/runner/work/SGE/SGE/src/main/java/informviva/gest/service/RestauracionServicio.java:[150,61] cannot find symbol
+  symbol:   class InfoRestauracion
+Error:    location: variable registro of type informviva.gest.model.ImportacionHistorial
+Error:  /home/runner/work/SGE/SGE/src/main/java/informviva/gest/service/impl/ServicioImportacionHistorialImpl.java:[273,90] cannot find symbol
+Error:    symbol:   method getExitoso()
+Error:    location: variable registro of type informviva.gest.model.ImportacionHistorial
+Error:  /home/runner/work/SGE/SGE/src/main/java/informviva/gest/service/impl/ServicioImportacionHistorialImpl.java:[275,57] cannot find symbol
+Error:    symbol:   method getResumen()
+Error:    location: variable registro of type informviva.gest.model.ImportacionHistorial
+Error:  /home/runner/work/SGE/SGE/src/main/java/informviva/gest/service/impl/ServicioImportacionHistorialImpl.java:[275,89] cannot find symbol
+Error:    symbol:   method getResumen()
+Error:    location: variable registro of type informviva.gest.model.ImportacionHistorial
+Error:  /home/runner/work/SGE/SGE/src/main/java/informviva/gest/service/impl/ServicioImportacionHistorialImpl.java:[287,13] cannot find symbol
+Error:    symbol:   variable log
+Error:    location: class informviva.gest.service.impl.ServicioImportacionHistorialImpl
+Error:  /home/runner/work/SGE/SGE/src/main/java/informviva/gest/dto/ImportacionResultadoDTO.java:[222,16] constructor EstadisticasResumen in class informviva.gest.dto.ImportacionResultadoDTO.EstadisticasResumen cannot be applied to given types;
+Error:    required: no arguments
+Error:    found:    int,int,int,int,double,long,informviva.gest.dto.ImportacionResultadoDTO.EstadoImportacion
+Error:    reason: actual and formal argument lists differ in length
+Error:  /home/runner/work/SGE/SGE/src/main/java/informviva/gest/service/ServicioUsuarioDetalle.java:[81,50] incompatible types: java.time.LocalDate cannot be converted to java.time.LocalDateTime
+Error:  /home/runner/work/SGE/SGE/src/main/java/informviva/gest/service/ReporteServicio.java:[33,16] cannot find symbol
+Error:    symbol:   method setTotalVentas(java.math.BigDecimal)
+Error:    location: variable resumen of type informviva.gest.dto.VentaResumenDTO
+Error:  /home/runner/work/SGE/SGE/src/main/java/informviva/gest/service/ReporteServicio.java:[34,16] cannot find symbol
+Error:    symbol:   method setTotalTransacciones(java.lang.Long)
+Error:    location: variable resumen of type informviva.gest.dto.VentaResumenDTO
+Error:  /home/runner/work/SGE/SGE/src/main/java/informviva/gest/service/ReporteServicio.java:[35,16] cannot find symbol
+Error:    symbol:   method setTotalArticulosVendidos(java.lang.Long)
+Error:    location: variable resumen of type informviva.gest.dto.VentaResumenDTO
+Error:  /home/runner/work/SGE/SGE/src/main/java/informviva/gest/service/ReporteServicio.java:[36,16] cannot find symbol
+Error:    symbol:   method setClientesNuevos(java.lang.Long)
+Error:    location: variable resumen of type informviva.gest.dto.VentaResumenDTO
+Error:  /home/runner/work/SGE/SGE/src/main/java/informviva/gest/service/ReporteServicio.java:[39,65] cannot find symbol
+Error:    symbol:   method getTotalVentas()
+Error:    location: variable resumen of type informviva.gest.dto.VentaResumenDTO
+Error:  /home/runner/work/SGE/SGE/src/main/java/informviva/gest/service/ReporteServicio.java:[39,91] cannot find symbol
+Error:    symbol:   method getTotalTransacciones()
+Error:    location: variable resumen of type informviva.gest.dto.VentaResumenDTO
+Error:  /home/runner/work/SGE/SGE/src/main/java/informviva/gest/service/ReporteServicio.java:[46,71] cannot find symbol
+Error:    symbol:   method getTotalVentas()
+Error:    location: variable resumen of type informviva.gest.dto.VentaResumenDTO
+Error:  /home/runner/work/SGE/SGE/src/main/java/informviva/gest/service/ReporteServicio.java:[47,16] cannot find symbol
+Error:    symbol:   method setProductosMasVendidos(java.util.List<informviva.gest.dto.ProductoVendidoDTO>)
+Error:    location: variable resumen of type informviva.gest.dto.VentaResumenDTO
+Error:  /home/runner/work/SGE/SGE/src/main/java/informviva/gest/service/ReporteServicio.java:[50,16] cannot find symbol
+Error:    symbol:   method setVentasPorPeriodo(java.util.List<informviva.gest.dto.VentaPorPeriodoDTO>)
+Error:    location: variable resumen of type informviva.gest.dto.VentaResumenDTO
+Error:  /home/runner/work/SGE/SGE/src/main/java/informviva/gest/service/ReporteServicio.java:[51,16] cannot find symbol
+Error:    symbol:   method setVentasPorCategoria(java.util.List<informviva.gest.dto.VentaPorCategoriaDTO>)
+Error:    location: variable resumen of type informviva.gest.dto.VentaResumenDTO
+Error:  /home/runner/work/SGE/SGE/src/main/java/informviva/gest/service/ReporteServicio.java:[52,16] cannot find symbol
+Error:    symbol:   method setVentasPorVendedor(java.util.List<informviva.gest.dto.VentaPorVendedorDTO>)
+Error:    location: variable resumen of type informviva.gest.dto.VentaResumenDTO
+Error:  /home/runner/work/SGE/SGE/src/main/java/informviva/gest/service/ReporteServicio.java:[109,16] cannot find symbol
+Error:    symbol:   method setPorcentajeCambioVentas(<nulltype>)
+Error:    location: variable resumen of type informviva.gest.dto.VentaResumenDTO
+Error:  /home/runner/work/SGE/SGE/src/main/java/informviva/gest/service/ReporteServicio.java:[110,16] cannot find symbol
+Error:    symbol:   method setPorcentajeCambioTransacciones(<nulltype>)
+Error:    location: variable resumen of type informviva.gest.dto.VentaResumenDTO
+Error:  /home/runner/work/SGE/SGE/src/main/java/informviva/gest/service/ReporteServicio.java:[111,16] cannot find symbol
+Error:    symbol:   method setPorcentajeCambioTicketPromedio(<nulltype>)
+Error:    location: variable resumen of type informviva.gest.dto.VentaResumenDTO
+Error:  /home/runner/work/SGE/SGE/src/main/java/informviva/gest/service/ReporteServicio.java:[112,16] cannot find symbol
+Error:    symbol:   method setPorcentajeCambioClientesNuevos(<nulltype>)
+Error:    location: variable resumen of type informviva.gest.dto.VentaResumenDTO
+Error:  /home/runner/work/SGE/SGE/src/main/java/informviva/gest/model/Venta.java:[97,42] cannot find symbol
+Error:    symbol:   method getFechaRegistro()
+Error:    location: variable cliente of type @jakarta.validation.constraints.NotNull(message="El cliente no puede ser nulo") informviva.gest.model.Cliente
+Error:  /home/runner/work/SGE/SGE/src/main/java/informviva/gest/model/Venta.java:[98,24] cannot find symbol
+Error:    symbol:   method getFechaRegistro()
+Error:    location: variable cliente of type @jakarta.validation.constraints.NotNull(message="El cliente no puede ser nulo") informviva.gest.model.Cliente
+Error:  /home/runner/work/SGE/SGE/src/main/java/informviva/gest/service/NotificacionServicio.java:[75,46] invalid method reference
+Error:    cannot find symbol
+Error:      symbol:   method getFechaCreacion()
+Error:      location: class informviva.gest.model.Notificacion
+Error:  -> [Help 1]
+Error:  
+Error:  To see the full stack trace of the errors, re-run Maven with the -e switch.
+Error:  Re-run Maven using the -X switch to enable full debug logging.
+Error:  
+Error:  For more information about the errors and possible solutions, please read the following articles:
+Error:  [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+Error: Process completed with exit code 1.

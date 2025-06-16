@@ -1,18 +1,17 @@
 package informviva.gest.service.impl;
 
-
 import informviva.gest.dto.*;
 import informviva.gest.model.*;
 import informviva.gest.service.*;
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.lowagie.text.*;
@@ -20,6 +19,7 @@ import com.lowagie.text.pdf.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -28,9 +28,10 @@ import java.util.stream.Collectors;
 
 /**
  * Implementación del servicio de exportación unificado
+ * REFACTORIZADA para usar LocalDateTime como tipo principal
  *
  * @author Roberto Rivas
- * @version 2.0
+ * @version 3.0
  */
 @Service
 public class ExportacionServicioImpl implements ExportacionServicio {
@@ -63,7 +64,7 @@ public class ExportacionServicioImpl implements ExportacionServicio {
     private ClienteServicio clienteServicio;
 
     @Autowired
-    @Qualifier("productoServicioImpl") // Especifica el bean que deseas usar
+    @Qualifier("productoServicioImpl")
     private ProductoServicio productoServicio;
 
     @Autowired
@@ -75,78 +76,23 @@ public class ExportacionServicioImpl implements ExportacionServicio {
     @Autowired
     private ReporteServicio reporteServicio;
 
-    @Override
-    public byte[] exportarClientes(String formato, LocalDateTime fechaInicio, LocalDateTime fechaFin, Map<String, Object> filtros) {
-        logger.info("Exportando clientes en formato: {}", formato);
+    @Autowired
+    private ExportacionHistorialServicio historialServicio;
 
-        try {
-            List<ClienteExportDTO> clientes = obtenerClientesParaExportacion(fechaInicio, fechaFin, filtros);
-
-            return switch (formato.toUpperCase()) {
-                case FORMATO_PDF -> generarPDFClientes(clientes);
-                case FORMATO_EXCEL -> generarExcelClientes(clientes);
-                case FORMATO_CSV -> generarCSVClientes(clientes);
-                default -> throw new IllegalArgumentException("Formato no soportado: " + formato);
-            };
-
-        } catch (Exception e) {
-            logger.error("Error al exportar clientes: {}", e.getMessage());
-            throw new RuntimeException("Error en la exportación de clientes", e);
-        }
-    }
+    // ==================== MÉTODOS PRINCIPALES DE LA INTERFAZ ====================
 
     @Override
-    public byte[] exportarProductos(String formato, Map<String, Object> filtros) {
-        logger.info("Exportando productos en formato: {}", formato);
+    public byte[] exportarUsuarios(ExportConfigDTO config) {
+        logger.info("Exportando usuarios con configuración: {}", config.getFormato());
 
         try {
-            List<ProductoExportDTO> productos = obtenerProductosParaExportacion(filtros);
+            List<UsuarioExportDTO> usuarios = obtenerUsuariosParaExportacion(config);
 
-            return switch (formato.toUpperCase()) {
-                case FORMATO_PDF -> generarPDFProductos(productos);
-                case FORMATO_EXCEL -> generarExcelProductos(productos);
-                case FORMATO_CSV -> generarCSVProductos(productos);
-                default -> throw new IllegalArgumentException("Formato no soportado: " + formato);
-            };
-
-        } catch (Exception e) {
-            logger.error("Error al exportar productos: {}", e.getMessage());
-            throw new RuntimeException("Error en la exportación de productos", e);
-        }
-    }
-
-    @Override
-    public byte[] exportarVentas(String formato, LocalDateTime fechaInicio, LocalDateTime fechaFin, Map<String, Object> filtros) {
-        logger.info("Exportando ventas en formato: {} para período: {} - {}", formato, fechaInicio, fechaFin);
-
-        try {
-            List<VentaExportDTO> ventas = obtenerVentasParaExportacion(fechaInicio, fechaFin, filtros);
-
-            return switch (formato.toUpperCase()) {
-                case FORMATO_PDF -> generarPDFVentas(ventas);
-                case FORMATO_EXCEL -> generarExcelVentas(ventas);
-                case FORMATO_CSV -> generarCSVVentas(ventas);
-                default -> throw new IllegalArgumentException("Formato no soportado: " + formato);
-            };
-
-        } catch (Exception e) {
-            logger.error("Error al exportar ventas: {}", e.getMessage());
-            throw new RuntimeException("Error en la exportación de ventas", e);
-        }
-    }
-
-    @Override
-    public byte[] exportarUsuarios(String formato, Map<String, Object> filtros) {
-        logger.info("Exportando usuarios en formato: {}", formato);
-
-        try {
-            List<UsuarioExportDTO> usuarios = obtenerUsuariosParaExportacion(filtros);
-
-            return switch (formato.toUpperCase()) {
+            return switch (config.getFormato().toUpperCase()) {
                 case FORMATO_PDF -> generarPDFUsuarios(usuarios);
                 case FORMATO_EXCEL -> generarExcelUsuarios(usuarios);
                 case FORMATO_CSV -> generarCSVUsuarios(usuarios);
-                default -> throw new IllegalArgumentException("Formato no soportado: " + formato);
+                default -> throw new IllegalArgumentException("Formato no soportado: " + config.getFormato());
             };
 
         } catch (Exception e) {
@@ -156,140 +102,273 @@ public class ExportacionServicioImpl implements ExportacionServicio {
     }
 
     @Override
-    public byte[] exportarReporteVentas(String formato, LocalDateTime fechaInicio, LocalDateTime fechaFin, String tipoReporte) {
-        logger.info("Exportando reporte de ventas tipo: {} en formato: {}", tipoReporte, formato);
+    public byte[] exportarClientes(ExportConfigDTO config) {
+        logger.info("Exportando clientes con configuración: {}", config.getFormato());
 
         try {
-            // Convertir LocalDateTime a LocalDate para compatibilidad con ReporteServicio existente
-            VentaResumenDTO resumen = reporteServicio.generarResumenVentas(
-                    fechaInicio.toLocalDate(),
-                    fechaFin.toLocalDate()
-            );
+            List<ClienteExportDTO> clientes = obtenerClientesParaExportacion(config);
 
-            return switch (formato.toUpperCase()) {
-                case FORMATO_PDF -> generarPDFReporteVentas(resumen, tipoReporte, fechaInicio, fechaFin);
-                case FORMATO_EXCEL -> generarExcelReporteVentas(resumen, tipoReporte, fechaInicio, fechaFin);
-                case FORMATO_CSV -> generarCSVReporteVentas(resumen, tipoReporte, fechaInicio, fechaFin);
-                default -> throw new IllegalArgumentException("Formato no soportado: " + formato);
+            return switch (config.getFormato().toUpperCase()) {
+                case FORMATO_PDF -> generarPDFClientes(clientes);
+                case FORMATO_EXCEL -> generarExcelClientes(clientes);
+                case FORMATO_CSV -> generarCSVClientes(clientes);
+                default -> throw new IllegalArgumentException("Formato no soportado: " + config.getFormato());
             };
 
         } catch (Exception e) {
-            logger.error("Error al exportar reporte de ventas: {}", e.getMessage());
-            throw new RuntimeException("Error en la exportación del reporte de ventas", e);
+            logger.error("Error al exportar clientes: {}", e.getMessage());
+            throw new RuntimeException("Error en la exportación de clientes", e);
         }
     }
 
     @Override
-    public byte[] exportarInventario(String formato, boolean incluirBajoStock, Integer umbralStock) {
-        logger.info("Exportando inventario en formato: {}, bajo stock: {}", formato, incluirBajoStock);
+    public byte[] exportarProductos(ExportConfigDTO config) {
+        logger.info("Exportando productos con configuración: {}", config.getFormato());
 
         try {
-            List<ProductoExportDTO> productos = incluirBajoStock ?
-                    obtenerProductosBajoStock(umbralStock) :
-                    obtenerProductosParaExportacion(new HashMap<>());
+            List<ProductoExportDTO> productos = obtenerProductosParaExportacion(config);
 
-            return switch (formato.toUpperCase()) {
-                case FORMATO_PDF -> generarPDFInventario(productos, incluirBajoStock, umbralStock);
-                case FORMATO_EXCEL -> generarExcelInventario(productos, incluirBajoStock, umbralStock);
-                case FORMATO_CSV -> generarCSVInventario(productos, incluirBajoStock, umbralStock);
-                default -> throw new IllegalArgumentException("Formato no soportado: " + formato);
+            return switch (config.getFormato().toUpperCase()) {
+                case FORMATO_PDF -> generarPDFProductos(productos);
+                case FORMATO_EXCEL -> generarExcelProductos(productos);
+                case FORMATO_CSV -> generarCSVProductos(productos);
+                default -> throw new IllegalArgumentException("Formato no soportado: " + config.getFormato());
             };
 
         } catch (Exception e) {
-            logger.error("Error al exportar inventario: {}", e.getMessage());
-            throw new RuntimeException("Error en la exportación del inventario", e);
+            logger.error("Error al exportar productos: {}", e.getMessage());
+            throw new RuntimeException("Error en la exportación de productos", e);
         }
     }
 
     @Override
-    public byte[] exportarReporteFinanciero(String formato, LocalDateTime fechaInicio, LocalDateTime fechaFin, boolean incluirComparativo) {
-        logger.info("Exportando reporte financiero en formato: {}", formato);
+    public byte[] exportarVentas(ExportConfigDTO config) {
+        logger.info("Exportando ventas con configuración: {} para período: {} - {}",
+                config.getFormato(), config.getFechaInicio(), config.getFechaFin());
 
         try {
-            ReporteFinancieroDTO reporte = generarReporteFinanciero(fechaInicio, fechaFin, incluirComparativo);
+            List<VentaExportDTO> ventas = obtenerVentasParaExportacion(config);
 
-            return switch (formato.toUpperCase()) {
-                case FORMATO_PDF -> generarPDFReporteFinanciero(reporte);
-                case FORMATO_EXCEL -> generarExcelReporteFinanciero(reporte);
-                case FORMATO_CSV -> generarCSVReporteFinanciero(reporte);
-                default -> throw new IllegalArgumentException("Formato no soportado: " + formato);
+            return switch (config.getFormato().toUpperCase()) {
+                case FORMATO_PDF -> generarPDFVentas(ventas);
+                case FORMATO_EXCEL -> generarExcelVentas(ventas);
+                case FORMATO_CSV -> generarCSVVentas(ventas);
+                default -> throw new IllegalArgumentException("Formato no soportado: " + config.getFormato());
             };
 
         } catch (Exception e) {
-            logger.error("Error al exportar reporte financiero: {}", e.getMessage());
-            throw new RuntimeException("Error en la exportación del reporte financiero", e);
+            logger.error("Error al exportar ventas: {}", e.getMessage());
+            throw new RuntimeException("Error en la exportación de ventas", e);
         }
     }
 
-    // Métodos auxiliares para obtener datos
+    @Override
+    public byte[] exportarReportes(ExportConfigDTO config) {
+        logger.info("Exportando reporte: {} en formato: {}", config.getTipo(), config.getFormato());
 
-    private List<ClienteExportDTO> obtenerClientesParaExportacion(LocalDateTime fechaInicio, LocalDateTime fechaFin, Map<String, Object> filtros) {
+        try {
+            return switch (config.getTipo().toLowerCase()) {
+                case "ventas" -> exportarReporteVentas(config);
+                case "financiero" -> exportarReporteFinanciero(config);
+                case "inventario" -> exportarReporteInventario(config);
+                default -> throw new IllegalArgumentException("Tipo de reporte no soportado: " + config.getTipo());
+            };
+
+        } catch (Exception e) {
+            logger.error("Error al exportar reporte: {}", e.getMessage());
+            throw new RuntimeException("Error en la exportación del reporte", e);
+        }
+    }
+
+    @Override
+    public Map<String, Object> obtenerEstadisticasExportacion() {
+        Map<String, Object> estadisticas = new HashMap<>();
+
+        try {
+            // Obtener estadísticas del historial
+            List<ExportacionHistorial> historialReciente = historialServicio.obtenerHistorialReciente(100);
+
+            estadisticas.put("totalExportaciones", historialReciente.size());
+            estadisticas.put("exportacionesExitosas",
+                    historialReciente.stream().filter(h -> "COMPLETADO".equals(h.getEstado())).count());
+            estadisticas.put("exportacionesErrores",
+                    historialReciente.stream().filter(h -> "ERROR".equals(h.getEstado())).count());
+
+            // Estadísticas por formato
+            Map<String, Long> porFormato = historialReciente.stream()
+                    .collect(Collectors.groupingBy(ExportacionHistorial::getFormato, Collectors.counting()));
+            estadisticas.put("porFormato", porFormato);
+
+            // Estadísticas por tipo
+            Map<String, Long> porTipo = historialReciente.stream()
+                    .collect(Collectors.groupingBy(ExportacionHistorial::getTipoExportacion, Collectors.counting()));
+            estadisticas.put("porTipo", porTipo);
+
+        } catch (Exception e) {
+            logger.error("Error al obtener estadísticas de exportación: {}", e.getMessage());
+            estadisticas.put("error", "No se pudieron cargar las estadísticas");
+        }
+
+        return estadisticas;
+    }
+
+    @Override
+    public List<ExportacionHistorial> obtenerHistorialReciente(int limite) {
+        try {
+            return historialServicio.obtenerHistorialReciente(limite);
+        } catch (Exception e) {
+            logger.error("Error al obtener historial reciente: {}", e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    @Override
+    public Map<String, Object> obtenerEstimaciones(String tipo, String formato,
+                                                   LocalDateTime fechaInicio, LocalDateTime fechaFin) {
+        Map<String, Object> estimaciones = new HashMap<>();
+
+        try {
+            int registrosEstimados = calcularRegistrosEstimados(tipo, fechaInicio, fechaFin);
+            long tamanoEstimado = calcularTamanoEstimado(registrosEstimados, formato);
+            long tiempoEstimado = calcularTiempoEstimado(registrosEstimados, formato);
+
+            estimaciones.put("registrosEstimados", registrosEstimados);
+            estimaciones.put("tamanoEstimado", tamanoEstimado);
+            estimaciones.put("tiempoEstimado", tiempoEstimado);
+            estimaciones.put("tamanoLegible", formatearTamano(tamanoEstimado));
+            estimaciones.put("tiempoLegible", formatearTiempo(tiempoEstimado));
+
+        } catch (Exception e) {
+            logger.error("Error al calcular estimaciones: {}", e.getMessage());
+            estimaciones.put("error", "No se pudieron calcular las estimaciones");
+        }
+
+        return estimaciones;
+    }
+
+    @Override
+    public Page<ExportacionHistorial> obtenerHistorialPaginado(int page, int size) {
+        try {
+            Pageable pageable = PageRequest.of(page, size);
+            return historialServicio.obtenerHistorialPaginado(pageable);
+        } catch (Exception e) {
+            logger.error("Error al obtener historial paginado: {}", e.getMessage());
+            throw new RuntimeException("Error al obtener historial paginado", e);
+        }
+    }
+
+    // ==================== MÉTODOS LEGACY PARA COMPATIBILIDAD ====================
+
+    @Override
+    @Deprecated
+    public byte[] exportarUsuarios(String formato, Map<String, Object> filtros) {
+        ExportConfigDTO config = new ExportConfigDTO();
+        config.setTipo("usuarios");
+        config.setFormato(formato);
+        config.setFiltros(filtros != null ? filtros : new HashMap<>());
+        return exportarUsuarios(config);
+    }
+
+    @Override
+    @Deprecated
+    public byte[] exportarClientes(String formato, LocalDateTime fechaInicio, LocalDateTime fechaFin, Map<String, Object> filtros) {
+        ExportConfigDTO config = new ExportConfigDTO();
+        config.setTipo("clientes");
+        config.setFormato(formato);
+        config.setFechaInicio(fechaInicio);
+        config.setFechaFin(fechaFin);
+        config.setFiltros(filtros != null ? filtros : new HashMap<>());
+        return exportarClientes(config);
+    }
+
+    @Override
+    @Deprecated
+    public byte[] exportarProductos(String formato, Map<String, Object> filtros) {
+        ExportConfigDTO config = new ExportConfigDTO();
+        config.setTipo("productos");
+        config.setFormato(formato);
+        config.setFiltros(filtros != null ? filtros : new HashMap<>());
+        return exportarProductos(config);
+    }
+
+    @Override
+    @Deprecated
+    public byte[] exportarVentas(String formato, LocalDateTime fechaInicio, LocalDateTime fechaFin, Map<String, Object> filtros) {
+        ExportConfigDTO config = new ExportConfigDTO();
+        config.setTipo("ventas");
+        config.setFormato(formato);
+        config.setFechaInicio(fechaInicio);
+        config.setFechaFin(fechaFin);
+        config.setFiltros(filtros != null ? filtros : new HashMap<>());
+        return exportarVentas(config);
+    }
+
+    // ==================== MÉTODOS AUXILIARES DE OBTENCIÓN DE DATOS ====================
+
+    private List<ClienteExportDTO> obtenerClientesParaExportacion(ExportConfigDTO config) {
         List<Cliente> clientes = clienteServicio.obtenerTodos();
 
         return clientes.stream()
-                .filter(cliente -> aplicarFiltrosCliente(cliente, fechaInicio, fechaFin, filtros))
+                .filter(cliente -> aplicarFiltrosCliente(cliente, config))
                 .map(this::convertirAClienteExportDTO)
                 .collect(Collectors.toList());
     }
 
-    private List<ProductoExportDTO> obtenerProductosParaExportacion(Map<String, Object> filtros) {
+    private List<ProductoExportDTO> obtenerProductosParaExportacion(ExportConfigDTO config) {
         List<Producto> productos = productoServicio.listar();
 
         return productos.stream()
-                .filter(producto -> aplicarFiltrosProducto(producto, filtros))
+                .filter(producto -> aplicarFiltrosProducto(producto, config))
                 .map(this::convertirAProductoExportDTO)
                 .collect(Collectors.toList());
     }
 
-    private List<ProductoExportDTO> obtenerProductosBajoStock(Integer umbral) {
-        if (umbral == null) umbral = 5;
-        List<Producto> productos = productoServicio.listarConBajoStock(umbral);
+    private List<VentaExportDTO> obtenerVentasParaExportacion(ExportConfigDTO config) {
+        LocalDateTime fechaInicio = config.getFechaInicio();
+        LocalDateTime fechaFin = config.getFechaFin();
 
-        return productos.stream()
-                .map(this::convertirAProductoExportDTO)
-                .collect(Collectors.toList());
-    }
+        // Si no hay fechas, usar últimos 30 días
+        if (fechaInicio == null || fechaFin == null) {
+            fechaFin = LocalDateTime.now();
+            fechaInicio = fechaFin.minusDays(30);
+        }
 
-    private List<VentaExportDTO> obtenerVentasParaExportacion(LocalDateTime fechaInicio, LocalDateTime fechaFin, Map<String, Object> filtros) {
-        List<Venta> ventas = ventaServicio.buscarPorRangoFechas(
-                fechaInicio.toLocalDate(),
-                fechaFin.toLocalDate()
-        );
+        List<Venta> ventas = ventaServicio.buscarPorRangoFechasCompleto(fechaInicio, fechaFin);
 
         return ventas.stream()
-                .filter(venta -> aplicarFiltrosVenta(venta, filtros))
+                .filter(venta -> aplicarFiltrosVenta(venta, config))
                 .map(this::convertirAVentaExportDTO)
                 .collect(Collectors.toList());
     }
 
-    private List<UsuarioExportDTO> obtenerUsuariosParaExportacion(Map<String, Object> filtros) {
+    private List<UsuarioExportDTO> obtenerUsuariosParaExportacion(ExportConfigDTO config) {
         List<Usuario> usuarios = usuarioServicio.listarTodos();
 
         return usuarios.stream()
-                .filter(usuario -> aplicarFiltrosUsuario(usuario, filtros))
+                .filter(usuario -> aplicarFiltrosUsuario(usuario, config))
                 .map(this::convertirAUsuarioExportDTO)
                 .collect(Collectors.toList());
     }
 
-    // Métodos de filtrado
+    // ==================== MÉTODOS DE FILTRADO CORREGIDOS ====================
 
-    private boolean aplicarFiltrosCliente(Cliente cliente, LocalDateTime fechaInicio, LocalDateTime fechaFin, Map<String, Object> filtros) {
-        // Filtro por fechas usando fechaRegistro (LocalDate) convertida a LocalDateTime
-        if (fechaInicio != null && cliente.getFechaRegistro() != null) {
-            LocalDateTime fechaRegistroDateTime = cliente.getFechaRegistro().atStartOfDay();
-            if (fechaRegistroDateTime.isBefore(fechaInicio)) {
+    private boolean aplicarFiltrosCliente(Cliente cliente, ExportConfigDTO config) {
+        Map<String, Object> filtros = config.getFiltros();
+
+        // Filtrar por rango de fechas - CORREGIDO para usar LocalDateTime
+        if (config.getFechaInicio() != null && cliente.getFechaRegistro() != null) {
+            if (cliente.getFechaRegistro().isBefore(config.getFechaInicio())) {
                 return false;
             }
         }
 
-        if (fechaFin != null && cliente.getFechaRegistro() != null) {
-            LocalDateTime fechaRegistroDateTime = cliente.getFechaRegistro().atTime(23, 59, 59);
-            if (fechaRegistroDateTime.isAfter(fechaFin)) {
+        if (config.getFechaFin() != null && cliente.getFechaRegistro() != null) {
+            if (cliente.getFechaRegistro().isAfter(config.getFechaFin())) {
                 return false;
             }
         }
 
-        // Aplicar otros filtros
+        // Aplicar filtros adicionales
         if (filtros != null) {
             String busqueda = (String) filtros.get("busqueda");
             if (busqueda != null && !busqueda.isEmpty()) {
@@ -298,22 +377,30 @@ public class ExportacionServicioImpl implements ExportacionServicio {
                         cliente.getApellido().toLowerCase().contains(busquedaLower) ||
                         (cliente.getEmail() != null && cliente.getEmail().toLowerCase().contains(busquedaLower));
             }
+
+            Boolean soloConCompras = (Boolean) filtros.get("soloConCompras");
+            if (soloConCompras != null && soloConCompras) {
+                return ventaServicio.existenVentasPorCliente(cliente.getId());
+            }
         }
 
         return true;
     }
 
-    private boolean aplicarFiltrosProducto(Producto producto, Map<String, Object> filtros) {
+    private boolean aplicarFiltrosProducto(Producto producto, ExportConfigDTO config) {
+        Map<String, Object> filtros = config.getFiltros();
         if (filtros == null) return true;
 
         Boolean soloActivos = (Boolean) filtros.get("soloActivos");
-        if (soloActivos != null && soloActivos && !producto.isActivo()) {
+        if (soloActivos != null && soloActivos && !producto.getActivo()) {
             return false;
         }
 
-        Boolean soloConStock = (Boolean) filtros.get("soloConStock");
-        if (soloConStock != null && soloConStock && (producto.getStock() == null || producto.getStock() <= 0)) {
-            return false;
+        Boolean soloBajoStock = (Boolean) filtros.get("soloBajoStock");
+        if (soloBajoStock != null && soloBajoStock) {
+            Integer umbral = (Integer) filtros.get("umbralStock");
+            if (umbral == null) umbral = 5;
+            return producto.getStock() != null && producto.getStock() <= umbral;
         }
 
         String categoria = (String) filtros.get("categoria");
@@ -324,7 +411,8 @@ public class ExportacionServicioImpl implements ExportacionServicio {
         return true;
     }
 
-    private boolean aplicarFiltrosVenta(Venta venta, Map<String, Object> filtros) {
+    private boolean aplicarFiltrosVenta(Venta venta, ExportConfigDTO config) {
+        Map<String, Object> filtros = config.getFiltros();
         if (filtros == null) return true;
 
         String estado = (String) filtros.get("estado");
@@ -332,17 +420,32 @@ public class ExportacionServicioImpl implements ExportacionServicio {
             return estado.equalsIgnoreCase(venta.getEstado());
         }
 
+        String metodo = (String) filtros.get("metodo");
+        if (metodo != null && !metodo.isEmpty()) {
+            return metodo.equalsIgnoreCase(venta.getMetodoPago());
+        }
+
         return true;
     }
 
-    private boolean aplicarFiltrosUsuario(Usuario usuario, Map<String, Object> filtros) {
+    private boolean aplicarFiltrosUsuario(Usuario usuario, ExportConfigDTO config) {
+        Map<String, Object> filtros = config.getFiltros();
         if (filtros == null) return true;
 
         Boolean soloActivos = (Boolean) filtros.get("soloActivos");
-        return soloActivos == null || !soloActivos || usuario.isActivo();
+        if (soloActivos != null && soloActivos && !usuario.isActivo()) {
+            return false;
+        }
+
+        String rol = (String) filtros.get("rol");
+        if (rol != null && !rol.isEmpty()) {
+            return usuario.getRoles().contains(rol);
+        }
+
+        return true;
     }
 
-    // Métodos de conversión a DTOs
+    // ==================== MÉTODOS DE CONVERSIÓN A DTOs CORREGIDOS ====================
 
     private ClienteExportDTO convertirAClienteExportDTO(Cliente cliente) {
         ClienteExportDTO dto = new ClienteExportDTO();
@@ -352,9 +455,8 @@ public class ExportacionServicioImpl implements ExportacionServicio {
         dto.setEmail(cliente.getEmail());
         dto.setTelefono(cliente.getTelefono());
         dto.setDireccion(cliente.getDireccion());
-        dto.setFechaRegistro(cliente.getFechaRegistro() != null ?
-                cliente.getFechaRegistro().atStartOfDay() : null);
-        dto.setCategoria(cliente.getCategoria());
+        dto.setFechaRegistro(cliente.getFechaRegistro()); // Ya es LocalDateTime
+        dto.setCategoria(cliente.getCiudad()); // Usando getCiudad() que agregamos
 
         // Obtener estadísticas de compras
         Long totalCompras = ventaServicio.contarVentasPorCliente(cliente.getId());
@@ -377,9 +479,9 @@ public class ExportacionServicioImpl implements ExportacionServicio {
         dto.setCategoria(producto.getCategoria() != null ? producto.getCategoria().getNombre() : "Sin categoría");
         dto.setMarca(producto.getMarca());
         dto.setModelo(producto.getModelo());
-        dto.setActivo(producto.isActivo());
-        dto.setFechaCreacion(producto.getFechaCreacion());
-        dto.setFechaActualizacion(producto.getFechaActualizacion());
+        dto.setActivo(producto.getActivo()); // Usando getActivo() que agregamos
+        dto.setFechaCreacion(producto.getFechaCreacion()); // Ya es LocalDateTime
+        dto.setFechaActualizacion(producto.getFechaActualizacion()); // Ya es LocalDateTime
 
         return dto;
     }
@@ -387,7 +489,7 @@ public class ExportacionServicioImpl implements ExportacionServicio {
     private VentaExportDTO convertirAVentaExportDTO(Venta venta) {
         VentaExportDTO dto = new VentaExportDTO();
         dto.setId(venta.getId());
-        dto.setFecha(venta.getFecha());
+        dto.setFecha(venta.getFecha()); // Ya es LocalDateTime
         dto.setClienteNombre(venta.getCliente().getNombreCompleto());
         dto.setClienteRut(venta.getCliente().getRut());
         dto.setVendedorNombre(venta.getVendedor().getNombreCompleto());
@@ -408,23 +510,89 @@ public class ExportacionServicioImpl implements ExportacionServicio {
         dto.setNombreCompleto(usuario.getNombreCompleto());
         dto.setEmail(usuario.getEmail());
         dto.setActivo(usuario.isActivo());
-        dto.setFechaCreacion(usuario.getFechaCreacion() != null ?
-                usuario.getFechaCreacion().atStartOfDay() : null);
-        dto.setUltimoAcceso(usuario.getUltimoAcceso() != null ?
-                usuario.getUltimoAcceso().atStartOfDay() : null);
+        dto.setFechaCreacion(usuario.getFechaCreacion()); // Ya es LocalDateTime
+        dto.setUltimoAcceso(usuario.getUltimoAcceso()); // Ya es LocalDateTime
         dto.setRoles(String.join(", ", usuario.getRoles()));
 
         return dto;
     }
 
-    // Métodos de generación de reportes específicos
+    // ==================== MÉTODOS DE REPORTES ESPECÍFICOS ====================
+
+    private byte[] exportarReporteVentas(ExportConfigDTO config) {
+        LocalDateTime fechaInicio = config.getFechaInicio();
+        LocalDateTime fechaFin = config.getFechaFin();
+
+        if (fechaInicio == null || fechaFin == null) {
+            fechaFin = LocalDateTime.now();
+            fechaInicio = fechaFin.minusDays(30);
+        }
+
+        // Convertir a LocalDate solo para el servicio de reportes que aún no está migrado
+        VentaResumenDTO resumen = reporteServicio.generarResumenVentas(
+                fechaInicio.toLocalDate(),
+                fechaFin.toLocalDate()
+        );
+
+        return switch (config.getFormato().toUpperCase()) {
+            case FORMATO_PDF -> generarPDFReporteVentas(resumen, "ventas", fechaInicio, fechaFin);
+            case FORMATO_EXCEL -> generarExcelReporteVentas(resumen, "ventas", fechaInicio, fechaFin);
+            case FORMATO_CSV -> generarCSVReporteVentas(resumen, "ventas", fechaInicio, fechaFin);
+            default -> throw new IllegalArgumentException("Formato no soportado: " + config.getFormato());
+        };
+    }
+
+    private byte[] exportarReporteFinanciero(ExportConfigDTO config) {
+        LocalDateTime fechaInicio = config.getFechaInicio();
+        LocalDateTime fechaFin = config.getFechaFin();
+
+        if (fechaInicio == null || fechaFin == null) {
+            fechaFin = LocalDateTime.now();
+            fechaInicio = fechaFin.minusDays(30);
+        }
+
+        ReporteFinancieroDTO reporte = generarReporteFinanciero(fechaInicio, fechaFin, true);
+
+        return switch (config.getFormato().toUpperCase()) {
+            case FORMATO_PDF -> generarPDFReporteFinanciero(reporte);
+            case FORMATO_EXCEL -> generarExcelReporteFinanciero(reporte);
+            case FORMATO_CSV -> generarCSVReporteFinanciero(reporte);
+            default -> throw new IllegalArgumentException("Formato no soportado: " + config.getFormato());
+        };
+    }
+
+    private byte[] exportarReporteInventario(ExportConfigDTO config) {
+        Map<String, Object> filtros = config.getFiltros();
+        Boolean incluirBajoStock = (Boolean) filtros.get("incluirBajoStock");
+        Integer umbralStock = (Integer) filtros.get("umbralStock");
+
+        List<ProductoExportDTO> productos = incluirBajoStock != null && incluirBajoStock ?
+                obtenerProductosBajoStock(umbralStock) :
+                obtenerProductosParaExportacion(config);
+
+        return switch (config.getFormato().toUpperCase()) {
+            case FORMATO_PDF -> generarPDFInventario(productos, incluirBajoStock, umbralStock);
+            case FORMATO_EXCEL -> generarExcelInventario(productos, incluirBajoStock, umbralStock);
+            case FORMATO_CSV -> generarCSVInventario(productos, incluirBajoStock, umbralStock);
+            default -> throw new IllegalArgumentException("Formato no soportado: " + config.getFormato());
+        };
+    }
+
+    private List<ProductoExportDTO> obtenerProductosBajoStock(Integer umbral) {
+        if (umbral == null) umbral = 5;
+        List<Producto> productos = productoServicio.listarConBajoStock(umbral);
+
+        return productos.stream()
+                .map(this::convertirAProductoExportDTO)
+                .collect(Collectors.toList());
+    }
 
     private ReporteFinancieroDTO generarReporteFinanciero(LocalDateTime fechaInicio, LocalDateTime fechaFin, boolean incluirComparativo) {
         ReporteFinancieroDTO reporte = new ReporteFinancieroDTO();
 
-        // Calcular período actual
-        Double ventasActuales = ventaServicio.calcularTotalVentas(fechaInicio.toLocalDate(), fechaFin.toLocalDate());
-        Long transaccionesActuales = ventaServicio.contarTransacciones(fechaInicio.toLocalDate(), fechaFin.toLocalDate());
+        // Usar LocalDateTime directamente - YA NO HAY PROBLEMAS DE CONVERSIÓN
+        Double ventasActuales = ventaServicio.calcularTotalVentas(fechaInicio, fechaFin);
+        Long transaccionesActuales = ventaServicio.contarTransacciones(fechaInicio, fechaFin);
 
         reporte.setFechaInicio(fechaInicio);
         reporte.setFechaFin(fechaFin);
@@ -432,18 +600,16 @@ public class ExportacionServicioImpl implements ExportacionServicio {
         reporte.setTransaccionesTotales(transaccionesActuales != null ? transaccionesActuales : 0L);
 
         if (incluirComparativo) {
-            // Calcular período anterior
             long diasPeriodo = java.time.Duration.between(fechaInicio, fechaFin).toDays();
             LocalDateTime inicioAnterior = fechaInicio.minusDays(diasPeriodo);
             LocalDateTime finAnterior = fechaInicio.minusDays(1);
 
-            Double ventasAnteriores = ventaServicio.calcularTotalVentas(inicioAnterior.toLocalDate(), finAnterior.toLocalDate());
-            Long transaccionesAnteriores = ventaServicio.contarTransacciones(inicioAnterior.toLocalDate(), finAnterior.toLocalDate());
+            Double ventasAnteriores = ventaServicio.calcularTotalVentas(inicioAnterior, finAnterior);
+            Long transaccionesAnteriores = ventaServicio.contarTransacciones(inicioAnterior, finAnterior);
 
             reporte.setVentasAnteriores(ventasAnteriores != null ? ventasAnteriores : 0.0);
             reporte.setTransaccionesAnteriores(transaccionesAnteriores != null ? transaccionesAnteriores : 0L);
 
-            // Calcular porcentajes de cambio
             Double porcentajeCambioVentas = ventaServicio.calcularPorcentajeCambio(ventasActuales, ventasAnteriores);
             Double porcentajeCambioTransacciones = ventaServicio.calcularPorcentajeCambio(
                     transaccionesActuales != null ? transaccionesActuales.doubleValue() : 0.0,
@@ -457,7 +623,145 @@ public class ExportacionServicioImpl implements ExportacionServicio {
         return reporte;
     }
 
-    // Métodos de generación PDF (simplificados - implementar según necesidades)
+    // ==================== MÉTODOS DE UTILIDAD ====================
+
+    private int calcularRegistrosEstimados(String tipo, LocalDateTime fechaInicio, LocalDateTime fechaFin) {
+        return switch (tipo.toLowerCase()) {
+            case "clientes" -> clienteServicio.obtenerTodos().size();
+            case "productos" -> productoServicio.listar().size();
+            case "usuarios" -> usuarioServicio.listarTodos().size();
+            case "ventas" -> {
+                if (fechaInicio != null && fechaFin != null) {
+                    yield ventaServicio.buscarPorRangoFechasCompleto(fechaInicio, fechaFin).size();
+                } else {
+                    yield ventaServicio.listarTodas().size();
+                }
+            }
+            default -> 100; // Estimación por defecto
+        };
+    }
+
+    private long calcularTamanoEstimado(int registros, String formato) {
+        return switch (formato.toUpperCase()) {
+            case FORMATO_PDF -> registros * 200L; // ~200 bytes por registro en PDF
+            case FORMATO_EXCEL -> registros * 150L; // ~150 bytes por registro en Excel
+            case FORMATO_CSV -> registros * 100L; // ~100 bytes por registro en CSV
+            default -> registros * 150L;
+        };
+    }
+
+    private long calcularTiempoEstimado(int registros, String formato) {
+        // Tiempo estimado en milisegundos
+        long tiempoBase = switch (formato.toUpperCase()) {
+            case FORMATO_PDF -> registros * 2L; // ~2ms por registro en PDF
+            case FORMATO_EXCEL -> registros * 1L; // ~1ms por registro en Excel
+            case FORMATO_CSV -> registros / 2L; // ~0.5ms por registro en CSV
+            default -> registros * 1L;
+        };
+
+        return Math.max(tiempoBase, 100L); // Mínimo 100ms
+    }
+
+    private String formatearTamano(long bytes) {
+        if (bytes < 1024) return bytes + " B";
+        if (bytes < 1024 * 1024) return String.format("%.1f KB", bytes / 1024.0);
+        return String.format("%.1f MB", bytes / (1024.0 * 1024.0));
+    }
+
+    private String formatearTiempo(long millis) {
+        if (millis < 1000) return millis + " ms";
+        if (millis < 60000) return String.format("%.1f s", millis / 1000.0);
+        return String.format("%.1f min", millis / 60000.0);
+    }
+
+    // ==================== MÉTODOS HEREDADOS SIN CAMBIOS ====================
+
+    @Override
+    public byte[] exportarReporteVentas(String formato, LocalDateTime fechaInicio, LocalDateTime fechaFin, String tipoReporte) {
+        ExportConfigDTO config = new ExportConfigDTO();
+        config.setTipo("ventas");
+        config.setFormato(formato);
+        config.setFechaInicio(fechaInicio);
+        config.setFechaFin(fechaFin);
+        return exportarReporteVentas(config);
+    }
+
+    @Override
+    public byte[] exportarInventario(String formato, boolean incluirBajoStock, Integer umbralStock) {
+        ExportConfigDTO config = new ExportConfigDTO();
+        config.setTipo("inventario");
+        config.setFormato(formato);
+        config.addFiltro("incluirBajoStock", incluirBajoStock);
+        config.addFiltro("umbralStock", umbralStock);
+        return exportarReporteInventario(config);
+    }
+
+    @Override
+    public byte[] exportarReporteFinanciero(String formato, LocalDateTime fechaInicio, LocalDateTime fechaFin, boolean incluirComparativo) {
+        ExportConfigDTO config = new ExportConfigDTO();
+        config.setTipo("financiero");
+        config.setFormato(formato);
+        config.setFechaInicio(fechaInicio);
+        config.setFechaFin(fechaFin);
+        config.addFiltro("incluirComparativo", incluirComparativo);
+        return exportarReporteFinanciero(config);
+    }
+
+    @Override
+    public List<String> getFormatosSoportados() {
+        return List.of(FORMATO_PDF, FORMATO_EXCEL, FORMATO_CSV);
+    }
+
+    @Override
+    public boolean isFormatoSoportado(String formato) {
+        return getFormatosSoportados().contains(formato.toUpperCase());
+    }
+
+    @Override
+    public String getMimeType(String formato) {
+        return MIME_TYPES.get(formato.toUpperCase());
+    }
+
+    @Override
+    public String getExtensionArchivo(String formato) {
+        return EXTENSIONES.get(formato.toUpperCase());
+    }
+
+    @Override
+    public byte[] exportarVentasExcel(List<Venta> ventas, LocalDateTime fechaInicio, LocalDateTime fechaFin) {
+        try (Workbook workbook = new XSSFWorkbook();
+             ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+
+            Sheet sheet = workbook.createSheet("Ventas");
+
+            // Crear encabezados
+            Row headerRow = sheet.createRow(0);
+            String[] headers = {"ID", "Fecha", "Cliente", "Vendedor", "Subtotal", "Impuesto", "Total"};
+            for (int i = 0; i < headers.length; i++) {
+                headerRow.createCell(i).setCellValue(headers[i]);
+            }
+
+            // Agregar datos
+            int rowIdx = 1;
+            for (Venta venta : ventas) {
+                Row row = sheet.createRow(rowIdx++);
+                row.createCell(0).setCellValue(venta.getId());
+                row.createCell(1).setCellValue(venta.getFecha().format(FECHA_FORMATTER));
+                row.createCell(2).setCellValue(venta.getCliente().getNombreCompleto());
+                row.createCell(3).setCellValue(venta.getVendedor().getNombreCompleto());
+                row.createCell(4).setCellValue(venta.getSubtotal());
+                row.createCell(5).setCellValue(venta.getImpuesto());
+                row.createCell(6).setCellValue(venta.getTotal());
+            }
+
+            workbook.write(output);
+            return output.toByteArray();
+        } catch (IOException e) {
+            throw new RuntimeException("Error al generar Excel de ventas", e);
+        }
+    }
+
+    // ==================== MÉTODOS DE GENERACIÓN (PLACEHOLDER - IMPLEMENTAR SEGÚN NECESIDADES) ====================
 
     private byte[] generarPDFClientes(List<ClienteExportDTO> clientes) {
         try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
@@ -504,39 +808,6 @@ public class ExportacionServicioImpl implements ExportacionServicio {
         }
     }
 
-    // Implementar métodos similares para otros tipos de PDF...
-    private byte[] generarPDFProductos(List<ProductoExportDTO> productos) {
-        // Implementación similar a generarPDFClientes
-        return new byte[0]; // Placeholder
-    }
-
-    private byte[] generarPDFVentas(List<VentaExportDTO> ventas) {
-        // Implementación similar
-        return new byte[0]; // Placeholder
-    }
-
-    private byte[] generarPDFUsuarios(List<UsuarioExportDTO> usuarios) {
-        // Implementación similar
-        return new byte[0]; // Placeholder
-    }
-
-    private byte[] generarPDFReporteVentas(VentaResumenDTO resumen, String tipoReporte, LocalDateTime fechaInicio, LocalDateTime fechaFin) {
-        // Implementación para reportes de ventas
-        return new byte[0]; // Placeholder
-    }
-
-    private byte[] generarPDFInventario(List<ProductoExportDTO> productos, boolean incluirBajoStock, Integer umbralStock) {
-        // Implementación para inventario
-        return new byte[0]; // Placeholder
-    }
-
-    private byte[] generarPDFReporteFinanciero(ReporteFinancieroDTO reporte) {
-        // Implementación para reporte financiero
-        return new byte[0]; // Placeholder
-    }
-
-    // Métodos de generación Excel
-
     private byte[] generarExcelClientes(List<ClienteExportDTO> clientes) {
         try (Workbook workbook = new XSSFWorkbook();
              ByteArrayOutputStream output = new ByteArrayOutputStream()) {
@@ -548,6 +819,7 @@ public class ExportacionServicioImpl implements ExportacionServicio {
             Font headerFont = workbook.createFont();
             headerFont.setBold(true);
             headerFont.setColor(IndexedColors.RED.getIndex());
+            headerStyle.setFont(headerFont);
             headerStyle.setFillForegroundColor(IndexedColors.LIGHT_BLUE.getIndex());
             headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
@@ -593,39 +865,6 @@ public class ExportacionServicioImpl implements ExportacionServicio {
         }
     }
 
-    // Implementar métodos similares para otros tipos de Excel...
-    private byte[] generarExcelProductos(List<ProductoExportDTO> productos) {
-        // Implementación similar
-        return new byte[0]; // Placeholder
-    }
-
-    private byte[] generarExcelVentas(List<VentaExportDTO> ventas) {
-        // Implementación similar
-        return new byte[0]; // Placeholder
-    }
-
-    private byte[] generarExcelUsuarios(List<UsuarioExportDTO> usuarios) {
-        // Implementación similar
-        return new byte[0]; // Placeholder
-    }
-
-    private byte[] generarExcelReporteVentas(VentaResumenDTO resumen, String tipoReporte, LocalDateTime fechaInicio, LocalDateTime fechaFin) {
-        // Implementación para reportes de ventas
-        return new byte[0]; // Placeholder
-    }
-
-    private byte[] generarExcelInventario(List<ProductoExportDTO> productos, boolean incluirBajoStock, Integer umbralStock) {
-        // Implementación para inventario
-        return new byte[0]; // Placeholder
-    }
-
-    private byte[] generarExcelReporteFinanciero(ReporteFinancieroDTO reporte) {
-        // Implementación para reporte financiero
-        return new byte[0]; // Placeholder
-    }
-
-    // Métodos de generación CSV
-
     private byte[] generarCSVClientes(List<ClienteExportDTO> clientes) {
         StringBuilder csv = new StringBuilder();
 
@@ -651,89 +890,25 @@ public class ExportacionServicioImpl implements ExportacionServicio {
         return csv.toString().getBytes();
     }
 
-    // Implementar métodos similares para otros tipos de CSV...
-    private byte[] generarCSVProductos(List<ProductoExportDTO> productos) {
-        // Implementación similar
-        return new byte[0]; // Placeholder
-    }
+    // Resto de métodos de generación como placeholders
+    private byte[] generarPDFProductos(List<ProductoExportDTO> productos) { return new byte[0]; }
+    private byte[] generarPDFVentas(List<VentaExportDTO> ventas) { return new byte[0]; }
+    private byte[] generarPDFUsuarios(List<UsuarioExportDTO> usuarios) { return new byte[0]; }
+    private byte[] generarPDFReporteVentas(VentaResumenDTO resumen, String tipoReporte, LocalDateTime fechaInicio, LocalDateTime fechaFin) { return new byte[0]; }
+    private byte[] generarPDFInventario(List<ProductoExportDTO> productos, boolean incluirBajoStock, Integer umbralStock) { return new byte[0]; }
+    private byte[] generarPDFReporteFinanciero(ReporteFinancieroDTO reporte) { return new byte[0]; }
 
-    private byte[] generarCSVVentas(List<VentaExportDTO> ventas) {
-        // Implementación similar
-        return new byte[0]; // Placeholder
-    }
+    private byte[] generarExcelProductos(List<ProductoExportDTO> productos) { return new byte[0]; }
+    private byte[] generarExcelVentas(List<VentaExportDTO> ventas) { return new byte[0]; }
+    private byte[] generarExcelUsuarios(List<UsuarioExportDTO> usuarios) { return new byte[0]; }
+    private byte[] generarExcelReporteVentas(VentaResumenDTO resumen, String tipoReporte, LocalDateTime fechaInicio, LocalDateTime fechaFin) { return new byte[0]; }
+    private byte[] generarExcelInventario(List<ProductoExportDTO> productos, boolean incluirBajoStock, Integer umbralStock) { return new byte[0]; }
+    private byte[] generarExcelReporteFinanciero(ReporteFinancieroDTO reporte) { return new byte[0]; }
 
-    private byte[] generarCSVUsuarios(List<UsuarioExportDTO> usuarios) {
-        // Implementación similar
-        return new byte[0]; // Placeholder
-    }
-
-    private byte[] generarCSVReporteVentas(VentaResumenDTO resumen, String tipoReporte, LocalDateTime fechaInicio, LocalDateTime fechaFin) {
-        // Implementación para reportes de ventas
-        return new byte[0]; // Placeholder
-    }
-
-    private byte[] generarCSVInventario(List<ProductoExportDTO> productos, boolean incluirBajoStock, Integer umbralStock) {
-        // Implementación para inventario
-        return new byte[0]; // Placeholder
-    }
-
-    private byte[] generarCSVReporteFinanciero(ReporteFinancieroDTO reporte) {
-        // Implementación para reporte financiero
-        return new byte[0]; // Placeholder
-    }
-
-    @Override
-    public List<String> getFormatosSoportados() {
-        return List.of(FORMATO_PDF, FORMATO_EXCEL, FORMATO_CSV);
-    }
-
-    @Override
-    public boolean isFormatoSoportado(String formato) {
-        return getFormatosSoportados().contains(formato.toUpperCase());
-    }
-
-    @Override
-    public String getMimeType(String formato) {
-        return MIME_TYPES.get(formato.toUpperCase());
-    }
-
-    @Override
-    public String getExtensionArchivo(String formato) {
-        return EXTENSIONES.get(formato.toUpperCase());
-    }
-
-    @Override
-    public byte[] exportarVentasExcel(List<Venta> ventas, LocalDateTime fechaInicio, LocalDateTime fechaFin) {
-        // Implementación básica para exportar ventas en formato Excel
-        try (Workbook workbook = new XSSFWorkbook();
-             ByteArrayOutputStream output = new ByteArrayOutputStream()) {
-
-            Sheet sheet = workbook.createSheet("Ventas");
-
-            // Crear encabezados
-            Row headerRow = sheet.createRow(0);
-            String[] headers = {"ID", "Fecha", "Cliente", "Vendedor", "Subtotal", "Impuesto", "Total"};
-            for (int i = 0; i < headers.length; i++) {
-                headerRow.createCell(i).setCellValue(headers[i]);
-            }
-
-            // Agregar datos
-            int rowIdx = 1;
-            for (Venta venta : ventas) {
-                Row row = sheet.createRow(rowIdx++);
-                row.createCell(0).setCellValue(venta.getId());
-                row.createCell(1).setCellValue(venta.getFecha().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
-                row.createCell(2).setCellValue(venta.getCliente().getNombreCompleto());
-                row.createCell(3).setCellValue(venta.getVendedor().getNombreCompleto());
-                row.createCell(4).setCellValue(venta.getSubtotal());
-                row.createCell(5).setCellValue(venta.getImpuesto());
-                row.createCell(6).setCellValue(venta.getTotal());
-            }
-
-            workbook.write(output);
-            return output.toByteArray();
-        } catch (IOException e) {
-            throw new RuntimeException("Error al generar Excel de ventas", e);
-        }
-    }
+    private byte[] generarCSVProductos(List<ProductoExportDTO> productos) { return new byte[0]; }
+    private byte[] generarCSVVentas(List<VentaExportDTO> ventas) { return new byte[0]; }
+    private byte[] generarCSVUsuarios(List<UsuarioExportDTO> usuarios) { return new byte[0]; }
+    private byte[] generarCSVReporteVentas(VentaResumenDTO resumen, String tipoReporte, LocalDateTime fechaInicio, LocalDateTime fechaFin) { return new byte[0]; }
+    private byte[] generarCSVInventario(List<ProductoExportDTO> productos, boolean incluirBajoStock, Integer umbralStock) { return new byte[0]; }
+    private byte[] generarCSVReporteFinanciero(ReporteFinancieroDTO reporte) { return new byte[0]; }
 }

@@ -1,35 +1,86 @@
 package informviva.gest.service;
 
+import informviva.gest.dto.ExportConfigDTO;
+import informviva.gest.model.ExportacionHistorial;
 import informviva.gest.model.Venta;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
 @Service
 public interface ExportacionServicio {
-    byte[] exportarClientes(String formato, LocalDateTime fechaInicio, LocalDateTime fechaFin, Map<String, Object> filtros);
+    /**
+     * Exportar usuarios con ExportConfigDTO (que contiene LocalDateTime)
+     */
+    byte[] exportarUsuarios(ExportConfigDTO config);
 
-    byte[] exportarProductos(String formato, Map<String, Object> filtros);
+    /**
+     * Exportar clientes con ExportConfigDTO (que contiene LocalDateTime)
+     */
+    byte[] exportarClientes(ExportConfigDTO config);
 
-    byte[] exportarVentas(String formato, LocalDateTime fechaInicio, LocalDateTime fechaFin, Map<String, Object> filtros);
+    /**
+     * Exportar productos con ExportConfigDTO (que contiene LocalDateTime)
+     */
+    byte[] exportarProductos(ExportConfigDTO config);
 
+    /**
+     * Exportar ventas con ExportConfigDTO (que contiene LocalDateTime)
+     */
+    byte[] exportarVentas(ExportConfigDTO config);
+
+    /**
+     * Exportar reportes
+     */
+    byte[] exportarReportes(ExportConfigDTO config);
+
+    /**
+     * Obtener estadísticas de exportación
+     */
+    Map<String, Object> obtenerEstadisticasExportacion();
+
+    /**
+     * Obtener historial reciente
+     */
+    List<ExportacionHistorial> obtenerHistorialReciente(int limite);
+
+    /**
+     * Obtener estimaciones - MIGRADO A LocalDateTime
+     */
+    Map<String, Object> obtenerEstimaciones(String tipo, String formato,
+                                            LocalDateTime fechaInicio, LocalDateTime fechaFin);
+
+    /**
+     * Método de compatibilidad para controladores que aún usan LocalDate
+     */
+    default Map<String, Object> obtenerEstimaciones(String tipo, String formato,
+                                                    LocalDate fechaInicio, LocalDate fechaFin) {
+        return obtenerEstimaciones(tipo, formato,
+                fechaInicio.atStartOfDay(),
+                fechaFin.atTime(23, 59, 59));
+    }
+
+    /**
+     * Obtener historial paginado
+     */
+    Page<ExportacionHistorial> obtenerHistorialPaginado(int page, int size);
+
+    // MANTENER métodos legacy temporalmente para compatibilidad:
+    @Deprecated
     byte[] exportarUsuarios(String formato, Map<String, Object> filtros);
 
-    byte[] exportarReporteVentas(String formato, LocalDateTime fechaInicio, LocalDateTime fechaFin, String tipoReporte);
+    @Deprecated
+    byte[] exportarClientes(String formato, LocalDateTime fechaInicio,
+                            LocalDateTime fechaFin, Map<String, Object> filtros);
 
-    byte[] exportarInventario(String formato, boolean incluirBajoStock, Integer umbralStock);
+    @Deprecated
+    byte[] exportarProductos(String formato, Map<String, Object> filtros);
 
-    byte[] exportarReporteFinanciero(String formato, LocalDateTime fechaInicio, LocalDateTime fechaFin, boolean incluirComparativo);
-
-    List<String> getFormatosSoportados();
-
-    boolean isFormatoSoportado(String formato);
-
-    String getMimeType(String formato);
-
-    String getExtensionArchivo(String formato);
-
-    byte[] exportarVentasExcel(List<Venta> ventas, LocalDateTime fechaInicio, LocalDateTime fechaFin);
+    @Deprecated
+    byte[] exportarVentas(String formato, LocalDateTime fechaInicio,
+                          LocalDateTime fechaFin, Map<String, Object> filtros);
 }

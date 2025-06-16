@@ -5,6 +5,7 @@ import informviva.gest.repository.ReporteRepositorio;
 import informviva.gest.service.ReporteServicio;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -14,35 +15,26 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * Implementación actualizada del servicio de reportes con soporte para LocalDateTime
- *
- * @author Roberto Rivas
- * @version 2.0
- */
 @Service
+@RequiredArgsConstructor
 public class ReporteServicioImpl implements ReporteServicio {
 
     @PersistenceContext
     private EntityManager entityManager;
 
-    private final ReporteRepositorio reporteRepository;
-
-    public ReporteServicioImpl(ReporteRepositorio reporteRepository) {
-        this.reporteRepository = reporteRepository;
-    }
+    private final ReporteRepositorio reporteRepositorio;
 
     @Override
     public VentaResumenDTO generarResumenVentasConHora(LocalDateTime startDateTime, LocalDateTime endDateTime) {
         VentaResumenDTO resumen = new VentaResumenDTO();
 
-        resumen.setTotalVentas(reporteRepository.sumarTotalVentasEntreFechasConHora(startDateTime, endDateTime));
-        resumen.setTotalTransacciones(reporteRepository.contarVentasEntreFechasConHora(startDateTime, endDateTime));
-        resumen.setTotalArticulosVendidos(reporteRepository.sumarCantidadArticulosVendidosConHora(startDateTime, endDateTime));
+        resumen.setTotalVentas(reporteRepositorio.sumarTotalVentasEntreFechasConHora(startDateTime, endDateTime));
+        resumen.setTotalTransacciones(reporteRepositorio.contarVentasEntreFechasConHora(startDateTime, endDateTime));
+        resumen.setTotalArticulosVendidos(reporteRepositorio.sumarCantidadArticulosVendidosConHora(startDateTime, endDateTime));
 
         LocalDate startDate = startDateTime.toLocalDate();
         LocalDate endDate = endDateTime.toLocalDate();
-        resumen.setClientesNuevos(reporteRepository.contarClientesNuevosEntreFechas(startDate, endDate));
+        resumen.setClientesNuevos(reporteRepositorio.contarClientesNuevosEntreFechas(startDate, endDate));
 
         BigDecimal ticketPromedio = BigDecimal.ZERO;
         if (resumen.getTotalTransacciones() != null && resumen.getTotalTransacciones() > 0 && resumen.getTotalVentas() != null) {
@@ -50,7 +42,7 @@ public class ReporteServicioImpl implements ReporteServicio {
         }
         resumen.setTicketPromedio(ticketPromedio);
 
-        List<ProductoVendidoDTO> productosVendidos = reporteRepository.obtenerProductosMasVendidosEntreFechas(startDate, endDate);
+        List<ProductoVendidoDTO> productosVendidos = reporteRepositorio.obtenerProductosMasVendidosEntreFechas(startDate, endDate);
 
         BigDecimal totalVentasGeneral = resumen.getTotalVentas() != null ? resumen.getTotalVentas() : BigDecimal.ZERO;
         if (totalVentasGeneral.compareTo(BigDecimal.ZERO) > 0) {
@@ -66,33 +58,33 @@ public class ReporteServicioImpl implements ReporteServicio {
 
         resumen.setVentasPorPeriodo(obtenerVentasPorPeriodoConHora(startDateTime, endDateTime, "HORA"));
         resumen.setVentasPorCategoria(obtenerVentasPorCategoriaConHora(startDateTime, endDateTime));
-        resumen.setVentasPorVendedor(reporteRepository.obtenerVentasPorVendedorEntreFechas(startDate, endDate));
+        resumen.setVentasPorVendedor(reporteRepositorio.obtenerVentasPorVendedorEntreFechas(startDate, endDate));
 
         return resumen;
     }
 
     @Override
     public List<VentaPorPeriodoDTO> obtenerVentasPorPeriodoConHora(LocalDateTime inicio, LocalDateTime fin, String granularidad) {
-        return reporteRepository.obtenerVentasPorPeriodoConGranularidad(inicio, fin, granularidad);
+        return reporteRepositorio.obtenerVentasPorPeriodoConGranularidad(inicio, fin, granularidad);
     }
 
     @Override
     public List<VentaPorCategoriaDTO> obtenerVentasPorCategoriaConHora(LocalDateTime inicio, LocalDateTime fin) {
         LocalDate startDate = inicio.toLocalDate();
         LocalDate endDate = fin.toLocalDate();
-        return reporteRepository.obtenerVentasPorCategoriaEntreFechas(startDate, endDate);
+        return reporteRepositorio.obtenerVentasPorCategoriaEntreFechas(startDate, endDate);
     }
 
     @Override
     public Long contarClientesNuevosConHora(LocalDateTime inicio, LocalDateTime fin) {
         LocalDate startDate = inicio.toLocalDate();
         LocalDate endDate = fin.toLocalDate();
-        return reporteRepository.contarClientesNuevosEntreFechas(startDate, endDate);
+        return reporteRepositorio.contarClientesNuevosEntreFechas(startDate, endDate);
     }
 
     @Override
     public Map<String, Double> obtenerVentasPorFranjaHoraria(LocalDateTime fecha) {
-        List<Object[]> resultados = reporteRepository.obtenerVentasPorFranjaHoraria(fecha);
+        List<Object[]> resultados = reporteRepositorio.obtenerVentasPorFranjaHoraria(fecha);
         Map<String, Double> ventasPorFranja = new LinkedHashMap<>();
 
         ventasPorFranja.put("Madrugada", 0.0);
@@ -111,7 +103,7 @@ public class ReporteServicioImpl implements ReporteServicio {
 
     @Override
     public List<Map<String, Object>> analizarTendenciasVentasPorHora(LocalDateTime inicio, LocalDateTime fin) {
-        List<Object[]> resultados = reporteRepository.analizarTendenciasPorHora(inicio, fin);
+        List<Object[]> resultados = reporteRepositorio.analizarTendenciasPorHora(inicio, fin);
 
         return resultados.stream()
                 .map(resultado -> {
@@ -183,9 +175,9 @@ public class ReporteServicioImpl implements ReporteServicio {
 
         Map<String, Object> metricas = new HashMap<>();
 
-        BigDecimal ventasHoy = reporteRepository.sumarTotalVentasEntreFechasConHora(inicioDelDia, ahora);
-        Long transaccionesHoy = reporteRepository.contarVentasEntreFechasConHora(inicioDelDia, ahora);
-        Long articulosHoy = reporteRepository.sumarCantidadArticulosVendidosConHora(inicioDelDia, ahora);
+        BigDecimal ventasHoy = reporteRepositorio.sumarTotalVentasEntreFechasConHora(inicioDelDia, ahora);
+        Long transaccionesHoy = reporteRepositorio.contarVentasEntreFechasConHora(inicioDelDia, ahora);
+        Long articulosHoy = reporteRepositorio.sumarCantidadArticulosVendidosConHora(inicioDelDia, ahora);
 
         metricas.put("ventasHoy", ventasHoy);
         metricas.put("transaccionesHoy", transaccionesHoy);
@@ -204,8 +196,8 @@ public class ReporteServicioImpl implements ReporteServicio {
         LocalDateTime inicioAyer = inicioDelDia.minusDays(1);
         LocalDateTime finAyer = ahora.minusDays(1);
 
-        BigDecimal ventasAyer = reporteRepository.sumarTotalVentasEntreFechasConHora(inicioAyer, finAyer);
-        Long transaccionesAyer = reporteRepository.contarVentasEntreFechasConHora(inicioAyer, finAyer);
+        BigDecimal ventasAyer = reporteRepositorio.sumarTotalVentasEntreFechasConHora(inicioAyer, finAyer);
+        Long transaccionesAyer = reporteRepositorio.contarVentasEntreFechasConHora(inicioAyer, finAyer);
 
         if (ventasAyer.compareTo(BigDecimal.ZERO) > 0) {
             BigDecimal cambioVsAyer = ventasHoy.subtract(ventasAyer)
@@ -228,7 +220,7 @@ public class ReporteServicioImpl implements ReporteServicio {
         LocalDateTime inicioHistorico = fechaInicio.minusDays(30);
         List<Map<String, Object>> tendenciasHistoricas = analizarTendenciasVentasPorHora(inicioHistorico, fechaInicio);
 
-        BigDecimal ventasHistoricas = reporteRepository.sumarTotalVentasEntreFechasConHora(inicioHistorico, fechaInicio);
+        BigDecimal ventasHistoricas = reporteRepositorio.sumarTotalVentasEntreFechasConHora(inicioHistorico, fechaInicio);
         double promedioDiario = ventasHistoricas.divide(BigDecimal.valueOf(30), 2, RoundingMode.HALF_UP).doubleValue();
 
         List<Map<String, Object>> proyeccionDias = new ArrayList<>();

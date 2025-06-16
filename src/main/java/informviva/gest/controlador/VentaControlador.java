@@ -5,6 +5,7 @@ import informviva.gest.model.Venta;
 import informviva.gest.service.ClienteServicio;
 import informviva.gest.service.ProductoServicio;
 import informviva.gest.service.VentaServicio;
+import static informviva.gest.util.Constantes.VENTA_DTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -12,7 +13,6 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 @Controller
 @RequestMapping("/ventas")
@@ -23,15 +23,7 @@ public class VentaControlador {
     private final ClienteServicio clienteServicio;
     private final ProductoServicio productoServicio;
 
-    public VentaControlador(
-            VentaServicio ventaServicio,
-            ClienteServicio clienteServicio,
-            @Qualifier("productoServicioOptimizado") ProductoServicio productoServicio
-    ) {
-        this.ventaServicio = ventaServicio;
-        this.clienteServicio = clienteServicio;
-        this.productoServicio = productoServicio;
-    }
+    // El constructor manual ha sido eliminado
 
     @GetMapping
     public String listarVentas(Model model) {
@@ -41,8 +33,8 @@ public class VentaControlador {
 
     @GetMapping("/nueva")
     public String mostrarFormularioNuevaVenta(Model model) {
-        if (!model.containsAttribute("ventaDTO")) {
-            model.addAttribute("ventaDTO", new VentaDTO());
+        if (!model.containsAttribute(VENTA_DTO)) {
+            model.addAttribute(VENTA_DTO, new VentaDTO());
         }
         model.addAttribute("clientes", clienteServicio.obtenerTodos());
         model.addAttribute("productos", productoServicio.listarActivos());
@@ -55,8 +47,8 @@ public class VentaControlador {
                              RedirectAttributes redirectAttributes) {
 
         if (bindingResult.hasErrors()) {
-            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.ventaDTO", bindingResult);
-            redirectAttributes.addFlashAttribute("ventaDTO", ventaDTO);
+            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult." + VENTA_DTO, bindingResult);
+            redirectAttributes.addFlashAttribute(VENTA_DTO, ventaDTO);
             return "redirect:/ventas/nueva";
         }
 
@@ -65,7 +57,7 @@ public class VentaControlador {
             redirectAttributes.addFlashAttribute("success", "Venta creada exitosamente.");
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("error", "Error al crear la venta: " + e.getMessage());
-            redirectAttributes.addFlashAttribute("ventaDTO", ventaDTO);
+            redirectAttributes.addFlashAttribute(VENTA_DTO, ventaDTO);
             return "redirect:/ventas/nueva";
         }
         return "redirect:/ventas";

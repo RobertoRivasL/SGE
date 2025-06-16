@@ -1,11 +1,12 @@
 package informviva.gest.util;
 
-/**
- * @author Roberto Rivas
- * @version 2.0
- */
- * Constantes para las validaciones del sistema
- *
+///**
+// * @author Roberto Rivas
+// * @version 2.0
+// */
+// * Constantes para las validaciones del sistema
+// *
+
 public final class ValidacionConstantes {
     // Mensajes de validación de RUT
     public static final String RUT_VALIDO = "RUT válido";
@@ -105,7 +106,7 @@ public final class ValidacionConstantes {
     public static final String ENCABEZADOS_INVALIDOS = "Encabezados del archivo no son válidos";
     // Mensajes de validación de datos
     public static final String DATOS_VALIDOS = "Datos del archivo son válidos";
-    public static final String DATOS_INVALIDOS = "Se encontraron datos inválidos";
+
     public static final String FILA_VALIDA = "Fila procesada correctamente";
     public static final String FILA_INVALIDA = "Error en la fila: ";
     // Mensajes de validación específicos por entidad

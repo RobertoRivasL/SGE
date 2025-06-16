@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -851,10 +852,6 @@ public class ClienteServicioImpl implements ClienteServicio {
         return clienteRepositorio.countByFechaRegistroBetween(inicioMes, finMes);
     }
 
-    @Override
-    public Long contarTodos() {
-        return clienteRepositorio.count();
-    }
 
     @Override
     public Long contarCiudades() {

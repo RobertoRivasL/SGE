@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Reporte de Ventas</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<h2>Reporte de Ventas</h2>
+
+<canvas height="200" id="ventasChart" width="400"></canvas>
+
+<script th:inline="javascript">
+    // Datos pasados desde el backend (ReporteServicio.java)
+    var labels = [[${ventaResumen.labels}]];  // Fechas
+    var data = [[${ventaResumen.data}]];     // Ventas por día
+
+    // Configuración del gráfico
+    var ctx = document.getElementById('ventasChart').getContext('2d');
+    var ventasChart = new Chart(ctx, {
+        type: 'line',  // Tipo de gráfico
+        data: {
+            labels: labels,  // Fechas
+            datasets: [{
+                label: 'Ventas por Día',
+                data: data,  // Ventas
+                borderColor: 'rgba(75, 192, 192, 1)', // Color de la línea
+                fill: false,  // No llenar el área bajo la curva
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+
+</body>
+</html>
