@@ -1,6 +1,6 @@
 package informviva.gest.service.impl;
 
-// ===== IMPORTS ORGANIZADOS =====
+// ===== IMPORTS ORGANIZADOS - SOLO OPENPDF =====
 
 // Java Core
 import java.io.ByteArrayOutputStream;
@@ -12,6 +12,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 // Spring Framework
+import com.lowagie.text.Font;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
@@ -23,15 +26,9 @@ import org.springframework.stereotype.Service;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-// iText (PDF) - AGRUPADOS Y ESPECÍFICOS PARA EVITAR CONFLICTOS
-import com.lowagie.text.Document;
-import com.lowagie.text.Element;
-import com.lowagie.text.PageSize;
-import com.lowagie.text.Paragraph;
-import com.lowagie.text.Table;
-import com.lowagie.text.pdf.PdfWriter;
-// 🚫 NO importar com.lowagie.text.Font para evitar conflicto
-// ✅ Usar nombre completo: com.lowagie.text.Font en el código
+// ✅ SOLO OpenPDF - CORREGIDO
+import com.lowagie.text.*;
+import com.lowagie.text.pdf.*;
 
 // Logging
 import org.slf4j.Logger;
@@ -43,10 +40,10 @@ import informviva.gest.model.*;
 import informviva.gest.service.*;
 
 /**
- * 🔧 CORRECCIÓN: Imports reorganizados para evitar ambigüedad
- * - Font de POI vs iText: usando alias PdfFont para iText
- * - Imports agrupados por librería
- * - Eliminados imports redundantes
+ * ✅ CORRECCIÓN: Solo OpenPDF (com.lowagie.text)
+ * - Eliminados todos los imports de iText
+ * - Código actualizado para usar PdfPTable en lugar de Table
+ * - Consistencia total con OpenPDF
  */
 @Service
 public class ExportacionServicioImpl implements ExportacionServicio {
@@ -365,12 +362,12 @@ public class ExportacionServicioImpl implements ExportacionServicio {
                 .collect(Collectors.toList());
     }
 
-    // ==================== MÉTODOS DE FILTRADO CORREGIDOS ====================
+    // ==================== MÉTODOS DE FILTRADO ====================
 
     private boolean aplicarFiltrosCliente(Cliente cliente, ExportConfigDTO config) {
         Map<String, Object> filtros = config.getFiltros();
 
-        // Filtrar por rango de fechas - CORREGIDO para usar LocalDateTime
+        // Filtrar por rango de fechas
         if (config.getFechaInicio() != null && cliente.getFechaRegistro() != null) {
             if (cliente.getFechaRegistro().isBefore(config.getFechaInicio())) {
                 return false;
@@ -460,7 +457,7 @@ public class ExportacionServicioImpl implements ExportacionServicio {
         return true;
     }
 
-    // ==================== MÉTODOS DE CONVERSIÓN A DTOs CORREGIDOS ====================
+    // ==================== MÉTODOS DE CONVERSIÓN A DTOs ====================
 
     private ClienteExportDTO convertirAClienteExportDTO(Cliente cliente) {
         ClienteExportDTO dto = new ClienteExportDTO();
@@ -470,8 +467,8 @@ public class ExportacionServicioImpl implements ExportacionServicio {
         dto.setEmail(cliente.getEmail());
         dto.setTelefono(cliente.getTelefono());
         dto.setDireccion(cliente.getDireccion());
-        dto.setFechaRegistro(cliente.getFechaRegistro()); // Ya es LocalDateTime
-        dto.setCategoria(cliente.getCategoria()); // Usando getCategoria() en lugar de getCiudad()
+        dto.setFechaRegistro(cliente.getFechaRegistro());
+        dto.setCategoria(cliente.getCategoria());
 
         // Obtener estadísticas de compras
         Long totalCompras = ventaServicio.contarVentasPorCliente(cliente.getId());
@@ -504,7 +501,7 @@ public class ExportacionServicioImpl implements ExportacionServicio {
     private VentaExportDTO convertirAVentaExportDTO(Venta venta) {
         VentaExportDTO dto = new VentaExportDTO();
         dto.setId(venta.getId());
-        dto.setFecha(venta.getFecha()); // Ya es LocalDateTime
+        dto.setFecha(venta.getFecha());
         dto.setClienteNombre(venta.getCliente().getNombreCompleto());
         dto.setClienteRut(venta.getCliente().getRut());
         dto.setVendedorNombre(venta.getVendedor().getNombreCompleto());
@@ -525,8 +522,8 @@ public class ExportacionServicioImpl implements ExportacionServicio {
         dto.setNombreCompleto(usuario.getNombreCompleto());
         dto.setEmail(usuario.getEmail());
         dto.setActivo(usuario.isActivo());
-        dto.setFechaCreacion(usuario.getFechaCreacion()); // Ya es LocalDateTime
-        dto.setUltimoAcceso(usuario.getUltimoAcceso()); // Ya es LocalDateTime
+        dto.setFechaCreacion(usuario.getFechaCreacion());
+        dto.setUltimoAcceso(usuario.getUltimoAcceso());
         dto.setRoles(String.join(", ", usuario.getRoles()));
 
         return dto;
@@ -543,7 +540,6 @@ public class ExportacionServicioImpl implements ExportacionServicio {
             fechaInicio = fechaFin.minusDays(30);
         }
 
-        // Convertir a LocalDate solo para el servicio de reportes que aún no está migrado
         VentaResumenDTO resumen = reporteServicio.generarResumenVentas(
                 fechaInicio.toLocalDate(),
                 fechaFin.toLocalDate()
@@ -605,7 +601,6 @@ public class ExportacionServicioImpl implements ExportacionServicio {
     private ReporteFinancieroDTO generarReporteFinanciero(LocalDateTime fechaInicio, LocalDateTime fechaFin, boolean incluirComparativo) {
         ReporteFinancieroDTO reporte = new ReporteFinancieroDTO();
 
-        // Usar LocalDateTime directamente - YA NO HAY PROBLEMAS DE CONVERSIÓN
         Double ventasActuales = ventaServicio.calcularTotalVentas(fechaInicio, fechaFin);
         Long transaccionesActuales = ventaServicio.contarTransacciones(fechaInicio, fechaFin);
 
@@ -649,7 +644,7 @@ public class ExportacionServicioImpl implements ExportacionServicio {
                 if (fechaInicio != null && fechaFin != null) {
                     yield ventaServicio.buscarPorRangoFechas(fechaInicio, fechaFin).size();
                 } else {
-                    yield ventaServicio.obtenerTodasLasVentas().size(); // Changed from listarTodasLasVentas to listarTodas
+                    yield ventaServicio.obtenerTodasLasVentas().size();
                 }
             }
             default -> 100; // Estimación por defecto
@@ -658,23 +653,22 @@ public class ExportacionServicioImpl implements ExportacionServicio {
 
     private long calcularTamanoEstimado(int registros, String formato) {
         return switch (formato.toUpperCase()) {
-            case FORMATO_PDF -> registros * 200L; // ~200 bytes por registro en PDF
-            case FORMATO_EXCEL -> registros * 150L; // ~150 bytes por registro en Excel
-            case FORMATO_CSV -> registros * 100L; // ~100 bytes por registro en CSV
+            case FORMATO_PDF -> registros * 200L;
+            case FORMATO_EXCEL -> registros * 150L;
+            case FORMATO_CSV -> registros * 100L;
             default -> registros * 150L;
         };
     }
 
     private long calcularTiempoEstimado(int registros, String formato) {
-        // Tiempo estimado en milisegundos
         long tiempoBase = switch (formato.toUpperCase()) {
-            case FORMATO_PDF -> registros * 2L; // ~2ms por registro en PDF
-            case FORMATO_EXCEL -> registros * 1L; // ~1ms por registro en Excel
-            case FORMATO_CSV -> registros / 2L; // ~0.5ms por registro en CSV
+            case FORMATO_PDF -> registros * 2L;
+            case FORMATO_EXCEL -> registros * 1L;
+            case FORMATO_CSV -> registros / 2L;
             default -> registros * 1L;
         };
 
-        return Math.max(tiempoBase, 100L); // Mínimo 100ms
+        return Math.max(tiempoBase, 100L);
     }
 
     private String formatearTamano(long bytes) {
@@ -689,7 +683,7 @@ public class ExportacionServicioImpl implements ExportacionServicio {
         return String.format("%.1f min", millis / 60000.0);
     }
 
-    // ==================== MÉTODOS HEREDADOS SIN CAMBIOS ====================
+    // ==================== MÉTODOS HEREDADOS ====================
 
     public byte[] exportarReporteVentas(String formato, LocalDateTime fechaInicio, LocalDateTime fechaFin, String tipoReporte) {
         ExportConfigDTO config = new ExportConfigDTO();
@@ -769,29 +763,32 @@ public class ExportacionServicioImpl implements ExportacionServicio {
         }
     }
 
-    // ==================== MÉTODOS DE GENERACIÓN (PLACEHOLDER - IMPLEMENTAR SEGÚN NECESIDADES) ====================
+    // ==================== MÉTODOS DE GENERACIÓN PDF - CORREGIDOS CON OPENPDF ====================
 
+    /**
+     * ✅ CORREGIDO: Usar solo OpenPDF (com.lowagie.text)
+     */
     private byte[] generarPDFClientes(List<ClienteExportDTO> clientes) {
         try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
             Document document = new Document(PageSize.A4.rotate());
             PdfWriter.getInstance(document, output);
             document.open();
 
-            // Título
-            com.lowagie.text.Font titleFont = new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 18, com.lowagie.text.Font.BOLD);
+            // ✅ Título usando OpenPDF
+            Font titleFont = new Font(Font.HELVETICA, 18, Font.BOLD);
             Paragraph title = new Paragraph("Listado de Clientes", titleFont);
             title.setAlignment(Element.ALIGN_CENTER);
             document.add(title);
             document.add(new Paragraph(" "));
 
-            // Tabla
-            com.lowagie.text.pdf.PdfPTable table = new com.lowagie.text.pdf.PdfPTable(6);
+            // ✅ Tabla usando OpenPDF
+            PdfPTable table = new PdfPTable(6);
             table.setWidthPercentage(100);
 
             // Encabezados
             String[] headers = {"RUT", "Nombre", "Email", "Teléfono", "Fecha Registro", "Total Compras"};
             for (String header : headers) {
-                com.lowagie.text.pdf.PdfPCell cell = new com.lowagie.text.pdf.PdfPCell(new Paragraph(header, new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 10, com.lowagie.text.Font.BOLD, java.awt.Color.RED)));
+                PdfPCell cell = new PdfPCell(new Phrase(header, new Font(Font.HELVETICA, 10, Font.BOLD)));
                 cell.setBackgroundColor(java.awt.Color.LIGHT_GRAY);
                 table.addCell(cell);
             }
@@ -816,6 +813,8 @@ public class ExportacionServicioImpl implements ExportacionServicio {
         }
     }
 
+    // ==================== MÉTODOS DE GENERACIÓN EXCEL ====================
+
     private byte[] generarExcelClientes(List<ClienteExportDTO> clientes) {
         try (Workbook workbook = new XSSFWorkbook();
              ByteArrayOutputStream output = new ByteArrayOutputStream()) {
@@ -824,7 +823,7 @@ public class ExportacionServicioImpl implements ExportacionServicio {
 
             // Crear estilos
             CellStyle headerStyle = workbook.createCellStyle();
-            Font headerFont = workbook.createFont();
+            org.apache.poi.ss.usermodel.Font headerFont = workbook.createFont();
             headerFont.setBold(true);
             headerFont.setColor(IndexedColors.RED.getIndex());
             headerStyle.setFont(headerFont);
@@ -873,6 +872,8 @@ public class ExportacionServicioImpl implements ExportacionServicio {
         }
     }
 
+    // ==================== MÉTODOS DE GENERACIÓN CSV ====================
+
     private byte[] generarCSVClientes(List<ClienteExportDTO> clientes) {
         StringBuilder csv = new StringBuilder();
 
@@ -898,7 +899,8 @@ public class ExportacionServicioImpl implements ExportacionServicio {
         return csv.toString().getBytes();
     }
 
-    // Resto de métodos de generación como placeholders
+    // ==================== MÉTODOS PLACEHOLDER (IMPLEMENTAR SEGÚN NECESIDADES) ====================
+
     private byte[] generarPDFProductos(List<ProductoExportDTO> productos) { return new byte[0]; }
     private byte[] generarPDFVentas(List<VentaExportDTO> ventas) { return new byte[0]; }
     private byte[] generarPDFUsuarios(List<UsuarioExportDTO> usuarios) { return new byte[0]; }

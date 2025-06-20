@@ -1,33 +1,39 @@
 package informviva.gest.service.impl;
 
 import informviva.gest.dto.ImportacionResultadoDTO;
-import informviva.gest.service.ImportacionServicio;
-import informviva.gest.service.importacion.ImportacionProcessor;
-import informviva.gest.service.importacion.ImportacionValidador;
-import informviva.gest.service.importacion.PlantillaGenerator;
-import informviva.gest.service.importacion.factory.ImportacionProcessorFactory;
-import informviva.gest.util.ImportacionConstants;
-import informviva.gest.util.MensajesConstantes;
-import informviva.gest.util.ValidacionConstantes;
 import informviva.gest.exception.ImportacionException;
+import informviva.gest.model.Cliente;
+import informviva.gest.model.Producto;
+import informviva.gest.model.Usuario;
+import informviva.gest.service.ClienteServicio;
+import informviva.gest.service.ImportacionServicio;
+import informviva.gest.service.ProductoServicio;
+import informviva.gest.service.UsuarioServicio;
+import informviva.gest.validador.ValidadorRutUtil;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-import java.util.Map;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.*;
 
 /**
- * Implementación refactorizada del servicio para la gestión de importaciones.
- *
- * Esta clase actúa como fachada principal del sistema de importación,
- * delegando la lógica específica a componentes especializados.
+ * Implementación del servicio de importación
  *
  * @author Roberto Rivas
- * @version 3.0
+ * @version 2.0
  */
 @Service
 @Transactional
@@ -35,263 +41,375 @@ public class ImportacionServicioImpl implements ImportacionServicio {
 
     private static final Logger logger = LoggerFactory.getLogger(ImportacionServicioImpl.class);
 
-    private final ImportacionProcessorFactory processorFactory;
-    private final ImportacionValidador validador;
-    private final PlantillaGenerator plantillaGenerator;
+    @Autowired
+    private ClienteServicio clienteServicio;
 
     @Autowired
-    public ImportacionServicioImpl(
-            ImportacionProcessorFactory processorFactory,
-            ImportacionValidador validador,
-            PlantillaGenerator plantillaGenerator) {
-        this.processorFactory = processorFactory;
-        this.validador = validador;
-        this.plantillaGenerator = plantillaGenerator;
-    }
+    private ProductoServicio productoServicio;
+
+    @Autowired
+    private UsuarioServicio usuarioServicio;
+
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
 
     @Override
     public ImportacionResultadoDTO importarClientes(MultipartFile archivo) {
-        logger.info("Iniciando importación de clientes desde archivo: {}",
-                obtenerNombreArchivoSeguro(archivo));
+        ImportacionResultadoDTO resultado = new ImportacionResultadoDTO();
+        resultado.setTipoImportacion("Clientes");
+        resultado.setNombreArchivo(archivo.getOriginalFilename());
+        resultado.setFechaImportacion(LocalDateTime.now());
 
-        return procesarImportacion(archivo, ImportacionConstants.TIPO_CLIENTE);
+        try {
+            List<Map<String, Object>> datos = procesarArchivoExcel(archivo);
+
+            for (int i = 0; i < datos.size(); i++) {
+                try {
+                    Cliente cliente = mapearCliente(datos.get(i), i + 2); // +2 porque la fila 1 son headers
+                    clienteServicio.guardar(cliente);
+                    resultado.incrementarExitosos();
+
+                } catch (Exception e) {
+                    logger.warn("Error procesando cliente en fila {}: {}", i + 2, e.getMessage());
+                    resultado.agregarError(i + 2, e.getMessage());
+                }
+            }
+
+        } catch (Exception e) {
+            logger.error("Error general en importación de clientes: {}", e.getMessage());
+            resultado.setErrorGeneral(e.getMessage());
+        }
+
+        return resultado;
     }
 
     @Override
     public ImportacionResultadoDTO importarProductos(MultipartFile archivo) {
-        logger.info("Iniciando importación de productos desde archivo: {}",
-                obtenerNombreArchivoSeguro(archivo));
+        ImportacionResultadoDTO resultado = new ImportacionResultadoDTO();
+        resultado.setTipoImportacion("Productos");
+        resultado.setNombreArchivo(archivo.getOriginalFilename());
+        resultado.setFechaImportacion(LocalDateTime.now());
 
-        return procesarImportacion(archivo, ImportacionConstants.TIPO_PRODUCTO);
+        try {
+            List<Map<String, Object>> datos = procesarArchivoExcel(archivo);
+
+            for (int i = 0; i < datos.size(); i++) {
+                try {
+                    Producto producto = mapearProducto(datos.get(i), i + 2);
+                    productoServicio.guardar(producto);
+                    resultado.incrementarExitosos();
+
+                } catch (Exception e) {
+                    logger.warn("Error procesando producto en fila {}: {}", i + 2, e.getMessage());
+                    resultado.agregarError(i + 2, e.getMessage());
+                }
+            }
+
+        } catch (Exception e) {
+            logger.error("Error general en importación de productos: {}", e.getMessage());
+            resultado.setErrorGeneral(e.getMessage());
+        }
+
+        return resultado;
     }
 
     @Override
     public ImportacionResultadoDTO importarUsuarios(MultipartFile archivo) {
-        logger.info("Iniciando importación de usuarios desde archivo: {}",
-                obtenerNombreArchivoSeguro(archivo));
-
-        return procesarImportacion(archivo, ImportacionConstants.TIPO_USUARIO);
-    }
-
-    @Override
-    public Map<String, Object> validarArchivoImportacion(MultipartFile archivo, String tipoEntidad) {
-        logger.debug("Validando archivo para importación de tipo: {}", tipoEntidad);
-
-        try {
-            validarParametrosEntrada(archivo, tipoEntidad);
-            return validador.validarArchivo(archivo, tipoEntidad);
-
-        } catch (Exception e) {
-            return manejarErrorValidacion(e, archivo);
-        }
-    }
-
-    @Override
-    public byte[] generarPlantillaImportacion(String tipoEntidad, String formato) {
-        logger.debug("Generando plantilla para tipo: {} en formato: {}", tipoEntidad, formato);
-
-        try {
-            validarTipoEntidad(tipoEntidad);
-            validarFormato(formato);
-
-            return plantillaGenerator.generarPlantilla(tipoEntidad, formato);
-
-        } catch (Exception e) {
-            logger.error("Error generando plantilla para {}: {}", tipoEntidad, e.getMessage());
-            throw new ImportacionException("Error generando plantilla", e);
-        }
-    }
-
-    @Override
-    public List<Map<String, Object>> obtenerVistaPreviaArchivo(MultipartFile archivo, int limite) {
-        logger.debug("Obteniendo vista previa del archivo con límite: {}", limite);
-
-        try {
-            validarArchivoEntrada(archivo);
-            validarLimiteVistaPrevia(limite);
-
-            ImportacionProcessor processor = processorFactory.createProcessor(archivo);
-            return processor.obtenerVistaPrevia(archivo, limite);
-
-        } catch (Exception e) {
-            logger.error("Error obteniendo vista previa: {}", e.getMessage());
-            throw new ImportacionException("Error procesando vista previa", e);
-        }
-    }
-
-    @Override
-    public List<String> obtenerFormatosSoportados() {
-        return ImportacionConstants.FORMATOS_SOPORTADOS;
-    }
-
-    @Override
-    public List<String> obtenerColumnasRequeridas(String tipoEntidad) {
-        try {
-            validarTipoEntidad(tipoEntidad);
-            return ImportacionConstants.obtenerColumnasRequeridas(tipoEntidad);
-
-        } catch (Exception e) {
-            logger.error("Error obteniendo columnas requeridas para {}: {}", tipoEntidad, e.getMessage());
-            throw new ImportacionException("Tipo de entidad no válido", e);
-        }
-    }
-
-    /**
-     * Método central para procesar cualquier tipo de importación.
-     * Implementa el patrón Template Method para unificar el flujo de procesamiento.
-     */
-    private ImportacionResultadoDTO procesarImportacion(MultipartFile archivo, String tipoEntidad) {
-        ImportacionResultadoDTO resultado = inicializarResultado(archivo, tipoEntidad);
-
-        try {
-            // 1. Validar parámetros de entrada
-            validarParametrosEntrada(archivo, tipoEntidad);
-
-            // 2. Obtener processor específico para el tipo de archivo
-            ImportacionProcessor processor = processorFactory.createProcessor(archivo);
-
-            // 3. Ejecutar importación usando el processor
-            resultado = processor.procesar(archivo, tipoEntidad, resultado);
-
-            // 4. Log de resultados
-            logResultadoImportacion(resultado);
-
-        } catch (ImportacionException e) {
-            manejarErrorImportacion(e, resultado);
-        } catch (Exception e) {
-            manejarErrorInesperado(e, resultado);
-        }
-
-        return resultado;
-    }
-
-    /**
-     * Inicializa el objeto resultado con información básica.
-     */
-    private ImportacionResultadoDTO inicializarResultado(MultipartFile archivo, String tipoEntidad) {
         ImportacionResultadoDTO resultado = new ImportacionResultadoDTO();
-        resultado.setTipoEntidad(capitalize(tipoEntidad));
-        resultado.setNombreArchivo(obtenerNombreArchivoSeguro(archivo));
-        resultado.setFechaImportacion(java.time.LocalDateTime.now());
+        resultado.setTipoImportacion("Usuarios");
+        resultado.setNombreArchivo(archivo.getOriginalFilename());
+        resultado.setFechaImportacion(LocalDateTime.now());
+
+        try {
+            List<Map<String, Object>> datos = procesarArchivoExcel(archivo);
+
+            for (int i = 0; i < datos.size(); i++) {
+                try {
+                    Usuario usuario = mapearUsuario(datos.get(i), i + 2);
+                    usuarioServicio.guardar(usuario);
+                    resultado.incrementarExitosos();
+
+                } catch (Exception e) {
+                    logger.warn("Error procesando usuario en fila {}: {}", i + 2, e.getMessage());
+                    resultado.agregarError(i + 2, e.getMessage());
+                }
+            }
+
+        } catch (Exception e) {
+            logger.error("Error general en importación de usuarios: {}", e.getMessage());
+            resultado.setErrorGeneral(e.getMessage());
+        }
+
         return resultado;
     }
 
-    /**
-     * Validaciones centralizadas de parámetros de entrada.
-     */
-    private void validarParametrosEntrada(MultipartFile archivo, String tipoEntidad) {
-        validarArchivoEntrada(archivo);
-        validarTipoEntidad(tipoEntidad);
-    }
+    @Override
+    public byte[] generarPlantillaClientes() throws IOException {
+        try (XSSFWorkbook workbook = new XSSFWorkbook()) {
+            Sheet sheet = workbook.createSheet("Clientes");
 
-    private void validarArchivoEntrada(MultipartFile archivo) {
-        if (archivo == null) {
-            throw new ImportacionException(MensajesConstantes.ERROR_ARCHIVO_VACIO);
-        }
+            // Crear encabezados
+            Row headerRow = sheet.createRow(0);
+            String[] headers = {"nombre", "apellido", "email", "rut", "telefono", "direccion", "categoria"};
 
-        if (archivo.isEmpty()) {
-            throw new ImportacionException(MensajesConstantes.ERROR_ARCHIVO_VACIO);
-        }
+            for (int i = 0; i < headers.length; i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(headers[i]);
 
-        if (archivo.getSize() > ImportacionConstants.TAMAÑO_MAXIMO_ARCHIVO) {
-            throw new ImportacionException(MensajesConstantes.ERROR_ARCHIVO_MUY_GRANDE);
-        }
+                // Estilo para encabezados
+                CellStyle headerStyle = workbook.createCellStyle();
+                Font font = workbook.createFont();
+                font.setBold(true);
+                headerStyle.setFont(font);
+                cell.setCellStyle(headerStyle);
+            }
 
-        String nombreArchivo = archivo.getOriginalFilename();
-        if (nombreArchivo == null || nombreArchivo.trim().isEmpty()) {
-            throw new ImportacionException("El nombre del archivo no es válido");
-        }
+            // Ejemplo de datos
+            Row exampleRow = sheet.createRow(1);
+            exampleRow.createCell(0).setCellValue("Juan");
+            exampleRow.createCell(1).setCellValue("Pérez");
+            exampleRow.createCell(2).setCellValue("juan.perez@email.com");
+            exampleRow.createCell(3).setCellValue("12.345.678-9");
+            exampleRow.createCell(4).setCellValue("+56912345678");
+            exampleRow.createCell(5).setCellValue("Av. Principal 123");
+            exampleRow.createCell(6).setCellValue("VIP");
 
-        if (!validador.esFormatoSoportado(nombreArchivo)) {
-            throw new ImportacionException(MensajesConstantes.ERROR_FORMATO_NO_SOPORTADO);
-        }
-    }
+            // Ajustar ancho de columnas
+            for (int i = 0; i < headers.length; i++) {
+                sheet.autoSizeColumn(i);
+            }
 
-    private void validarTipoEntidad(String tipoEntidad) {
-        if (tipoEntidad == null || tipoEntidad.trim().isEmpty()) {
-            throw new ImportacionException(MensajesConstantes.ERROR_TIPO_ENTIDAD_INVALIDO);
-        }
-
-        if (!ImportacionConstants.TIPOS_ENTIDAD_VALIDOS.contains(tipoEntidad.toLowerCase())) {
-            throw new ImportacionException(MensajesConstantes.ERROR_TIPO_ENTIDAD_INVALIDO + ": " + tipoEntidad);
-        }
-    }
-
-    private void validarFormato(String formato) {
-        if (formato == null || formato.trim().isEmpty()) {
-            throw new ImportacionException("El formato no puede estar vacío");
-        }
-
-        if (!ImportacionConstants.FORMATOS_SOPORTADOS.contains(formato.toLowerCase())) {
-            throw new ImportacionException(
-                    String.format("Formato no soportado: %s. Formatos válidos: %s",
-                            formato, String.join(", ", ImportacionConstants.FORMATOS_SOPORTADOS)));
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            workbook.write(outputStream);
+            return outputStream.toByteArray();
         }
     }
 
-    private void validarLimiteVistaPrevia(int limite) {
-        if (limite <= ImportacionConstants.LIMITE_VISTA_PREVIA_MINIMO) {
-            throw new ImportacionException(
-                    String.format("El límite debe ser mayor a %d", ImportacionConstants.LIMITE_VISTA_PREVIA_MINIMO));
-        }
+    @Override
+    public byte[] generarPlantillaProductos() throws IOException {
+        try (XSSFWorkbook workbook = new XSSFWorkbook()) {
+            Sheet sheet = workbook.createSheet("Productos");
 
-        if (limite > ImportacionConstants.LIMITE_VISTA_PREVIA_MAXIMO) {
-            throw new ImportacionException(
-                    String.format("El límite no puede ser mayor a %d", ImportacionConstants.LIMITE_VISTA_PREVIA_MAXIMO));
-        }
-    }
+            // Crear encabezados
+            Row headerRow = sheet.createRow(0);
+            String[] headers = {"codigo", "nombre", "descripcion", "precio", "stock", "categoria", "proveedor"};
 
-    /**
-     * Manejo centralizado de errores de importación.
-     */
-    private void manejarErrorImportacion(ImportacionException e, ImportacionResultadoDTO resultado) {
-        logger.error("Error durante importación: {}", e.getMessage());
-        resultado.agregarError(MensajesConstantes.ERROR_IMPORTACION + e.getMessage());
-        resultado.calcularTotales();
-    }
+            for (int i = 0; i < headers.length; i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(headers[i]);
 
-    private void manejarErrorInesperado(Exception e, ImportacionResultadoDTO resultado) {
-        logger.error("Error inesperado durante importación", e);
-        resultado.agregarError(MensajesConstantes.ERROR_IMPORTACION + "Error inesperado del sistema");
-        resultado.calcularTotales();
-    }
+                // Estilo para encabezados
+                CellStyle headerStyle = workbook.createCellStyle();
+                Font font = workbook.createFont();
+                font.setBold(true);
+                headerStyle.setFont(font);
+                cell.setCellStyle(headerStyle);
+            }
 
-    private Map<String, Object> manejarErrorValidacion(Exception e, MultipartFile archivo) {
-        logger.error("Error validando archivo {}: {}", obtenerNombreArchivoSeguro(archivo), e.getMessage());
-        return Map.of(
-                "valido", false,
-                "errores", List.of(MensajesConstantes.ERROR_IMPORTACION + e.getMessage()),
-                "nombreArchivo", obtenerNombreArchivoSeguro(archivo)
-        );
-    }
+            // Ejemplo de datos
+            Row exampleRow = sheet.createRow(1);
+            exampleRow.createCell(0).setCellValue("PROD001");
+            exampleRow.createCell(1).setCellValue("Producto Ejemplo");
+            exampleRow.createCell(2).setCellValue("Descripción del producto");
+            exampleRow.createCell(3).setCellValue(19990);
+            exampleRow.createCell(4).setCellValue(50);
+            exampleRow.createCell(5).setCellValue("Electrónicos");
+            exampleRow.createCell(6).setCellValue("Proveedor ABC");
 
-    /**
-     * Registra el resultado de la importación en los logs.
-     */
-    private void logResultadoImportacion(ImportacionResultadoDTO resultado) {
-        if (resultado.getTotalErrores() == ImportacionConstants.CERO_ERRORES) {
-            logger.info("Importación completada exitosamente - Procesados: {}, Exitosos: {}",
-                    resultado.getTotalProcesados(), resultado.getTotalExitosos());
-        } else {
-            logger.warn("Importación completada con errores - Procesados: {}, Exitosos: {}, Errores: {}",
-                    resultado.getTotalProcesados(), resultado.getTotalExitosos(), resultado.getTotalErrores());
+            // Ajustar ancho de columnas
+            for (int i = 0; i < headers.length; i++) {
+                sheet.autoSizeColumn(i);
+            }
+
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            workbook.write(outputStream);
+            return outputStream.toByteArray();
         }
     }
 
-    /**
-     * Utilitarios para manejo seguro de datos.
-     */
-    private String obtenerNombreArchivoSeguro(MultipartFile archivo) {
-        return archivo != null && archivo.getOriginalFilename() != null
-                ? archivo.getOriginalFilename()
-                : "archivo_sin_nombre";
+    // Métodos privados de utilidad
+
+    private List<Map<String, Object>> procesarArchivoExcel(MultipartFile archivo) throws IOException {
+        List<Map<String, Object>> datos = new ArrayList<>();
+
+        try (Workbook workbook = new XSSFWorkbook(archivo.getInputStream())) {
+            Sheet sheet = workbook.getSheetAt(0);
+
+            // Obtener encabezados de la primera fila
+            Row headerRow = sheet.getRow(0);
+            if (headerRow == null) {
+                throw new ImportacionException("El archivo no contiene encabezados");
+            }
+
+            List<String> headers = new ArrayList<>();
+            for (Cell cell : headerRow) {
+                headers.add(cell.getStringCellValue().toLowerCase().trim());
+            }
+
+            // Procesar filas de datos
+            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+                Row row = sheet.getRow(i);
+                if (row == null) continue;
+
+                Map<String, Object> fila = new HashMap<>();
+                for (int j = 0; j < headers.size(); j++) {
+                    Cell cell = row.getCell(j);
+                    Object valor = obtenerValorCelda(cell);
+                    fila.put(headers.get(j), valor);
+                }
+                datos.add(fila);
+            }
+        }
+
+        return datos;
     }
 
-    private String capitalize(String str) {
-        if (str == null || str.isEmpty()) {
-            return str;
+    private Object obtenerValorCelda(Cell cell) {
+        if (cell == null) {
+            return "";
         }
-        return str.substring(ImportacionConstants.INDICE_PRIMERA_LETRA, ImportacionConstants.INDICE_SEGUNDA_LETRA).toUpperCase()
-                + str.substring(ImportacionConstants.INDICE_SEGUNDA_LETRA).toLowerCase();
+
+        switch (cell.getCellType()) {
+            case STRING:
+                return cell.getStringCellValue().trim();
+            case NUMERIC:
+                if (DateUtil.isCellDateFormatted(cell)) {
+                    return cell.getDateCellValue();
+                }
+                return cell.getNumericCellValue();
+            case BOOLEAN:
+                return cell.getBooleanCellValue();
+            case FORMULA:
+                return cell.getCellFormula();
+            default:
+                return "";
+        }
     }
-}// Validaciones previas
+
+    private String obtenerValorString(Map<String, Object> fila, String campo) {
+        Object valor = fila.get(campo);
+        return valor != null ? valor.toString().trim() : "";
+    }
+
+    private Cliente mapearCliente(Map<String, Object> fila, int numeroFila) {
+        try {
+            Cliente cliente = new Cliente();
+
+            String nombre = obtenerValorString(fila, "nombre");
+            String apellido = obtenerValorString(fila, "apellido");
+            String email = obtenerValorString(fila, "email");
+            String rut = obtenerValorString(fila, "rut");
+
+            if (nombre.isEmpty() || apellido.isEmpty() || email.isEmpty() || rut.isEmpty()) {
+                throw new IllegalArgumentException("Campos obligatorios faltantes (nombre, apellido, email, rut)");
+            }
+
+            if (!ValidadorRutUtil.validar(rut)) {
+                throw new IllegalArgumentException("RUT inválido: " + rut);
+            }
+
+            cliente.setNombre(nombre);
+            cliente.setApellido(apellido);
+            cliente.setEmail(email);
+            cliente.setRut(rut);
+            cliente.setTelefono(obtenerValorString(fila, "telefono"));
+            cliente.setDireccion(obtenerValorString(fila, "direccion"));
+            cliente.setCategoria(obtenerValorString(fila, "categoria"));
+            cliente.setFechaRegistro(LocalDate.now());
+
+            return cliente;
+        } catch (Exception e) {
+            throw new ImportacionException("Error mapeando cliente en fila " + numeroFila + ": " + e.getMessage());
+        }
+    }
+
+    private Producto mapearProducto(Map<String, Object> fila, int numeroFila) {
+        try {
+            Producto producto = new Producto();
+
+            String codigo = obtenerValorString(fila, "codigo");
+            String nombre = obtenerValorString(fila, "nombre");
+            String precioStr = obtenerValorString(fila, "precio");
+            String stockStr = obtenerValorString(fila, "stock");
+
+            if (codigo.isEmpty() || nombre.isEmpty() || precioStr.isEmpty()) {
+                throw new IllegalArgumentException("Campos obligatorios faltantes (codigo, nombre, precio)");
+            }
+
+            try {
+                Double precio = Double.parseDouble(precioStr.replace(",", "."));
+                if (precio <= 0) {
+                    throw new IllegalArgumentException("El precio debe ser mayor que cero");
+                }
+                producto.setPrecio(precio);
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("Precio inválido: " + precioStr);
+            }
+
+            try {
+                Integer stock = stockStr.isEmpty() ? 0 : Integer.parseInt(stockStr);
+                if (stock < 0) {
+                    throw new IllegalArgumentException("El stock no puede ser negativo");
+                }
+                producto.setStock(stock);
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("Stock inválido: " + stockStr);
+            }
+
+            producto.setCodigo(codigo.toUpperCase());
+            producto.setNombre(nombre);
+            producto.setDescripcion(obtenerValorString(fila, "descripcion"));
+            producto.setCategoria(obtenerValorString(fila, "categoria"));
+            producto.setProveedor(obtenerValorString(fila, "proveedor"));
+            producto.setFechaCreacion(LocalDateTime.now());
+            producto.setActivo(true);
+
+            return producto;
+        } catch (Exception e) {
+            throw new ImportacionException("Error mapeando producto en fila " + numeroFila + ": " + e.getMessage());
+        }
+    }
+
+    private Usuario mapearUsuario(Map<String, Object> fila, int numeroFila) {
+        try {
+            Usuario usuario = new Usuario();
+
+            String username = obtenerValorString(fila, "username");
+            String nombre = obtenerValorString(fila, "nombre");
+            String email = obtenerValorString(fila, "email");
+            String password = obtenerValorString(fila, "password");
+
+            if (username.isEmpty() || nombre.isEmpty() || email.isEmpty() || password.isEmpty()) {
+                throw new IllegalArgumentException("Campos obligatorios faltantes (username, nombre, email, password)");
+            }
+
+            // Validar que el username no exista
+            if (usuarioServicio.existePorUsername(username)) {
+                throw new IllegalArgumentException("El username ya existe: " + username);
+            }
+
+            // Validar que el email no exista
+            if (usuarioServicio.existePorEmail(email)) {
+                throw new IllegalArgumentException("El email ya existe: " + email);
+            }
+
+            usuario.setUsername(username);
+            usuario.setNombre(nombre);
+            usuario.setEmail(email);
+            usuario.setPassword(passwordEncoder.encode(password));
+            usuario.setActivo(true);
+            usuario.setFechaCreacion(LocalDateTime.now());
+
+            // Rol por defecto
+            String rol = obtenerValorString(fila, "rol");
+            if (rol.isEmpty()) {
+                rol = "USER";
+            }
+            usuario.setRol(rol.toUpperCase());
+
+            return usuario;
+        } catch (Exception e) {
+            throw new ImportacionException("Error mapeando usuario en fila " + numeroFila + ": " + e.getMessage());
+        }
+    }
+}

@@ -95,5 +95,8 @@ public interface VentaServicio {
     default Long contarTransacciones(LocalDate inicio, LocalDate fin) {
         return contarTransacciones(inicio.atStartOfDay(), fin.atTime(23, 59, 59));
     }
+    
+    List<Venta> buscarPorVendedorYFechas(Long vendedorId, LocalDateTime inicio, LocalDateTime fin);
+    List<Venta> buscarPorCliente(Long clienteId);
 
 }

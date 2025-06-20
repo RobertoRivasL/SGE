@@ -6,10 +6,9 @@ package informviva.gest.service;
  */
 
 
-import com.lowagie.text.Document;
-import com.lowagie.text.DocumentException;
-import com.lowagie.text.html.simpleparser.HTMLWorker;
-import com.lowagie.text.pdf.PdfWriter;
+import com.lowagie.text.*;
+import com.lowagie.text.pdf.*;
+import com.lowagie.text.html.simpleparser.*;
 import informviva.gest.model.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

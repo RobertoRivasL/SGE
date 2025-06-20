@@ -4,40 +4,25 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 /**
- * Implementación de la lógica para validar un RUT chileno.
+ * Implementación del validador para RUTs chilenos
+ *
+ * @author Roberto Rivas
+ * @version 2.0
  */
 public class ValidadorRutClase implements ConstraintValidator<ValidadorRut, String> {
 
     @Override
     public void initialize(ValidadorRut constraintAnnotation) {
-        // No necesitas inicializar nada en este caso.
+        // No requiere inicialización específica
     }
 
     @Override
     public boolean isValid(String rut, ConstraintValidatorContext context) {
+        // Si el RUT es null o vacío, se considera válido (usar @NotNull o @NotEmpty para campos obligatorios)
         if (rut == null || rut.trim().isEmpty()) {
-            return false;
+            return true;
         }
 
-        rut = rut.replace(".", "").replace("-", "").toUpperCase();
-        if (rut.length() < 2) return false;
-
-        try {
-            String cuerpo = rut.substring(0, rut.length() - 1);
-            String dv = rut.substring(rut.length() - 1);
-
-            int rutNum = Integer.parseInt(cuerpo);
-            int m = 0;
-            int r = 1;
-            for (; rutNum != 0; rutNum /= 10) {
-                r = (r + rutNum % 10 * (9 - m++ % 6)) % 11;
-            }
-
-            String dvEsperado = (r != 0) ? String.valueOf((char) (r + 47)) : "K";
-
-            return dv.equals(dvEsperado);
-        } catch (NumberFormatException e) {
-            return false;
-        }
+        return ValidadorRutUtil.validar(rut);
     }
 }

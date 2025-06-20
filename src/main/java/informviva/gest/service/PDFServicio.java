@@ -1,10 +1,9 @@
 package informviva.gest.service;
 
-import com.lowagie.text.Font;
 import com.lowagie.text.*;
-import com.lowagie.text.pdf.PdfPCell;
-import com.lowagie.text.pdf.PdfPTable;
-import com.lowagie.text.pdf.PdfWriter;
+import com.lowagie.text.Font;
+import com.lowagie.text.pdf.*;
+import com.lowagie.text.html.simpleparser.*;
 import informviva.gest.model.Cliente;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Service;
