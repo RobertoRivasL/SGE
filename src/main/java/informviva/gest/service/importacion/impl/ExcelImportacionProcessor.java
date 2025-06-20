@@ -8,8 +8,12 @@ import org.springframework.web.multipart.MultipartFile;
 public class ExcelImportacionProcessor implements ImportacionProcessor {
 
     @Override
-    public boolean puedeProcesar(String tipoArchivo) {
-        return "xlsx".equalsIgnoreCase(tipoArchivo) || "xls".equalsIgnoreCase(tipoArchivo);
+    public boolean puedeProcesar(MultipartFile archivo) {
+        if (archivo == null || archivo.getOriginalFilename() == null) {
+            return false;
+        }
+        String tipoArchivo = archivo.getOriginalFilename();
+        return tipoArchivo.endsWith(".xlsx") || tipoArchivo.endsWith(".xls");
     }
 
     @Override

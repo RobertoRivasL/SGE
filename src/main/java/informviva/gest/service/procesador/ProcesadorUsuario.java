@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -95,15 +96,14 @@ public class ProcesadorUsuario implements ProcesadorEntidad<Usuario> {
 
     @Override
     public ValidacionResultadoDTO validarEntidad(Usuario usuario, int numeroFila) {
-        Map<String, Object> fila = Map.of(
-                "username", usuario.getUsername(),
-                "password", "********", // No exponer la contraseña
-                "nombre", usuario.getNombre(),
-                "apellido", usuario.getApellido(),
-                "email", usuario.getEmail(),
-                "roles", String.join(";", usuario.getRoles()),
-                "activo", String.valueOf(usuario.isActivo())
-        );
+        Map<String, Object> fila = new HashMap<>();
+        fila.put("username", usuario.getUsername());
+        fila.put("password", "********"); // No exponer la contraseña
+        fila.put("nombre", usuario.getNombre());
+        fila.put("apellido", usuario.getApellido());
+        fila.put("email", usuario.getEmail());
+        fila.put("roles", String.join(";", usuario.getRoles()));
+        fila.put("activo", String.valueOf(usuario.isActivo()));
 
         return validador.validarFila(fila, getTipoEntidad(), numeroFila);
     }

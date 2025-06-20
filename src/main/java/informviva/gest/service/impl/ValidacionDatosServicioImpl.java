@@ -8,7 +8,7 @@ import informviva.gest.service.UsuarioServicio;
 import informviva.gest.dto.ResultadoValidacionSistema;
 import informviva.gest.dto.ErrorValidacion;
 import informviva.gest.enums.NivelSeveridad;
-import informviva.gest.service.ResultadoValidacionModulo;
+import informviva.gest.dto.ResultadoValidacionModulo;
 import informviva.gest.model.*;
 import informviva.gest.validador.ValidadorRutUtil;
 

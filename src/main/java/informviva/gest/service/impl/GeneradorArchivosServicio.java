@@ -10,6 +10,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import java.util.stream.Collectors;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -68,13 +69,12 @@ public class GeneradorArchivosServicio {
 
                 if (usuario.getFechaCreacion() != null) {
                     Cell dateCell = row.createCell(6);
-                    dateCell.setCellValue(java.sql.Date.valueOf(usuario.getFechaCreacion()));
+                    dateCell.setCellValue(java.sql.Timestamp.valueOf(usuario.getFechaCreacion()));
                     dateCell.setCellStyle(dateStyle);
                 }
-
                 if (usuario.getUltimoAcceso() != null) {
                     Cell lastAccessCell = row.createCell(7);
-                    lastAccessCell.setCellValue(java.sql.Date.valueOf(usuario.getUltimoAcceso()));
+                    lastAccessCell.setCellValue(java.sql.Timestamp.valueOf(usuario.getUltimoAcceso()));
                     lastAccessCell.setCellStyle(dateStyle);
                 }
 
@@ -134,10 +134,11 @@ public class GeneradorArchivosServicio {
                             u.getApellido(),
                             u.getEmail(),
                             u.isActivo(),
-                            u.getFechaCreacion(),
-                            u.getUltimoAcceso(),
+                            u.getFechaCreacion() != null ? u.getFechaCreacion().toLocalDate() : null,
+                            u.getUltimoAcceso() != null ? u.getUltimoAcceso().toLocalDate() : null,
                             u.getRoles()
-                    )).toList();
+                    ))
+                    .collect(Collectors.toList());
 
             byte[] json = mapper.writeValueAsBytes(usuariosExport);
             logger.info("Archivo JSON de usuarios generado: {} registros", usuarios.size());

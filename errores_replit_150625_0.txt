@@ -1,0 +1,488 @@
+./src/main/java/informviva/gest/service/ResultadoValidacionModulo.java:21: error: duplicate class: informviva.gest.service.ResultadoValidacionModulo
+public class ResultadoValidacionModulo {
+       ^
+./src/main/java/informviva/gest/controlador/SistemaControlador.java:6: error: cannot find symbol
+import informviva.gest.service.BackupServicio;
+                              ^
+  symbol:   class BackupServicio
+  location: package informviva.gest.service
+./src/main/java/informviva/gest/controlador/SistemaControlador.java:20: error: cannot find symbol
+    private final BackupServicio backupServicio;
+                  ^
+  symbol:   class BackupServicio
+  location: class SistemaControlador
+./src/main/java/informviva/gest/controlador/SistemaControlador.java:23: error: cannot find symbol
+    public SistemaControlador(BackupServicio backupServicio, MetricasServicio metricasServicio) {
+                              ^
+  symbol:   class BackupServicio
+  location: class SistemaControlador
+./src/main/java/informviva/gest/controlador/api/ClienteRestControlador.java:6: error: cannot find symbol
+import informviva.gest.dto.ResultadoValidacionDTO;
+                          ^
+  symbol:   class ResultadoValidacionDTO
+  location: package informviva.gest.dto
+./src/main/java/informviva/gest/controlador/api/ClienteRestControlador.java:281: error: cannot find symbol
+    public ResponseEntity<ResultadoValidacionDTO> validarRUT(@RequestBody Map<String, String> datos) {
+                          ^
+  symbol:   class ResultadoValidacionDTO
+  location: class ClienteRestControlador
+./src/main/java/informviva/gest/controlador/api/ClienteRestControlador.java:304: error: cannot find symbol
+    public ResponseEntity<ResultadoValidacionDTO> validarEmail(@RequestBody Map<String, Object> datos) {
+                          ^
+  symbol:   class ResultadoValidacionDTO
+  location: class ClienteRestControlador
+./src/main/java/informviva/gest/service/RestauracionServicio.java:51: error: cannot find symbol
+    public InfoRestauracion analizarRespaldo(MultipartFile archivo) {
+           ^
+  symbol:   class InfoRestauracion
+  location: class RestauracionServicio
+./src/main/java/informviva/gest/service/RestauracionServicio.java:70: error: cannot find symbol
+    public ResultadoRestauracion restaurarDesdeArchivo(MultipartFile archivo, boolean sobrescribir) {
+           ^
+  symbol:   class ResultadoRestauracion
+  location: class RestauracionServicio
+./src/main/java/informviva/gest/service/RestauracionServicio.java:89: error: cannot find symbol
+    public ResultadoValidacion validarIntegridadRespaldo(MultipartFile archivo) {
+           ^
+  symbol:   class ResultadoValidacion
+  location: class RestauracionServicio
+./src/main/java/informviva/gest/service/RestauracionServicio.java:110: error: cannot find symbol
+    private InfoRestauracion inicializarInfoRestauracion(MultipartFile archivo) {
+            ^
+  symbol:   class InfoRestauracion
+  location: class RestauracionServicio
+./src/main/java/informviva/gest/service/RestauracionServicio.java:118: error: cannot find symbol
+    private ResultadoRestauracion inicializarResultadoRestauracion() {
+            ^
+  symbol:   class ResultadoRestauracion
+  location: class RestauracionServicio
+./src/main/java/informviva/gest/service/RestauracionServicio.java:124: error: cannot find symbol
+    private ResultadoValidacion inicializarResultadoValidacion(MultipartFile archivo) {
+            ^
+  symbol:   class ResultadoValidacion
+  location: class RestauracionServicio
+./src/main/java/informviva/gest/service/RestauracionServicio.java:131: error: cannot find symbol
+    private void manejarErrorAnalisis(InfoRestauracion info, Exception e) {
+                                      ^
+  symbol:   class InfoRestauracion
+  location: class RestauracionServicio
+./src/main/java/informviva/gest/service/RestauracionServicio.java:137: error: cannot find symbol
+    private void manejarErrorRestauracion(ResultadoRestauracion resultado, Exception e) {
+                                          ^
+  symbol:   class ResultadoRestauracion
+  location: class RestauracionServicio
+./src/main/java/informviva/gest/service/RestauracionServicio.java:144: error: cannot find symbol
+    private void manejarErrorValidacion(ResultadoValidacion resultado, Exception e) {
+                                        ^
+  symbol:   class ResultadoValidacion
+  location: class RestauracionServicio
+./src/main/java/informviva/gest/service/RestauracionServicio.java:150: error: cannot find symbol
+    private void analizarRespaldoZip(MultipartFile archivo, InfoRestauracion info) throws IOException {
+                                                            ^
+  symbol:   class InfoRestauracion
+  location: class RestauracionServicio
+./src/main/java/informviva/gest/service/RestauracionServicio.java:167: error: cannot find symbol
+                                         Set<ModuloRespaldo> modulosEncontrados, InfoRestauracion info) throws IOException {
+                                             ^
+  symbol:   class ModuloRespaldo
+  location: class RestauracionServicio
+./src/main/java/informviva/gest/service/RestauracionServicio.java:167: error: cannot find symbol
+                                         Set<ModuloRespaldo> modulosEncontrados, InfoRestauracion info) throws IOException {
+                                                                                 ^
+  symbol:   class InfoRestauracion
+  location: class RestauracionServicio
+./src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:12: error: cannot find symbol
+import informviva.gest.service.EmailServicio;
+                              ^
+  symbol:   class EmailServicio
+  location: package informviva.gest.service
+./src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:59: error: cannot find symbol
+    private EmailServicio emailServicio;
+            ^
+  symbol:   class EmailServicio
+  location: class ClienteServicioImpl
+./src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:855: error: method contarTodos() is already defined in class ClienteServicioImpl
+    public Long contarTodos() {
+                ^
+./src/main/java/informviva/gest/service/importacion/factory/ImportacionProcessorFactory.java:6: error: package informviva.gest.service.importacion.impl does not exist
+import informviva.gest.service.importacion.impl.CsvImportacionProcessor;
+                                               ^
+./src/main/java/informviva/gest/service/importacion/factory/ImportacionProcessorFactory.java:7: error: package informviva.gest.service.importacion.impl does not exist
+import informviva.gest.service.importacion.impl.ExcelImportacionProcessor;
+                                               ^
+./src/main/java/informviva/gest/service/importacion/factory/ImportacionProcessorFactory.java:34: error: cannot find symbol
+    private final CsvImportacionProcessor csvProcessor;
+                  ^
+  symbol:   class CsvImportacionProcessor
+  location: class ImportacionProcessorFactory
+./src/main/java/informviva/gest/service/importacion/factory/ImportacionProcessorFactory.java:35: error: cannot find symbol
+    private final ExcelImportacionProcessor excelProcessor;
+                  ^
+  symbol:   class ExcelImportacionProcessor
+  location: class ImportacionProcessorFactory
+./src/main/java/informviva/gest/service/importacion/factory/ImportacionProcessorFactory.java:38: error: cannot find symbol
+    public ImportacionProcessorFactory(CsvImportacionProcessor csvProcessor,
+                                       ^
+  symbol:   class CsvImportacionProcessor
+  location: class ImportacionProcessorFactory
+./src/main/java/informviva/gest/service/importacion/factory/ImportacionProcessorFactory.java:39: error: cannot find symbol
+                                       ExcelImportacionProcessor excelProcessor) {
+                                       ^
+  symbol:   class ExcelImportacionProcessor
+  location: class ImportacionProcessorFactory
+./src/main/java/informviva/gest/service/impl/ImportacionServicioRefactorizado.java:12: error: package informviva.gest.service.validacion does not exist
+import informviva.gest.service.validacion.ImportacionValidador;
+                                         ^
+./src/main/java/informviva/gest/service/impl/ImportacionServicioRefactorizado.java:39: error: cannot find symbol
+    private ImportacionValidador validador;
+            ^
+  symbol:   class ImportacionValidador
+  location: class ImportacionServicioRefactorizado
+./src/main/java/informviva/gest/service/impl/ReporteServicioImpl.java:24: error: interface expected here
+public class ReporteServicioImpl implements ReporteServicio {
+                                            ^
+./src/main/java/informviva/gest/util/ValidacionConstantes.java:136: error: variable DATOS_INVALIDOS is already defined in class ValidacionConstantes
+    public static final String DATOS_INVALIDOS = "Se encontraron datos inválidos";
+                               ^
+./src/test/java/informviva/gest/ClienteServicioImplTest.java:41: error: cannot find symbol
+    private ClienteServicioImpl clienteServicio;
+            ^
+  symbol:   class ClienteServicioImpl
+  location: class ClienteServicioImplTest
+./src/test/java/informviva/gest/ExportacionControladorIntegrationTest.java:12: error: cannot find symbol
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureTestDatabase;
+                                                              ^
+  symbol:   class AutoConfigureTestDatabase
+  location: package org.springframework.boot.test.autoconfigure.web.servlet
+./src/test/java/informviva/gest/ExportacionControladorIntegrationTest.java:27: error: cannot find symbol
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+ ^
+  symbol: class AutoConfigureTestDatabase
+./src/test/java/informviva/gest/ExportacionServicioTest.java:11: error: cannot find symbol
+import informviva.gest.service.impl.ExportacionHistorialServicio;
+                                   ^
+  symbol:   class ExportacionHistorialServicio
+  location: package informviva.gest.service.impl
+./src/test/java/informviva/gest/ExportacionServicioTest.java:35: error: cannot find symbol
+    private UsuarioServicio usuarioServicio;
+            ^
+  symbol:   class UsuarioServicio
+  location: class ExportacionServicioTest
+./src/test/java/informviva/gest/ExportacionServicioTest.java:38: error: cannot find symbol
+    private ProductoServicio productoServicio;
+            ^
+  symbol:   class ProductoServicio
+  location: class ExportacionServicioTest
+./src/test/java/informviva/gest/ExportacionServicioTest.java:44: error: cannot find symbol
+    private ExportacionHistorialServicio historialServicio;
+            ^
+  symbol:   class ExportacionHistorialServicio
+  location: class ExportacionServicioTest
+./src/test/java/informviva/gest/ExportacionServicioTest.java:53: error: cannot find symbol
+    private ExportacionServicio exportacionServicio;
+            ^
+  symbol:   class ExportacionServicio
+  location: class ExportacionServicioTest
+./src/test/java/informviva/gest/ExportacionControladorIntegrationTest.java:27: error: package AutoConfigureTestDatabase does not exist
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+                                                              ^
+./.mvn/wrapper/PanelVentasControlador.java:132: error: cannot find symbol
+        if (resumen.getVentasPorVendedor() == null) {
+                   ^
+  symbol:   method getVentasPorVendedor()
+  location: variable resumen of type VentaResumenDTO
+./.mvn/wrapper/PanelVentasControlador.java:133: error: cannot find symbol
+            resumen.setVentasPorVendedor(Collections.emptyList());
+                   ^
+  symbol:   method setVentasPorVendedor(List<Object>)
+  location: variable resumen of type VentaResumenDTO
+./.mvn/wrapper/PanelVentasControlador.java:135: error: cannot find symbol
+        if (resumen.getVentasPorPeriodo() == null) {
+                   ^
+  symbol:   method getVentasPorPeriodo()
+  location: variable resumen of type VentaResumenDTO
+./.mvn/wrapper/PanelVentasControlador.java:136: error: cannot find symbol
+            resumen.setVentasPorPeriodo(Collections.emptyList());
+                   ^
+  symbol:   method setVentasPorPeriodo(List<Object>)
+  location: variable resumen of type VentaResumenDTO
+./.mvn/wrapper/PanelVentasControlador.java:138: error: cannot find symbol
+        if (resumen.getVentasPorCategoria() == null) {
+                   ^
+  symbol:   method getVentasPorCategoria()
+  location: variable resumen of type VentaResumenDTO
+./.mvn/wrapper/PanelVentasControlador.java:139: error: cannot find symbol
+            resumen.setVentasPorCategoria(Collections.emptyList());
+                   ^
+  symbol:   method setVentasPorCategoria(List<Object>)
+  location: variable resumen of type VentaResumenDTO
+./.mvn/wrapper/PanelVentasControlador.java:141: error: cannot find symbol
+        if (resumen.getProductosMasVendidos() == null) {
+                   ^
+  symbol:   method getProductosMasVendidos()
+  location: variable resumen of type VentaResumenDTO
+./.mvn/wrapper/PanelVentasControlador.java:142: error: cannot find symbol
+            resumen.setProductosMasVendidos(Collections.emptyList());
+                   ^
+  symbol:   method setProductosMasVendidos(List<Object>)
+  location: variable resumen of type VentaResumenDTO
+./.mvn/wrapper/PanelVentasControlador.java:146: error: cannot find symbol
+        if (resumen.getTotalVentas() == null) {
+                   ^
+  symbol:   method getTotalVentas()
+  location: variable resumen of type VentaResumenDTO
+./.mvn/wrapper/PanelVentasControlador.java:147: error: cannot find symbol
+            resumen.setTotalVentas(BigDecimal.ZERO);
+                   ^
+  symbol:   method setTotalVentas(BigDecimal)
+  location: variable resumen of type VentaResumenDTO
+./.mvn/wrapper/PanelVentasControlador.java:149: error: cannot find symbol
+        if (resumen.getTotalTransacciones() == null) {
+                   ^
+  symbol:   method getTotalTransacciones()
+  location: variable resumen of type VentaResumenDTO
+./.mvn/wrapper/PanelVentasControlador.java:150: error: cannot find symbol
+            resumen.setTotalTransacciones(0L);
+                   ^
+  symbol:   method setTotalTransacciones(long)
+  location: variable resumen of type VentaResumenDTO
+./.mvn/wrapper/PanelVentasControlador.java:152: error: cannot find symbol
+        if (resumen.getTicketPromedio() == null) {
+                   ^
+  symbol:   method getTicketPromedio()
+  location: variable resumen of type VentaResumenDTO
+./.mvn/wrapper/PanelVentasControlador.java:153: error: cannot find symbol
+            resumen.setTicketPromedio(BigDecimal.ZERO);
+                   ^
+  symbol:   method setTicketPromedio(BigDecimal)
+  location: variable resumen of type VentaResumenDTO
+./.mvn/wrapper/PanelVentasControlador.java:155: error: cannot find symbol
+        if (resumen.getClientesNuevos() == null) {
+                   ^
+  symbol:   method getClientesNuevos()
+  location: variable resumen of type VentaResumenDTO
+./.mvn/wrapper/PanelVentasControlador.java:156: error: cannot find symbol
+            resumen.setClientesNuevos(0L);
+                   ^
+  symbol:   method setClientesNuevos(long)
+  location: variable resumen of type VentaResumenDTO
+./.mvn/wrapper/PanelVentasControlador.java:194: error: cannot find symbol
+        dto.setTotalVentas(BigDecimal.ZERO);
+           ^
+  symbol:   method setTotalVentas(BigDecimal)
+  location: variable dto of type VentaResumenDTO
+./.mvn/wrapper/PanelVentasControlador.java:195: error: cannot find symbol
+        dto.setTotalTransacciones(0L);
+           ^
+  symbol:   method setTotalTransacciones(long)
+  location: variable dto of type VentaResumenDTO
+./.mvn/wrapper/PanelVentasControlador.java:196: error: cannot find symbol
+        dto.setTicketPromedio(BigDecimal.ZERO);
+           ^
+  symbol:   method setTicketPromedio(BigDecimal)
+  location: variable dto of type VentaResumenDTO
+./.mvn/wrapper/PanelVentasControlador.java:197: error: cannot find symbol
+        dto.setClientesNuevos(0L);
+           ^
+  symbol:   method setClientesNuevos(long)
+  location: variable dto of type VentaResumenDTO
+./.mvn/wrapper/PanelVentasControlador.java:198: error: cannot find symbol
+        dto.setTotalArticulosVendidos(0L);
+           ^
+  symbol:   method setTotalArticulosVendidos(long)
+  location: variable dto of type VentaResumenDTO
+./.mvn/wrapper/PanelVentasControlador.java:199: error: cannot find symbol
+        dto.setProductosMasVendidos(Collections.emptyList());
+           ^
+  symbol:   method setProductosMasVendidos(List<Object>)
+  location: variable dto of type VentaResumenDTO
+./.mvn/wrapper/PanelVentasControlador.java:200: error: cannot find symbol
+        dto.setVentasPorPeriodo(Collections.emptyList());
+           ^
+  symbol:   method setVentasPorPeriodo(List<Object>)
+  location: variable dto of type VentaResumenDTO
+./.mvn/wrapper/PanelVentasControlador.java:201: error: cannot find symbol
+        dto.setVentasPorCategoria(Collections.emptyList());
+           ^
+  symbol:   method setVentasPorCategoria(List<Object>)
+  location: variable dto of type VentaResumenDTO
+./.mvn/wrapper/PanelVentasControlador.java:202: error: cannot find symbol
+        dto.setVentasPorVendedor(Collections.emptyList());
+           ^
+  symbol:   method setVentasPorVendedor(List<Object>)
+  location: variable dto of type VentaResumenDTO
+./src/main/java/informviva/gest/service/ReporteServicio.java:33: error: cannot find symbol
+        resumen.setTotalVentas(getSafeBigDecimal(reporteRepository.sumarTotalVentasEntreFechas(startDateTime, endDateTime)));
+               ^
+  symbol:   method setTotalVentas(BigDecimal)
+  location: variable resumen of type VentaResumenDTO
+./src/main/java/informviva/gest/service/ReporteServicio.java:34: error: cannot find symbol
+        resumen.setTotalTransacciones(getSafeLong(reporteRepository.contarVentasEntreFechas(startDateTime, endDateTime)));
+               ^
+  symbol:   method setTotalTransacciones(Long)
+  location: variable resumen of type VentaResumenDTO
+./src/main/java/informviva/gest/service/ReporteServicio.java:35: error: cannot find symbol
+        resumen.setTotalArticulosVendidos(getSafeLong(reporteRepository.sumarCantidadArticulosVendidosEntreFechas(startDateTime, endDateTime)));
+               ^
+  symbol:   method setTotalArticulosVendidos(Long)
+  location: variable resumen of type VentaResumenDTO
+./src/main/java/informviva/gest/service/ReporteServicio.java:36: error: cannot find symbol
+        resumen.setClientesNuevos(getSafeLong(reporteRepository.contarClientesNuevosEntreFechas(startDate, endDate)));
+               ^
+  symbol:   method setClientesNuevos(Long)
+  location: variable resumen of type VentaResumenDTO
+./src/main/java/informviva/gest/service/ReporteServicio.java:39: error: cannot find symbol
+        resumen.setTicketPromedio(calcularTicketPromedio(resumen.getTotalVentas(), resumen.getTotalTransacciones()));
+                                                                ^
+  symbol:   method getTotalVentas()
+  location: variable resumen of type VentaResumenDTO
+./src/main/java/informviva/gest/service/ReporteServicio.java:39: error: cannot find symbol
+        resumen.setTicketPromedio(calcularTicketPromedio(resumen.getTotalVentas(), resumen.getTotalTransacciones()));
+                                                                                          ^
+  symbol:   method getTotalTransacciones()
+  location: variable resumen of type VentaResumenDTO
+./src/main/java/informviva/gest/service/ReporteServicio.java:46: error: cannot find symbol
+        calcularPorcentajeProductosVendidos(productosVendidos, resumen.getTotalVentas());
+                                                                      ^
+  symbol:   method getTotalVentas()
+  location: variable resumen of type VentaResumenDTO
+./src/main/java/informviva/gest/service/ReporteServicio.java:47: error: cannot find symbol
+        resumen.setProductosMasVendidos(productosVendidos);
+               ^
+  symbol:   method setProductosMasVendidos(List<ProductoVendidoDTO>)
+  location: variable resumen of type VentaResumenDTO
+./src/main/java/informviva/gest/service/ReporteServicio.java:50: error: cannot find symbol
+        resumen.setVentasPorPeriodo(reporteRepository.obtenerVentasPorPeriodoEntreFechas(startDateTime, endDateTime));
+               ^
+  symbol:   method setVentasPorPeriodo(List<VentaPorPeriodoDTO>)
+  location: variable resumen of type VentaResumenDTO
+./src/main/java/informviva/gest/service/ReporteServicio.java:51: error: cannot find symbol
+        resumen.setVentasPorCategoria(reporteRepository.obtenerVentasPorCategoriaEntreFechas(startDateTime, endDateTime));
+               ^
+  symbol:   method setVentasPorCategoria(List<VentaPorCategoriaDTO>)
+  location: variable resumen of type VentaResumenDTO
+./src/main/java/informviva/gest/service/ReporteServicio.java:52: error: cannot find symbol
+        resumen.setVentasPorVendedor(reporteRepository.obtenerVentasPorVendedorEntreFechas(startDateTime, endDateTime));
+               ^
+  symbol:   method setVentasPorVendedor(List<VentaPorVendedorDTO>)
+  location: variable resumen of type VentaResumenDTO
+./src/main/java/informviva/gest/service/ReporteServicio.java:109: error: cannot find symbol
+        resumen.setPorcentajeCambioVentas(null);
+               ^
+  symbol:   method setPorcentajeCambioVentas(<null>)
+  location: variable resumen of type VentaResumenDTO
+./src/main/java/informviva/gest/service/ReporteServicio.java:110: error: cannot find symbol
+        resumen.setPorcentajeCambioTransacciones(null);
+               ^
+  symbol:   method setPorcentajeCambioTransacciones(<null>)
+  location: variable resumen of type VentaResumenDTO
+./src/main/java/informviva/gest/service/ReporteServicio.java:111: error: cannot find symbol
+        resumen.setPorcentajeCambioTicketPromedio(null);
+               ^
+  symbol:   method setPorcentajeCambioTicketPromedio(<null>)
+  location: variable resumen of type VentaResumenDTO
+./src/main/java/informviva/gest/service/ReporteServicio.java:112: error: cannot find symbol
+        resumen.setPorcentajeCambioClientesNuevos(null);
+               ^
+  symbol:   method setPorcentajeCambioClientesNuevos(<null>)
+  location: variable resumen of type VentaResumenDTO
+./src/main/java/informviva/gest/model/Venta.java:97: error: cannot find symbol
+        return cliente != null && cliente.getFechaRegistro() != null &&
+                                         ^
+  symbol:   method getFechaRegistro()
+  location: variable cliente of type @jakarta.validation.constraints.NotNull(message="El cliente no puede ser nulo") Cliente
+./src/main/java/informviva/gest/model/Venta.java:98: error: cannot find symbol
+                cliente.getFechaRegistro().isAfter(LocalDate.now().minusDays(30));
+                       ^
+  symbol:   method getFechaRegistro()
+  location: variable cliente of type @jakarta.validation.constraints.NotNull(message="El cliente no puede ser nulo") Cliente
+./.mvn/wrapper/VentaApiCompatibilidadControlador.java:119: error: cannot find symbol
+        ventaDTO.setId((Long) mapa.get("id"));
+                ^
+  symbol:   method setId(Long)
+  location: variable ventaDTO of type VentaDTO
+./.mvn/wrapper/VentaApiCompatibilidadControlador.java:120: error: cannot find symbol
+        ventaDTO.setFecha(LocalDateTime.parse((String) mapa.get("fecha"))); // Conversión de String a LocalDateTime
+                ^
+  symbol:   method setFecha(LocalDateTime)
+  location: variable ventaDTO of type VentaDTO
+./.mvn/wrapper/VentaApiCompatibilidadControlador.java:121: error: cannot find symbol
+        ventaDTO.setCliente((String) mapa.get("cliente"));
+                ^
+  symbol:   method setCliente(String)
+  location: variable ventaDTO of type VentaDTO
+./.mvn/wrapper/VentaApiCompatibilidadControlador.java:122: error: cannot find symbol
+        ventaDTO.setVendedor((String) mapa.get("vendedor"));
+                ^
+  symbol:   method setVendedor(String)
+  location: variable ventaDTO of type VentaDTO
+./.mvn/wrapper/VentaApiCompatibilidadControlador.java:123: error: cannot find symbol
+        ventaDTO.setProducto((String) mapa.get("producto"));
+                ^
+  symbol:   method setProducto(String)
+  location: variable ventaDTO of type VentaDTO
+./.mvn/wrapper/VentaApiCompatibilidadControlador.java:124: error: cannot find symbol
+        ventaDTO.setCantidad((Integer) mapa.get("cantidad"));
+                ^
+  symbol:   method setCantidad(Integer)
+  location: variable ventaDTO of type VentaDTO
+./.mvn/wrapper/VentaApiCompatibilidadControlador.java:125: error: cannot find symbol
+        ventaDTO.setPrecioUnitario((Double) mapa.get("precioUnitario"));
+                ^
+  symbol:   method setPrecioUnitario(Double)
+  location: variable ventaDTO of type VentaDTO
+./.mvn/wrapper/VentaApiCompatibilidadControlador.java:126: error: cannot find symbol
+        ventaDTO.setTotal((Double) mapa.get("total"));
+                ^
+  symbol:   method setTotal(Double)
+  location: variable ventaDTO of type VentaDTO
+./.mvn/wrapper/VentaApiCompatibilidadControlador.java:127: error: cannot find symbol
+        ventaDTO.setEstado((String) mapa.get("estado"));
+                ^
+  symbol:   method setEstado(String)
+  location: variable ventaDTO of type VentaDTO
+./src/main/java/informviva/gest/controlador/api/VentaRestControlador.java:70: error: cannot find symbol
+        Double totalAmount = ventaServicio.calcularTotalVentas(startDateTime, endDateTime);
+                                          ^
+  symbol:   method calcularTotalVentas(LocalDateTime,LocalDateTime)
+  location: variable ventaServicio of type VentaServicio
+./src/main/java/informviva/gest/controlador/api/VentaRestControlador.java:71: error: cannot find symbol
+        Long totalTransactions = ventaServicio.contarTransacciones(startDateTime, endDateTime);
+                                              ^
+  symbol:   method contarTransacciones(LocalDateTime,LocalDateTime)
+  location: variable ventaServicio of type VentaServicio
+./src/main/java/informviva/gest/controlador/api/VentaRestControlador.java:72: error: cannot find symbol
+        Long totalQuantity = ventaServicio.contarArticulosVendidos(startDateTime, endDateTime);
+                                          ^
+  symbol:   method contarArticulosVendidos(LocalDateTime,LocalDateTime)
+  location: variable ventaServicio of type VentaServicio
+./src/main/java/informviva/gest/controlador/api/VentaRestControlador.java:92: error: cannot find symbol
+                .filter(producto -> producto.getStock() > 0)
+                                            ^
+  symbol:   method getStock()
+  location: variable producto of type Producto
+./src/main/java/informviva/gest/controlador/api/VentaRestControlador.java:128: error: cannot find symbol
+            Venta venta = ventaServicio.guardar(ventaDTO);
+                                       ^
+  symbol:   method guardar(@jakarta.validation.Valid VentaDTO)
+  location: variable ventaServicio of type VentaServicio
+./src/main/java/informviva/gest/controlador/api/VentaRestControlador.java:129: error: cannot find symbol
+            return ResponseEntity.status(HttpStatus.CREATED).body(ventaServicio.convertirADTO(venta));
+                                                                               ^
+  symbol:   method convertirADTO(Venta)
+  location: variable ventaServicio of type VentaServicio
+./src/main/java/informviva/gest/controlador/api/VentaRestControlador.java:149: error: cannot find symbol
+            ventas = ventaServicio.buscarPorRangoFechas(startDate.atStartOfDay(), endDate.atTime(23, 59, 59));
+                                  ^
+  symbol:   method buscarPorRangoFechas(LocalDateTime,LocalDateTime)
+  location: variable ventaServicio of type VentaServicio
+./src/main/java/informviva/gest/controlador/api/VentaRestControlador.java:151: error: cannot find symbol
+            ventas = ventaServicio.listarTodas();
+                                  ^
+  symbol:   method listarTodas()
+  location: variable ventaServicio of type VentaServicio
+Note: Some input files use unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+Note: Some messages have been simplified; recompile with -Xdiags:verbose to get full output
+100 errors
+only showing the first 100 errors, of 1551 total; use -Xmaxerrs if you would like to see more

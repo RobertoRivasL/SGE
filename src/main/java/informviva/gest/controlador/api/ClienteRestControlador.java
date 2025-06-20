@@ -20,7 +20,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -356,31 +355,32 @@ public class ClienteRestControlador {
      * Aplica filtros de búsqueda
      */
     private Page<Cliente> aplicarFiltros(String search, String ciudad, Boolean soloActivos, Pageable pageable) {
-        if (search != null && !search.trim().isEmpty()) {
-            if (ciudad != null && !ciudad.trim().isEmpty()) {
-                if (soloActivos != null && soloActivos) {
-                    return clienteServicio.buscarPorTerminoYCiudadYActivos(search.trim(), ciudad.trim(), pageable);
-                } else {
-                    return clienteServicio.buscarPorTerminoYCiudad(search.trim(), ciudad.trim(), pageable);
-                }
-            } else {
-                if (soloActivos != null && soloActivos) {
-                    return clienteServicio.buscarPorTerminoYActivos(search.trim(), pageable);
-                } else {
-                    return clienteServicio.buscarPorTermino(search.trim(), pageable);
-                }
-            }
-        } else if (ciudad != null && !ciudad.trim().isEmpty()) {
-            if (soloActivos != null && soloActivos) {
-                return clienteServicio.buscarPorCiudadYActivos(ciudad.trim(), pageable);
-            } else {
-                return clienteServicio.buscarPorCiudad(ciudad.trim(), pageable);
-            }
-        } else if (soloActivos != null && soloActivos) {
-            return clienteServicio.obtenerActivosPaginados(pageable);
-        } else {
-            return clienteServicio.obtenerTodosPaginados(pageable);
+        boolean haySearch = search != null && !search.trim().isEmpty();
+        boolean hayCiudad = ciudad != null && !ciudad.trim().isEmpty();
+        boolean activos = Boolean.TRUE.equals(soloActivos);
+
+        if (haySearch && hayCiudad && activos) {
+            return clienteServicio.buscarPorTerminoYCiudadYActivos(search.trim(), ciudad.trim(), pageable);
         }
+        if (haySearch && hayCiudad) {
+            return clienteServicio.buscarPorTerminoYCiudad(search.trim(), ciudad.trim(), pageable);
+        }
+        if (haySearch && activos) {
+            return clienteServicio.buscarPorTerminoYActivos(search.trim(), pageable);
+        }
+        if (haySearch) {
+            return clienteServicio.buscarPorTermino(search.trim(), pageable);
+        }
+        if (hayCiudad && activos) {
+            return clienteServicio.buscarPorCiudadYActivos(ciudad.trim(), pageable);
+        }
+        if (hayCiudad) {
+            return clienteServicio.buscarPorCiudad(ciudad.trim(), pageable);
+        }
+        if (activos) {
+            return clienteServicio.obtenerActivosPaginados(pageable);
+        }
+        return clienteServicio.obtenerTodosPaginados(pageable);
     }
 
     /**
@@ -408,7 +408,7 @@ public class ClienteRestControlador {
         dto.setFechaRegistro(cliente.getFechaRegistro());
         dto.setFechaModificacion(cliente.getFechaModificacion());
         dto.setFechaUltimaCompra(cliente.getFechaUltimaCompra());
-        dto.setTotalCompras(cliente.getTotalCompras());
+        dto.setTotalCompras(cliente.getTotalCompras() != null ? cliente.getTotalCompras().doubleValue() : null);
         dto.setNumeroCompras(cliente.getNumeroCompras());
         return dto;
     }

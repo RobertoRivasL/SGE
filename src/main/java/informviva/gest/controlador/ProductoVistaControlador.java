@@ -177,12 +177,12 @@ public class ProductoVistaControlador {
                 return "redirect:/productos/admin";
             }
 
-            producto.setActivo(!producto.isActivo());
+            producto.setActivo(!producto.getActivo());
             producto.setFechaActualizacion(LocalDateTime.now());
             productoServicio.guardar(producto);
 
             redirectAttributes.addFlashAttribute("mensajeExito",
-                    "Producto " + (producto.isActivo() ? "activado" : "desactivado") + " exitosamente");
+                    "Producto " + (producto.getActivo() ? "activado" : "desactivado") + " exitosamente");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("mensajeError", "Error al cambiar estado: " + e.getMessage());
         }

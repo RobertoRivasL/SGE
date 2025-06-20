@@ -1,10 +1,12 @@
 package informviva.gest.controlador;
 
 import informviva.gest.dto.ExportConfigDTO;
+import informviva.gest.model.ExportacionHistorial;
 import informviva.gest.service.ExportacionServicio;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -15,6 +17,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -78,8 +81,8 @@ public class ExportacionControlador {
             ExportConfigDTO config = new ExportConfigDTO();
             config.setTipo("usuarios");
             config.setFormato(formato);
-            config.setFechaInicio(fechaInicio);
-            config.setFechaFin(fechaFin);
+            config.setFechaInicio(fechaInicio != null ? fechaInicio.atStartOfDay() : null);
+            config.setFechaFin(fechaFin != null ? fechaFin.atTime(23, 59, 59) : null);
             config.addFiltro("rol", rol);
             config.addFiltro("soloActivos", soloActivos);
 
@@ -123,8 +126,8 @@ public class ExportacionControlador {
             ExportConfigDTO config = new ExportConfigDTO();
             config.setTipo("clientes");
             config.setFormato(formato);
-            config.setFechaInicio(fechaInicio);
-            config.setFechaFin(fechaFin);
+            config.setFechaInicio(fechaInicio != null ? fechaInicio.atStartOfDay() : null);
+            config.setFechaFin(fechaFin != null ? fechaFin.atTime(23, 59, 59) : null);
             config.addFiltro("categoria", categoria);
             config.addFiltro("soloConCompras", soloConCompras);
 
@@ -219,8 +222,8 @@ public class ExportacionControlador {
             ExportConfigDTO config = new ExportConfigDTO();
             config.setTipo("ventas");
             config.setFormato(formato);
-            config.setFechaInicio(fechaInicio);
-            config.setFechaFin(fechaFin);
+            config.setFechaInicio(fechaInicio.atStartOfDay());
+            config.setFechaFin(fechaFin.atTime(23, 59, 59));
             config.addFiltro("vendedor", vendedor);
             config.addFiltro("estado", estado);
 
@@ -272,8 +275,8 @@ public class ExportacionControlador {
             ExportConfigDTO config = new ExportConfigDTO();
             config.setTipo("reportes");
             config.setFormato(formato);
-            config.setFechaInicio(fechaInicio);
-            config.setFechaFin(fechaFin);
+            config.setFechaInicio(fechaInicio.atStartOfDay());
+            config.setFechaFin(fechaFin.atTime(23, 59, 59));
             config.addFiltro("tipoReporte", tipoReporte);
             config.addFiltro("incluirGraficos", incluirGraficos);
 
@@ -331,8 +334,13 @@ public class ExportacionControlador {
             @RequestParam(defaultValue = "10") int size) {
 
         try {
-            Map<String, Object> historial = exportacionServicio.obtenerHistorialPaginado(page, size);
-            return ResponseEntity.ok(historial);
+            Page<ExportacionHistorial> historialPage = exportacionServicio.obtenerHistorialPaginado(page, size);
+            Map<String, Object> response = new HashMap<>();
+            response.put("content", historialPage.getContent());
+            response.put("totalPages", historialPage.getTotalPages());
+            response.put("totalElements", historialPage.getTotalElements());
+            response.put("currentPage", historialPage.getNumber());
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             logger.error("Error obteniendo historial: {}", e.getMessage());
             return ResponseEntity.internalServerError().build();

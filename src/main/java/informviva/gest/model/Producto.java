@@ -83,4 +83,8 @@ public class Producto {
 
         stock = nuevoStock;
     }
+
+    public Boolean getActivo() {
+        return this.activo;
+    }
 }

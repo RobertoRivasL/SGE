@@ -74,7 +74,7 @@ public class ProductoExportacionServicio {
                 row.createCell(7).setCellValue(producto.getModelo() != null ? producto.getModelo() : "");
 
                 Cell estadoCell = row.createCell(8);
-                estadoCell.setCellValue(producto.isActivo() ? "Activo" : "Inactivo");
+                estadoCell.setCellValue(producto.getActivo() ? "Activo" : "Inactivo");
                 estadoCell.setCellStyle(centerStyle);
 
                 if (producto.getFechaCreacion() != null) {
@@ -151,7 +151,7 @@ public class ProductoExportacionServicio {
 
                 row.createCell(4).setCellValue(producto.getCategoria() != null ?
                         producto.getCategoria().getNombre() : "Sin categoría");
-                row.createCell(5).setCellValue(producto.isActivo() ? "Activo" : "Inactivo");
+                row.createCell(5).setCellValue(producto.getActivo() ? "Activo" : "Inactivo");
 
                 double valorProducto = producto.getPrecio() * producto.getStock();
                 valorTotalInventario += valorProducto;
@@ -201,7 +201,7 @@ public class ProductoExportacionServicio {
                     producto.getCategoria().getNombre() : "")).append(",");
             csv.append(escaparCSV(producto.getMarca())).append(",");
             csv.append(escaparCSV(producto.getModelo())).append(",");
-            csv.append(producto.isActivo() ? "Activo" : "Inactivo").append(",");
+            csv.append(producto.getActivo() ? "Activo" : "Inactivo").append(",");
             csv.append(producto.getFechaCreacion() != null ?
                     producto.getFechaCreacion().format(formatter) : "");
             csv.append("\n");

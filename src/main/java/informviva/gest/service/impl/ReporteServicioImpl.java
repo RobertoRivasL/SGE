@@ -57,15 +57,24 @@ public class ReporteServicioImpl implements ReporteServicio {
         resumen.setProductosMasVendidos(productosVendidos);
 
         resumen.setVentasPorPeriodo(obtenerVentasPorPeriodoConHora(startDateTime, endDateTime, "HORA"));
-        resumen.setVentasPorCategoria(obtenerVentasPorCategoriaConHora(startDateTime, endDateTime));
+        List<VentaPorCategoriaDTO> lista = obtenerVentasPorCategoriaConHora(startDateTime, endDateTime);
+        Map<String, Double> mapa = lista.stream()
+                .collect(Collectors.toMap(
+                        VentaPorCategoriaDTO::getCategoria,
+                        VentaPorCategoriaDTO::getTotal
+                ));
+        resumen.setVentasPorCategoria(mapa);
         resumen.setVentasPorVendedor(reporteRepositorio.obtenerVentasPorVendedorEntreFechas(startDate, endDate));
 
         return resumen;
     }
 
+    // Implementación faltante según la interfaz
     @Override
-    public List<VentaPorPeriodoDTO> obtenerVentasPorPeriodoConHora(LocalDateTime inicio, LocalDateTime fin, String granularidad) {
-        return reporteRepositorio.obtenerVentasPorPeriodoConGranularidad(inicio, fin, granularidad);
+    public VentaResumenDTO generarResumenVentas(LocalDate fechaInicio, LocalDate fechaFin) {
+        LocalDateTime inicio = fechaInicio.atStartOfDay();
+        LocalDateTime fin = fechaFin.atTime(23, 59, 59);
+        return generarResumenVentasConHora(inicio, fin);
     }
 
     @Override
@@ -127,17 +136,18 @@ public class ReporteServicioImpl implements ReporteServicio {
         VentaResumenDTO resumenActual = generarResumenVentasConHora(inicioActual, finActual);
         VentaResumenDTO resumenAnterior = generarResumenVentasConHora(inicioAnterior, finAnterior);
 
-        reporte.put("periodoActual", Map.of(
-                "inicio", inicioActual,
-                "fin", finActual,
-                "resumen", resumenActual
-        ));
+        Map<String, Object> periodoActual = new HashMap<>();
+        periodoActual.put("inicio", inicioActual);
+        periodoActual.put("fin", finActual);
+        periodoActual.put("resumen", resumenActual);
 
-        reporte.put("periodoAnterior", Map.of(
-                "inicio", inicioAnterior,
-                "fin", finAnterior,
-                "resumen", resumenAnterior
-        ));
+        Map<String, Object> periodoAnterior = new HashMap<>();
+        periodoAnterior.put("inicio", inicioAnterior);
+        periodoAnterior.put("fin", finAnterior);
+        periodoAnterior.put("resumen", resumenAnterior);
+
+        reporte.put("periodoActual", periodoActual);
+        reporte.put("periodoAnterior", periodoAnterior);
 
         Map<String, Object> diferencias = new HashMap<>();
 
@@ -247,4 +257,34 @@ public class ReporteServicioImpl implements ReporteServicio {
         return proyeccion;
     }
 
+    @Override
+    public Map<String, Object> obtenerKpis() {
+        Map<String, Object> kpis = new HashMap<>();
+        kpis.put("ventasTotales", reporteRepositorio.sumarTotalVentas());
+        // Se asume que el método correcto es contarClientesNuevosEntreFechas para el mes actual
+        LocalDate hoy = LocalDate.now();
+        LocalDate inicioMes = hoy.withDayOfMonth(1);
+        kpis.put("clientesNuevos", reporteRepositorio.contarClientesNuevosEntreFechas(inicioMes, hoy));
+        return kpis;
+    }
+
+    @Override
+    public List<VentaPorPeriodoDTO> obtenerVentasPorPeriodoEntreFechas(LocalDate inicio, LocalDate fin) {
+        return reporteRepositorio.obtenerVentasPorPeriodoEntreFechas(inicio, fin);
+    }
+
+    @Override
+    public List<VentaPorCategoriaDTO> obtenerVentasPorCategoriaEntreFechas(LocalDate inicio, LocalDate fin) {
+        return reporteRepositorio.obtenerVentasPorCategoriaEntreFechas(inicio, fin);
+    }
+
+    @Override
+    public Long contarClientesNuevosEntreFechas(LocalDate inicio, LocalDate fin) {
+        return reporteRepositorio.contarClientesNuevosEntreFechas(inicio, fin);
+    }
+    @Override
+    public List<VentaPorPeriodoDTO> obtenerVentasPorPeriodoConHora(LocalDateTime inicio, LocalDateTime fin, String periodo) {
+        // Ajusta la lógica según tu repositorio y necesidades
+        return reporteRepositorio.obtenerVentasPorPeriodoConHora(inicio, fin, periodo);
+    }
 }

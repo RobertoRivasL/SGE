@@ -1,6 +1,8 @@
 package informviva.gest.service;
 
 import informviva.gest.model.ExportacionHistorial;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -118,4 +120,6 @@ public interface ExportacionHistorialServicio {
      * @return Exportación encontrada o null si no existe
      */
     ExportacionHistorial buscarPorId(Long id);
+
+    Page<ExportacionHistorial> obtenerHistorialPaginado(Pageable pageable);
 }

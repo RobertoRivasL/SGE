@@ -1,648 +1,463 @@
+uman_@LAPTOP-B78MGBJP MINGW64 /d/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02 (main)
+$ mvn clean compile
+MINGW support requires --add-opens java.base/java.lang=ALL-UNNAMED
+MINGW support requires --add-opens java.base/java.lang=ALL-UNNAMED
 [INFO] Scanning for projects...
-[WARNING] 
-[WARNING] Some problems were encountered while building the effective model for informviva:informviva-gest:jar:1.0.0
-[WARNING] 'dependencies.dependency.(groupId:artifactId:type:classifier)' must be unique: org.apache.poi:poi-ooxml:jar -> duplicate declaration of version 5.2.3 @ line 163, column 21
-[WARNING] 'dependencies.dependency.(groupId:artifactId:type:classifier)' must be unique: com.fasterxml.jackson.datatype:jackson-datatype-jsr310:jar -> duplicate declaration of version (?) @ line 202, column 21
-[WARNING] 'build.plugins.plugin.(groupId:artifactId)' must be unique but found duplicate declaration of plugin org.apache.maven.plugins:maven-compiler-plugin @ line 248, column 21
-[WARNING] 'build.plugins.plugin.(groupId:artifactId)' must be unique but found duplicate declaration of plugin org.apache.maven.plugins:maven-compiler-plugin @ line 258, column 21
-[WARNING] 
-[WARNING] It is highly recommended to fix these problems because they threaten the stability of your build.
-[WARNING] 
-[WARNING] For this reason, future Maven versions might no longer support building such malformed projects.
-[WARNING] 
-[INFO] 
+[INFO]
 [INFO] ---------------------< informviva:informviva-gest >---------------------
-[INFO] Building InformViva Gestión 1.0.0
+[INFO] Building InformViva Gestiâ–’n 1.0.0
 [INFO]   from pom.xml
 [INFO] --------------------------------[ jar ]---------------------------------
-[INFO] 
+[INFO]
 [INFO] --- clean:3.2.0:clean (default-clean) @ informviva-gest ---
 [INFO] Deleting D:\Doc_HP_RRL\RRL\Sence\Iseg Spa\Dashboard de Ventas\02\target
-[INFO] 
+[INFO]
 [INFO] --- resources:3.3.1:resources (default-resources) @ informviva-gest ---
 [INFO] Copying 1 resource from src\main\resources to target\classes
 [INFO] Copying 107 resources from src\main\resources to target\classes
-[INFO] 
+[INFO]
 [INFO] --- compiler:3.11.0:compile (default-compile) @ informviva-gest ---
 [INFO] Changes detected - recompiling the module! :source
-[INFO] Compiling 204 source files with javac [debug release 17] to target\classes
-[INFO] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/AsyncExportController.java: Some input files use unchecked or unsafe operations.
+[INFO] Compiling 211 source files with javac [debug release 17] to target\classes
+[INFO] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/AsyncExportController.java: D:\Doc_HP_RRL\RRL\Sence\Iseg Spa\Dashboard de Ventas\02\src\main\java\informviva\gest\controlador\AsyncExportController.java uses unchecked or unsafe operations.
 [INFO] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/AsyncExportController.java: Recompile with -Xlint:unchecked for details.
 [INFO] Some messages have been simplified; recompile with -Xdiags:verbose to get full output
 [INFO] -------------------------------------------------------------
-[ERROR] COMPILATION ERROR : 
+[ERROR] COMPILATION ERROR :
 [INFO] -------------------------------------------------------------
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ReporteServicioImpl.java:[24,45] interface expected here
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/RestauracionServicio.java:[71,12] cannot find symbol
-  symbol:   class ResultadoRestauracion
-  location: class informviva.gest.service.RestauracionServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/RestauracionServicio.java:[90,12] cannot find symbol
-  symbol:   class ResultadoValidacion
-  location: class informviva.gest.service.RestauracionServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/RestauracionServicio.java:[119,13] cannot find symbol
-  symbol:   class ResultadoRestauracion
-  location: class informviva.gest.service.RestauracionServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/RestauracionServicio.java:[125,13] cannot find symbol
-  symbol:   class ResultadoValidacion
-  location: class informviva.gest.service.RestauracionServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/RestauracionServicio.java:[138,43] cannot find symbol
-  symbol:   class ResultadoRestauracion
-  location: class informviva.gest.service.RestauracionServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/RestauracionServicio.java:[145,41] cannot find symbol
-  symbol:   class ResultadoValidacion
-  location: class informviva.gest.service.RestauracionServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/RestauracionServicio.java:[168,46] cannot find symbol
-  symbol:   class ModuloRespaldo
-  location: class informviva.gest.service.RestauracionServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ProductoControlador.java:[49,54] cannot find symbol
-  symbol:   method findAllActivas()
-  location: variable categoriaService of type informviva.gest.service.CategoriaServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ProductoControlador.java:[97,40] constructor Producto in class informviva.gest.model.Producto cannot be applied to given types;
-  required: java.lang.Long,java.lang.String,boolean
-  found:    no arguments
-  reason: actual and formal argument lists differ in length
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ProductoControlador.java:[98,58] cannot find symbol
-  symbol:   method findAllActivas()
-  location: variable categoriaService of type informviva.gest.service.CategoriaServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ProductoControlador.java:[111,62] cannot find symbol
-  symbol:   method findAllActivas()
-  location: variable categoriaService of type informviva.gest.service.CategoriaServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ProductoControlador.java:[134,62] cannot find symbol
-  symbol:   method findAllActivas()
-  location: variable categoriaService of type informviva.gest.service.CategoriaServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ProductoControlador.java:[184,33] cannot find symbol
-  symbol:   method save(@jakarta.validation.Valid informviva.gest.model.Categoria)
-  location: variable categoriaService of type informviva.gest.service.CategoriaServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/dto/ProductoReporteDTO.java:[31,39] cannot find symbol
-  symbol:   method getNombre()
-  location: variable categoria of type informviva.gest.model.Categoria
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/model/Venta.java:[97,42] cannot find symbol
-  symbol:   method getFechaRegistro()
-  location: variable cliente of type @jakarta.validation.constraints.NotNull(message="El cliente no puede ser nulo") informviva.gest.model.Cliente
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/model/Venta.java:[98,24] cannot find symbol
-  symbol:   method getFechaRegistro()
-  location: variable cliente of type @jakarta.validation.constraints.NotNull(message="El cliente no puede ser nulo") informviva.gest.model.Cliente
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/VentaServicioImpl.java:[29,63] cannot find symbol
-  symbol:   method getClienteId()
-  location: variable ventaDTO of type informviva.gest.dto.VentaDTO
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/VentaServicioImpl.java:[30,100] cannot find symbol
-  symbol:   method getClienteId()
-  location: variable ventaDTO of type informviva.gest.dto.VentaDTO
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/VentaServicioImpl.java:[33,19] cannot find symbol
-  symbol:   method setCliente(informviva.gest.model.Cliente)
-  location: variable nuevaVenta of type informviva.gest.model.Venta
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/VentaServicioImpl.java:[34,19] cannot find symbol
-  symbol:   method setFecha(java.time.LocalDateTime)
-  location: variable nuevaVenta of type informviva.gest.model.Venta
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/VentaServicioImpl.java:[36,59] cannot find symbol
-  symbol:   method getProductos()
-  location: variable ventaDTO of type informviva.gest.dto.VentaDTO
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/VentaServicioImpl.java:[37,43] invalid method reference
-  cannot find symbol
-    symbol:   method getProductoId()
-    location: class informviva.gest.dto.VentaDTO.ProductoVentaDTO
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/VentaServicioImpl.java:[37,85] invalid method reference
-  cannot find symbol
-    symbol:   method getCantidad()
-    location: class informviva.gest.dto.VentaDTO.ProductoVentaDTO
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/VentaServicioImpl.java:[49,68] cannot find symbol
-  symbol:   method getId()
-  location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/VentaServicioImpl.java:[51,25] cannot find symbol
-  symbol:   method getStock()
-  location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/VentaServicioImpl.java:[52,94] cannot find symbol
-  symbol:   method getNombre()
-  location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/VentaServicioImpl.java:[54,39] cannot find symbol
-  symbol:   method getStock()
-  location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/VentaServicioImpl.java:[57,20] cannot find symbol
-  symbol:   method setVenta(informviva.gest.model.Venta)
-  location: variable detalle of type informviva.gest.model.VentaDetalle
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/VentaServicioImpl.java:[58,20] cannot find symbol
-  symbol:   method setProducto(informviva.gest.model.Producto)
-  location: variable detalle of type informviva.gest.model.VentaDetalle
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/VentaServicioImpl.java:[59,20] cannot find symbol
-  symbol:   method setCantidad(int)
-  location: variable detalle of type informviva.gest.model.VentaDetalle
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/VentaServicioImpl.java:[60,47] cannot find symbol
-  symbol:   method getPrecio()
-  location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/VentaServicioImpl.java:[63,35] cannot find symbol
-  symbol:   method getPrecio()
-  location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/VentaServicioImpl.java:[66,19] cannot find symbol
-  symbol:   method setTotal(double)
-  location: variable nuevaVenta of type informviva.gest.model.Venta
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/VentaServicioImpl.java:[67,19] cannot find symbol
-  symbol:   method setDetalles(java.util.List<informviva.gest.model.VentaDetalle>)
-  location: variable nuevaVenta of type informviva.gest.model.Venta
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/importacion/factory/ImportacionProcessorFactory.java:[71,38] incompatible types: org.springframework.web.multipart.MultipartFile cannot be converted to java.lang.String
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[254,43] cannot find symbol
-  symbol:   method buscarPorRangoFechas(java.time.LocalDate,java.time.LocalDate)
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/importacion/impl/ExcelImportacionProcessor.java:[8,8] informviva.gest.service.importacion.impl.ExcelImportacionProcessor is not abstract and does not override abstract method puedeProcesar(org.springframework.web.multipart.MultipartFile) in informviva.gest.service.importacion.ImportacionProcessor
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/importacion/impl/ExcelImportacionProcessor.java:[10,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[253,37] cannot find symbol
+  symbol:   method obtenerHistorialPaginado(org.springframework.data.domain.Pageable)
+  location: variable historialServicio of type informviva.gest.service.ExportacionHistorialServicio
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[336,43] cannot find symbol
+  symbol:   method buscarPorRangoFechasCompleto(java.time.LocalDateTime,java.time.LocalDateTime)
   location: variable ventaServicio of type informviva.gest.service.VentaServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[278,43] cannot find symbol
-  symbol:   method getFechaRegistro()
-  location: variable cliente of type informviva.gest.model.Cliente
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[279,58] cannot find symbol
-  symbol:   method getFechaRegistro()
-  location: variable cliente of type informviva.gest.model.Cliente
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[285,40] cannot find symbol
-  symbol:   method getFechaRegistro()
-  location: variable cliente of type informviva.gest.model.Cliente
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[286,58] cannot find symbol
-  symbol:   method getFechaRegistro()
-  location: variable cliente of type informviva.gest.model.Cliente
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[297,31] cannot find symbol
-  symbol:   method getNombre()
-  location: variable cliente of type informviva.gest.model.Cliente
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[298,32] cannot find symbol
-  symbol:   method getApellido()
-  location: variable cliente of type informviva.gest.model.Cliente
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[299,33] cannot find symbol
-  symbol:   method getEmail()
-  location: variable cliente of type informviva.gest.model.Cliente
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[299,63] cannot find symbol
-  symbol:   method getEmail()
-  location: variable cliente of type informviva.gest.model.Cliente
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[310,60] cannot find symbol
-  symbol:   method isActivo()
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[395,60] cannot find symbol
+  symbol:   method getActivo()
   location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[315,62] cannot find symbol
-  symbol:   method getStock()
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[459,33] cannot find symbol
+  symbol:   method getCiudad()
+  location: variable cliente of type informviva.gest.model.Cliente
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[482,31] cannot find symbol
+  symbol:   method getActivo()
   location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[315,93] cannot find symbol
-  symbol:   method getStock()
-  location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[320,66] cannot find symbol
-  symbol:   method getCategoria()
-  location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[321,28] cannot find symbol
-  symbol:   method getCategoria()
-  location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[332,49] cannot find symbol
-  symbol:   method getEstado()
-  location: variable venta of type informviva.gest.model.Venta
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[349,26] cannot find symbol
-  symbol:   method getId()
-  location: variable cliente of type informviva.gest.model.Cliente
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[350,27] cannot find symbol
-  symbol:   method getRut()
-  location: variable cliente of type informviva.gest.model.Cliente
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[351,12] cannot find symbol
-  symbol:   method setNombreCompleto(java.lang.String)
-  location: variable dto of type informviva.gest.dto.ClienteExportDTO
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[352,29] cannot find symbol
-  symbol:   method getEmail()
-  location: variable cliente of type informviva.gest.model.Cliente
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[353,32] cannot find symbol
-  symbol:   method getTelefono()
-  location: variable cliente of type informviva.gest.model.Cliente
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[354,33] cannot find symbol
-  symbol:   method getDireccion()
-  location: variable cliente of type informviva.gest.model.Cliente
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[355,12] cannot find symbol
-  symbol:   method setFechaRegistro(cliente.ge[...] null)
-  location: variable dto of type informviva.gest.dto.ClienteExportDTO
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[355,37] cannot find symbol
-  symbol:   method getFechaRegistro()
-  location: variable cliente of type informviva.gest.model.Cliente
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[356,24] cannot find symbol
-  symbol:   method getFechaRegistro()
-  location: variable cliente of type informviva.gest.model.Cliente
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[357,33] cannot find symbol
-  symbol:   method getCategoria()
-  location: variable cliente of type informviva.gest.model.Cliente
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[360,73] cannot find symbol
-  symbol:   method getId()
-  location: variable cliente of type informviva.gest.model.Cliente
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[361,87] cannot find symbol
-  symbol:   method getId()
-  location: variable cliente of type informviva.gest.model.Cliente
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[363,12] cannot find symbol
-  symbol:   method setTotalCompras(long)
-  location: variable dto of type informviva.gest.dto.ClienteExportDTO
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[364,12] cannot find symbol
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[635,40] cannot find symbol
+  symbol:   method buscarPorRangoFechasCompleto(java.time.LocalDateTime,java.time.LocalDateTime)
+  location: variable ventaServicio of type informviva.gest.service.VentaServicio
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[637,40] cannot find symbol
+  symbol:   method listarTodas()
+  location: variable ventaServicio of type informviva.gest.service.VentaServicio
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[679,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[689,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[699,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[710,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[715,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[720,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[725,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[730,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[738,13] reference to Row is ambiguous
+  both class com.lowagie.text.Row in com.lowagie.text and interface org.apache.poi.ss.usermodel.Row in org.apache.poi.ss.usermodel match
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[747,17] reference to Row is ambiguous
+  both class com.lowagie.text.Row in com.lowagie.text and interface org.apache.poi.ss.usermodel.Row in org.apache.poi.ss.usermodel match
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[819,13] reference to Font is ambiguous
+  both class com.lowagie.text.Font in com.lowagie.text and interface org.apache.poi.ss.usermodel.Font in org.apache.poi.ss.usermodel match
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[827,13] reference to Row is ambiguous
+  both class com.lowagie.text.Row in com.lowagie.text and interface org.apache.poi.ss.usermodel.Row in org.apache.poi.ss.usermodel match
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[832,17] reference to Cell is ambiguous
+  both class com.lowagie.text.Cell in com.lowagie.text and interface org.apache.poi.ss.usermodel.Cell in org.apache.poi.ss.usermodel match
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[840,17] reference to Row is ambiguous
+  both class com.lowagie.text.Row in com.lowagie.text and interface org.apache.poi.ss.usermodel.Row in org.apache.poi.ss.usermodel match
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/ServicioUsuarioDetalle.java:[81,50] incompatible types: java.time.LocalDate cannot be converted to java.time.LocalDateTime
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/ClienteImportacionServicio.java:[221,47] incompatible types: java.time.LocalDate cannot be converted to java.time.LocalDateTime
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/ClienteImportacionServicio.java:[243,47] incompatible types: java.time.LocalDate cannot be converted to java.time.LocalDateTime
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ExportacionControlador.java:[81,35] incompatible types: java.time.LocalDate cannot be converted to java.time.LocalDateTime
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ExportacionControlador.java:[82,32] incompatible types: java.time.LocalDate cannot be converted to java.time.LocalDateTime
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ExportacionControlador.java:[126,35] incompatible types: java.time.LocalDate cannot be converted to java.time.LocalDateTime
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ExportacionControlador.java:[127,32] incompatible types: java.time.LocalDate cannot be converted to java.time.LocalDateTime
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ExportacionControlador.java:[222,35] incompatible types: java.time.LocalDate cannot be converted to java.time.LocalDateTime
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ExportacionControlador.java:[223,32] incompatible types: java.time.LocalDate cannot be converted to java.time.LocalDateTime
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ExportacionControlador.java:[275,35] incompatible types: java.time.LocalDate cannot be converted to java.time.LocalDateTime
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ExportacionControlador.java:[276,32] incompatible types: java.time.LocalDate cannot be converted to java.time.LocalDateTime
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ExportacionControlador.java:[334,89] incompatible types: org.springframework.data.domain.Page<informviva.gest.model.ExportacionHistorial> cannot be converted to java.util.Map<java.lang.String,java.lang.Object>
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/MetricasServicio.java:[53,74] incompatible types: int cannot be converted to java.lang.Long
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/BusquedaAvanzadaServicio.java:[74,35] no suitable method found for findAll(org.springframework.data.jpa.domain.Specification<informviva.gest.model.Producto>,org.springframework.data.domain.Pageable)
+    method org.springframework.data.repository.query.QueryByExampleExecutor.<S>findAll(org.springframework.data.domain.Example<S>,org.springframework.data.domain.Pageable) is not applicable
+      (cannot infer type-variable(s) S
+        (argument mismatch; org.springframework.data.jpa.domain.Specification<informviva.gest.model.Producto> cannot be converted to org.springframework.data.domain.Example<S>))
+    method org.springframework.data.jpa.repository.JpaRepository.<S>findAll(org.springframework.data.domain.Example<S>) is not applicable
+      (cannot infer type-variable(s) S
+        (actual and formal argument lists differ in length))
+    method org.springframework.data.jpa.repository.JpaRepository.<S>findAll(org.springframework.data.domain.Example<S>,org.springframework.data.domain.Sort) is not applicable
+      (cannot infer type-variable(s) S
+        (argument mismatch; org.springframework.data.jpa.domain.Specification<informviva.gest.model.Producto> cannot be converted to org.springframework.data.domain.Example<S>))
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/BusquedaAvanzadaServicio.java:[103,34] no suitable method found for findAll(org.springframework.data.jpa.domain.Specification<informviva.gest.model.Cliente>,org.springframework.data.domain.Pageable)
+    method org.springframework.data.repository.query.QueryByExampleExecutor.<S>findAll(org.springframework.data.domain.Example<S>,org.springframework.data.domain.Pageable) is not applicable
+      (cannot infer type-variable(s) S
+        (argument mismatch; org.springframework.data.jpa.domain.Specification<informviva.gest.model.Cliente> cannot be converted to org.springframework.data.domain.Example<S>))
+    method org.springframework.data.jpa.repository.JpaRepository.<S>findAll(org.springframework.data.domain.Example<S>) is not applicable
+      (cannot infer type-variable(s) S
+        (actual and formal argument lists differ in length))
+    method org.springframework.data.jpa.repository.JpaRepository.<S>findAll(org.springframework.data.domain.Example<S>,org.springframework.data.domain.Sort) is not applicable
+      (cannot infer type-variable(s) S
+        (argument mismatch; org.springframework.data.jpa.domain.Specification<informviva.gest.model.Cliente> cannot be converted to org.springframework.data.domain.Example<S>))
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/procesador/ProcesadorUsuario.java:[108,25] cannot find symbol
+  symbol:   method validarFila(java.util.Map<java.lang.String,java.lang.Object>,java.lang.String,int)
+  location: variable validador of type informviva.gest.service.importacion.ImportacionValidador
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ClienteVistaControlador.java:[140,77] cannot find symbol
+  symbol:   variable ERROR_CLIENTE_NO_ENCONTRADO
+  location: class informviva.gest.util.MensajesConstantes
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ClienteVistaControlador.java:[162,77] cannot find symbol
+  symbol:   variable ERROR_CLIENTE_NO_ENCONTRADO
+  location: class informviva.gest.util.MensajesConstantes
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ClienteVistaControlador.java:[209,79] cannot find symbol
+  symbol:   variable ERROR_EMAIL_DUPLICADO
+  location: class informviva.gest.util.MensajesConstantes
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ClienteVistaControlador.java:[222,24] cannot find symbol
+  symbol:   method setUsuarioCreacion(java.lang.String)
+  location: variable cliente of type @jakarta.validation.Valid informviva.gest.model.Cliente
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ClienteVistaControlador.java:[224,24] cannot find symbol
+  symbol:   method setFechaModificacion(java.time.LocalDateTime)
+  location: variable cliente of type @jakarta.validation.Valid informviva.gest.model.Cliente
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ClienteVistaControlador.java:[225,24] cannot find symbol
+  symbol:   method setUsuarioModificacion(java.lang.String)
+  location: variable cliente of type @jakarta.validation.Valid informviva.gest.model.Cliente
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ClienteVistaControlador.java:[231,39] cannot find symbol
+  symbol:   variable EXITO_CLIENTE_CREADO
+  location: class informviva.gest.util.MensajesConstantes
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ClienteVistaControlador.java:[232,39] cannot find symbol
+  symbol:   variable EXITO_CLIENTE_ACTUALIZADO
+  location: class informviva.gest.util.MensajesConstantes
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ClienteVistaControlador.java:[255,77] cannot find symbol
+  symbol:   variable ERROR_CLIENTE_NO_ENCONTRADO
+  location: class informviva.gest.util.MensajesConstantes
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ServicioImportacionHistorialImpl.java:[54,68] cannot find symbol
+  symbol:   method getUsuarioId()
+  location: variable resultado of type informviva.gest.dto.ImportacionResultadoDTO
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ServicioImportacionHistorialImpl.java:[57,47] cannot find symbol
+  symbol:   method getTipoImportacion()
+  location: variable resultado of type informviva.gest.dto.ImportacionResultadoDTO
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ServicioImportacionHistorialImpl.java:[61,46] cannot find symbol
+  symbol:   method getTotalRegistros()
+  location: variable resultado of type informviva.gest.dto.ImportacionResultadoDTO
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ServicioImportacionHistorialImpl.java:[65,39] cannot find symbol
+  symbol:   method isExitoso()
+  location: variable resultado of type informviva.gest.dto.ImportacionResultadoDTO
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ReporteServicioImpl.java:[20,8] informviva.gest.service.impl.ReporteServicioImpl is not abstract and does not override abstract method obtenerKpis() in informviva.gest.service.ReporteServicio
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ReporteServicioImpl.java:[33,16] cannot find symbol
+  symbol:   method setTotalArticulosVendidos(java.lang.Long)
+  location: variable resumen of type informviva.gest.dto.VentaResumenDTO
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ReporteServicioImpl.java:[57,41] incompatible types: java.util.List<informviva.gest.dto.ProductoVendidoDTO> cannot be converted to java.util.List<java.lang.Object>
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ReporteServicioImpl.java:[59,67] incompatible types: java.util.List<informviva.gest.dto.VentaPorPeriodoDTO> cannot be converted to java.util.List<java.lang.Object>
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ReporteServicioImpl.java:[60,71] incompatible types: java.util.List<informviva.gest.dto.VentaPorCategoriaDTO> cannot be converted to java.util.Map<java.lang.String,java.lang.Double>
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ReporteServicioImpl.java:[61,16] cannot find symbol
+  symbol:   method setVentasPorVendedor(java.util.List<informviva.gest.dto.VentaPorVendedorDTO>)
+  location: variable resumen of type informviva.gest.dto.VentaResumenDTO
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportNotificationService.java:[71,30] cannot find symbol
+  symbol:   method getTamanoLegible()
+  location: variable historial of type informviva.gest.model.ExportacionHistorial
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportNotificationService.java:[72,30] cannot find symbol
+  symbol:   method getTiempoLegible()
+  location: variable historial of type informviva.gest.model.ExportacionHistorial
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[41,8] informviva.gest.service.impl.ClienteServicioImpl is not abstract and does not override abstract method buscarVentasRecientesPorCliente(java.lang.Long,int) in informviva.gest.service.ClienteServicio
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[103,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[144,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[169,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[176,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[183,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[202,97] incompatible types: java.time.LocalDate cannot be converted to java.time.chrono.ChronoLocalDateTime<?>
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[228,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[235,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[266,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[273,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[298,66] incompatible types: java.time.LocalDateTime cannot be converted to java.time.LocalDate
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[322,24] cannot find symbol
   symbol:   method setMontoTotalCompras(double)
-  location: variable dto of type informviva.gest.dto.ClienteExportDTO
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[371,27] cannot find symbol
-  symbol:   method getId()
+  location: variable dto of type informviva.gest.dto.ClienteReporteDTO
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[325,28] cannot find symbol
+  symbol:   method setPromedioCompra(double)
+  location: variable dto of type informviva.gest.dto.ClienteReporteDTO
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[342,54] cannot find symbol
+  symbol:   method getMontoTotalCompras()
+  location: variable c2 of type informviva.gest.dto.ClienteReporteDTO
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[342,81] cannot find symbol
+  symbol:   method getMontoTotalCompras()
+  location: variable c1 of type informviva.gest.dto.ClienteReporteDTO
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[367,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[395,30] invalid method reference
+  cannot find symbol
+    symbol:   method getMontoTotalCompras(T)
+    location: class informviva.gest.dto.ClienteReporteDTO
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[414,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[434,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[446,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[481,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[503,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[554,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[586,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[625,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[649,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[689,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[824,22] invalid method reference
+  cannot find symbol
+    symbol:   method getCiudad()
+    location: class informviva.gest.model.Cliente
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ValidacionServicioImpl.java:[205,46] cannot find symbol
+  symbol:   method getActivo()
   location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[372,31] cannot find symbol
-  symbol:   method getCodigo()
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/GeneradorArchivosServicio.java:[71,56] no suitable method found for valueOf(java.time.LocalDateTime)
+    method java.sql.Date.valueOf(java.lang.String) is not applicable
+      (argument mismatch; java.time.LocalDateTime cannot be converted to java.lang.String)
+    method java.sql.Date.valueOf(java.time.LocalDate) is not applicable
+      (argument mismatch; java.time.LocalDateTime cannot be converted to java.time.LocalDate)
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/GeneradorArchivosServicio.java:[77,62] no suitable method found for valueOf(java.time.LocalDateTime)
+    method java.sql.Date.valueOf(java.lang.String) is not applicable
+      (argument mismatch; java.time.LocalDateTime cannot be converted to java.lang.String)
+    method java.sql.Date.valueOf(java.time.LocalDate) is not applicable
+      (argument mismatch; java.time.LocalDateTime cannot be converted to java.time.LocalDate)
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/GeneradorArchivosServicio.java:[137,47] incompatible types: java.time.LocalDateTime cannot be converted to java.time.LocalDate
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/GeneradorArchivosServicio.java:[140,30] incompatible types: java.util.List<java.lang.Object> cannot be converted to java.util.List<informviva.gest.service.impl.GeneradorArchivosServicio.UsuarioExportDTO>
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/GeneradorArchivosServicio.java:[198,56] cannot find symbol
+  symbol:   method getActivo()
   location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[373,31] cannot find symbol
-  symbol:   method getNombre()
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/GeneradorArchivosServicio.java:[239,32] cannot find symbol
+  symbol:   method getActivo()
   location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[374,36] cannot find symbol
-  symbol:   method getDescripcion()
-  location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[375,31] cannot find symbol
-  symbol:   method getPrecio()
-  location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[376,30] cannot find symbol
-  symbol:   method getStock()
-  location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[377,12] cannot find symbol
-  symbol:   method setCategoria(producto.g[...]0eda")
-  location: variable dto of type informviva.gest.dto.ProductoExportDTO
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[377,34] cannot find symbol
-  symbol:   method getCategoria()
-  location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[377,68] cannot find symbol
-  symbol:   method getCategoria()
-  location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[378,30] cannot find symbol
-  symbol:   method getMarca()
-  location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[379,31] cannot find symbol
-  symbol:   method getModelo()
-  location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[380,31] cannot find symbol
-  symbol:   method isActivo()
-  location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[381,38] cannot find symbol
-  symbol:   method getFechaCreacion()
-  location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[382,43] cannot find symbol
-  symbol:   method getFechaActualizacion()
-  location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[389,24] cannot find symbol
-  symbol:   method getId()
-  location: variable venta of type informviva.gest.model.Venta
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[390,27] cannot find symbol
-  symbol:   method getFecha()
-  location: variable venta of type informviva.gest.model.Venta
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[391,35] cannot find symbol
-  symbol:   method getCliente()
-  location: variable venta of type informviva.gest.model.Venta
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[392,32] cannot find symbol
-  symbol:   method getCliente()
-  location: variable venta of type informviva.gest.model.Venta
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[393,36] cannot find symbol
-  symbol:   method getVendedor()
-  location: variable venta of type informviva.gest.model.Venta
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[394,30] cannot find symbol
-  symbol:   method getSubtotal()
-  location: variable venta of type informviva.gest.model.Venta
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[395,30] cannot find symbol
-  symbol:   method getImpuesto()
-  location: variable venta of type informviva.gest.model.Venta
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[396,27] cannot find symbol
-  symbol:   method getTotal()
-  location: variable venta of type informviva.gest.model.Venta
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[397,32] cannot find symbol
-  symbol:   method getMetodoPago()
-  location: variable venta of type informviva.gest.model.Venta
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[398,28] cannot find symbol
-  symbol:   method getEstado()
-  location: variable venta of type informviva.gest.model.Venta
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[399,35] cannot find symbol
-  symbol:   method getObservaciones()
-  location: variable venta of type informviva.gest.model.Venta
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[406,12] cannot find symbol
-  symbol:   method setId(java.lang.Long)
-  location: variable dto of type informviva.gest.dto.UsuarioExportDTO
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[407,12] cannot find symbol
-  symbol:   method setUsername(java.lang.String)
-  location: variable dto of type informviva.gest.dto.UsuarioExportDTO
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[408,12] cannot find symbol
-  symbol:   method setNombreCompleto(java.lang.String)
-  location: variable dto of type informviva.gest.dto.UsuarioExportDTO
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[409,12] cannot find symbol
-  symbol:   method setEmail(java.lang.String)
-  location: variable dto of type informviva.gest.dto.UsuarioExportDTO
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[410,12] cannot find symbol
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ControladorPruebaValidacion.java:[37,56] cannot find symbol
+  symbol:   method generarResumenHTML()
+  location: variable resultado of type informviva.gest.dto.ResultadoValidacionSistema
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ControladorPruebaValidacion.java:[38,57] cannot find symbol
+  symbol:   method generarResumenEjecutivo()
+  location: variable resultado of type informviva.gest.dto.ResultadoValidacionSistema
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/api/ClienteRestControlador.java:[181,20] cannot find symbol
   symbol:   method setActivo(boolean)
-  location: variable dto of type informviva.gest.dto.UsuarioExportDTO
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[411,12] cannot find symbol
-  symbol:   method setFechaCreacion(usuario.ge[...] null)
-  location: variable dto of type informviva.gest.dto.UsuarioExportDTO
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[412,43] cannot find symbol
-  symbol:   method atStartOfDay()
-  location: class java.time.LocalDateTime
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[413,12] cannot find symbol
-  symbol:   method setUltimoAcceso(usuario.ge[...] null)
-  location: variable dto of type informviva.gest.dto.UsuarioExportDTO
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[414,42] cannot find symbol
-  symbol:   method atStartOfDay()
-  location: class java.time.LocalDateTime
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[415,12] cannot find symbol
-  symbol:   method setRoles(java.lang.String)
-  location: variable dto of type informviva.gest.dto.UsuarioExportDTO
-[INFO] 100 errors 
+  location: variable cliente of type informviva.gest.model.Cliente
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/api/ClienteRestControlador.java:[224,29] cannot find symbol
+  symbol:   method setFechaModificacion(java.time.LocalDateTime)
+  location: variable clienteExistente of type informviva.gest.model.Cliente
+[INFO] 100 errors
 [INFO] -------------------------------------------------------------
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD FAILURE
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  13.321 s
-[INFO] Finished at: 2025-06-14T23:31:34-04:00
+[INFO] Total time:  31.606 s
+[INFO] Finished at: 2025-06-16T01:14:02-04:00
 [INFO] ------------------------------------------------------------------------
-[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.11.0:compile (default-compile) on project informviva-gest: Compilation failure: Compilation failure: 
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ReporteServicioImpl.java:[24,45] interface expected here
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/RestauracionServicio.java:[71,12] cannot find symbol
-[ERROR]   symbol:   class ResultadoRestauracion
-[ERROR]   location: class informviva.gest.service.RestauracionServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/RestauracionServicio.java:[90,12] cannot find symbol
-[ERROR]   symbol:   class ResultadoValidacion
-[ERROR]   location: class informviva.gest.service.RestauracionServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/RestauracionServicio.java:[119,13] cannot find symbol
-[ERROR]   symbol:   class ResultadoRestauracion
-[ERROR]   location: class informviva.gest.service.RestauracionServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/RestauracionServicio.java:[125,13] cannot find symbol
-[ERROR]   symbol:   class ResultadoValidacion
-[ERROR]   location: class informviva.gest.service.RestauracionServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/RestauracionServicio.java:[138,43] cannot find symbol
-[ERROR]   symbol:   class ResultadoRestauracion
-[ERROR]   location: class informviva.gest.service.RestauracionServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/RestauracionServicio.java:[145,41] cannot find symbol
-[ERROR]   symbol:   class ResultadoValidacion
-[ERROR]   location: class informviva.gest.service.RestauracionServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/RestauracionServicio.java:[168,46] cannot find symbol
-[ERROR]   symbol:   class ModuloRespaldo
-[ERROR]   location: class informviva.gest.service.RestauracionServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ProductoControlador.java:[49,54] cannot find symbol
-[ERROR]   symbol:   method findAllActivas()
-[ERROR]   location: variable categoriaService of type informviva.gest.service.CategoriaServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ProductoControlador.java:[97,40] constructor Producto in class informviva.gest.model.Producto cannot be applied to given types;
-[ERROR]   required: java.lang.Long,java.lang.String,boolean
-[ERROR]   found:    no arguments
-[ERROR]   reason: actual and formal argument lists differ in length
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ProductoControlador.java:[98,58] cannot find symbol
-[ERROR]   symbol:   method findAllActivas()
-[ERROR]   location: variable categoriaService of type informviva.gest.service.CategoriaServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ProductoControlador.java:[111,62] cannot find symbol
-[ERROR]   symbol:   method findAllActivas()
-[ERROR]   location: variable categoriaService of type informviva.gest.service.CategoriaServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ProductoControlador.java:[134,62] cannot find symbol
-[ERROR]   symbol:   method findAllActivas()
-[ERROR]   location: variable categoriaService of type informviva.gest.service.CategoriaServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ProductoControlador.java:[184,33] cannot find symbol
-[ERROR]   symbol:   method save(@jakarta.validation.Valid informviva.gest.model.Categoria)
-[ERROR]   location: variable categoriaService of type informviva.gest.service.CategoriaServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/dto/ProductoReporteDTO.java:[31,39] cannot find symbol
-[ERROR]   symbol:   method getNombre()
-[ERROR]   location: variable categoria of type informviva.gest.model.Categoria
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/model/Venta.java:[97,42] cannot find symbol
-[ERROR]   symbol:   method getFechaRegistro()
-[ERROR]   location: variable cliente of type @jakarta.validation.constraints.NotNull(message="El cliente no puede ser nulo") informviva.gest.model.Cliente
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/model/Venta.java:[98,24] cannot find symbol
-[ERROR]   symbol:   method getFechaRegistro()
-[ERROR]   location: variable cliente of type @jakarta.validation.constraints.NotNull(message="El cliente no puede ser nulo") informviva.gest.model.Cliente
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/VentaServicioImpl.java:[29,63] cannot find symbol
-[ERROR]   symbol:   method getClienteId()
-[ERROR]   location: variable ventaDTO of type informviva.gest.dto.VentaDTO
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/VentaServicioImpl.java:[30,100] cannot find symbol
-[ERROR]   symbol:   method getClienteId()
-[ERROR]   location: variable ventaDTO of type informviva.gest.dto.VentaDTO
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/VentaServicioImpl.java:[33,19] cannot find symbol
-[ERROR]   symbol:   method setCliente(informviva.gest.model.Cliente)
-[ERROR]   location: variable nuevaVenta of type informviva.gest.model.Venta
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/VentaServicioImpl.java:[34,19] cannot find symbol
-[ERROR]   symbol:   method setFecha(java.time.LocalDateTime)
-[ERROR]   location: variable nuevaVenta of type informviva.gest.model.Venta
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/VentaServicioImpl.java:[36,59] cannot find symbol
-[ERROR]   symbol:   method getProductos()
-[ERROR]   location: variable ventaDTO of type informviva.gest.dto.VentaDTO
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/VentaServicioImpl.java:[37,43] invalid method reference
-[ERROR]   cannot find symbol
-[ERROR]     symbol:   method getProductoId()
-[ERROR]     location: class informviva.gest.dto.VentaDTO.ProductoVentaDTO
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/VentaServicioImpl.java:[37,85] invalid method reference
-[ERROR]   cannot find symbol
-[ERROR]     symbol:   method getCantidad()
-[ERROR]     location: class informviva.gest.dto.VentaDTO.ProductoVentaDTO
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/VentaServicioImpl.java:[49,68] cannot find symbol
-[ERROR]   symbol:   method getId()
-[ERROR]   location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/VentaServicioImpl.java:[51,25] cannot find symbol
-[ERROR]   symbol:   method getStock()
-[ERROR]   location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/VentaServicioImpl.java:[52,94] cannot find symbol
-[ERROR]   symbol:   method getNombre()
-[ERROR]   location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/VentaServicioImpl.java:[54,39] cannot find symbol
-[ERROR]   symbol:   method getStock()
-[ERROR]   location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/VentaServicioImpl.java:[57,20] cannot find symbol
-[ERROR]   symbol:   method setVenta(informviva.gest.model.Venta)
-[ERROR]   location: variable detalle of type informviva.gest.model.VentaDetalle
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/VentaServicioImpl.java:[58,20] cannot find symbol
-[ERROR]   symbol:   method setProducto(informviva.gest.model.Producto)
-[ERROR]   location: variable detalle of type informviva.gest.model.VentaDetalle
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/VentaServicioImpl.java:[59,20] cannot find symbol
-[ERROR]   symbol:   method setCantidad(int)
-[ERROR]   location: variable detalle of type informviva.gest.model.VentaDetalle
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/VentaServicioImpl.java:[60,47] cannot find symbol
-[ERROR]   symbol:   method getPrecio()
-[ERROR]   location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/VentaServicioImpl.java:[63,35] cannot find symbol
-[ERROR]   symbol:   method getPrecio()
-[ERROR]   location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/VentaServicioImpl.java:[66,19] cannot find symbol
-[ERROR]   symbol:   method setTotal(double)
-[ERROR]   location: variable nuevaVenta of type informviva.gest.model.Venta
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/VentaServicioImpl.java:[67,19] cannot find symbol
-[ERROR]   symbol:   method setDetalles(java.util.List<informviva.gest.model.VentaDetalle>)
-[ERROR]   location: variable nuevaVenta of type informviva.gest.model.Venta
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/importacion/factory/ImportacionProcessorFactory.java:[71,38] incompatible types: org.springframework.web.multipart.MultipartFile cannot be converted to java.lang.String
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[254,43] cannot find symbol
-[ERROR]   symbol:   method buscarPorRangoFechas(java.time.LocalDate,java.time.LocalDate)
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.11.0:compile (default-compile) on project informviva-gest: Compilation failure: Compilation failure:
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/importacion/impl/ExcelImportacionProcessor.java:[8,8] informviva.gest.service.importacion.impl.ExcelImportacionProcessor is not abstract and does not override abstract method puedeProcesar(org.springframework.web.multipart.MultipartFile) in informviva.gest.service.importacion.ImportacionProcessor
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/importacion/impl/ExcelImportacionProcessor.java:[10,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[253,37] cannot find symbol
+[ERROR]   symbol:   method obtenerHistorialPaginado(org.springframework.data.domain.Pageable)
+[ERROR]   location: variable historialServicio of type informviva.gest.service.ExportacionHistorialServicio
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[336,43] cannot find symbol
+[ERROR]   symbol:   method buscarPorRangoFechasCompleto(java.time.LocalDateTime,java.time.LocalDateTime)
 [ERROR]   location: variable ventaServicio of type informviva.gest.service.VentaServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[278,43] cannot find symbol
-[ERROR]   symbol:   method getFechaRegistro()
-[ERROR]   location: variable cliente of type informviva.gest.model.Cliente
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[279,58] cannot find symbol
-[ERROR]   symbol:   method getFechaRegistro()
-[ERROR]   location: variable cliente of type informviva.gest.model.Cliente
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[285,40] cannot find symbol
-[ERROR]   symbol:   method getFechaRegistro()
-[ERROR]   location: variable cliente of type informviva.gest.model.Cliente
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[286,58] cannot find symbol
-[ERROR]   symbol:   method getFechaRegistro()
-[ERROR]   location: variable cliente of type informviva.gest.model.Cliente
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[297,31] cannot find symbol
-[ERROR]   symbol:   method getNombre()
-[ERROR]   location: variable cliente of type informviva.gest.model.Cliente
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[298,32] cannot find symbol
-[ERROR]   symbol:   method getApellido()
-[ERROR]   location: variable cliente of type informviva.gest.model.Cliente
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[299,33] cannot find symbol
-[ERROR]   symbol:   method getEmail()
-[ERROR]   location: variable cliente of type informviva.gest.model.Cliente
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[299,63] cannot find symbol
-[ERROR]   symbol:   method getEmail()
-[ERROR]   location: variable cliente of type informviva.gest.model.Cliente
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[310,60] cannot find symbol
-[ERROR]   symbol:   method isActivo()
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[395,60] cannot find symbol
+[ERROR]   symbol:   method getActivo()
 [ERROR]   location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[315,62] cannot find symbol
-[ERROR]   symbol:   method getStock()
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[459,33] cannot find symbol
+[ERROR]   symbol:   method getCiudad()
+[ERROR]   location: variable cliente of type informviva.gest.model.Cliente
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[482,31] cannot find symbol
+[ERROR]   symbol:   method getActivo()
 [ERROR]   location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[315,93] cannot find symbol
-[ERROR]   symbol:   method getStock()
-[ERROR]   location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[320,66] cannot find symbol
-[ERROR]   symbol:   method getCategoria()
-[ERROR]   location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[321,28] cannot find symbol
-[ERROR]   symbol:   method getCategoria()
-[ERROR]   location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[332,49] cannot find symbol
-[ERROR]   symbol:   method getEstado()
-[ERROR]   location: variable venta of type informviva.gest.model.Venta
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[349,26] cannot find symbol
-[ERROR]   symbol:   method getId()
-[ERROR]   location: variable cliente of type informviva.gest.model.Cliente
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[350,27] cannot find symbol
-[ERROR]   symbol:   method getRut()
-[ERROR]   location: variable cliente of type informviva.gest.model.Cliente
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[351,12] cannot find symbol
-[ERROR]   symbol:   method setNombreCompleto(java.lang.String)
-[ERROR]   location: variable dto of type informviva.gest.dto.ClienteExportDTO
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[352,29] cannot find symbol
-[ERROR]   symbol:   method getEmail()
-[ERROR]   location: variable cliente of type informviva.gest.model.Cliente
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[353,32] cannot find symbol
-[ERROR]   symbol:   method getTelefono()
-[ERROR]   location: variable cliente of type informviva.gest.model.Cliente
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[354,33] cannot find symbol
-[ERROR]   symbol:   method getDireccion()
-[ERROR]   location: variable cliente of type informviva.gest.model.Cliente
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[355,12] cannot find symbol
-[ERROR]   symbol:   method setFechaRegistro(cliente.ge[...] null)
-[ERROR]   location: variable dto of type informviva.gest.dto.ClienteExportDTO
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[355,37] cannot find symbol
-[ERROR]   symbol:   method getFechaRegistro()
-[ERROR]   location: variable cliente of type informviva.gest.model.Cliente
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[356,24] cannot find symbol
-[ERROR]   symbol:   method getFechaRegistro()
-[ERROR]   location: variable cliente of type informviva.gest.model.Cliente
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[357,33] cannot find symbol
-[ERROR]   symbol:   method getCategoria()
-[ERROR]   location: variable cliente of type informviva.gest.model.Cliente
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[360,73] cannot find symbol
-[ERROR]   symbol:   method getId()
-[ERROR]   location: variable cliente of type informviva.gest.model.Cliente
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[361,87] cannot find symbol
-[ERROR]   symbol:   method getId()
-[ERROR]   location: variable cliente of type informviva.gest.model.Cliente
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[363,12] cannot find symbol
-[ERROR]   symbol:   method setTotalCompras(long)
-[ERROR]   location: variable dto of type informviva.gest.dto.ClienteExportDTO
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[364,12] cannot find symbol
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[635,40] cannot find symbol
+[ERROR]   symbol:   method buscarPorRangoFechasCompleto(java.time.LocalDateTime,java.time.LocalDateTime)
+[ERROR]   location: variable ventaServicio of type informviva.gest.service.VentaServicio
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[637,40] cannot find symbol
+[ERROR]   symbol:   method listarTodas()
+[ERROR]   location: variable ventaServicio of type informviva.gest.service.VentaServicio
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[679,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[689,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[699,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[710,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[715,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[720,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[725,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[730,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[738,13] reference to Row is ambiguous
+[ERROR]   both class com.lowagie.text.Row in com.lowagie.text and interface org.apache.poi.ss.usermodel.Row in org.apache.poi.ss.usermodel match
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[747,17] reference to Row is ambiguous
+[ERROR]   both class com.lowagie.text.Row in com.lowagie.text and interface org.apache.poi.ss.usermodel.Row in org.apache.poi.ss.usermodel match
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[819,13] reference to Font is ambiguous
+[ERROR]   both class com.lowagie.text.Font in com.lowagie.text and interface org.apache.poi.ss.usermodel.Font in org.apache.poi.ss.usermodel match
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[827,13] reference to Row is ambiguous
+[ERROR]   both class com.lowagie.text.Row in com.lowagie.text and interface org.apache.poi.ss.usermodel.Row in org.apache.poi.ss.usermodel match
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[832,17] reference to Cell is ambiguous
+[ERROR]   both class com.lowagie.text.Cell in com.lowagie.text and interface org.apache.poi.ss.usermodel.Cell in org.apache.poi.ss.usermodel match
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[840,17] reference to Row is ambiguous
+[ERROR]   both class com.lowagie.text.Row in com.lowagie.text and interface org.apache.poi.ss.usermodel.Row in org.apache.poi.ss.usermodel match
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/ServicioUsuarioDetalle.java:[81,50] incompatible types: java.time.LocalDate cannot be converted to java.time.LocalDateTime
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/ClienteImportacionServicio.java:[221,47] incompatible types: java.time.LocalDate cannot be converted to java.time.LocalDateTime
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/ClienteImportacionServicio.java:[243,47] incompatible types: java.time.LocalDate cannot be converted to java.time.LocalDateTime
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ExportacionControlador.java:[81,35] incompatible types: java.time.LocalDate cannot be converted to java.time.LocalDateTime
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ExportacionControlador.java:[82,32] incompatible types: java.time.LocalDate cannot be converted to java.time.LocalDateTime
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ExportacionControlador.java:[126,35] incompatible types: java.time.LocalDate cannot be converted to java.time.LocalDateTime
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ExportacionControlador.java:[127,32] incompatible types: java.time.LocalDate cannot be converted to java.time.LocalDateTime
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ExportacionControlador.java:[222,35] incompatible types: java.time.LocalDate cannot be converted to java.time.LocalDateTime
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ExportacionControlador.java:[223,32] incompatible types: java.time.LocalDate cannot be converted to java.time.LocalDateTime
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ExportacionControlador.java:[275,35] incompatible types: java.time.LocalDate cannot be converted to java.time.LocalDateTime
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ExportacionControlador.java:[276,32] incompatible types: java.time.LocalDate cannot be converted to java.time.LocalDateTime
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ExportacionControlador.java:[334,89] incompatible types: org.springframework.data.domain.Page<informviva.gest.model.ExportacionHistorial> cannot be converted to java.util.Map<java.lang.String,java.lang.Object>
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/MetricasServicio.java:[53,74] incompatible types: int cannot be converted to java.lang.Long
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/BusquedaAvanzadaServicio.java:[74,35] no suitable method found for findAll(org.springframework.data.jpa.domain.Specification<informviva.gest.model.Producto>,org.springframework.data.domain.Pageable)
+[ERROR]     method org.springframework.data.repository.query.QueryByExampleExecutor.<S>findAll(org.springframework.data.domain.Example<S>,org.springframework.data.domain.Pageable) is not applicable
+[ERROR]       (cannot infer type-variable(s) S
+[ERROR]         (argument mismatch; org.springframework.data.jpa.domain.Specification<informviva.gest.model.Producto> cannot be converted to org.springframework.data.domain.Example<S>))
+[ERROR]     method org.springframework.data.jpa.repository.JpaRepository.<S>findAll(org.springframework.data.domain.Example<S>) is not applicable
+[ERROR]       (cannot infer type-variable(s) S
+[ERROR]         (actual and formal argument lists differ in length))
+[ERROR]     method org.springframework.data.jpa.repository.JpaRepository.<S>findAll(org.springframework.data.domain.Example<S>,org.springframework.data.domain.Sort) is not applicable
+[ERROR]       (cannot infer type-variable(s) S
+[ERROR]         (argument mismatch; org.springframework.data.jpa.domain.Specification<informviva.gest.model.Producto> cannot be converted to org.springframework.data.domain.Example<S>))
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/BusquedaAvanzadaServicio.java:[103,34] no suitable method found for findAll(org.springframework.data.jpa.domain.Specification<informviva.gest.model.Cliente>,org.springframework.data.domain.Pageable)
+[ERROR]     method org.springframework.data.repository.query.QueryByExampleExecutor.<S>findAll(org.springframework.data.domain.Example<S>,org.springframework.data.domain.Pageable) is not applicable
+[ERROR]       (cannot infer type-variable(s) S
+[ERROR]         (argument mismatch; org.springframework.data.jpa.domain.Specification<informviva.gest.model.Cliente> cannot be converted to org.springframework.data.domain.Example<S>))
+[ERROR]     method org.springframework.data.jpa.repository.JpaRepository.<S>findAll(org.springframework.data.domain.Example<S>) is not applicable
+[ERROR]       (cannot infer type-variable(s) S
+[ERROR]         (actual and formal argument lists differ in length))
+[ERROR]     method org.springframework.data.jpa.repository.JpaRepository.<S>findAll(org.springframework.data.domain.Example<S>,org.springframework.data.domain.Sort) is not applicable
+[ERROR]       (cannot infer type-variable(s) S
+[ERROR]         (argument mismatch; org.springframework.data.jpa.domain.Specification<informviva.gest.model.Cliente> cannot be converted to org.springframework.data.domain.Example<S>))
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/procesador/ProcesadorUsuario.java:[108,25] cannot find symbol
+[ERROR]   symbol:   method validarFila(java.util.Map<java.lang.String,java.lang.Object>,java.lang.String,int)
+[ERROR]   location: variable validador of type informviva.gest.service.importacion.ImportacionValidador
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ClienteVistaControlador.java:[140,77] cannot find symbol
+[ERROR]   symbol:   variable ERROR_CLIENTE_NO_ENCONTRADO
+[ERROR]   location: class informviva.gest.util.MensajesConstantes
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ClienteVistaControlador.java:[162,77] cannot find symbol
+[ERROR]   symbol:   variable ERROR_CLIENTE_NO_ENCONTRADO
+[ERROR]   location: class informviva.gest.util.MensajesConstantes
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ClienteVistaControlador.java:[209,79] cannot find symbol
+[ERROR]   symbol:   variable ERROR_EMAIL_DUPLICADO
+[ERROR]   location: class informviva.gest.util.MensajesConstantes
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ClienteVistaControlador.java:[222,24] cannot find symbol
+[ERROR]   symbol:   method setUsuarioCreacion(java.lang.String)
+[ERROR]   location: variable cliente of type @jakarta.validation.Valid informviva.gest.model.Cliente
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ClienteVistaControlador.java:[224,24] cannot find symbol
+[ERROR]   symbol:   method setFechaModificacion(java.time.LocalDateTime)
+[ERROR]   location: variable cliente of type @jakarta.validation.Valid informviva.gest.model.Cliente
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ClienteVistaControlador.java:[225,24] cannot find symbol
+[ERROR]   symbol:   method setUsuarioModificacion(java.lang.String)
+[ERROR]   location: variable cliente of type @jakarta.validation.Valid informviva.gest.model.Cliente
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ClienteVistaControlador.java:[231,39] cannot find symbol
+[ERROR]   symbol:   variable EXITO_CLIENTE_CREADO
+[ERROR]   location: class informviva.gest.util.MensajesConstantes
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ClienteVistaControlador.java:[232,39] cannot find symbol
+[ERROR]   symbol:   variable EXITO_CLIENTE_ACTUALIZADO
+[ERROR]   location: class informviva.gest.util.MensajesConstantes
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ClienteVistaControlador.java:[255,77] cannot find symbol
+[ERROR]   symbol:   variable ERROR_CLIENTE_NO_ENCONTRADO
+[ERROR]   location: class informviva.gest.util.MensajesConstantes
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ServicioImportacionHistorialImpl.java:[54,68] cannot find symbol
+[ERROR]   symbol:   method getUsuarioId()
+[ERROR]   location: variable resultado of type informviva.gest.dto.ImportacionResultadoDTO
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ServicioImportacionHistorialImpl.java:[57,47] cannot find symbol
+[ERROR]   symbol:   method getTipoImportacion()
+[ERROR]   location: variable resultado of type informviva.gest.dto.ImportacionResultadoDTO
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ServicioImportacionHistorialImpl.java:[61,46] cannot find symbol
+[ERROR]   symbol:   method getTotalRegistros()
+[ERROR]   location: variable resultado of type informviva.gest.dto.ImportacionResultadoDTO
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ServicioImportacionHistorialImpl.java:[65,39] cannot find symbol
+[ERROR]   symbol:   method isExitoso()
+[ERROR]   location: variable resultado of type informviva.gest.dto.ImportacionResultadoDTO
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ReporteServicioImpl.java:[20,8] informviva.gest.service.impl.ReporteServicioImpl is not abstract and does not override abstract method obtenerKpis() in informviva.gest.service.ReporteServicio
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ReporteServicioImpl.java:[33,16] cannot find symbol
+[ERROR]   symbol:   method setTotalArticulosVendidos(java.lang.Long)
+[ERROR]   location: variable resumen of type informviva.gest.dto.VentaResumenDTO
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ReporteServicioImpl.java:[57,41] incompatible types: java.util.List<informviva.gest.dto.ProductoVendidoDTO> cannot be converted to java.util.List<java.lang.Object>
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ReporteServicioImpl.java:[59,67] incompatible types: java.util.List<informviva.gest.dto.VentaPorPeriodoDTO> cannot be converted to java.util.List<java.lang.Object>
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ReporteServicioImpl.java:[60,71] incompatible types: java.util.List<informviva.gest.dto.VentaPorCategoriaDTO> cannot be converted to java.util.Map<java.lang.String,java.lang.Double>
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ReporteServicioImpl.java:[61,16] cannot find symbol
+[ERROR]   symbol:   method setVentasPorVendedor(java.util.List<informviva.gest.dto.VentaPorVendedorDTO>)
+[ERROR]   location: variable resumen of type informviva.gest.dto.VentaResumenDTO
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportNotificationService.java:[71,30] cannot find symbol
+[ERROR]   symbol:   method getTamanoLegible()
+[ERROR]   location: variable historial of type informviva.gest.model.ExportacionHistorial
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportNotificationService.java:[72,30] cannot find symbol
+[ERROR]   symbol:   method getTiempoLegible()
+[ERROR]   location: variable historial of type informviva.gest.model.ExportacionHistorial
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[41,8] informviva.gest.service.impl.ClienteServicioImpl is not abstract and does not override abstract method buscarVentasRecientesPorCliente(java.lang.Long,int) in informviva.gest.service.ClienteServicio
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[103,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[144,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[169,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[176,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[183,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[202,97] incompatible types: java.time.LocalDate cannot be converted to java.time.chrono.ChronoLocalDateTime<?>
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[228,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[235,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[266,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[273,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[298,66] incompatible types: java.time.LocalDateTime cannot be converted to java.time.LocalDate
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[322,24] cannot find symbol
 [ERROR]   symbol:   method setMontoTotalCompras(double)
-[ERROR]   location: variable dto of type informviva.gest.dto.ClienteExportDTO
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[371,27] cannot find symbol
-[ERROR]   symbol:   method getId()
+[ERROR]   location: variable dto of type informviva.gest.dto.ClienteReporteDTO
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[325,28] cannot find symbol
+[ERROR]   symbol:   method setPromedioCompra(double)
+[ERROR]   location: variable dto of type informviva.gest.dto.ClienteReporteDTO
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[342,54] cannot find symbol
+[ERROR]   symbol:   method getMontoTotalCompras()
+[ERROR]   location: variable c2 of type informviva.gest.dto.ClienteReporteDTO
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[342,81] cannot find symbol
+[ERROR]   symbol:   method getMontoTotalCompras()
+[ERROR]   location: variable c1 of type informviva.gest.dto.ClienteReporteDTO
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[367,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[395,30] invalid method reference
+[ERROR]   cannot find symbol
+[ERROR]     symbol:   method getMontoTotalCompras(T)
+[ERROR]     location: class informviva.gest.dto.ClienteReporteDTO
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[414,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[434,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[446,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[481,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[503,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[554,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[586,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[625,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[649,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[689,5] method does not override or implement a method from a supertype
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[824,22] invalid method reference
+[ERROR]   cannot find symbol
+[ERROR]     symbol:   method getCiudad()
+[ERROR]     location: class informviva.gest.model.Cliente
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ValidacionServicioImpl.java:[205,46] cannot find symbol
+[ERROR]   symbol:   method getActivo()
 [ERROR]   location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[372,31] cannot find symbol
-[ERROR]   symbol:   method getCodigo()
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/GeneradorArchivosServicio.java:[71,56] no suitable method found for valueOf(java.time.LocalDateTime)
+[ERROR]     method java.sql.Date.valueOf(java.lang.String) is not applicable
+[ERROR]       (argument mismatch; java.time.LocalDateTime cannot be converted to java.lang.String)
+[ERROR]     method java.sql.Date.valueOf(java.time.LocalDate) is not applicable
+[ERROR]       (argument mismatch; java.time.LocalDateTime cannot be converted to java.time.LocalDate)
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/GeneradorArchivosServicio.java:[77,62] no suitable method found for valueOf(java.time.LocalDateTime)
+[ERROR]     method java.sql.Date.valueOf(java.lang.String) is not applicable
+[ERROR]       (argument mismatch; java.time.LocalDateTime cannot be converted to java.lang.String)
+[ERROR]     method java.sql.Date.valueOf(java.time.LocalDate) is not applicable
+[ERROR]       (argument mismatch; java.time.LocalDateTime cannot be converted to java.time.LocalDate)
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/GeneradorArchivosServicio.java:[137,47] incompatible types: java.time.LocalDateTime cannot be converted to java.time.LocalDate
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/GeneradorArchivosServicio.java:[140,30] incompatible types: java.util.List<java.lang.Object> cannot be converted to java.util.List<informviva.gest.service.impl.GeneradorArchivosServicio.UsuarioExportDTO>
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/GeneradorArchivosServicio.java:[198,56] cannot find symbol
+[ERROR]   symbol:   method getActivo()
 [ERROR]   location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[373,31] cannot find symbol
-[ERROR]   symbol:   method getNombre()
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/GeneradorArchivosServicio.java:[239,32] cannot find symbol
+[ERROR]   symbol:   method getActivo()
 [ERROR]   location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[374,36] cannot find symbol
-[ERROR]   symbol:   method getDescripcion()
-[ERROR]   location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[375,31] cannot find symbol
-[ERROR]   symbol:   method getPrecio()
-[ERROR]   location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[376,30] cannot find symbol
-[ERROR]   symbol:   method getStock()
-[ERROR]   location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[377,12] cannot find symbol
-[ERROR]   symbol:   method setCategoria(producto.g[...]0eda")
-[ERROR]   location: variable dto of type informviva.gest.dto.ProductoExportDTO
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[377,34] cannot find symbol
-[ERROR]   symbol:   method getCategoria()
-[ERROR]   location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[377,68] cannot find symbol
-[ERROR]   symbol:   method getCategoria()
-[ERROR]   location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[378,30] cannot find symbol
-[ERROR]   symbol:   method getMarca()
-[ERROR]   location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[379,31] cannot find symbol
-[ERROR]   symbol:   method getModelo()
-[ERROR]   location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[380,31] cannot find symbol
-[ERROR]   symbol:   method isActivo()
-[ERROR]   location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[381,38] cannot find symbol
-[ERROR]   symbol:   method getFechaCreacion()
-[ERROR]   location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[382,43] cannot find symbol
-[ERROR]   symbol:   method getFechaActualizacion()
-[ERROR]   location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[389,24] cannot find symbol
-[ERROR]   symbol:   method getId()
-[ERROR]   location: variable venta of type informviva.gest.model.Venta
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[390,27] cannot find symbol
-[ERROR]   symbol:   method getFecha()
-[ERROR]   location: variable venta of type informviva.gest.model.Venta
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[391,35] cannot find symbol
-[ERROR]   symbol:   method getCliente()
-[ERROR]   location: variable venta of type informviva.gest.model.Venta
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[392,32] cannot find symbol
-[ERROR]   symbol:   method getCliente()
-[ERROR]   location: variable venta of type informviva.gest.model.Venta
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[393,36] cannot find symbol
-[ERROR]   symbol:   method getVendedor()
-[ERROR]   location: variable venta of type informviva.gest.model.Venta
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[394,30] cannot find symbol
-[ERROR]   symbol:   method getSubtotal()
-[ERROR]   location: variable venta of type informviva.gest.model.Venta
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[395,30] cannot find symbol
-[ERROR]   symbol:   method getImpuesto()
-[ERROR]   location: variable venta of type informviva.gest.model.Venta
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[396,27] cannot find symbol
-[ERROR]   symbol:   method getTotal()
-[ERROR]   location: variable venta of type informviva.gest.model.Venta
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[397,32] cannot find symbol
-[ERROR]   symbol:   method getMetodoPago()
-[ERROR]   location: variable venta of type informviva.gest.model.Venta
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[398,28] cannot find symbol
-[ERROR]   symbol:   method getEstado()
-[ERROR]   location: variable venta of type informviva.gest.model.Venta
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[399,35] cannot find symbol
-[ERROR]   symbol:   method getObservaciones()
-[ERROR]   location: variable venta of type informviva.gest.model.Venta
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[406,12] cannot find symbol
-[ERROR]   symbol:   method setId(java.lang.Long)
-[ERROR]   location: variable dto of type informviva.gest.dto.UsuarioExportDTO
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[407,12] cannot find symbol
-[ERROR]   symbol:   method setUsername(java.lang.String)
-[ERROR]   location: variable dto of type informviva.gest.dto.UsuarioExportDTO
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[408,12] cannot find symbol
-[ERROR]   symbol:   method setNombreCompleto(java.lang.String)
-[ERROR]   location: variable dto of type informviva.gest.dto.UsuarioExportDTO
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[409,12] cannot find symbol
-[ERROR]   symbol:   method setEmail(java.lang.String)
-[ERROR]   location: variable dto of type informviva.gest.dto.UsuarioExportDTO
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[410,12] cannot find symbol
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ControladorPruebaValidacion.java:[37,56] cannot find symbol
+[ERROR]   symbol:   method generarResumenHTML()
+[ERROR]   location: variable resultado of type informviva.gest.dto.ResultadoValidacionSistema
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ControladorPruebaValidacion.java:[38,57] cannot find symbol
+[ERROR]   symbol:   method generarResumenEjecutivo()
+[ERROR]   location: variable resultado of type informviva.gest.dto.ResultadoValidacionSistema
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/api/ClienteRestControlador.java:[181,20] cannot find symbol
 [ERROR]   symbol:   method setActivo(boolean)
-[ERROR]   location: variable dto of type informviva.gest.dto.UsuarioExportDTO
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[411,12] cannot find symbol
-[ERROR]   symbol:   method setFechaCreacion(usuario.ge[...] null)
-[ERROR]   location: variable dto of type informviva.gest.dto.UsuarioExportDTO
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[412,43] cannot find symbol
-[ERROR]   symbol:   method atStartOfDay()
-[ERROR]   location: class java.time.LocalDateTime
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[413,12] cannot find symbol
-[ERROR]   symbol:   method setUltimoAcceso(usuario.ge[...] null)
-[ERROR]   location: variable dto of type informviva.gest.dto.UsuarioExportDTO
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[414,42] cannot find symbol
-[ERROR]   symbol:   method atStartOfDay()
-[ERROR]   location: class java.time.LocalDateTime
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionServicioImpl.java:[415,12] cannot find symbol
-[ERROR]   symbol:   method setRoles(java.lang.String)
-[ERROR]   location: variable dto of type informviva.gest.dto.UsuarioExportDTO
+[ERROR]   location: variable cliente of type informviva.gest.model.Cliente
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/api/ClienteRestControlador.java:[224,29] cannot find symbol
+[ERROR]   symbol:   method setFechaModificacion(java.time.LocalDateTime)
+[ERROR]   location: variable clienteExistente of type informviva.gest.model.Cliente
 [ERROR] -> [Help 1]
-[ERROR] 
+[ERROR]
 [ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
 [ERROR] Re-run Maven using the -X switch to enable full debug logging.
-[ERROR] 
+[ERROR]
 [ERROR] For more information about the errors and possible solutions, please read the following articles:
 [ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

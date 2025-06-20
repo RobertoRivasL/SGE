@@ -1,5 +1,6 @@
 package informviva.gest.service.importacion;
 
+import informviva.gest.dto.ValidacionResultadoDTO;
 import informviva.gest.exception.ImportacionException;
 import informviva.gest.util.ImportacionConstants;
 import informviva.gest.util.MensajesConstantes;
@@ -342,5 +343,10 @@ public class ImportacionValidador {
         resultado.put("tipoArchivo", archivo.getContentType());
 
         return resultado;
+    }
+
+    public ValidacionResultadoDTO validarFila(Map<String, Object> fila, String tipoEntidad, int numeroFila) {
+        // Lógica de validación aquí
+        return new ValidacionResultadoDTO(); // Retorno predeterminado
     }
 }

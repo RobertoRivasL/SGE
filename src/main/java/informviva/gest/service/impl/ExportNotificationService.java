@@ -13,6 +13,9 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 /**
  * Servicio para enviar notificaciones por email sobre exportaciones
  *
@@ -42,6 +45,7 @@ public class ExportNotificationService {
     /**
      * Envía notificación de exportación completada
      */
+    // Archivo: D:\Doc_HP_RRL\RRL\Sence\Iseg Spa\Dashboard de Ventas\02\src\main\java\informviva\gest\service\impl\ExportNotificationService.java
     public void notificarExportacionCompletada(ExportacionHistorial historial, String emailDestino) {
         if (!emailEnabled || !notifyCompletion || mailSender == null) {
             return;
@@ -68,9 +72,9 @@ public class ExportNotificationService {
                     historial.getTipoExportacion(),
                     historial.getFormato().toUpperCase(),
                     historial.getNumeroRegistros(),
-                    historial.getTamanoLegible(),
-                    historial.getTiempoLegible(),
-                    historial.getFechaSolicitud()
+                    formatearTamano(historial.getTamanoArchivo()),
+                    formatearTiempo(historial.getTiempoProcesamiento()),
+                    formatearFecha(historial.getFechaSolicitud())
             );
 
             message.setText(contenido);
@@ -81,6 +85,26 @@ public class ExportNotificationService {
         } catch (Exception e) {
             logger.error("Error enviando notificación de exportación completada: {}", e.getMessage());
         }
+    }
+
+    private String formatearTamano(Long tamanoBytes) {
+        if (tamanoBytes == null) return "N/A";
+        if (tamanoBytes < 1024) return tamanoBytes + " B";
+        int z = (63 - Long.numberOfLeadingZeros(tamanoBytes)) / 10;
+        return String.format("%.1f %sB", (double)tamanoBytes / (1L << (z*10)), " KMGTPE".charAt(z));
+    }
+
+    private String formatearTiempo(Long tiempoMs) {
+        if (tiempoMs == null) return "N/A";
+        long segundos = tiempoMs / 1000;
+        long minutos = segundos / 60;
+        segundos %= 60;
+        return String.format("%d min %d seg", minutos, segundos);
+    }
+
+    private String formatearFecha(LocalDateTime fecha) {
+        if (fecha == null) return "N/A";
+        return fecha.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
     }
 
     /**

@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Map;
 
 /**
  * DTO mejorado que encapsula el resultado de una operación de importación
@@ -24,6 +25,12 @@ public class ImportacionResultadoDTO {
 
     private String tipoEntidad;
     private String nombreArchivo;
+    private Long usuarioId;
+    private String tipoImportacion;
+    private Integer totalRegistros;
+    private boolean exitoso;
+    private String resumen;
+
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime fechaImportacion;
@@ -401,4 +408,9 @@ public class ImportacionResultadoDTO {
         return String.format("ImportacionResultadoDTO{tipo='%s', archivo='%s', exitosos=%d, errores=%d, omitidos=%d, exito=%.1f%%}",
                 tipoEntidad, nombreArchivo, registrosExitosos, registrosConError, registrosOmitidos, porcentajeExito);
     }
+
+    public Long getUsuarioId() { return usuarioId; }
+    public String getTipoImportacion() { return tipoImportacion; }
+    public Integer getTotalRegistros() { return totalRegistros; }
+    public boolean isExitoso() { return exitoso; }
 }

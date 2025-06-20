@@ -23,6 +23,11 @@ public final class MensajesConstantes {
     public static final String ERROR_CAMBIAR_ESTADO = "Error al cambiar el estado del usuario";
     public static final String ERROR_GUARDAR_USUARIO = "Error al guardar el usuario: ";
     public static final String ERROR_USERNAME_USADO = "El nombre de usuario ya está en uso";
+    public static final String ERROR_CLIENTE_NO_ENCONTRADO = "El cliente solicitado no ha sido encontrado en el sistema.";
+    public static final String ERROR_EMAIL_DUPLICADO = "El email ingresado ya está registrado para otro cliente.";
+    public static final String EXITO_CLIENTE_CREADO = "Cliente creado exitosamente.";
+    public static final String EXITO_CLIENTE_ACTUALIZADO = "Cliente actualizado exitosamente.";
+
 
     // Mensajes de error
     public static final String ERROR_CREAR_VENTA = "Error al crear la venta: ";

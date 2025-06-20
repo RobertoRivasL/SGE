@@ -1,257 +1,151 @@
 package informviva.gest.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
 /**
- * DTO para resumen de ventas
- * Migrado para usar LocalDateTime como tipo principal
- * Usa clases auxiliares independientes para evitar problemas de compilación
- *
- * @author Roberto Rivas
- * @version 3.0
+ * 🔧 PASO 1: VentaResumenDTO corregido
+ * ✅ Cambiar List<Object> por tipos específicos
+ * ✅ Agregar campos adicionales necesarios
  */
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class VentaResumenDTO {
 
-    // ==================== INFORMACIÓN DEL PERÍODO ====================
+    // === CAMPOS EXISTENTES (mantener) ===
+    private BigDecimal totalVentas;
+    private BigDecimal ticketPromedio;
+    private Long totalTransacciones;
+    private Long clientesNuevos;
 
-    /**
-     * Fecha y hora de inicio del período analizado
-     */
-    private LocalDateTime fechaInicio;
+    // 🔧 CAMBIO PRINCIPAL: List<Object> → tipos específicos
+    private List<ProductoVendidoDTO> productosMasVendidos;     // ✅ Era List<Object>
+    private List<VentaPorPeriodoDTO> ventasPorPeriodo;        // ✅ Era List<Object>
+    private List<VentaPorVendedorDTO> ventasPorVendedor;      // ✅ Era List<Object>
 
-    /**
-     * Fecha y hora de fin del período analizado
-     */
-    private LocalDateTime fechaFin;
-
-    /**
-     * Cantidad de días en el período
-     */
-    private Integer diasPeriodo;
-
-    // ==================== TOTALES GENERALES ====================
-
-    /**
-     * Total de ventas en el período (monto)
-     */
-    private Double totalVentas;
-
-    /**
-     * Cantidad total de ventas realizadas
-     */
-    private Long cantidadVentas;
-
-    /**
-     * Ticket promedio por venta
-     */
-    private Double ticketPromedio;
-
-    /**
-     * Cantidad total de productos vendidos (unidades)
-     */
-    private Integer productosVendidos;
-
-    /**
-     * Número de clientes únicos que compraron
-     */
-    private Integer clientesUnicos;
-
-    // ==================== COMPARACIÓN CON PERÍODO ANTERIOR ====================
-
-    /**
-     * Total de ventas del período anterior
-     */
-    private Double totalVentasAnterior;
-
-    /**
-     * Variación absoluta respecto al período anterior
-     */
-    private Double variacionVentas;
-
-    /**
-     * Variación porcentual respecto al período anterior
-     */
-    private Double variacionPorcentual;
-
-    // ==================== ANÁLISIS DIARIO ====================
-
-    /**
-     * Promedio de ventas por día
-     */
-    private Double promedioDiario;
-
-    /**
-     * Día con mayor volumen de ventas
-     */
-    private LocalDate mejorDia;
-
-    /**
-     * Monto de ventas del mejor día
-     */
-    private Double ventasMejorDia;
-
-    /**
-     * Día con menor volumen de ventas
-     */
-    private LocalDate peorDia;
-
-    /**
-     * Monto de ventas del peor día
-     */
-    private Double ventasPeorDia;
-
-    // ==================== TOP PERFORMERS (USANDO CLASES INDEPENDIENTES) ====================
-
-    /**
-     * Lista de productos más vendidos
-     */
-    private List<TopProductoDTO> topProductos;
-
-    /**
-     * Lista de clientes con mayores compras
-     */
-    private List<TopClienteDTO> topClientes;
-
-    /**
-     * Lista de vendedores con mejores resultados
-     */
-    private List<TopVendedorDTO> topVendedores;
-
-    // ==================== ANÁLISIS POR CATEGORÍAS ====================
-
-    /**
-     * Ventas agrupadas por categoría de producto
-     */
+    // ✅ Este ya estaba bien tipado
     private Map<String, Double> ventasPorCategoria;
 
-    /**
-     * Cantidad de productos vendidos por categoría
-     */
-    private Map<String, Integer> cantidadPorCategoria;
+    // 🆕 CAMPOS ADICIONALES (requeridos por ExportacionServicio)
+    private Long totalArticulosVendidos;
+    private Long productosSinVentas;
+    private BigDecimal promedioPrecio;
+    private BigDecimal totalIngresos;
 
-    // ==================== ANÁLISIS POR MÉTODO DE PAGO ====================
+    // === GETTERS Y SETTERS ===
 
-    /**
-     * Ventas agrupadas por método de pago
-     */
-    private Map<String, Double> ventasPorMetodoPago;
-
-    /**
-     * Número de transacciones por método de pago
-     */
-    private Map<String, Integer> transaccionesPorMetodoPago;
-
-    // ==================== TENDENCIAS ====================
-
-    /**
-     * Detalle de ventas día a día
-     */
-    private List<VentaDiariaDTO> ventasDiarias;
-
-    /**
-     * Tendencia general del período: "CRECIENTE", "DECRECIENTE", "ESTABLE", "VOLATIL"
-     */
-    private String tendencia;
-
-    // ==================== MÉTRICAS ADICIONALES ====================
-
-    /**
-     * Total de devoluciones en el período
-     */
-    private Double devolucionesTotales;
-
-    /**
-     * Porcentaje de descuentos aplicados
-     */
-    private Double porcentajeDescuentos;
-
-    /**
-     * Margen promedio de las ventas
-     */
-    private Double margenPromedio;
-
-    // ==================== MÉTODOS DE UTILIDAD ====================
-
-    /**
-     * Calcula la tasa de crecimiento diario promedio
-     */
-    public Double getTasaCrecimientoDiario() {
-        if (diasPeriodo == null || diasPeriodo <= 1 || variacionPorcentual == null) {
-            return 0.0;
-        }
-        return variacionPorcentual / diasPeriodo;
+    public BigDecimal getTotalVentas() {
+        return totalVentas;
     }
 
-    /**
-     * Determina si el período fue exitoso (crecimiento > 0)
-     */
-    public Boolean isPeriodoExitoso() {
-        return variacionPorcentual != null && variacionPorcentual > 0;
+    public void setTotalVentas(BigDecimal totalVentas) {
+        this.totalVentas = totalVentas;
     }
 
-    /**
-     * Obtiene el rendimiento como texto descriptivo
-     */
-    public String getRendimientoDescriptivo() {
-        if (variacionPorcentual == null) return "Sin datos";
-
-        if (variacionPorcentual > 10) return "Excelente";
-        if (variacionPorcentual > 5) return "Muy bueno";
-        if (variacionPorcentual > 0) return "Bueno";
-        if (variacionPorcentual > -5) return "Regular";
-        return "Deficiente";
+    public BigDecimal getTicketPromedio() {
+        return ticketPromedio;
     }
 
-    /**
-     * Obtiene la tendencia como enum
-     */
-    public informviva.gest.enums.TendenciaVenta getTendenciaEnum() {
-        return informviva.gest.enums.TendenciaVenta.determinarTendencia(variacionPorcentual);
+    public void setTicketPromedio(BigDecimal ticketPromedio) {
+        this.ticketPromedio = ticketPromedio;
     }
 
-    // ==================== MÉTODOS DE CONSTRUCCIÓN ====================
-
-    /**
-     * Constructor de conveniencia para período básico
-     */
-    public VentaResumenDTO(LocalDateTime fechaInicio, LocalDateTime fechaFin) {
-        this.fechaInicio = fechaInicio;
-        this.fechaFin = fechaFin;
-        this.diasPeriodo = (int) java.time.Duration.between(fechaInicio, fechaFin).toDays();
+    public Long getTotalTransacciones() {
+        return totalTransacciones;
     }
 
-    /**
-     * Constructor con fechas LocalDate (se convierten automáticamente)
-     */
-    public VentaResumenDTO(LocalDate fechaInicio, LocalDate fechaFin) {
-        this.fechaInicio = fechaInicio.atStartOfDay();
-        this.fechaFin = fechaFin.atTime(23, 59, 59);
-        this.diasPeriodo = (int) java.time.Duration.between(this.fechaInicio, this.fechaFin).toDays();
+    public void setTotalTransacciones(Long totalTransacciones) {
+        this.totalTransacciones = totalTransacciones;
     }
 
-    // ==================== MÉTODOS DE COMPATIBILIDAD ====================
-
-    /**
-     * Obtiene fecha de inicio como LocalDate (para compatibilidad)
-     */
-    public LocalDate getFechaInicioDate() {
-        return fechaInicio != null ? fechaInicio.toLocalDate() : null;
+    public Long getClientesNuevos() {
+        return clientesNuevos;
     }
 
-    /**
-     * Obtiene fecha de fin como LocalDate (para compatibilidad)
-     */
-    public LocalDate getFechaFinDate() {
-        return fechaFin != null ? fechaFin.toLocalDate() : null;
+    public void setClientesNuevos(Long clientesNuevos) {
+        this.clientesNuevos = clientesNuevos;
     }
+
+    // 🔧 MÉTODOS CORREGIDOS: Con tipos específicos
+    public List<ProductoVendidoDTO> getProductosMasVendidos() {
+        return productosMasVendidos;
+    }
+
+    public void setProductosMasVendidos(List<ProductoVendidoDTO> productosMasVendidos) {
+        this.productosMasVendidos = productosMasVendidos;
+    }
+
+    public List<VentaPorPeriodoDTO> getVentasPorPeriodo() {
+        return ventasPorPeriodo;
+    }
+
+    public void setVentasPorPeriodo(List<VentaPorPeriodoDTO> ventasPorPeriodo) {
+        this.ventasPorPeriodo = ventasPorPeriodo;
+    }
+
+    public Map<String, Double> getVentasPorCategoria() {
+        return ventasPorCategoria;
+    }
+
+    public void setVentasPorCategoria(Map<String, Double> ventasPorCategoria) {
+        this.ventasPorCategoria = ventasPorCategoria;
+    }
+
+    public List<VentaPorVendedorDTO> getVentasPorVendedor() {
+        return ventasPorVendedor;
+    }
+
+    public void setVentasPorVendedor(List<VentaPorVendedorDTO> ventasPorVendedor) {
+        this.ventasPorVendedor = ventasPorVendedor;
+    }
+
+    // 🆕 GETTERS/SETTERS NUEVOS
+    public Long getTotalArticulosVendidos() {
+        return totalArticulosVendidos;
+    }
+
+    public void setTotalArticulosVendidos(Long totalArticulosVendidos) {
+        this.totalArticulosVendidos = totalArticulosVendidos;
+    }
+
+    public Long getProductosSinVentas() {
+        return productosSinVentas;
+    }
+
+    public void setProductosSinVentas(Long productosSinVentas) {
+        this.productosSinVentas = productosSinVentas;
+    }
+
+    public BigDecimal getPromedioPrecio() {
+        return promedioPrecio;
+    }
+
+    public void setPromedioPrecio(BigDecimal promedioPrecio) {
+        this.promedioPrecio = promedioPrecio;
+    }
+
+    public BigDecimal getTotalIngresos() {
+        return totalIngresos;
+    }
+
+    public void setTotalIngresos(BigDecimal totalIngresos) {
+        this.totalIngresos = totalIngresos;
+    }
+
+    // En VentaResumenDTO.java
+    private Double porcentajeCambioVentas;
+    private Double porcentajeCambioTransacciones;
+    private Double porcentajeCambioTicketPromedio;
+    private Double porcentajeCambioClientesNuevos;
+
+    public Double getPorcentajeCambioVentas() { return porcentajeCambioVentas; }
+    public void setPorcentajeCambioVentas(Double porcentajeCambioVentas) { this.porcentajeCambioVentas = porcentajeCambioVentas; }
+
+    public Double getPorcentajeCambioTransacciones() { return porcentajeCambioTransacciones; }
+    public void setPorcentajeCambioTransacciones(Double porcentajeCambioTransacciones) { this.porcentajeCambioTransacciones = porcentajeCambioTransacciones; }
+
+    public Double getPorcentajeCambioTicketPromedio() { return porcentajeCambioTicketPromedio; }
+    public void setPorcentajeCambioTicketPromedio(Double porcentajeCambioTicketPromedio) { this.porcentajeCambioTicketPromedio = porcentajeCambioTicketPromedio; }
+
+    public Double getPorcentajeCambioClientesNuevos() { return porcentajeCambioClientesNuevos; }
+    public void setPorcentajeCambioClientesNuevos(Double porcentajeCambioClientesNuevos) { this.porcentajeCambioClientesNuevos = porcentajeCambioClientesNuevos; }
 }

@@ -75,6 +75,8 @@ public class Venta {
 
     private String estado;
 
+    private String categoria;
+
     /**
      * Obtiene la fecha como LocalDate (sin la hora)
      *

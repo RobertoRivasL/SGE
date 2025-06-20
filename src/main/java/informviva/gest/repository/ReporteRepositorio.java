@@ -165,6 +165,29 @@ public interface ReporteRepositorio extends JpaRepository<Venta, Long> {
             "ORDER BY u.username ASC")
     List<VentaPorVendedorDTO> obtenerVentasPorVendedorEntreFechas(LocalDate startDate, LocalDate endDate);
 
-    List<Object[]> obtenerVentasPorFranjaHoraria(LocalDateTime fecha);
+    @Query(value = "SELECT HOUR(v.fecha) AS hora, COUNT(v.id) AS cantidad, SUM(v.total) AS total " +
+            "FROM ventas v " +
+            "WHERE DATE(v.fecha) = DATE(:fecha) AND v.estado != 'ANULADA' " +
+            "GROUP BY HOUR(v.fecha) " +
+            "ORDER BY hora", nativeQuery = true)
+    List<Object[]> obtenerVentasPorFranjaHoraria(@Param("fecha") LocalDateTime fecha);
+
+    @Query(value = "SELECT " +
+            "CASE " +
+            "    WHEN :periodo = 'HORA' THEN DATE_FORMAT(v.fecha, '%Y-%m-%d %H:00:00') " +
+            "    WHEN :periodo = 'DIA' THEN DATE_FORMAT(v.fecha, '%Y-%m-%d') " +
+            "    WHEN :periodo = 'MES' THEN DATE_FORMAT(v.fecha, '%Y-%m') " +
+            "    ELSE DATE_FORMAT(v.fecha, '%Y-%m-%d') " +
+            "END AS periodo, " +
+            "SUM(v.total) AS total " +
+            "FROM ventas v " +
+            "WHERE v.fecha BETWEEN :inicio AND :fin AND v.estado != 'ANULADA' " +
+            "GROUP BY periodo " +
+            "ORDER BY periodo ASC", nativeQuery = true)
+    List<VentaPorPeriodoDTO> obtenerVentasPorPeriodoConHora(
+            @Param("inicio") LocalDateTime inicio,
+            @Param("fin") LocalDateTime fin,
+            @Param("periodo") String periodo
+    );
 
 }

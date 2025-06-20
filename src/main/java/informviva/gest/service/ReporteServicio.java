@@ -38,4 +38,6 @@ public interface ReporteServicio {
     Map<String, Object> generarProyeccionVentas(LocalDateTime fechaInicio, int diasProyeccion);
 
     Map<String, Object> obtenerKpis();
+
+
 }

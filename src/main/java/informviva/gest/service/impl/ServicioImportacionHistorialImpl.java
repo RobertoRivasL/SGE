@@ -1,6 +1,5 @@
 package informviva.gest.service.impl;
 
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import informviva.gest.dto.ImportacionResultadoDTO;
@@ -24,12 +23,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-/**
- * Implementación del servicio de historial de importaciones
- *
- * @author Roberto Rivas
- * @version 2.0
- */
 @Slf4j
 @Service
 @Transactional
@@ -66,7 +59,6 @@ public class ServicioImportacionHistorialImpl implements ServicioImportacionHist
                     .resumen(resultado.getResumen())
                     .build();
 
-            // Convertir errores y advertencias a JSON
             if (resultado.getErrores() != null && !resultado.getErrores().isEmpty()) {
                 try {
                     historial.setErrores(objectMapper.writeValueAsString(resultado.getErrores()));
@@ -155,26 +147,28 @@ public class ServicioImportacionHistorialImpl implements ServicioImportacionHist
 
             estadisticasPorTipo.add(tipoStats);
 
-            totalImportaciones += totalCount;
-            totalExitosas += exitosasCount;
-            totalConError += erroresCount;
+            totalImportaciones += totalCount != null ? totalCount : 0;
+            totalExitosas += exitosasCount != null ? exitosasCount : 0;
+            totalConError += erroresCount != null ? erroresCount : 0;
             totalRegistrosProcesados += registrosTotales != null ? registrosTotales : 0;
             totalRegistrosExitosos += registrosOk != null ? registrosOk : 0;
             totalRegistrosConError += registrosError != null ? registrosError : 0;
         }
 
         resultado.put("estadisticasPorTipo", estadisticasPorTipo);
-        resultado.put("resumenGeneral", Map.of(
-                "totalImportaciones", totalImportaciones,
-                "totalExitosas", totalExitosas,
-                "totalConError", totalConError,
-                "totalRegistrosProcesados", totalRegistrosProcesados,
-                "totalRegistrosExitosos", totalRegistrosExitosos,
-                "totalRegistrosConError", totalRegistrosConError,
-                "porcentajeExitoGeneral",
+
+        Map<String, Object> resumenGeneral = new HashMap<>();
+        resumenGeneral.put("totalImportaciones", totalImportaciones);
+        resumenGeneral.put("totalExitosas", totalExitosas);
+        resumenGeneral.put("totalConError", totalConError);
+        resumenGeneral.put("totalRegistrosProcesados", totalRegistrosProcesados);
+        resumenGeneral.put("totalRegistrosExitosos", totalRegistrosExitosos);
+        resumenGeneral.put("totalRegistrosConError", totalRegistrosConError);
+        resumenGeneral.put("porcentajeExitoGeneral",
                 totalRegistrosProcesados > 0 ?
                         (totalRegistrosExitosos / (double) totalRegistrosProcesados) * 100.0 : 0.0
-        ));
+        );
+        resultado.put("resumenGeneral", resumenGeneral);
 
         return resultado;
     }

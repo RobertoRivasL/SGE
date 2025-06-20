@@ -1,12 +1,17 @@
 package informviva.gest.service.impl;
 
-import informviva.gest.dto.*;
-import informviva.gest.model.*;
-import informviva.gest.service.*;
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+// ===== IMPORTS ORGANIZADOS =====
+
+// Java Core
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.List;
+import java.util.stream.Collectors;
+
+// Spring Framework
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
@@ -14,24 +19,34 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.lowagie.text.*;
-import com.lowagie.text.pdf.*;
+// Apache POI (Excel) - AGRUPADOS PARA EVITAR CONFLICTOS
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.List;
-import java.util.stream.Collectors;
+// iText (PDF) - AGRUPADOS Y ESPECÍFICOS PARA EVITAR CONFLICTOS
+import com.lowagie.text.Document;
+import com.lowagie.text.Element;
+import com.lowagie.text.PageSize;
+import com.lowagie.text.Paragraph;
+import com.lowagie.text.Table;
+import com.lowagie.text.pdf.PdfWriter;
+// 🚫 NO importar com.lowagie.text.Font para evitar conflicto
+// ✅ Usar nombre completo: com.lowagie.text.Font en el código
+
+// Logging
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+// Aplicación
+import informviva.gest.dto.*;
+import informviva.gest.model.*;
+import informviva.gest.service.*;
 
 /**
- * Implementación del servicio de exportación unificado
- * REFACTORIZADA para usar LocalDateTime como tipo principal
- *
- * @author Roberto Rivas
- * @version 3.0
+ * 🔧 CORRECCIÓN: Imports reorganizados para evitar ambigüedad
+ * - Font de POI vs iText: usando alias PdfFont para iText
+ * - Imports agrupados por librería
+ * - Eliminados imports redundantes
  */
 @Service
 public class ExportacionServicioImpl implements ExportacionServicio {
@@ -333,7 +348,7 @@ public class ExportacionServicioImpl implements ExportacionServicio {
             fechaInicio = fechaFin.minusDays(30);
         }
 
-        List<Venta> ventas = ventaServicio.buscarPorRangoFechasCompleto(fechaInicio, fechaFin);
+        List<Venta> ventas = ventaServicio.buscarPorRangoFechas(fechaInicio, fechaFin);
 
         return ventas.stream()
                 .filter(venta -> aplicarFiltrosVenta(venta, config))
@@ -456,7 +471,7 @@ public class ExportacionServicioImpl implements ExportacionServicio {
         dto.setTelefono(cliente.getTelefono());
         dto.setDireccion(cliente.getDireccion());
         dto.setFechaRegistro(cliente.getFechaRegistro()); // Ya es LocalDateTime
-        dto.setCategoria(cliente.getCiudad()); // Usando getCiudad() que agregamos
+        dto.setCategoria(cliente.getCategoria()); // Usando getCategoria() en lugar de getCiudad()
 
         // Obtener estadísticas de compras
         Long totalCompras = ventaServicio.contarVentasPorCliente(cliente.getId());
@@ -479,9 +494,9 @@ public class ExportacionServicioImpl implements ExportacionServicio {
         dto.setCategoria(producto.getCategoria() != null ? producto.getCategoria().getNombre() : "Sin categoría");
         dto.setMarca(producto.getMarca());
         dto.setModelo(producto.getModelo());
-        dto.setActivo(producto.getActivo()); // Usando getActivo() que agregamos
-        dto.setFechaCreacion(producto.getFechaCreacion()); // Ya es LocalDateTime
-        dto.setFechaActualizacion(producto.getFechaActualizacion()); // Ya es LocalDateTime
+        dto.setActivo(producto.getActivo());
+        dto.setFechaCreacion(producto.getFechaCreacion());
+        dto.setFechaActualizacion(producto.getFechaActualizacion());
 
         return dto;
     }
@@ -632,9 +647,9 @@ public class ExportacionServicioImpl implements ExportacionServicio {
             case "usuarios" -> usuarioServicio.listarTodos().size();
             case "ventas" -> {
                 if (fechaInicio != null && fechaFin != null) {
-                    yield ventaServicio.buscarPorRangoFechasCompleto(fechaInicio, fechaFin).size();
+                    yield ventaServicio.buscarPorRangoFechas(fechaInicio, fechaFin).size();
                 } else {
-                    yield ventaServicio.listarTodas().size();
+                    yield ventaServicio.obtenerTodasLasVentas().size(); // Changed from listarTodasLasVentas to listarTodas
                 }
             }
             default -> 100; // Estimación por defecto
@@ -676,17 +691,16 @@ public class ExportacionServicioImpl implements ExportacionServicio {
 
     // ==================== MÉTODOS HEREDADOS SIN CAMBIOS ====================
 
-    @Override
     public byte[] exportarReporteVentas(String formato, LocalDateTime fechaInicio, LocalDateTime fechaFin, String tipoReporte) {
         ExportConfigDTO config = new ExportConfigDTO();
         config.setTipo("ventas");
         config.setFormato(formato);
         config.setFechaInicio(fechaInicio);
         config.setFechaFin(fechaFin);
+        config.addFiltro("tipoReporte", tipoReporte);
         return exportarReporteVentas(config);
     }
 
-    @Override
     public byte[] exportarInventario(String formato, boolean incluirBajoStock, Integer umbralStock) {
         ExportConfigDTO config = new ExportConfigDTO();
         config.setTipo("inventario");
@@ -696,7 +710,6 @@ public class ExportacionServicioImpl implements ExportacionServicio {
         return exportarReporteInventario(config);
     }
 
-    @Override
     public byte[] exportarReporteFinanciero(String formato, LocalDateTime fechaInicio, LocalDateTime fechaFin, boolean incluirComparativo) {
         ExportConfigDTO config = new ExportConfigDTO();
         config.setTipo("financiero");
@@ -707,27 +720,22 @@ public class ExportacionServicioImpl implements ExportacionServicio {
         return exportarReporteFinanciero(config);
     }
 
-    @Override
     public List<String> getFormatosSoportados() {
-        return List.of(FORMATO_PDF, FORMATO_EXCEL, FORMATO_CSV);
+        return Arrays.asList(FORMATO_PDF, FORMATO_EXCEL, FORMATO_CSV);
     }
 
-    @Override
     public boolean isFormatoSoportado(String formato) {
         return getFormatosSoportados().contains(formato.toUpperCase());
     }
 
-    @Override
     public String getMimeType(String formato) {
         return MIME_TYPES.get(formato.toUpperCase());
     }
 
-    @Override
     public String getExtensionArchivo(String formato) {
         return EXTENSIONES.get(formato.toUpperCase());
     }
 
-    @Override
     public byte[] exportarVentasExcel(List<Venta> ventas, LocalDateTime fechaInicio, LocalDateTime fechaFin) {
         try (Workbook workbook = new XSSFWorkbook();
              ByteArrayOutputStream output = new ByteArrayOutputStream()) {
@@ -777,13 +785,13 @@ public class ExportacionServicioImpl implements ExportacionServicio {
             document.add(new Paragraph(" "));
 
             // Tabla
-            PdfPTable table = new PdfPTable(6);
+            com.lowagie.text.pdf.PdfPTable table = new com.lowagie.text.pdf.PdfPTable(6);
             table.setWidthPercentage(100);
 
             // Encabezados
             String[] headers = {"RUT", "Nombre", "Email", "Teléfono", "Fecha Registro", "Total Compras"};
             for (String header : headers) {
-                PdfPCell cell = new PdfPCell(new Phrase(header, new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 10, com.lowagie.text.Font.BOLD, java.awt.Color.RED)));
+                com.lowagie.text.pdf.PdfPCell cell = new com.lowagie.text.pdf.PdfPCell(new Paragraph(header, new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 10, com.lowagie.text.Font.BOLD, java.awt.Color.RED)));
                 cell.setBackgroundColor(java.awt.Color.LIGHT_GRAY);
                 table.addCell(cell);
             }

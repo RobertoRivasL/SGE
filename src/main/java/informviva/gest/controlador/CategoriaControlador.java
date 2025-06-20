@@ -1,6 +1,5 @@
 package informviva.gest.controlador;
 
-
 import informviva.gest.exception.RecursoNoEncontradoException;
 import informviva.gest.model.Categoria;
 import informviva.gest.service.CategoriaServicio;
@@ -19,6 +18,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -33,15 +33,14 @@ public class CategoriaControlador {
 
     private static final Logger logger = LoggerFactory.getLogger(CategoriaControlador.class);
 
-    // Constantes para rutas
+    // Vistas
     private static final String VISTA_LISTA = "categorias/lista";
     private static final String VISTA_FORMULARIO = "categorias/formulario";
     private static final String VISTA_DETALLE = "categorias/detalle";
     private static final String REDIRECT_LISTA = "redirect:/categorias";
 
-    // Constantes para atributos del modelo
+    // Atributos del modelo
     private static final String ATTR_CATEGORIA = "categoria";
-    private static final String ATTR_CATEGORIAS = "categorias";
     private static final String ATTR_CATEGORIAS_PAGE = "categoriasPage";
     private static final String ATTR_ES_NUEVO = "esNuevo";
     private static final String ATTR_SEARCH = "search";
@@ -68,11 +67,9 @@ public class CategoriaControlador {
             Model model) {
 
         try {
-            // Configurar paginación
             Pageable pageable = PageRequest.of(page, size, Sort.by("nombre").ascending());
             Page<Categoria> categoriasPage;
 
-            // Aplicar filtros
             if (search != null && !search.trim().isEmpty()) {
                 categoriasPage = categoriaServicio.buscarPorTextoPaginado(search, pageable);
                 model.addAttribute(ATTR_SEARCH, search);
@@ -83,7 +80,6 @@ public class CategoriaControlador {
                 categoriasPage = categoriaServicio.listarPaginadas(pageable);
             }
 
-            // Estadísticas
             model.addAttribute(ATTR_CATEGORIAS_PAGE, categoriasPage);
             model.addAttribute("totalCategorias", categoriaServicio.contarTodas());
             model.addAttribute("categoriasActivas", categoriaServicio.contarActivas());
@@ -109,7 +105,7 @@ public class CategoriaControlador {
     }
 
     /**
-     * Procesa la creación de una nueva categoría
+     * Procesa la creación o actualización de una categoría
      */
     @PostMapping("/guardar")
     @PreAuthorize("hasAnyRole('ADMIN', 'PRODUCTOS', 'GERENTE')")
@@ -119,7 +115,6 @@ public class CategoriaControlador {
             RedirectAttributes redirectAttributes,
             Model model) {
 
-        // Validaciones personalizadas
         if (categoriaServicio.existePorNombre(categoria.getNombre(), categoria.getId())) {
             result.rejectValue("nombre", "error.categoria", "Ya existe una categoría con este nombre");
         }
@@ -170,12 +165,6 @@ public class CategoriaControlador {
         try {
             Categoria categoria = categoriaServicio.buscarPorId(id);
             model.addAttribute(ATTR_CATEGORIA, categoria);
-
-            // Aquí podrías agregar información adicional como:
-            // - Cantidad de productos en esta categoría
-            // - Productos más vendidos de esta categoría
-            // - Estadísticas de ventas, etc.
-
             return VISTA_DETALLE;
         } catch (RecursoNoEncontradoException e) {
             redirectAttributes.addFlashAttribute(ATTR_MENSAJE_ERROR, e.getMessage());
@@ -214,7 +203,6 @@ public class CategoriaControlador {
     @PreAuthorize("hasRole('ADMIN')")
     public String eliminarCategoria(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
-            // Verificar si la categoría puede ser eliminada
             if (!categoriaServicio.puedeSerEliminada(id)) {
                 redirectAttributes.addFlashAttribute(ATTR_MENSAJE_ERROR,
                         "No se puede eliminar la categoría porque tiene productos asociados. Puede desactivarla en su lugar.");
@@ -259,7 +247,7 @@ public class CategoriaControlador {
     @ResponseBody
     public List<Categoria> buscarCategorias(@RequestParam String q) {
         if (q == null || q.trim().length() < 2) {
-            return List.of();
+            return Collections.emptyList();
         }
         return categoriaServicio.buscarPorTexto(q);
     }

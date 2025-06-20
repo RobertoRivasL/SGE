@@ -1,5 +1,6 @@
 package informviva.gest.config;
 
+import informviva.gest.model.ExportacionHistorial;
 import informviva.gest.service.ExportacionHistorialServicio;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

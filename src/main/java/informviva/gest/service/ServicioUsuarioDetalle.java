@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
@@ -78,7 +79,7 @@ public class ServicioUsuarioDetalle implements UserDetailsService {
     @Transactional
     public void actualizarUltimoAcceso(Long userId) {
         repositorioUsuario.findById(userId).ifPresent(usuario -> {
-            usuario.setUltimoAcceso(LocalDate.now());
+            usuario.setUltimoAcceso(LocalDateTime.now());
             repositorioUsuario.save(usuario);
         });
     }

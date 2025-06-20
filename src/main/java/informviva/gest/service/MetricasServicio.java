@@ -50,7 +50,7 @@ public class MetricasServicio {
 
             // Métricas de negocio
             metricas.setTotalProductos(productoServicio.contarTodos());
-            metricas.setTotalClientes(clienteServicio.obtenerTodos().size());
+            metricas.setTotalClientes((long) clienteServicio.obtenerTodos().size());
             metricas.setProductosStockBajo(productoServicio.contarConBajoStock(5));
 
             // Rendimiento

@@ -174,4 +174,8 @@ public interface CategoriaServicio {
      * @return Número de categorías inactivas
      */
     Long contarInactivas();
+
+    Page<Categoria> buscarPorTextoPaginado(String texto, Pageable pageable);
+
+    List<Categoria> obtenerMasUtilizadas(int limite);
 }

@@ -4,9 +4,14 @@ import informviva.gest.model.Cliente;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+
+
+import java.math.BigDecimal;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -21,7 +26,8 @@ import java.util.Optional;
  * @version 3.1
  */
 @Repository
-public interface ClienteRepositorio extends JpaRepository<Cliente, Long> {
+public interface ClienteRepositorio extends JpaRepository<Cliente, Long>, JpaSpecificationExecutor<Cliente> {
+
 
     // ================================
     // MÉTODOS BÁSICOS DE BÚSQUEDA
@@ -279,11 +285,17 @@ public interface ClienteRepositorio extends JpaRepository<Cliente, Long> {
      */
     interface ClienteListProjection {
         Long getId();
+
         String getRut();
+
         String getNombre();
+
         String getApellido();
+
         String getEmail();
+
         String getCategoria();
+
         LocalDate getFechaRegistro();
 
         // Método calculado
@@ -342,12 +354,16 @@ public interface ClienteRepositorio extends JpaRepository<Cliente, Long> {
 
     // Métodos por estado activo
     Page<Cliente> findByActivoTrue(Pageable pageable);
+
     List<Cliente> findByActivoTrue();
+
     Long countByActivoTrue();
+
     Long countByActivoFalse();
 
     // Métodos por ciudad
     Page<Cliente> findByCiudadIgnoreCase(String ciudad, Pageable pageable);
+
     Page<Cliente> findByCiudadIgnoreCaseAndActivoTrue(String ciudad, Pageable pageable);
 
     // Métodos por fecha de registro
@@ -355,6 +371,7 @@ public interface ClienteRepositorio extends JpaRepository<Cliente, Long> {
 
     // Métodos por email
     List<Cliente> findByEmailIgnoreCase(String email);
+
     boolean existsByEmailIgnoreCase(String email);
 
     // Métodos de búsqueda combinada
@@ -369,4 +386,81 @@ public interface ClienteRepositorio extends JpaRepository<Cliente, Long> {
 
     Page<Cliente> findByNombreContainingIgnoreCaseOrApellidoContainingIgnoreCaseOrEmailContainingIgnoreCaseAndCiudadIgnoreCaseAndActivoTrue(
             String nombre, String apellido, String email, String ciudad, Pageable pageable);
+
+    public boolean existeClienteConEmailExcluyendo(String email, Long id);
+
+    public boolean existeClienteConRutExcluyendo(String rut, Long id);
+
+    public java.util.List<Cliente> buscarPorTermino(String termino);
+
+    public Cliente buscarPorRut(String rut);
+
+    List<Cliente> findByNombreContainingIgnoreCaseOrEmailContainingIgnoreCase(String nombre, String email);
+
+    @Query("SELECT DISTINCT c FROM Cliente c INNER JOIN Venta v ON c.id = v.cliente.id " +
+            "WHERE v.fecha BETWEEN :fechaInicio AND :fechaFin")
+    List<Cliente> findClientesConComprasEntreFechas(@Param("fechaInicio") LocalDate fechaInicio,
+                                                    @Param("fechaFin") LocalDate fechaFin);
+
+    @Query("SELECT COUNT(c) FROM Cliente c WHERE c.fechaRegistro BETWEEN :fechaInicio AND :fechaFin")
+    Long countByFechaRegistroBetween(@Param("fechaInicio") LocalDate fechaInicio, @Param("fechaFin") LocalDate fechaFin);
+
+    @Query("SELECT c FROM Cliente c LEFT JOIN c.ventas v GROUP BY c ORDER BY COUNT(v) DESC")
+    List<Cliente> findTopClientesPorCompras(Pageable pageable);
+
+    Page<Cliente> findByNombreContainingIgnoreCaseOrEmailContainingIgnoreCase(String nombre, String email, Pageable pageable);
+
+    long countByEmailIsNullOrEmailEquals(String email);
+    long countByRutIsNullOrRutEquals(String rut);
+    long countByNombreIsNullOrNombreEquals(String nombre);
+    long count();
+
+
+
+
+
+
+
+    // Buscar clientes por rango de edad (asumiendo que hay un campo fechaNacimiento)
+    @Query("SELECT c FROM Cliente c WHERE YEAR(CURRENT_DATE) - YEAR(c.fechaNacimiento) BETWEEN :edadMin AND :edadMax")
+    List<Cliente> findByEdadBetween(@Param("edadMin") int edadMin, @Param("edadMax") int edadMax);
+
+    // Contar clientes por categoría
+    long countByCategoria(String categoria);
+
+    // Obtener clientes con compras mayores a un monto específico
+    @Query("SELECT c FROM Cliente c WHERE EXISTS (SELECT v FROM Venta v WHERE v.cliente = c AND v.total > :monto)")
+    List<Cliente> findClientesConComprasMayoresA(@Param("monto") BigDecimal monto);
+
+    // Buscar clientes por estado activo/inactivo
+    List<Cliente> findByActivo(boolean activo);
+
+    // Obtener clientes registrados en el último mes
+    @Query("SELECT c FROM Cliente c WHERE c.fechaRegistro >= :fechaInicio")
+    List<Cliente> findClientesRegistradosRecientemente(@Param("fechaInicio") LocalDate fechaInicio);
+
+    // Buscar clientes por múltiples categorías
+    List<Cliente> findByCategoriaIn(List<String> categorias);
+
+    // Obtener clientes con ventas en un rango de fechas y categoría específica
+    @Query("SELECT c FROM Cliente c WHERE EXISTS (SELECT v FROM Venta v WHERE v.cliente = c AND v.fecha BETWEEN :fechaInicio AND :fechaFin AND v.categoria = :categoria)")
+    List<Cliente> findClientesConVentasPorCategoriaYFechas(@Param("fechaInicio") LocalDate fechaInicio, @Param("fechaFin") LocalDate fechaFin, @Param("categoria") String categoria);
+
+
+    @Query("SELECT c FROM Cliente c WHERE c.id NOT IN (SELECT v.cliente.id FROM Venta v WHERE v.fecha BETWEEN :fechaInicio AND :fechaFin)") List<Cliente> findClientesSinVentas(@Param("fechaInicio") LocalDate fechaInicio, @Param("fechaFin") LocalDate fechaFin);
+    List<Cliente> findByTelefonoContaining(String telefono);
+    List<Cliente> findByDireccionContainingIgnoreCase(String direccion);
+
+
+    @Modifying
+    @Query("UPDATE Cliente c SET c.categoria = :nuevaCategoria WHERE c.id IN :ids")
+    void actualizarCategoriaEnLote(@Param("ids") List<Long> ids, @Param("nuevaCategoria") String nuevaCategoria);
+
+    Page<Cliente> findAll(Pageable pageable);
+
+    Page<Cliente> listarClientesPaginadas(Pageable pageable);
+
+
+
 }
+

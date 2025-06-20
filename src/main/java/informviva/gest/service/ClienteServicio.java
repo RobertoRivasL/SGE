@@ -7,11 +7,13 @@ import informviva.gest.model.Cliente;
 import informviva.gest.model.Venta;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Servicio para la gestión de clientes
@@ -50,7 +52,7 @@ public interface ClienteServicio {
 
     List<Cliente> buscarPorNombre(String nombre);
 
-    List<Cliente> buscarPorEmail(String email);
+    Optional<Cliente> buscarPorEmail(String email);
 
     boolean existeClienteConEmail(String email);
 
@@ -133,9 +135,9 @@ public interface ClienteServicio {
 
 
     // Métodos existentes mantienen compatibilidad con LocalDate
-    List<Venta> listarTodas();
+    Page<Venta> listarVentasPaginadas(Pageable pageable);
 
-    Page<Venta> listarPaginadas(Pageable pageable);
+    List<Venta> listarTodasVentas();
 
     Venta guardar(VentaDTO ventaDTO);
 
@@ -352,4 +354,20 @@ public interface ClienteServicio {
      */
     boolean existeEmail(String email);
 
-}
+    boolean existeClienteConEmailExcluyendo(String email, Long id);
+    boolean existeClienteConRutExcluyendo(String rut, Long id);
+    java.util.List<Cliente> buscarPorTermino(String termino);
+    Cliente buscarPorRut(String rut);
+
+    List<Cliente> buscarPorApellido(String apellido);
+    List<Cliente> buscarPorEdadEntre(int edadMin, int edadMax);
+    List<Cliente> buscarPorEstadoActivo(boolean activo);
+    List<Cliente> buscarPorCategorias(List<String> categorias);
+
+    List<Cliente> buscarPorTelefono(String telefono);
+    List<Cliente> buscarPorDireccion(String direccion);
+    List<Cliente> obtenerClientesRegistradosRecientemente(LocalDate fechaInicio);
+
+    Page<Cliente> listarClientesPaginadas(Pageable pageable);
+    List<Cliente> listarTodasClientes();
+    }

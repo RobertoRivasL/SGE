@@ -218,7 +218,7 @@ public class ClienteImportacionServicio {
         cliente.setTelefono(limpiarTexto(obtenerValorCelda(row.getCell(4))));
         cliente.setDireccion(limpiarTexto(obtenerValorCelda(row.getCell(5))));
         cliente.setCategoria(limpiarTexto(obtenerValorCelda(row.getCell(6))));
-        cliente.setFechaRegistro(LocalDate.now());
+        cliente.setFechaRegistro(LocalDateTime.now());
 
         return cliente;
     }
@@ -240,7 +240,7 @@ public class ClienteImportacionServicio {
         cliente.setTelefono(limpiarTexto(valores[4]));
         cliente.setDireccion(limpiarTexto(valores[5]));
         cliente.setCategoria(limpiarTexto(valores[6]));
-        cliente.setFechaRegistro(LocalDate.now());
+        cliente.setFechaRegistro(LocalDateTime.now());
 
         return cliente;
     }

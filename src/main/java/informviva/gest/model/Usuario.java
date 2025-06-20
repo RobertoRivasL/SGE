@@ -81,10 +81,10 @@ public class Usuario {
      *
      * @return Nombre y apellido concatenados.
      */
-    @Transient
-    public String getNombreCompleto() {
-        return nombre + " " + apellido;
-    }
+//    @Transient
+//    public String getNombreCompleto() {
+//        return nombre + " " + apellido;
+//    }
 
     /**
      * Verifica si el usuario tiene un rol específico.
@@ -190,5 +190,26 @@ public class Usuario {
 
     public void setRoles(Set<String> roles) {
         this.roles = roles;
+    }
+
+    public String getNombreCompleto() {
+        // Si tiene nombre y apellido, los concatena
+        if (nombre != null && !nombre.trim().isEmpty() &&
+                apellido != null && !apellido.trim().isEmpty()) {
+            return (nombre.trim() + " " + apellido.trim()).trim();
+        }
+
+        // Si solo tiene nombre
+        if (nombre != null && !nombre.trim().isEmpty()) {
+            return nombre.trim();
+        }
+
+        // Si solo tiene apellido
+        if (apellido != null && !apellido.trim().isEmpty()) {
+            return apellido.trim();
+        }
+
+        // Fallback al username
+        return username != null ? username : "Usuario sin nombre";
     }
 }

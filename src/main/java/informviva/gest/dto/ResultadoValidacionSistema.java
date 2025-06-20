@@ -1,6 +1,6 @@
 package informviva.gest.dto;
 
-import informviva.gest.service.ResultadoValidacionModulo;
+import informviva.gest.dto.ResultadoValidacionModulo;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -222,5 +222,38 @@ public class ResultadoValidacionSistema {
 
     public void setModulosValidados(List<String> modulosValidados) {
         this.modulosValidados = modulosValidados;
+    }
+
+    public String generarResumenHTML() {
+        StringBuilder html = new StringBuilder();
+        html.append("<h2>Resumen de Validación del Sistema</h2>");
+        html.append("<ul>");
+        html.append("<li>Fecha de validación: ").append(fechaValidacion).append("</li>");
+        html.append("<li>Consistencia: <b>")
+                .append(sistemaConsistente ? "CONSISTENTE" : "INCONSISTENTE")
+                .append("</b></li>");
+        html.append("<li>Errores críticos: ").append(totalErroresCriticos).append("</li>");
+        html.append("<li>Advertencias: ").append(totalAdvertencias).append("</li>");
+        html.append("<li>Registros con errores: ").append(totalRegistrosConErrores).append("</li>");
+        if (errorGeneral != null && !errorGeneral.trim().isEmpty()) {
+            html.append("<li>Error general: <span style='color:red;'>").append(errorGeneral).append("</span></li>");
+        }
+        html.append("<li>Módulos validados: ").append(String.join(", ", modulosValidados)).append("</li>");
+        html.append("</ul>");
+        return html.toString();
+    }
+
+    public String generarResumenEjecutivo() {
+        StringBuilder resumen = new StringBuilder();
+        resumen.append("Validación del sistema realizada el ").append(fechaValidacion).append(". ");
+        resumen.append("Estado: ").append(sistemaConsistente ? "CONSISTENTE" : "INCONSISTENTE").append(". ");
+        resumen.append("Errores críticos: ").append(totalErroresCriticos).append(". ");
+        resumen.append("Advertencias: ").append(totalAdvertencias).append(". ");
+        resumen.append("Registros con errores: ").append(totalRegistrosConErrores).append(". ");
+        if (errorGeneral != null && !errorGeneral.trim().isEmpty()) {
+            resumen.append("Error general: ").append(errorGeneral).append(". ");
+        }
+        resumen.append("Módulos validados: ").append(String.join(", ", modulosValidados)).append(".");
+        return resumen.toString();
     }
 }

@@ -2,6 +2,7 @@ package informviva.gest.repository;
 
 import informviva.gest.model.Categoria;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -187,4 +188,15 @@ public interface CategoriaRepositorio extends JpaRepository<Categoria, Long> {
             "GROUP BY c " +
             "ORDER BY cantidad DESC")
     List<Object[]> findCategoriasMasUtilizadas(Pageable pageable);
+
+    Page<Categoria> findByNombreContainingIgnoreCase(String nombre, Pageable pageable);
+
+
+    // Consulta personalizada para las más utilizadas
+    @Query("SELECT c FROM Categoria c JOIN Producto p ON p.categoria.id = c.id GROUP BY c.id ORDER BY COUNT(p.id) DESC")
+    List<Categoria> findMasUtilizadas(Pageable pageable);
+
+    default List<Categoria> findMasUtilizadas(int limite) {
+        return findMasUtilizadas(PageRequest.of(0, limite));
+    }
 }

@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Collections;
 
 @Service
 @Transactional
@@ -117,10 +118,10 @@ public class CategoriaServicioImpl implements CategoriaServicio {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Categoria> buscarPorTexto(String texto) {
+    public List<Categoria>buscarPorTexto(String texto) {
         logger.debug("Buscando categorías por texto: {}", texto);
         if (!nombreValido(texto)) {
-            return List.of();
+            return Collections.emptyList();
         }
         return categoriaRepositorio.findByNombreContainingIgnoreCase(texto.trim());
     }
@@ -290,5 +291,22 @@ public class CategoriaServicioImpl implements CategoriaServicio {
      */
     private boolean nombreValido(String nombre) {
         return nombre != null && !nombre.trim().isEmpty();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Categoria> buscarPorTextoPaginado(String texto, Pageable pageable) {
+        if (!nombreValido(texto)) {
+            return Page.empty(pageable);
+        }
+        return categoriaRepositorio.findByNombreContainingIgnoreCase(texto.trim(), pageable);
+    }
+
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Categoria> obtenerMasUtilizadas(int limite) {
+        return categoriaRepositorio.findMasUtilizadas(limite);
     }
 }

@@ -19,6 +19,8 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import java.util.Arrays;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -329,11 +331,11 @@ public class ClienteControlador {
 
             if (existe) {
                 Cliente cliente = clienteServicio.buscarPorRut(rut);
-                respuesta.put("cliente", Map.of(
-                        "id", cliente.getId(),
-                        "nombre", cliente.getNombreCompleto(),
-                        "email", cliente.getEmail()
-                ));
+                Map<String, Object> clienteMap = new HashMap<>();
+                clienteMap.put("id", cliente.getId());
+                clienteMap.put("nombre", cliente.getNombreCompleto());
+                clienteMap.put("email", cliente.getEmail());
+                respuesta.put("cliente", clienteMap);
             }
 
             return ResponseEntity.ok(respuesta);
@@ -417,8 +419,16 @@ public class ClienteControlador {
     // MÉTODOS PRIVADOS DE UTILIDAD
     // ================================
 
-    private List<String> obtenerCategoriasDisponibles() {
-        // Por ahora categorías estáticas, se puede hacer dinámico después
-        return List.of("VIP", "PREMIUM", "FRECUENTE", "REGULAR", "NUEVO", "INACTIVO");
+    public List<String> obtenerCategoriasDisponibles() {
+        return Arrays.asList("VIP", "PREMIUM", "FRECUENTE", "REGULAR", "NUEVO", "INACTIVO");
+    }
+
+
+    @GetMapping("/clientes/paginados")
+    public Page<Cliente> obtenerClientesPaginados(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = Pageable.ofSize(size).withPage(page);
+        return clienteServicio.obtenerTodosPaginados(pageable);
     }
 }
