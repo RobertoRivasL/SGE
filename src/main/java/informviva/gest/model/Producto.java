@@ -54,6 +54,10 @@ public class Producto {
 
     private LocalDateTime fechaActualizacion;
 
+    public boolean isActivo() {
+        return this.activo;
+    }
+
     public Producto(Long id, String nombre, boolean activo) {
         this.id = id;
         this.nombre = nombre;
@@ -67,7 +71,7 @@ public class Producto {
 
     @Transient
     public boolean isDisponible() {
-        return activo && stock != null && stock > 0;
+        return isActivo() && stock != null && stock > 0;
     }
 
     public void actualizarStock(int cantidad) {

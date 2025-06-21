@@ -192,6 +192,7 @@ public class Usuario {
         this.roles = roles;
     }
 
+
     public String getNombreCompleto() {
         // Si tiene nombre y apellido, los concatena
         if (nombre != null && !nombre.trim().isEmpty() &&
@@ -212,4 +213,5 @@ public class Usuario {
         // Fallback al username
         return username != null ? username : "Usuario sin nombre";
     }
+
 }

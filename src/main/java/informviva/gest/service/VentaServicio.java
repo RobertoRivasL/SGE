@@ -3,100 +3,197 @@ package informviva.gest.service;
 import informviva.gest.dto.VentaDTO;
 import informviva.gest.model.Cliente;
 import informviva.gest.model.Venta;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 /**
- * Interfaz para el servicio de Ventas.
- * Define los métodos que el controlador puede invocar.
+ * Interfaz para el servicio de ventas
+ * @author Roberto Rivas
+ * @version 2.0
  */
 public interface VentaServicio {
 
+    // ==================== MÉTODOS PRINCIPALES ====================
+
+    /**
+     * Crear una nueva venta a partir de un DTO
+     */
     Venta crearNuevaVenta(VentaDTO ventaDTO);
 
+    /**
+     * Obtener todas las ventas
+     */
     List<Venta> obtenerTodasLasVentas();
 
+    /**
+     * Obtener venta por ID
+     */
     Venta obtenerVentaPorId(Long id);
 
-    Long contarTransacciones(LocalDateTime inicio, LocalDateTime fin);
+    // ==================== MÉTODOS DE BÚSQUEDA ====================
 
+    /**
+     * Buscar ventas por rango de fechas
+     */
     List<Venta> buscarPorRangoFechas(LocalDateTime fechaInicio, LocalDateTime fechaFin);
 
-    Long contarVentasPorCliente(Long clienteId);
-
-    Double calcularTotalVentasPorCliente(Long clienteId);
-
-    Double calcularTotalVentas(LocalDateTime inicio, LocalDateTime fin);
-
-    Double calcularPorcentajeCambio(Double actual, Double anterior);
-
     /**
-     * Verifica si existen ventas para un cliente
+     * Buscar ventas por rango de fechas con paginación
      */
-    boolean existenVentasPorCliente(Long clienteId);
+    Page<Venta> buscarPorRangoFechas(LocalDateTime fechaInicio, LocalDateTime fechaFin, Pageable pageable);
 
     /**
-     * Verifica si existen ventas para un producto
+     * Buscar ventas por cliente
      */
-    boolean existenVentasPorProducto(Long productoId);
+    List<Venta> buscarPorCliente(Long clienteId);
 
     /**
-     * Cuenta unidades vendidas por producto
-     */
-    Long contarUnidadesVendidasPorProducto(Long productoId);
-
-    /**
-     * Calcula ingresos por producto
-     */
-    Double calcularIngresosPorProducto(Long productoId);
-
-    /**
-     * Busca ventas recientes por producto
-     */
-    List<Venta> buscarVentasRecientesPorProducto(Long productoId, int limite);
-
-    /**
-     * Busca ventas recientes por cliente
-     */
-    List<Venta> buscarVentasRecientesPorCliente(Long clienteId, int limite);
-
-    /**
-     * Busca ventas por cliente
+     * Buscar ventas por cliente (sobrecarga)
      */
     List<Venta> buscarPorCliente(Cliente cliente);
 
     /**
-     * MIGRAR: Calcula ticket promedio - USAR LocalDateTime
+     * Buscar ventas por vendedor y fechas
+     */
+    List<Venta> buscarPorVendedorYFechas(Long vendedorId, LocalDateTime fechaInicio, LocalDateTime fechaFin);
+
+    /**
+     * Buscar ventas para exportar con filtros
+     */
+    List<Venta> buscarVentasParaExportar(LocalDateTime fechaInicio, LocalDateTime fechaFin,
+                                         String estado, String metodoPago, String vendedor);
+
+    /**
+     * Buscar ventas recientes por producto
+     */
+    List<Venta> buscarVentasRecientesPorProducto(Long productoId, int limite);
+
+    /**
+     * Buscar ventas recientes por cliente
+     */
+    List<Venta> buscarVentasRecientesPorCliente(Long clienteId, int limite);
+
+    // ==================== MÉTODOS CRUD ====================
+
+    /**
+     * Buscar venta por ID (Optional)
+     */
+    Optional<Venta> buscarPorId(Long id);
+
+    /**
+     * Listar todas las ventas (alias para compatibilidad)
+     */
+    List<Venta> listarTodas();
+
+    /**
+     * Guardar venta
+     */
+    Venta guardar(Venta venta);
+
+    /**
+     * Guardar venta desde DTO
+     */
+    Venta guardar(VentaDTO ventaDTO);
+
+    /**
+     * Actualizar venta
+     */
+    Venta actualizar(Venta venta);
+
+    /**
+     * Actualizar venta desde DTO
+     */
+    Venta actualizar(Long id, VentaDTO ventaDTO);
+
+    /**
+     * Eliminar venta
+     */
+    void eliminar(Long id);
+
+    /**
+     * Anular venta
+     */
+    Venta anular(Long id);
+
+    /**
+     * Duplicar venta
+     */
+    Venta duplicarVenta(Venta ventaOriginal);
+
+    // ==================== MÉTODOS DE CONVERSIÓN ====================
+
+    /**
+     * Convertir venta a DTO
+     */
+    VentaDTO convertirADTO(Venta venta);
+
+    // ==================== MÉTODOS DE CÁLCULO Y ESTADÍSTICAS ====================
+
+    /**
+     * Contar transacciones en un rango de fechas
+     */
+    Long contarTransacciones(LocalDateTime fechaInicio, LocalDateTime fechaFin);
+
+    /**
+     * Contar ventas por cliente
+     */
+    Long contarVentasPorCliente(Long clienteId);
+
+    /**
+     * Contar ventas de hoy
+     */
+    Long contarVentasHoy();
+
+    /**
+     * Calcular total de ventas por cliente
+     */
+    Double calcularTotalVentasPorCliente(Long clienteId);
+
+    /**
+     * Calcular total de ventas en un período
+     */
+    Double calcularTotalVentas(LocalDateTime inicio, LocalDateTime fin);
+
+    /**
+     * Calcular porcentaje de cambio
+     */
+    Double calcularPorcentajeCambio(Double actual, Double anterior);
+
+    /**
+     * Calcular ticket promedio
      */
     Double calcularTicketPromedio(LocalDateTime inicio, LocalDateTime fin);
 
-    /**
-     * MIGRAR: Cuenta artículos vendidos - USAR LocalDateTime
-     */
-    Long contarArticulosVendidos(LocalDateTime inicio, LocalDateTime fin);
+    // ==================== MÉTODOS DE VALIDACIÓN ====================
 
     /**
-     * NUEVO: Métodos de compatibilidad que reciben LocalDate y convierten
+     * Verificar si existen ventas por cliente
      */
-    default Double calcularTicketPromedio(LocalDate inicio, LocalDate fin) {
-        return calcularTicketPromedio(inicio.atStartOfDay(), fin.atTime(23, 59, 59));
-    }
+    boolean existenVentasPorCliente(Long clienteId);
 
-    default Long contarArticulosVendidos(LocalDate inicio, LocalDate fin) {
-        return contarArticulosVendidos(inicio.atStartOfDay(), fin.atTime(23, 59, 59));
-    }
+    /**
+     * Verificar si existen ventas por producto
+     */
+    boolean existenVentasPorProducto(Long productoId);
 
-    default Double calcularTotalVentas(LocalDate inicio, LocalDate fin) {
-        return calcularTotalVentas(inicio.atStartOfDay(), fin.atTime(23, 59, 59));
-    }
+    // ==================== MÉTODOS DE ARTÍCULOS Y PRODUCTOS ====================
 
-    default Long contarTransacciones(LocalDate inicio, LocalDate fin) {
-        return contarTransacciones(inicio.atStartOfDay(), fin.atTime(23, 59, 59));
-    }
-    
-    List<Venta> buscarPorVendedorYFechas(Long vendedorId, LocalDateTime inicio, LocalDateTime fin);
-    List<Venta> buscarPorCliente(Long clienteId);
+    /**
+     * Contar artículos vendidos en un período
+     */
+    Long contarArticulosVendidos(LocalDateTime fechaInicio, LocalDateTime fechaFin);
 
+    /**
+     * Contar unidades vendidas por producto
+     */
+    Long contarUnidadesVendidasPorProducto(Long productoId);
+
+    /**
+     * Calcular ingresos por producto
+     */
+    Double calcularIngresosPorProducto(Long productoId);
 }

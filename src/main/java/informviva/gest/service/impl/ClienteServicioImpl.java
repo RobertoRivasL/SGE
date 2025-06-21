@@ -459,4 +459,9 @@ public class ClienteServicioImpl implements ClienteServicio {
         return clienteRepositorio.findByDireccionContainingIgnoreCase(direccion);
     }
 
+    @Override
+    public Optional<Cliente> buscarPorTelefono(String telefono) {
+        return clienteRepositorio.findByTelefono(telefono);
+    }
+
 }
