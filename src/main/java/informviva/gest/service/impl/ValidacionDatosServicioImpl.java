@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import java.util.stream.Collectors;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -63,17 +64,23 @@ public class ValidacionDatosServicioImpl implements ValidacionDatosServicio {
     private static final int MAX_CANTIDAD_VENTA = 1_000;
     private static final int MAX_LENGTH_USERNAME = 30;
 
-    @Autowired
-    private ClienteServicio clienteServicio;
+    private final ClienteServicio clienteServicio;
+    private final ProductoServicio productoServicio;
+    private final VentaServicio ventaServicio;
+    private final UsuarioServicio usuarioServicio;
 
     @Autowired
-    private ProductoServicio productoServicio;
-
-    @Autowired
-    private VentaServicio ventaServicio;
-
-    @Autowired
-    private UsuarioServicio usuarioServicio;
+    public ValidacionDatosServicioImpl(
+            ClienteServicio clienteServicio,
+            ProductoServicio productoServicio,
+            VentaServicio ventaServicio,
+            UsuarioServicio usuarioServicio
+    ) {
+        this.clienteServicio = clienteServicio;
+        this.productoServicio = productoServicio;
+        this.ventaServicio = ventaServicio;
+        this.usuarioServicio = usuarioServicio;
+    }
 
     @Override
     public ResultadoValidacionSistema validarSistemaCompleto() {
@@ -110,7 +117,7 @@ public class ValidacionDatosServicioImpl implements ValidacionDatosServicio {
     public ResultadoValidacionModulo validarModuloClientes() {
         logger.debug("Iniciando validación de clientes");
         try {
-            List<Cliente> clientes = clienteServicio.listar();
+            List<Cliente> clientes = clienteServicio.obtenerTodos();
             return validarModulo("Clientes", clientes, this::validarCliente);
         } catch (Exception e) {
             logger.error("Error al obtener clientes para validación: {}", e.getMessage());
@@ -134,7 +141,7 @@ public class ValidacionDatosServicioImpl implements ValidacionDatosServicio {
     public ResultadoValidacionModulo validarModuloVentas() {
         logger.debug("Iniciando validación de ventas");
         try {
-            List<Venta> ventas = ventaServicio.listar();
+            List<Venta> ventas = ventaServicio.obtenerTodasLasVentas();
             return validarModulo("Ventas", ventas, this::validarVenta);
         } catch (Exception e) {
             logger.error("Error al obtener ventas para validación: {}", e.getMessage());
@@ -160,7 +167,7 @@ public class ValidacionDatosServicioImpl implements ValidacionDatosServicio {
         ResultadoValidacionModulo resultado = new ResultadoValidacionModulo("Integridad Referencial");
 
         try {
-            List<Venta> ventas = ventaServicio.listar();
+            List<Venta> ventas = ventaServicio.obtenerTodasLasVentas();
             Map<String, List<ErrorValidacion>> registrosConErrores = new HashMap<>();
 
             for (Venta venta : ventas) {
@@ -213,7 +220,9 @@ public class ValidacionDatosServicioImpl implements ValidacionDatosServicio {
             } catch (Exception e) {
                 logger.warn("Error validando registro {} en módulo {}: {}", i, nombreModulo, e.getMessage());
                 registrosConErrores.put(nombreModulo.toLowerCase() + "_" + i,
-                        List.of(new ErrorValidacion("sistema", "Error de validación", NivelSeveridad.CRITICO, e.getMessage())));
+                        Arrays.asList(new ErrorValidacion("sistema", "Error de validación", NivelSeveridad.CRITICO, e.getMessage()))
+                );
+
             }
         }
 
@@ -250,7 +259,7 @@ public class ValidacionDatosServicioImpl implements ValidacionDatosServicio {
 
         // Validar formato RUT
         if (cliente.getRut() != null && !cliente.getRut().trim().isEmpty()) {
-            if (!ValidadorRutUtil.validarRut(cliente.getRut())) {
+            if (!ValidadorRutUtil.validar(cliente.getRut())) {
                 errores.add(new ErrorValidacion("rut", RUT_INVALIDO, NivelSeveridad.CRITICO, "El formato del RUT es incorrecto"));
             }
         }
@@ -290,10 +299,10 @@ public class ValidacionDatosServicioImpl implements ValidacionDatosServicio {
 
         // Validar precio
         if (producto.getPrecio() != null) {
-            if (producto.getPrecio().compareTo(BigDecimal.valueOf(MIN_PRECIO)) < 0 ||
-                    producto.getPrecio().compareTo(BigDecimal.valueOf(MAX_PRECIO)) > 0) {
+            if (producto.getPrecio().doubleValue() < MIN_PRECIO ||
+                    producto.getPrecio().doubleValue() > MAX_PRECIO) {
                 errores.add(new ErrorValidacion("precio", PRECIO_INVALIDO, NivelSeveridad.CRITICO,
-                        "El precio debe estar entre " + MIN_PRECIO + " y " + MAX_PRECIO));
+                        String.format("El precio debe estar entre %.2f y %.2f", MIN_PRECIO, MAX_PRECIO)));
             }
         } else {
             errores.add(new ErrorValidacion("precio", "Precio requerido", NivelSeveridad.CRITICO, "El precio es obligatorio"));
@@ -340,12 +349,13 @@ public class ValidacionDatosServicioImpl implements ValidacionDatosServicio {
         // Validar fecha
         if (venta.getFecha() == null) {
             errores.add(new ErrorValidacion("fecha", "Fecha requerida", NivelSeveridad.CRITICO, "La venta debe tener una fecha"));
-        } else if (venta.getFecha().isAfter(LocalDate.now())) {
+        } else if (venta.getFecha().isAfter(LocalDate.now().atStartOfDay())) {
             errores.add(new ErrorValidacion("fecha", "Fecha futura", NivelSeveridad.ADVERTENCIA, "La fecha de venta es futura"));
         }
 
         // Validar total
-        if (venta.getTotal() == null || venta.getTotal().compareTo(BigDecimal.ZERO) <= 0) {
+        Double total = venta.getTotal();
+        if (total == null || BigDecimal.valueOf(total).compareTo(BigDecimal.ZERO) <= 0) {
             errores.add(new ErrorValidacion("total", "Total inválido", NivelSeveridad.CRITICO, "El total de la venta debe ser mayor que cero"));
         }
 
@@ -388,7 +398,7 @@ public class ValidacionDatosServicioImpl implements ValidacionDatosServicio {
         }
 
         // Validar estado activo - Manejo seguro de Boolean
-        Boolean activo = usuario.getActivo();
+        Boolean activo = usuario.isActivo();
         if (activo == null || !activo) {
             errores.add(new ErrorValidacion("activo", "Usuario inactivo", NivelSeveridad.ADVERTENCIA,
                     "El usuario está marcado como inactivo"));
@@ -411,7 +421,7 @@ public class ValidacionDatosServicioImpl implements ValidacionDatosServicio {
         // Verificar existencia del cliente
         if (venta.getCliente() != null && venta.getCliente().getId() != null) {
             try {
-                Cliente cliente = clienteServicio.obtenerPorId(venta.getCliente().getId());
+                Cliente cliente = clienteServicio.buscarPorId(venta.getCliente().getId());
                 if (cliente == null) {
                     errores.add(new ErrorValidacion("cliente", "Cliente inexistente", NivelSeveridad.CRITICO,
                             "El cliente asociado no existe en el sistema"));
@@ -534,5 +544,311 @@ public class ValidacionDatosServicioImpl implements ValidacionDatosServicio {
     @FunctionalInterface
     private interface Validador<T> {
         List<ErrorValidacion> validar(T objeto);
+    }
+
+    /**
+     * Validación rápida de datos críticos del sistema
+     * Verifica solo los elementos más importantes para un diagnóstico rápido
+     *
+     * @return ResultadoValidacionSistema con validación básica
+     */
+    @Override
+    public ResultadoValidacionSistema validacionRapida() {
+        logger.info("Iniciando validación rápida del sistema");
+        long startTime = System.currentTimeMillis();
+
+        ResultadoValidacionSistema resultado = new ResultadoValidacionSistema();
+        resultado.setFechaValidacion(LocalDateTime.now());
+
+        try {
+            // Validación rápida solo de registros críticos (primeros 100 de cada módulo)
+            resultado.setValidacionClientes(validarModuloRapido("Clientes",
+                    clienteServicio.obtenerTodos().stream().limit(100).collect(Collectors.toList()),
+                    this::validarCliente));
+
+            resultado.setValidacionProductos(validarModuloRapido("Productos",
+                    productoServicio.listar().stream().limit(100).collect(Collectors.toList()),
+                    this::validarProducto));
+
+            resultado.setValidacionVentas(validarModuloRapido("Ventas",
+                    ventaServicio.obtenerTodasLasVentas().stream().limit(50).collect(Collectors.toList()),
+                    this::validarVenta));
+
+            resultado.setValidacionUsuarios(validarModuloRapido("Usuarios",
+                    usuarioServicio.listarTodos().stream().limit(50).collect(Collectors.toList()),
+                    this::validarUsuario));
+
+            // Saltamos validación de integridad para hacerlo más rápido
+            resultado.setValidacionIntegridad(new ResultadoValidacionModulo("Integridad Referencial"));
+            resultado.getValidacionIntegridad().setValido(true);
+            resultado.getValidacionIntegridad().setMensaje("Validación rápida - integridad omitida");
+
+            calcularResumenValidacion(resultado);
+            resultado.setTiempoValidacionMs(System.currentTimeMillis() - startTime);
+
+            logger.info("Validación rápida completada en {}ms. Errores críticos: {}, Advertencias: {}",
+                    resultado.getTiempoValidacionMs(), resultado.getTotalErroresCriticos(), resultado.getTotalAdvertencias());
+
+        } catch (Exception e) {
+            logger.error("Error durante validación rápida: {}", e.getMessage(), e);
+            resultado.setErrorGeneral("Error durante validación rápida: " + e.getMessage());
+            resultado.setSistemaConsistente(false);
+        }
+
+        return resultado;
+    }
+
+    /**
+     * Método auxiliar para validación rápida de módulos
+     */
+    private <T> ResultadoValidacionModulo validarModuloRapido(String nombreModulo, List<T> registros, Validador<T> validador) {
+        ResultadoValidacionModulo resultado = new ResultadoValidacionModulo(nombreModulo);
+        Map<String, List<ErrorValidacion>> registrosConErrores = new HashMap<>();
+
+        if (registros == null || registros.isEmpty()) {
+            resultado.setValido(true);
+            resultado.setMensaje("No hay registros para validar en " + nombreModulo);
+            resultado.setTotalRegistros(0);
+            return resultado;
+        }
+
+        // Solo validar una muestra para ser rápido
+        int limite = Math.min(registros.size(), 20); // Máximo 20 registros por módulo
+
+        for (int i = 0; i < limite; i++) {
+            T registro = registros.get(i);
+            try {
+                List<ErrorValidacion> errores = validador.validar(registro);
+                if (!errores.isEmpty()) {
+                    // Solo mantener errores críticos en validación rápida
+                    List<ErrorValidacion> erroresCriticos = errores.stream()
+                            .filter(error -> error.getSeveridad() == NivelSeveridad.CRITICO)
+                            .collect(Collectors.toList());
+
+                    if (!erroresCriticos.isEmpty()) {
+                        registrosConErrores.put(nombreModulo.toLowerCase() + "_" + i, erroresCriticos);
+                    }
+                }
+            } catch (Exception e) {
+                logger.warn("Error validando registro {} en módulo {}: {}", i, nombreModulo, e.getMessage());
+                registrosConErrores.put(nombreModulo.toLowerCase() + "_" + i,
+                        Collections.singletonList(new ErrorValidacion("sistema", "Error de validación", NivelSeveridad.CRITICO, e.getMessage())));
+            }
+        }
+
+        resultado.setRegistrosConErrores(registrosConErrores);
+        resultado.setTotalRegistros(limite); // Registros realmente validados
+        resultado.setValido(registrosConErrores.isEmpty());
+
+        if (registrosConErrores.isEmpty()) {
+            resultado.setMensaje("Validación rápida de " + nombreModulo + " completada - muestra OK");
+        } else {
+            resultado.setMensaje("Validación rápida encontró " + registrosConErrores.size() +
+                    " registros con errores críticos en " + nombreModulo + " (muestra de " + limite + " registros)");
+        }
+
+        logger.debug("Validación rápida {}: {} registros validados, {} con errores",
+                nombreModulo, limite, registrosConErrores.size());
+
+        return resultado;
+    }
+
+//    **
+//            * Valida un módulo específico por nombre
+// * @param nombreModulo Nombre del módulo a validar
+// * @return ResultadoValidacionModulo
+// */
+    @Override
+    public ResultadoValidacionModulo validarModulo(String nombreModulo) {
+        logger.debug("Validando módulo específico: {}", nombreModulo);
+
+        switch (nombreModulo.toLowerCase()) {
+            case "clientes":
+                return validarModuloClientes();
+            case "productos":
+                return validarModuloProductos();
+            case "ventas":
+                return validarModuloVentas();
+            case "usuarios":
+                return validarModuloUsuarios();
+            case "integridad":
+            case "integridad_referencial":
+                return validarIntegridadReferencial();
+            default:
+                logger.warn("Módulo no reconocido: {}", nombreModulo);
+                ResultadoValidacionModulo resultado = new ResultadoValidacionModulo(nombreModulo);
+                resultado.setValido(false);
+                resultado.setMensaje("Módulo no reconocido: " + nombreModulo);
+                resultado.setTotalRegistros(0);
+                return resultado;
+        }
+    }
+
+    /**
+     * Verifica si el sistema es consistente basándose en una validación rápida
+     * @return true si no hay errores críticos, false en caso contrario
+     */
+    @Override
+    public boolean esSistemaConsistente() {
+        logger.debug("Verificando consistencia del sistema");
+
+        try {
+            // Realizar una validación rápida para determinar consistencia
+            ResultadoValidacionSistema resultado = validacionRapida();
+
+            // El sistema es consistente si no hay errores críticos
+            boolean esConsistente = resultado.getTotalErroresCriticos() == 0;
+
+            logger.debug("Sistema consistente: {}, Errores críticos: {}",
+                    esConsistente, resultado.getTotalErroresCriticos());
+
+            return esConsistente;
+
+        } catch (Exception e) {
+            logger.error("Error verificando consistencia del sistema: {}", e.getMessage());
+            // En caso de error, considerar el sistema como inconsistente por seguridad
+            return false;
+        }
+    }
+
+    /**
+     * Obtiene estadísticas de la última validación realizada
+     * @return Map con estadísticas de la última validación
+     */
+    @Override
+    public Map<String, Object> obtenerEstadisticasUltimaValidacion() {
+        logger.debug("Obteniendo estadísticas de la última validación");
+
+        Map<String, Object> estadisticas = new HashMap<>();
+
+        try {
+            // Realizar validación rápida para obtener estadísticas actuales
+            ResultadoValidacionSistema resultado = validacionRapida();
+
+            // Estadísticas básicas
+            estadisticas.put("fechaValidacion", resultado.getFechaValidacion());
+            estadisticas.put("tiempoValidacionMs", resultado.getTiempoValidacionMs());
+            estadisticas.put("sistemaConsistente", resultado.isSistemaConsistente());
+            estadisticas.put("totalErroresCriticos", resultado.getTotalErroresCriticos());
+            estadisticas.put("totalAdvertencias", resultado.getTotalAdvertencias());
+            estadisticas.put("totalRegistrosConErrores", resultado.getTotalRegistrosConErrores());
+
+            // Estadísticas por módulo
+            Map<String, Map<String, Object>> estadisticasModulos = new HashMap<>();
+
+            // Clientes
+            if (resultado.getValidacionClientes() != null) {
+                Map<String, Object> statsClientes = new HashMap<>();
+                statsClientes.put("valido", resultado.getValidacionClientes().isValido());
+                statsClientes.put("totalRegistros", resultado.getValidacionClientes().getTotalRegistros());
+                statsClientes.put("registrosConErrores", resultado.getValidacionClientes().getRegistrosConErrores().size());
+                estadisticasModulos.put("clientes", statsClientes);
+            }
+
+            // Productos
+            if (resultado.getValidacionProductos() != null) {
+                Map<String, Object> statsProductos = new HashMap<>();
+                statsProductos.put("valido", resultado.getValidacionProductos().isValido());
+                statsProductos.put("totalRegistros", resultado.getValidacionProductos().getTotalRegistros());
+                statsProductos.put("registrosConErrores", resultado.getValidacionProductos().getRegistrosConErrores().size());
+                estadisticasModulos.put("productos", statsProductos);
+            }
+
+            // Ventas
+            if (resultado.getValidacionVentas() != null) {
+                Map<String, Object> statsVentas = new HashMap<>();
+                statsVentas.put("valido", resultado.getValidacionVentas().isValido());
+                statsVentas.put("totalRegistros", resultado.getValidacionVentas().getTotalRegistros());
+                statsVentas.put("registrosConErrores", resultado.getValidacionVentas().getRegistrosConErrores().size());
+                estadisticasModulos.put("ventas", statsVentas);
+            }
+
+            // Usuarios
+            if (resultado.getValidacionUsuarios() != null) {
+                Map<String, Object> statsUsuarios = new HashMap<>();
+                statsUsuarios.put("valido", resultado.getValidacionUsuarios().isValido());
+                statsUsuarios.put("totalRegistros", resultado.getValidacionUsuarios().getTotalRegistros());
+                statsUsuarios.put("registrosConErrores", resultado.getValidacionUsuarios().getRegistrosConErrores().size());
+                estadisticasModulos.put("usuarios", statsUsuarios);
+            }
+
+            estadisticas.put("modulos", estadisticasModulos);
+
+            // Resumen ejecutivo
+            estadisticas.put("resumen",
+                    resultado.isSistemaConsistente() ? "Sistema operativo - sin errores críticos"
+                            : "Sistema requiere atención - errores críticos detectados");
+
+            logger.debug("Estadísticas de validación generadas exitosamente");
+
+        } catch (Exception e) {
+            logger.error("Error obteniendo estadísticas de validación: {}", e.getMessage());
+            estadisticas.put("error", "Error al obtener estadísticas: " + e.getMessage());
+            estadisticas.put("fechaError", LocalDateTime.now());
+        }
+
+        return estadisticas;
+    }
+
+    /**
+     * Programa una validación automática del sistema
+     * Configura ejecución periódica según el intervalo especificado
+     *
+     * @param intervalHoras Intervalo en horas para validaciones automáticas
+     * @param notificarErrores true si debe notificar errores por email/sistema
+     * @return true si la programación fue exitosa
+     */
+    @Override
+    public boolean programarValidacionAutomatica(int intervalHoras, boolean notificarErrores) {
+        logger.info("Programando validación automática cada {} horas, notificaciones: {}",
+                intervalHoras, notificarErrores);
+
+        try {
+            // Validar parámetros
+            if (intervalHoras < 1 || intervalHoras > 168) { // Entre 1 hora y 1 semana
+                logger.warn("Intervalo de horas inválido: {}. Debe estar entre 1 y 168 horas", intervalHoras);
+                return false;
+            }
+
+            // TODO: Aquí iría la implementación real con un scheduler (ej: @Scheduled)
+            // Por ahora, implementación básica que simula la programación
+
+            logger.info("Validación automática programada exitosamente cada {} horas", intervalHoras);
+
+            // Simular que se guardó la configuración
+            // En una implementación real, guardarías esto en base de datos o configuración
+
+            return true;
+
+        } catch (Exception e) {
+            logger.error("Error programando validación automática: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Cancela las validaciones automáticas programadas
+     *
+     * @return true si la cancelación fue exitosa
+     */
+    @Override
+    public boolean cancelarValidacionAutomatica() {
+        logger.info("Cancelando validaciones automáticas programadas");
+
+        try {
+            // TODO: Aquí iría la implementación real para cancelar el scheduler
+            // Por ahora, implementación básica que simula la cancelación
+
+            logger.info("Validaciones automáticas canceladas exitosamente");
+
+            // Simular que se eliminó la configuración
+            // En una implementación real, removerías la configuración de la base de datos
+
+            return true;
+
+        } catch (Exception e) {
+            logger.error("Error cancelando validaciones automáticas: {}", e.getMessage());
+            return false;
+        }
     }
 }

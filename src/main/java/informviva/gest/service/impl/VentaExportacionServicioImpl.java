@@ -9,6 +9,8 @@ package informviva.gest.service.impl;
 import informviva.gest.model.Venta;
 import informviva.gest.service.VentaExportacionServicio;
 import informviva.gest.service.VentaServicio;
+import informviva.gest.model.Venta;
+import informviva.gest.service.VentaExportacionServicio;
 
 // ✅ Apache POI para Excel
 import org.apache.poi.ss.usermodel.*;
@@ -30,13 +32,18 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
-public class VentaExportacionServicioImpl implements VentaExportacionServicio {
+public class VentaExportacionServicioImpl extends AbstractExportacionServicio implements VentaExportacionServicio {
 
-    @Autowired
-    private VentaServicio ventaServicio;
+    private final VentaServicio ventaServicio;
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     private static final DateTimeFormatter DATE_ONLY_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+    // Constructor con inyección de dependencias
+    public VentaExportacionServicioImpl(VentaServicio ventaServicio) {
+        this.ventaServicio = ventaServicio;
+    }
+
 
     @Override
     public byte[] exportarVentasAExcel(List<Venta> ventas) {
@@ -45,14 +52,8 @@ public class VentaExportacionServicioImpl implements VentaExportacionServicio {
 
             Sheet sheet = workbook.createSheet("Ventas");
 
-            // ✅ Crear estilo para encabezados usando Font de Apache POI
-            CellStyle headerStyle = workbook.createCellStyle();
-            org.apache.poi.ss.usermodel.Font headerFont = workbook.createFont(); // ✅ Especificamos el paquete completo
-            headerFont.setBold(true);
-            headerFont.setColor(IndexedColors.WHITE.getIndex());
-            headerStyle.setFont(headerFont);
-            headerStyle.setFillForegroundColor(IndexedColors.DARK_BLUE.getIndex());
-            headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            // Crear el estilo del encabezado
+            CellStyle headerStyle = createHeaderStyle(workbook);
 
             // Crear encabezados
             Row headerRow = sheet.createRow(0);
@@ -63,7 +64,6 @@ public class VentaExportacionServicioImpl implements VentaExportacionServicio {
                 cell.setCellValue(headers[i]);
                 cell.setCellStyle(headerStyle);
             }
-
             // ✅ Llenar datos usando métodos CORRECTOS del modelo Venta
             int rowNum = 1;
             for (Venta venta : ventas) {
@@ -235,16 +235,4 @@ public class VentaExportacionServicioImpl implements VentaExportacionServicio {
         return exportarVentasAPDF(ventas, fechaInicio, fechaFin);
     }
 
-    // ✅ Métodos que solo usar si existen en VentaServicio - sino comentar
-    /*
-    public byte[] exportarVentasPorVendedor(Long vendedorId, LocalDateTime fechaInicio, LocalDateTime fechaFin) {
-        List<Venta> ventas = ventaServicio.buscarPorVendedorYFechas(vendedorId, fechaInicio, fechaFin);
-        return exportarVentasAExcel(ventas);
-    }
-
-    public byte[] exportarVentasPorCliente(Long clienteId) {
-        List<Venta> ventas = ventaServicio.buscarPorCliente(clienteId);
-        return exportarVentasAExcel(ventas);
-    }
-    */
 }

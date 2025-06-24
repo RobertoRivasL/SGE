@@ -155,7 +155,7 @@ public class ImportacionExportacionControlador {
             if (fechaInicio == null) fechaInicio = LocalDate.now().minusMonths(1);
             if (fechaFin == null) fechaFin = LocalDate.now();
 
-            var ventas = ventaServicio.buscarPorRangoFechas(fechaInicio, fechaFin);
+            var ventas = ventaServicio.buscarPorRangoFechas(fechaInicio.atStartOfDay(), fechaFin.atTime(23, 59, 59));
             byte[] excelData = ventaExportacionServicio.exportarVentasAExcel(ventas, fechaInicio, fechaFin);
 
             String filename = "ventas_" + fechaInicio.format(DATE_FORMATTER) + "_" +
@@ -184,7 +184,7 @@ public class ImportacionExportacionControlador {
             if (fechaInicio == null) fechaInicio = LocalDate.now().minusMonths(1);
             if (fechaFin == null) fechaFin = LocalDate.now();
 
-            var ventas = ventaServicio.buscarPorRangoFechas(fechaInicio, fechaFin);
+            var ventas = ventaServicio.buscarPorRangoFechas(fechaInicio.atStartOfDay(), fechaFin.atTime(23, 59, 59));
             byte[] csvData = ventaExportacionServicio.exportarVentasACSV(ventas);
 
             String filename = "ventas_" + fechaInicio.format(DATE_FORMATTER) + "_" +

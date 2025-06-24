@@ -41,15 +41,15 @@ MINGW support requires --add-opens java.base/java.lang=ALL-UNNAMED
 [ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[464,34] cannot find symbol
   symbol:   method findByTelefono(java.lang.String)
   location: variable clienteRepositorio of type informviva.gest.repository.ClienteRepositorio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/HistorialVentasControlador.java:[151,93] cannot find symbol
-  symbol:   variable FormatoExportacion
-  location: interface informviva.gest.service.ExportacionServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/HistorialVentasControlador.java:[156,93] cannot find symbol
-  symbol:   variable FormatoExportacion
-  location: interface informviva.gest.service.ExportacionServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/HistorialVentasControlador.java:[161,93] cannot find symbol
-  symbol:   variable FormatoExportacion
-  location: interface informviva.gest.service.ExportacionServicio
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/HistorialVentasControlador.java:[151,112] cannot find symbol
+  symbol:   variable CSV
+  location: variable FormatoExportacion of type java.lang.Class<informviva.gest.enums.FormatoExportacion>
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/HistorialVentasControlador.java:[156,112] cannot find symbol
+  symbol:   variable PDF
+  location: variable FormatoExportacion of type java.lang.Class<informviva.gest.enums.FormatoExportacion>
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/HistorialVentasControlador.java:[161,112] cannot find symbol
+  symbol:   variable EXCEL
+  location: variable FormatoExportacion of type java.lang.Class<informviva.gest.enums.FormatoExportacion>
 [ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/HistorialVentasControlador.java:[189,60] incompatible types: java.util.Optional<informviva.gest.model.Venta> cannot be converted to informviva.gest.model.Venta
 [ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/HistorialVentasControlador.java:[216,52] incompatible types: java.util.Optional<informviva.gest.model.Venta> cannot be converted to informviva.gest.model.Venta
 [ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/HistorialVentasControlador.java:[249,52] incompatible types: java.util.Optional<informviva.gest.model.Venta> cannot be converted to informviva.gest.model.Venta
@@ -221,8 +221,8 @@ MINGW support requires --add-opens java.base/java.lang=ALL-UNNAMED
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD FAILURE
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  14.942 s
-[INFO] Finished at: 2025-06-21T21:40:01-04:00
+[INFO] Total time:  14.065 s
+[INFO] Finished at: 2025-06-21T21:47:08-04:00
 [INFO] ------------------------------------------------------------------------
 [ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.11.0:compile (default-compile) on project informviva-gest: Compilation failure: Compilation failure:
 [ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[38,8] informviva.gest.service.impl.ClienteServicioImpl is not abstract and does not override abstract method buscarPorTelefono(java.lang.String) in informviva.gest.service.ClienteServicio
@@ -238,15 +238,15 @@ MINGW support requires --add-opens java.base/java.lang=ALL-UNNAMED
 [ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[464,34] cannot find symbol
 [ERROR]   symbol:   method findByTelefono(java.lang.String)
 [ERROR]   location: variable clienteRepositorio of type informviva.gest.repository.ClienteRepositorio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/HistorialVentasControlador.java:[151,93] cannot find symbol
-[ERROR]   symbol:   variable FormatoExportacion
-[ERROR]   location: interface informviva.gest.service.ExportacionServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/HistorialVentasControlador.java:[156,93] cannot find symbol
-[ERROR]   symbol:   variable FormatoExportacion
-[ERROR]   location: interface informviva.gest.service.ExportacionServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/HistorialVentasControlador.java:[161,93] cannot find symbol
-[ERROR]   symbol:   variable FormatoExportacion
-[ERROR]   location: interface informviva.gest.service.ExportacionServicio
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/HistorialVentasControlador.java:[151,112] cannot find symbol
+[ERROR]   symbol:   variable CSV
+[ERROR]   location: variable FormatoExportacion of type java.lang.Class<informviva.gest.enums.FormatoExportacion>
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/HistorialVentasControlador.java:[156,112] cannot find symbol
+[ERROR]   symbol:   variable PDF
+[ERROR]   location: variable FormatoExportacion of type java.lang.Class<informviva.gest.enums.FormatoExportacion>
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/HistorialVentasControlador.java:[161,112] cannot find symbol
+[ERROR]   symbol:   variable EXCEL
+[ERROR]   location: variable FormatoExportacion of type java.lang.Class<informviva.gest.enums.FormatoExportacion>
 [ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/HistorialVentasControlador.java:[189,60] incompatible types: java.util.Optional<informviva.gest.model.Venta> cannot be converted to informviva.gest.model.Venta
 [ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/HistorialVentasControlador.java:[216,52] incompatible types: java.util.Optional<informviva.gest.model.Venta> cannot be converted to informviva.gest.model.Venta
 [ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/HistorialVentasControlador.java:[249,52] incompatible types: java.util.Optional<informviva.gest.model.Venta> cannot be converted to informviva.gest.model.Venta

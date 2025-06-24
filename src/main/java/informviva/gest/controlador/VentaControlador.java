@@ -27,6 +27,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -70,7 +71,10 @@ public class VentaControlador {
             List<Venta> ventas;
 
             if (fechaInicio != null && fechaFin != null) {
-                ventas = ventaServicio.buscarPorRangoFechas(fechaInicio, fechaFin);
+                ventas = ventaServicio.buscarPorRangoFechas(
+                        fechaInicio.atStartOfDay(),
+                        fechaFin.atTime(LocalTime.MAX)
+                );
             } else if (clienteId != null && clienteId > 0) {
                 ventas = ventaServicio.buscarPorCliente(clienteId);
             } else {
@@ -171,7 +175,7 @@ public class VentaControlador {
         try {
             Optional<Venta> ventaOpt = ventaServicio.buscarPorId(id);
 
-            if (ventaOpt.isEmpty()) {
+            if (!ventaOpt.isPresent()) {
                 throw new RecursoNoEncontradoException("Venta no encontrada con ID: " + id);
             }
 
@@ -198,7 +202,7 @@ public class VentaControlador {
         try {
             Optional<Venta> ventaOpt = ventaServicio.buscarPorId(id);
 
-            if (ventaOpt.isEmpty()) {
+            if (ventaOpt.isPresent()) {
                 throw new RecursoNoEncontradoException("Venta no encontrada con ID: " + id);
             }
 

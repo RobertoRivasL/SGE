@@ -1,22 +1,7 @@
 package informviva.gest.service;
 
-/**
- * @author Roberto Rivas
- * @version 2.0
- * @author Roberto Rivas
- * @version 2.0
- */
-
-
-/**
- * @author Roberto Rivas
- * @version 2.0
- */
-
-
 import informviva.gest.model.Usuario;
 import informviva.gest.repository.RepositorioUsuario;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,7 +10,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -36,8 +20,15 @@ import java.util.stream.Collectors;
 @Service
 public class ServicioUsuarioDetalle implements UserDetailsService {
 
-    @Autowired
-    private RepositorioUsuario repositorioUsuario;
+    private final RepositorioUsuario repositorioUsuario;
+
+    /**
+     * Constructor para inyección de dependencias
+     * @param repositorioUsuario Repositorio de usuarios
+     */
+    public ServicioUsuarioDetalle(RepositorioUsuario repositorioUsuario) {
+        this.repositorioUsuario = repositorioUsuario;
+    }
 
     @Override
     @Transactional(readOnly = true)
@@ -84,4 +75,3 @@ public class ServicioUsuarioDetalle implements UserDetailsService {
         });
     }
 }
-

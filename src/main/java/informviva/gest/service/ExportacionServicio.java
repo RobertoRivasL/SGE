@@ -1,6 +1,7 @@
 package informviva.gest.service;
 
 import informviva.gest.dto.ExportConfigDTO;
+import informviva.gest.enums.FormatoExportacion;
 import informviva.gest.model.ExportacionHistorial;
 import informviva.gest.model.Venta;
 import org.springframework.data.domain.Page;
@@ -13,6 +14,14 @@ import java.util.Map;
 
 @Service
 public interface ExportacionServicio {
+
+    // Constantes estáticas para acceso desde controladores
+    interface FormatoExportacion {
+        informviva.gest.enums.FormatoExportacion PDF = informviva.gest.enums.FormatoExportacion.PDF;
+        informviva.gest.enums.FormatoExportacion EXCEL = informviva.gest.enums.FormatoExportacion.EXCEL;
+        informviva.gest.enums.FormatoExportacion CSV = informviva.gest.enums.FormatoExportacion.CSV;
+    }
+
     /**
      * Exportar usuarios con ExportConfigDTO (que contiene LocalDateTime)
      */

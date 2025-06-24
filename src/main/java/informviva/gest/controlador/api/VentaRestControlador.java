@@ -1,5 +1,6 @@
 package informviva.gest.controlador.api;
 
+import java.util.Optional;
 import informviva.gest.dto.VentaDTO;
 import informviva.gest.exception.RecursoNoEncontradoException;
 import informviva.gest.exception.StockInsuficienteException;
@@ -179,7 +180,11 @@ public class VentaRestControlador {
     @GetMapping("/{id}")
     public ResponseEntity<Object> obtenerVentaPorId(@PathVariable Long id) {
         try {
-            Venta venta = ventaServicio.buscarPorId(id);
+            Optional<Venta> ventaOptional = ventaServicio.buscarPorId(id);
+            if (!ventaOptional.isPresent()) {
+                return ResponseEntity.notFound().build();
+            }
+            Venta venta = ventaOptional.get();
             return ResponseEntity.ok(ventaServicio.convertirADTO(venta));
         } catch (RecursoNoEncontradoException e) {
             return ResponseEntity.notFound().build();

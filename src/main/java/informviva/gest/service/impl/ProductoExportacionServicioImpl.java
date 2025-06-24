@@ -9,6 +9,8 @@ package informviva.gest.service.impl;
 import com.lowagie.text.Font;
 import informviva.gest.model.Producto;
 import informviva.gest.service.ProductoExportacionServicio;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // ✅ Apache POI para Excel - SIN DUPLICADOS
 import org.apache.poi.ss.usermodel.*;
@@ -29,31 +31,54 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class ProductoExportacionServicioImpl implements ProductoExportacionServicio {
+public class ProductoExportacionServicioImpl extends AbstractExportacionServicio implements ProductoExportacionServicio {
 
-    public byte[] exportarProductosAExcel(List<Producto> productos) {
+    private static final Logger logger = LoggerFactory.getLogger(ProductoExportacionServicioImpl.class);
+
+    private void addPdfCell(PdfPTable table, String value, Font font, Color backgroundColor) {
+        PdfPCell cell = new PdfPCell(new Phrase(value, font));
+        if (backgroundColor != null) {
+            cell.setBackgroundColor(backgroundColor);
+        }
+        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        cell.setPadding(5);
+        table.addCell(cell);
+    }
+
+    private void createCell(Row row, int columnIndex, Object value, CellStyle style) {
+        Cell cell = row.createCell(columnIndex);
+        if (value != null) {
+            if (value instanceof String) {
+                cell.setCellValue((String) value);
+            } else if (value instanceof Double) {
+                cell.setCellValue((Double) value);
+            } else if (value instanceof Integer) {
+                cell.setCellValue((Integer) value);
+            } else if (value instanceof Boolean) {
+                cell.setCellValue((Boolean) value ? "Sí" : "No");
+            }
+        }
+        if (style != null) {
+            cell.setCellStyle(style);
+        }
+    }
+
+    @Override
+    public byte[] exportarProductosExcel(List<Producto> productos) {
         try (XSSFWorkbook workbook = new XSSFWorkbook();
              ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
 
             Sheet sheet = workbook.createSheet("Productos");
 
-            // Crear estilo para encabezados
-            CellStyle headerStyle = workbook.createCellStyle();
-            org.apache.poi.ss.usermodel.Font headerFont = workbook.createFont();
-            headerFont.setBold(true);
-            headerFont.setColor(IndexedColors.WHITE.getIndex());
-            headerStyle.setFont(headerFont);
-            headerStyle.setFillForegroundColor(IndexedColors.DARK_BLUE.getIndex());
-            headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            // Usar el método createHeaderStyle
+            CellStyle headerStyle = createHeaderStyle(workbook);
 
             // Crear encabezados
             Row headerRow = sheet.createRow(0);
             String[] headers = {"ID", "Código", "Nombre", "Descripción", "Precio", "Stock", "Categoría", "Marca", "Modelo", "Activo"};
 
             for (int i = 0; i < headers.length; i++) {
-                Cell cell = headerRow.createCell(i);
-                cell.setCellValue(headers[i]);
-                cell.setCellStyle(headerStyle);
+                createCell(headerRow, i, headers[i], headerStyle);
             }
 
             // Llenar datos
@@ -61,17 +86,16 @@ public class ProductoExportacionServicioImpl implements ProductoExportacionServi
             for (Producto producto : productos) {
                 Row row = sheet.createRow(rowNum++);
 
-                row.createCell(0).setCellValue(producto.getId() != null ? producto.getId() : 0);
-                row.createCell(1).setCellValue(producto.getCodigo() != null ? producto.getCodigo() : "");
-                row.createCell(2).setCellValue(producto.getNombre() != null ? producto.getNombre() : "");
-                row.createCell(3).setCellValue(producto.getDescripcion() != null ? producto.getDescripcion() : "");
-                row.createCell(4).setCellValue(producto.getPrecio() != null ? producto.getPrecio() : 0.0);
-                row.createCell(5).setCellValue(producto.getStock() != null ? producto.getStock() : 0);
-                row.createCell(6).setCellValue(producto.getCategoria() != null ?
-                        (producto.getCategoria().getNombre() != null ? producto.getCategoria().getNombre() : "Sin categoría") : "Sin categoría");
-                row.createCell(7).setCellValue(producto.getMarca() != null ? producto.getMarca() : "");
-                row.createCell(8).setCellValue(producto.getModelo() != null ? producto.getModelo() : "");
-                row.createCell(9).setCellValue(producto.getActivo() != null ? (producto.getActivo() ? "Sí" : "No") : "No");
+                createCell(row, 0, producto.getId(), null);
+                createCell(row, 1, producto.getCodigo(), null);
+                createCell(row, 2, producto.getNombre(), null);
+                createCell(row, 3, producto.getDescripcion(), null);
+                createCell(row, 4, producto.getPrecio(), null);
+                createCell(row, 5, producto.getStock(), null);
+                createCell(row, 6, producto.getCategoria() != null ? producto.getCategoria().getNombre() : "Sin categoría", null);
+                createCell(row, 7, producto.getMarca(), null);
+                createCell(row, 8, producto.getModelo(), null);
+                createCell(row, 9, producto.getActivo(), null);
             }
 
             // Ajustar ancho de columnas
@@ -81,8 +105,8 @@ public class ProductoExportacionServicioImpl implements ProductoExportacionServi
 
             workbook.write(outputStream);
             return outputStream.toByteArray();
-
         } catch (IOException e) {
+            logger.error("Error al exportar productos a Excel", e);
             throw new RuntimeException("Error al exportar productos a Excel", e);
         }
     }
@@ -114,30 +138,26 @@ public class ProductoExportacionServicioImpl implements ProductoExportacionServi
             String[] headers = {"ID", "Código", "Nombre", "Descripción", "Precio", "Stock", "Categoría"};
 
             for (String header : headers) {
-                PdfPCell cell = new PdfPCell(new Phrase(header, headerFont));
-                cell.setBackgroundColor(Color.DARK_GRAY);
-                cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-                cell.setPadding(5);
-                table.addCell(cell);
+                addPdfCell(table, header, headerFont, Color.DARK_GRAY);
             }
 
             // Datos
             Font dataFont = new Font(Font.HELVETICA, 8);
             for (Producto producto : productos) {
-                table.addCell(new Phrase(String.valueOf(producto.getId() != null ? producto.getId() : 0), dataFont));
-                table.addCell(new Phrase(producto.getCodigo() != null ? producto.getCodigo() : "", dataFont));
-                table.addCell(new Phrase(producto.getNombre() != null ? producto.getNombre() : "", dataFont));
+                addPdfCell(table, String.valueOf(producto.getId() != null ? producto.getId() : 0), dataFont, null);
+                addPdfCell(table, producto.getCodigo() != null ? producto.getCodigo() : "", dataFont, null);
+                addPdfCell(table, producto.getNombre() != null ? producto.getNombre() : "", dataFont, null);
 
                 String descripcion = producto.getDescripcion() != null ? producto.getDescripcion() : "";
                 if (descripcion.length() > 50) {
                     descripcion = descripcion.substring(0, 47) + "...";
                 }
-                table.addCell(new Phrase(descripcion, dataFont));
+                addPdfCell(table, descripcion, dataFont, null);
 
-                table.addCell(new Phrase("$" + String.format("%.2f", producto.getPrecio() != null ? producto.getPrecio() : 0.0), dataFont));
-                table.addCell(new Phrase(String.valueOf(producto.getStock() != null ? producto.getStock() : 0), dataFont));
-                table.addCell(new Phrase(producto.getCategoria() != null ?
-                        (producto.getCategoria().getNombre() != null ? producto.getCategoria().getNombre() : "Sin categoría") : "Sin categoría", dataFont));
+                addPdfCell(table, "$" + String.format("%.2f", producto.getPrecio() != null ? producto.getPrecio() : 0.0), dataFont, null);
+                addPdfCell(table, String.valueOf(producto.getStock() != null ? producto.getStock() : 0), dataFont, null);
+                addPdfCell(table, producto.getCategoria() != null ?
+                        (producto.getCategoria().getNombre() != null ? producto.getCategoria().getNombre() : "Sin categoría") : "Sin categoría", dataFont, null);
             }
 
             document.add(table);
@@ -148,6 +168,7 @@ public class ProductoExportacionServicioImpl implements ProductoExportacionServi
             throw new IOException("Error al exportar productos a PDF", e);
         }
     }
+
 
     @Override
     public byte[] exportarProductosCSV(List<Producto> productos) {
@@ -182,18 +203,14 @@ public class ProductoExportacionServicioImpl implements ProductoExportacionServi
 
     // ✅ Métodos adicionales que podrían estar en la interfaz
 
-    public byte[] exportarProductosBajoStock(List<Producto> productos, int umbral) {
+    @Override
+    public byte[] exportarProductosBajoStock(List<Producto> productos, int umbral) throws IOException {
         // Filtrar productos con stock bajo
         List<Producto> productosBajoStock = productos.stream()
                 .filter(p -> p.getStock() != null && p.getStock() <= umbral)
                 .collect(Collectors.toList());
 
-        return exportarProductosAExcel(productosBajoStock);
-    }
-
-    @Override
-    public byte[] exportarProductosExcel(List<Producto> productos) {
-        return exportarProductosAExcel(productos);
+        return exportarProductosExcel(productosBajoStock);
     }
 
 }

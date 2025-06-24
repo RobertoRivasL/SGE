@@ -1,6 +1,9 @@
 package informviva.gest.controlador;
 
 
+import java.util.Optional;
+
+import informviva.gest.dto.ExportConfigDTO;
 import informviva.gest.model.Venta;
 import informviva.gest.service.VentaServicio;
 import informviva.gest.service.ClienteServicio;
@@ -43,14 +46,44 @@ public class HistorialVentasControlador {
 
     private static final Logger logger = LoggerFactory.getLogger(HistorialVentasControlador.class);
 
-    @Autowired
-    private VentaServicio ventaServicio;
+    private final VentaServicio ventaServicio;
+    private final ClienteServicio clienteServicio;
+    private final ExportacionServicio exportacionServicio;
 
     @Autowired
-    private ClienteServicio clienteServicio;
+    public HistorialVentasControlador(VentaServicio ventaServicio,
+                                      ClienteServicio clienteServicio,
+                                      ExportacionServicio exportacionServicio) {
+        this.ventaServicio = ventaServicio;
+        this.clienteServicio = clienteServicio;
+        this.exportacionServicio = exportacionServicio;
+    }
 
-    @Autowired
-    private ExportacionServicio exportacionServicio;
+
+    private HttpHeaders crearHeadersExportacion(String formato, LocalDateTime fechaInicio, LocalDateTime fechaFin) {
+        String nombreArchivo;
+        MediaType mediaType;
+
+        switch (formato.toLowerCase()) {
+            case "csv":
+                nombreArchivo = "historial_ventas_" + fechaInicio + "_" + fechaFin + ".csv";
+                mediaType = MediaType.TEXT_PLAIN;
+                break;
+            case "pdf":
+                nombreArchivo = "historial_ventas_" + fechaInicio + "_" + fechaFin + ".pdf";
+                mediaType = MediaType.APPLICATION_PDF;
+                break;
+            default: // excel
+                nombreArchivo = "historial_ventas_" + fechaInicio + "_" + fechaFin + ".xlsx";
+                mediaType = MediaType.APPLICATION_OCTET_STREAM;
+                break;
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(mediaType);
+        headers.setContentDispositionFormData("attachment", nombreArchivo);
+        return headers;
+    }
 
     /**
      * Muestra el historial de ventas con filtros
@@ -139,36 +172,20 @@ public class HistorialVentasControlador {
                 fechaInicio = fechaFin.minusMonths(1);
             }
 
-            List<Venta> ventas = ventaServicio.buscarVentasParaExportar(
-                    fechaInicio, fechaFin, cliente, metodo, estado);
+            ExportConfigDTO config = new ExportConfigDTO();
+            config.setTipo("ventas");
+            config.setFormato(formato);
+            config.setFechaInicio(fechaInicio);
+            config.setFechaFin(fechaFin);
+            config.addFiltro("cliente", cliente);
+            config.addFiltro("metodo", metodo);
+            config.addFiltro("estado", estado);
 
-            byte[] archivo;
-            String nombreArchivo;
-            MediaType mediaType;
+            byte[] archivo = exportacionServicio.exportarVentas(config);
 
-            switch (formato.toLowerCase()) {
-                case "csv":
-                    archivo = exportacionServicio.exportarVentas(ventas, ExportacionServicio.FormatoExportacion.CSV);
-                    nombreArchivo = "historial_ventas_" + fechaInicio + "_" + fechaFin + ".csv";
-                    mediaType = MediaType.TEXT_PLAIN;
-                    break;
-                case "pdf":
-                    archivo = exportacionServicio.exportarVentas(ventas, ExportacionServicio.FormatoExportacion.PDF, fechaInicio, fechaFin);
-                    nombreArchivo = "historial_ventas_" + fechaInicio + "_" + fechaFin + ".pdf";
-                    mediaType = MediaType.APPLICATION_PDF;
-                    break;
-                default: // excel
-                    archivo = exportacionServicio.exportarVentas(ventas, ExportacionServicio.FormatoExportacion.EXCEL);
-                    nombreArchivo = "historial_ventas_" + fechaInicio + "_" + fechaFin + ".xlsx";
-                    mediaType = MediaType.APPLICATION_OCTET_STREAM;
-                    break;
-            }
+            HttpHeaders headers = crearHeadersExportacion(formato, fechaInicio, fechaFin);
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(mediaType);
-            headers.setContentDispositionFormData("attachment", nombreArchivo);
-
-            logger.info("Exportando historial de ventas - Formato: {}, Registros: {}", formato, ventas.size());
+            logger.info("Exportando historial de ventas - Formato: {}, Período: {} a {}", formato, fechaInicio, fechaFin);
 
             return ResponseEntity.ok()
                     .headers(headers)
@@ -183,47 +200,61 @@ public class HistorialVentasControlador {
     /**
      * Duplica una venta existente
      */
+    /**
+     * Duplica una venta existente
+     */
     @PostMapping("/duplicar/{id}")
     public String duplicarVenta(@PathVariable Long id, Model model) {
         try {
-            Venta ventaOriginal = ventaServicio.buscarPorId(id);
-            if (ventaOriginal == null) {
-                model.addAttribute("mensaje", "Venta no encontrada");
-                model.addAttribute("tipoMensaje", "error");
-                return "redirect:/ventas/historial";
+            Optional<Venta> ventaOptional = ventaServicio.buscarPorId(id);
+            if (!ventaOptional.isPresent()) {
+                return manejarVentaNoEncontrada(model);
             }
 
-            // Crear nueva venta basada en la original
+            Venta ventaOriginal = ventaOptional.get();
             Venta nuevaVenta = ventaServicio.duplicarVenta(ventaOriginal);
 
             // Redirigir al formulario de edición de la nueva venta
             return "redirect:/ventas/editar/" + nuevaVenta.getId() + "?duplicada=true";
 
         } catch (Exception e) {
-            logger.error("Error al duplicar venta: {}", e.getMessage());
-            model.addAttribute("mensaje", "Error al duplicar la venta: " + e.getMessage());
-            model.addAttribute("tipoMensaje", "error");
-            return "redirect:/ventas/historial";
+            return manejarErrorDuplicacion(e, model);
         }
     }
 
+    private String manejarVentaNoEncontrada(Model model) {
+        model.addAttribute("mensaje", "Venta no encontrada");
+        model.addAttribute("tipoMensaje", "error");
+        return "redirect:/ventas/historial";
+    }
+
+    private String manejarErrorDuplicacion(Exception e, Model model) {
+        logger.error("Error al duplicar venta: {}", e.getMessage());
+        model.addAttribute("mensaje", "Error al duplicar la venta: " + e.getMessage());
+        model.addAttribute("tipoMensaje", "error");
+        return "redirect:/ventas/historial";
+    }
+
+    /**
+     * Procesa una devolución
+     */
+    /**
+     * Procesa una devolución
+     */
     /**
      * Procesa una devolución
      */
     @GetMapping("/devolucion/{id}")
     public String procesarDevolucion(@PathVariable Long id, Model model) {
         try {
-            Venta venta = ventaServicio.buscarPorId(id);
-            if (venta == null) {
-                model.addAttribute("mensaje", "Venta no encontrada");
-                model.addAttribute("tipoMensaje", "error");
-                return "redirect:/ventas/historial";
+            Optional<Venta> ventaOptional = ventaServicio.buscarPorId(id);
+            if (!ventaOptional.isPresent()) {
+                return manejarVentaNoEncontrada(model);
             }
 
+            Venta venta = ventaOptional.get();
             if (!"completada".equals(venta.getEstado())) {
-                model.addAttribute("mensaje", "Solo se pueden procesar devoluciones de ventas completadas");
-                model.addAttribute("tipoMensaje", "error");
-                return "redirect:/ventas/historial";
+                return manejarEstadoInvalido(model);
             }
 
             // Cargar vista de devolución
@@ -233,11 +264,21 @@ public class HistorialVentasControlador {
             return "ventas/devolucion";
 
         } catch (Exception e) {
-            logger.error("Error al procesar devolución: {}", e.getMessage());
-            model.addAttribute("mensaje", "Error al procesar la devolución: " + e.getMessage());
-            model.addAttribute("tipoMensaje", "error");
-            return "redirect:/ventas/historial";
+            return manejarErrorProcesamiento(e, model, "devolución");
         }
+    }
+
+    private String manejarEstadoInvalido(Model model) {
+        model.addAttribute("mensaje", "Solo se pueden procesar devoluciones de ventas completadas");
+        model.addAttribute("tipoMensaje", "error");
+        return "redirect:/ventas/historial";
+    }
+
+    private String manejarErrorProcesamiento(Exception e, Model model, String operacion) {
+        logger.error("Error al procesar {}: {}", operacion, e.getMessage());
+        model.addAttribute("mensaje", "Error al procesar la " + operacion + ": " + e.getMessage());
+        model.addAttribute("tipoMensaje", "error");
+        return "redirect:/ventas/historial";
     }
 
     /**
@@ -246,7 +287,13 @@ public class HistorialVentasControlador {
     @GetMapping("/factura/{id}")
     public String generarFactura(@PathVariable Long id, Model model) {
         try {
-            Venta venta = ventaServicio.buscarPorId(id);
+            Optional<Venta> ventaOptional = ventaServicio.buscarPorId(id);
+            if (!ventaOptional.isPresent()) {
+                model.addAttribute("mensaje", "Venta no encontrada");
+                model.addAttribute("tipoMensaje", "error");
+                return "redirect:/ventas/historial";
+            }
+            Venta venta = ventaOptional.get();
             if (venta == null) {
                 model.addAttribute("mensaje", "Venta no encontrada");
                 model.addAttribute("tipoMensaje", "error");
@@ -282,7 +329,9 @@ public class HistorialVentasControlador {
 
         } catch (Exception e) {
             logger.error("Error al obtener estadísticas rápidas: {}", e.getMessage());
-            return Map.of("error", "Error al calcular estadísticas");
+            Map<String, Object> errorMap = new HashMap<>();
+            errorMap.put("error", "Error al calcular estadísticas");
+            return errorMap;
         }
     }
 
@@ -298,7 +347,7 @@ public class HistorialVentasControlador {
         try {
             // Obtener ventas del período para cálculos
             List<Venta> ventasPeriodo = ventaServicio.buscarVentasParaExportar(
-                    fechaInicio, fechaFin, cliente, metodo, estado);
+                    fechaInicio.atStartOfDay(), fechaFin.atTime(23, 59, 59), cliente, metodo, estado);
 
             // Calcular totales
             BigDecimal totalIngresos = ventasPeriodo.stream()
