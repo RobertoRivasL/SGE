@@ -52,6 +52,7 @@ public class Usuario {
     @Column(name = "rol")
     private Set<String> roles = new HashSet<>();
 
+
     // Constructor simplificado para inicializar username y password.
     public Usuario(String username, String password) {
         this.username = username;
@@ -213,5 +214,6 @@ public class Usuario {
         // Fallback al username
         return username != null ? username : "Usuario sin nombre";
     }
+
 
 }

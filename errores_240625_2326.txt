@@ -1,4 +1,3 @@
-
 uman_@LAPTOP-B78MGBJP MINGW64 /d/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02 (main)
 $ mvn clean compile
 MINGW support requires --add-opens java.base/java.lang=ALL-UNNAMED
@@ -29,19 +28,6 @@ MINGW support requires --add-opens java.base/java.lang=ALL-UNNAMED
 [INFO] -------------------------------------------------------------
 [ERROR] COMPILATION ERROR :
 [INFO] -------------------------------------------------------------
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[38,8] informviva.gest.service.impl.ClienteServicioImpl is not abstract and does not override abstract method buscarPorTelefono(java.lang.String) in informviva.gest.service.ClienteServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[463,30] buscarPorTelefono(java.lang.String) in informviva.gest.service.impl.ClienteServicioImpl cannot implement buscarPorTelefono(java.lang.String) in informviva.gest.service.ClienteServicio
-  return type java.util.Optional<informviva.gest.model.Cliente> is not compatible with java.util.List<informviva.gest.model.Cliente>
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[192,47] cannot find symbol
-  symbol:   method findByCliente(informviva.gest.model.Cliente)
-  location: variable ventaRepositorio of type informviva.gest.repository.VentaRepositorio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[255,57] cannot find symbol
-  symbol:   method findByCliente(informviva.gest.model.Cliente)
-  location: variable ventaRepositorio of type informviva.gest.repository.VentaRepositorio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[462,5] method does not override or implement a method from a supertype
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[464,34] cannot find symbol
-  symbol:   method findByTelefono(java.lang.String)
-  location: variable clienteRepositorio of type informviva.gest.repository.ClienteRepositorio
 [ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/VentaControlador.java:[251,91] cannot find symbol
   symbol:   method get()
   location: class informviva.gest.model.Cliente
@@ -88,44 +74,6 @@ MINGW support requires --add-opens java.base/java.lang=ALL-UNNAMED
 [ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/config/ExportacionScheduleConfig.java:[148,41] cannot find symbol
   symbol:   method registrarExportacionFallida(java.lang.String,java.lang.String,java.lang.String,java.lang.String)
   location: variable exportacionHistorialServicio of type informviva.gest.service.ExportacionHistorialServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ImportacionServicioImpl.java:[40,8] informviva.gest.service.impl.ImportacionServicioImpl is not abstract and does not override abstract method generarArchivoEjemploUsuarios() in informviva.gest.service.ImportacionServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ImportacionServicioImpl.java:[74,30] method agregarError in class informviva.gest.dto.ImportacionResultadoDTO cannot be applied to given types;
-  required: java.lang.String
-  found:    int,java.lang.String
-  reason: actual and formal argument lists differ in length
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ImportacionServicioImpl.java:[80,22] cannot find symbol
-  symbol:   method setErrorGeneral(java.lang.String)
-  location: variable resultado of type informviva.gest.dto.ImportacionResultadoDTO
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ImportacionServicioImpl.java:[104,30] method agregarError in class informviva.gest.dto.ImportacionResultadoDTO cannot be applied to given types;
-  required: java.lang.String
-  found:    int,java.lang.String
-  reason: actual and formal argument lists differ in length
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ImportacionServicioImpl.java:[110,22] cannot find symbol
-  symbol:   method setErrorGeneral(java.lang.String)
-  location: variable resultado of type informviva.gest.dto.ImportacionResultadoDTO
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ImportacionServicioImpl.java:[134,30] method agregarError in class informviva.gest.dto.ImportacionResultadoDTO cannot be applied to given types;
-  required: java.lang.String
-  found:    int,java.lang.String
-  reason: actual and formal argument lists differ in length
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ImportacionServicioImpl.java:[140,22] cannot find symbol
-  symbol:   method setErrorGeneral(java.lang.String)
-  location: variable resultado of type informviva.gest.dto.ImportacionResultadoDTO
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ImportacionServicioImpl.java:[146,5] method does not override or implement a method from a supertype
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ImportacionServicioImpl.java:[188,5] method does not override or implement a method from a supertype
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ImportacionServicioImpl.java:[318,51] incompatible types: java.time.LocalDate cannot be converted to java.time.LocalDateTime
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ImportacionServicioImpl.java:[362,53] incompatible types: java.lang.String cannot be converted to informviva.gest.model.Categoria
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ImportacionServicioImpl.java:[363,21] cannot find symbol
-  symbol:   method setProveedor(java.lang.String)
-  location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ImportacionServicioImpl.java:[387,32] cannot find symbol
-  symbol:   method existePorUsername(java.lang.String)
-  location: variable usuarioServicio of type informviva.gest.service.UsuarioServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ImportacionServicioImpl.java:[392,32] cannot find symbol
-  symbol:   method existePorEmail(java.lang.String)
-  location: variable usuarioServicio of type informviva.gest.service.UsuarioServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ImportacionServicioImpl.java:[408,20] cannot find symbol
-  symbol:   method setRol(java.lang.String)
-  location: variable usuario of type informviva.gest.model.Usuario
 [ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionHistorialServicioImpl.java:[34,8] informviva.gest.service.impl.ExportacionHistorialServicioImpl is not abstract and does not override abstract method obtenerHistorialPaginado(org.springframework.data.domain.Pageable) in informviva.gest.service.ExportacionHistorialServicio
 [ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ImportacionExportacionControlador.java:[84,59] cannot find symbol
   symbol:   method exportarProductosAExcel(java.util.List<informviva.gest.model.Producto>)
@@ -155,51 +103,28 @@ MINGW support requires --add-opens java.base/java.lang=ALL-UNNAMED
 [ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ImportacionExportacionControlador.java:[403,59] cannot find symbol
   symbol:   method importarClientesDesdeExcel(org.springframework.web.multipart.MultipartFile)
   location: variable clienteImportacionServicio of type informviva.gest.service.ClienteImportacionServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ImportacionControlador.java:[62,69] cannot find symbol
-  symbol:   method obtenerColumnasRequeridas(java.lang.String)
-  location: variable importacionServicio of type informviva.gest.service.ImportacionServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ImportacionControlador.java:[85,65] cannot find symbol
-  symbol:   method validarArchivoImportacion(org.springframework.web.multipart.MultipartFile,java.lang.String)
-  location: variable importacionServicio of type informviva.gest.service.ImportacionServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ImportacionControlador.java:[139,51] cannot find symbol
-  symbol:   method generarPlantillaImportacion(java.lang.String)
-  location: variable importacionServicio of type informviva.gest.service.ImportacionServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ImportacionControlador.java:[168,64] cannot find symbol
-  symbol:   method validarArchivoImportacion(org.springframework.web.multipart.MultipartFile,java.lang.String)
-  location: variable importacionServicio of type informviva.gest.service.ImportacionServicio
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ImportacionControlador.java:[139,51] method generarPlantillaImportacion in interface informviva.gest.service.ImportacionServicio cannot be applied to given types;
+  required: java.lang.String,java.lang.String
+  found:    java.lang.String
+  reason: actual and formal argument lists differ in length
 [ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ProductoImportacionServicioImpl.java:[42,39] cannot find symbol
   symbol:   method generarPlantillaProductos()
   location: variable importacionServicio of type informviva.gest.service.ImportacionServicio
 [ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ExportacionHistorialControlador.java:[172,41] cannot find symbol
   symbol:   method registrarExportacionExitosa(java.lang.String,java.lang.String,java.lang.String,int,long)
   location: variable exportacionHistorialServicio of type informviva.gest.service.ExportacionHistorialServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/UsuarioServicioImpl.java:[30,8] informviva.gest.service.impl.UsuarioServicioImpl is not abstract and does not override abstract method obtenerUsuariosInactivos(int) in informviva.gest.service.UsuarioServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/UsuarioServicioImpl.java:[66,50] incompatible types: java.time.LocalDate cannot be converted to java.time.LocalDateTime
 [ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteImportacionServicioImpl.java:[46,39] cannot find symbol
   symbol:   method generarPlantillaClientes()
   location: variable importacionServicio of type informviva.gest.service.ImportacionServicio
-[INFO] 56 errors
+[INFO] 30 errors
 [INFO] -------------------------------------------------------------
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD FAILURE
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  17.401 s
-[INFO] Finished at: 2025-06-23T22:47:03-04:00
+[INFO] Total time:  14.066 s
+[INFO] Finished at: 2025-06-24T23:25:24-04:00
 [INFO] ------------------------------------------------------------------------
 [ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.11.0:compile (default-compile) on project informviva-gest: Compilation failure: Compilation failure:
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[38,8] informviva.gest.service.impl.ClienteServicioImpl is not abstract and does not override abstract method buscarPorTelefono(java.lang.String) in informviva.gest.service.ClienteServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[463,30] buscarPorTelefono(java.lang.String) in informviva.gest.service.impl.ClienteServicioImpl cannot implement buscarPorTelefono(java.lang.String) in informviva.gest.service.ClienteServicio
-[ERROR]   return type java.util.Optional<informviva.gest.model.Cliente> is not compatible with java.util.List<informviva.gest.model.Cliente>
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[192,47] cannot find symbol
-[ERROR]   symbol:   method findByCliente(informviva.gest.model.Cliente)
-[ERROR]   location: variable ventaRepositorio of type informviva.gest.repository.VentaRepositorio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[255,57] cannot find symbol
-[ERROR]   symbol:   method findByCliente(informviva.gest.model.Cliente)
-[ERROR]   location: variable ventaRepositorio of type informviva.gest.repository.VentaRepositorio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[462,5] method does not override or implement a method from a supertype
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteServicioImpl.java:[464,34] cannot find symbol
-[ERROR]   symbol:   method findByTelefono(java.lang.String)
-[ERROR]   location: variable clienteRepositorio of type informviva.gest.repository.ClienteRepositorio
 [ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/VentaControlador.java:[251,91] cannot find symbol
 [ERROR]   symbol:   method get()
 [ERROR]   location: class informviva.gest.model.Cliente
@@ -246,44 +171,6 @@ MINGW support requires --add-opens java.base/java.lang=ALL-UNNAMED
 [ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/config/ExportacionScheduleConfig.java:[148,41] cannot find symbol
 [ERROR]   symbol:   method registrarExportacionFallida(java.lang.String,java.lang.String,java.lang.String,java.lang.String)
 [ERROR]   location: variable exportacionHistorialServicio of type informviva.gest.service.ExportacionHistorialServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ImportacionServicioImpl.java:[40,8] informviva.gest.service.impl.ImportacionServicioImpl is not abstract and does not override abstract method generarArchivoEjemploUsuarios() in informviva.gest.service.ImportacionServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ImportacionServicioImpl.java:[74,30] method agregarError in class informviva.gest.dto.ImportacionResultadoDTO cannot be applied to given types;
-[ERROR]   required: java.lang.String
-[ERROR]   found:    int,java.lang.String
-[ERROR]   reason: actual and formal argument lists differ in length
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ImportacionServicioImpl.java:[80,22] cannot find symbol
-[ERROR]   symbol:   method setErrorGeneral(java.lang.String)
-[ERROR]   location: variable resultado of type informviva.gest.dto.ImportacionResultadoDTO
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ImportacionServicioImpl.java:[104,30] method agregarError in class informviva.gest.dto.ImportacionResultadoDTO cannot be applied to given types;
-[ERROR]   required: java.lang.String
-[ERROR]   found:    int,java.lang.String
-[ERROR]   reason: actual and formal argument lists differ in length
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ImportacionServicioImpl.java:[110,22] cannot find symbol
-[ERROR]   symbol:   method setErrorGeneral(java.lang.String)
-[ERROR]   location: variable resultado of type informviva.gest.dto.ImportacionResultadoDTO
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ImportacionServicioImpl.java:[134,30] method agregarError in class informviva.gest.dto.ImportacionResultadoDTO cannot be applied to given types;
-[ERROR]   required: java.lang.String
-[ERROR]   found:    int,java.lang.String
-[ERROR]   reason: actual and formal argument lists differ in length
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ImportacionServicioImpl.java:[140,22] cannot find symbol
-[ERROR]   symbol:   method setErrorGeneral(java.lang.String)
-[ERROR]   location: variable resultado of type informviva.gest.dto.ImportacionResultadoDTO
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ImportacionServicioImpl.java:[146,5] method does not override or implement a method from a supertype
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ImportacionServicioImpl.java:[188,5] method does not override or implement a method from a supertype
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ImportacionServicioImpl.java:[318,51] incompatible types: java.time.LocalDate cannot be converted to java.time.LocalDateTime
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ImportacionServicioImpl.java:[362,53] incompatible types: java.lang.String cannot be converted to informviva.gest.model.Categoria
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ImportacionServicioImpl.java:[363,21] cannot find symbol
-[ERROR]   symbol:   method setProveedor(java.lang.String)
-[ERROR]   location: variable producto of type informviva.gest.model.Producto
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ImportacionServicioImpl.java:[387,32] cannot find symbol
-[ERROR]   symbol:   method existePorUsername(java.lang.String)
-[ERROR]   location: variable usuarioServicio of type informviva.gest.service.UsuarioServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ImportacionServicioImpl.java:[392,32] cannot find symbol
-[ERROR]   symbol:   method existePorEmail(java.lang.String)
-[ERROR]   location: variable usuarioServicio of type informviva.gest.service.UsuarioServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ImportacionServicioImpl.java:[408,20] cannot find symbol
-[ERROR]   symbol:   method setRol(java.lang.String)
-[ERROR]   location: variable usuario of type informviva.gest.model.Usuario
 [ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ExportacionHistorialServicioImpl.java:[34,8] informviva.gest.service.impl.ExportacionHistorialServicioImpl is not abstract and does not override abstract method obtenerHistorialPaginado(org.springframework.data.domain.Pageable) in informviva.gest.service.ExportacionHistorialServicio
 [ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ImportacionExportacionControlador.java:[84,59] cannot find symbol
 [ERROR]   symbol:   method exportarProductosAExcel(java.util.List<informviva.gest.model.Producto>)
@@ -313,26 +200,16 @@ MINGW support requires --add-opens java.base/java.lang=ALL-UNNAMED
 [ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ImportacionExportacionControlador.java:[403,59] cannot find symbol
 [ERROR]   symbol:   method importarClientesDesdeExcel(org.springframework.web.multipart.MultipartFile)
 [ERROR]   location: variable clienteImportacionServicio of type informviva.gest.service.ClienteImportacionServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ImportacionControlador.java:[62,69] cannot find symbol
-[ERROR]   symbol:   method obtenerColumnasRequeridas(java.lang.String)
-[ERROR]   location: variable importacionServicio of type informviva.gest.service.ImportacionServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ImportacionControlador.java:[85,65] cannot find symbol
-[ERROR]   symbol:   method validarArchivoImportacion(org.springframework.web.multipart.MultipartFile,java.lang.String)
-[ERROR]   location: variable importacionServicio of type informviva.gest.service.ImportacionServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ImportacionControlador.java:[139,51] cannot find symbol
-[ERROR]   symbol:   method generarPlantillaImportacion(java.lang.String)
-[ERROR]   location: variable importacionServicio of type informviva.gest.service.ImportacionServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ImportacionControlador.java:[168,64] cannot find symbol
-[ERROR]   symbol:   method validarArchivoImportacion(org.springframework.web.multipart.MultipartFile,java.lang.String)
-[ERROR]   location: variable importacionServicio of type informviva.gest.service.ImportacionServicio
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ImportacionControlador.java:[139,51] method generarPlantillaImportacion in interface informviva.gest.service.ImportacionServicio cannot be applied to given types;
+[ERROR]   required: java.lang.String,java.lang.String
+[ERROR]   found:    java.lang.String
+[ERROR]   reason: actual and formal argument lists differ in length
 [ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ProductoImportacionServicioImpl.java:[42,39] cannot find symbol
 [ERROR]   symbol:   method generarPlantillaProductos()
 [ERROR]   location: variable importacionServicio of type informviva.gest.service.ImportacionServicio
 [ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/ExportacionHistorialControlador.java:[172,41] cannot find symbol
 [ERROR]   symbol:   method registrarExportacionExitosa(java.lang.String,java.lang.String,java.lang.String,int,long)
 [ERROR]   location: variable exportacionHistorialServicio of type informviva.gest.service.ExportacionHistorialServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/UsuarioServicioImpl.java:[30,8] informviva.gest.service.impl.UsuarioServicioImpl is not abstract and does not override abstract method obtenerUsuariosInactivos(int) in informviva.gest.service.UsuarioServicio
-[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/UsuarioServicioImpl.java:[66,50] incompatible types: java.time.LocalDate cannot be converted to java.time.LocalDateTime
 [ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/ClienteImportacionServicioImpl.java:[46,39] cannot find symbol
 [ERROR]   symbol:   method generarPlantillaClientes()
 [ERROR]   location: variable importacionServicio of type informviva.gest.service.ImportacionServicio
@@ -343,51 +220,3 @@ MINGW support requires --add-opens java.base/java.lang=ALL-UNNAMED
 [ERROR]
 [ERROR] For more information about the errors and possible solutions, please read the following articles:
 [ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
-
-uman_@LAPTOP-B78MGBJP MINGW64 /d/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02 (main)
-$ git status
-On branch main
-Changes to be committed:
-  (use "git restore --staged <file>..." to unstage)
-        new file:   errores_210625_2148.txt
-        new file:   errores_210625_2151.txt
-        new file:   errores_210625_2215.txt
-        new file:   errores_210625_2254.txt
-        new file:   errores_220625_0026.txt
-        new file:   src/main/java/informviva/gest/dto/ResultadoImportacionCliente.java
-        new file:   src/main/java/informviva/gest/enums/FormatoExportacion.java
-        new file:   src/main/java/informviva/gest/service/impl/AbstractExportacionServicio.java
-
-Changes not staged for commit:
-  (use "git add <file>..." to update what will be committed)
-  (use "git restore <file>..." to discard changes in working directory)
-        modified:   errores.txt
-        modified:   src/main/java/informviva/gest/controlador/HistorialVentasControlador.java
-        modified:   src/main/java/informviva/gest/controlador/ImportacionExportacionControlador.java
-        modified:   src/main/java/informviva/gest/controlador/VentaControlador.java
-        modified:   src/main/java/informviva/gest/controlador/api/VentaRestControlador.java
-        modified:   src/main/java/informviva/gest/service/ExportacionServicio.java
-        modified:   src/main/java/informviva/gest/service/ProductoExportacionServicio.java
-        modified:   src/main/java/informviva/gest/service/ServicioUsuarioDetalle.java
-        modified:   src/main/java/informviva/gest/service/impl/AbstractExportacionServicio.java
-        modified:   src/main/java/informviva/gest/service/impl/ProductoExportacionServicioImpl.java
-        modified:   src/main/java/informviva/gest/service/impl/ValidacionDatosServicioImpl.java
-        modified:   src/main/java/informviva/gest/service/impl/VentaExportacionServicioImpl.java
-
-Untracked files:
-  (use "git add <file>..." to include in what will be committed)
-        errores_230625_2248.txt
-
-
-uman_@LAPTOP-B78MGBJP MINGW64 /d/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02 (main)
-$ git add .
-warning: in the working copy of 'src/main/java/informviva/gest/controlador/HistorialVentasControlador.java', LF will be replaced by CRLF the next time Git touches it
-warning: in the working copy of 'src/main/java/informviva/gest/controlador/ImportacionExportacionControlador.java', LF will be replaced by CRLF the next time Git touches it
-warning: in the working copy of 'src/main/java/informviva/gest/controlador/VentaControlador.java', LF will be replaced by CRLF the next time Git touches it
-warning: in the working copy of 'src/main/java/informviva/gest/controlador/api/VentaRestControlador.java', LF will be replaced by CRLF the next time Git touches it
-warning: in the working copy of 'src/main/java/informviva/gest/service/ExportacionServicio.java', LF will be replaced by CRLF the next time Git touches it
-warning: in the working copy of 'src/main/java/informviva/gest/service/ProductoExportacionServicio.java', LF will be replaced by CRLF the next time Git touches it
-warning: in the working copy of 'src/main/java/informviva/gest/service/ServicioUsuarioDetalle.java', LF will be replaced by CRLF the next time Git touches it
-warning: in the working copy of 'src/main/java/informviva/gest/service/impl/ProductoExportacionServicioImpl.java', LF will be replaced by CRLF the next time Git touches it
-warning: in the working copy of 'src/main/java/informviva/gest/service/impl/ValidacionDatosServicioImpl.java', LF will be replaced by CRLF the next time Git touches it
-warning: in the working copy of 'src/main/java/informviva/gest/service/impl/VentaExportacionServicioImpl.java', LF will be replaced by CRLF the next time Git touches it

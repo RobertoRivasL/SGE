@@ -322,8 +322,8 @@ public class GeneradorArchivosServicio {
                     totalCell.setCellStyle(currencyStyle);
                 }
 
-                row.createCell(7).setCellValue(venta.getMetodoPago());
-                row.createCell(8).setCellValue(venta.getEstado());
+                row.createCell(7).setCellValue(venta.getDescripcionMetodoPago());
+                row.createCell(8).setCellValue(venta.getDescripcionEstado());
                 row.createCell(9).setCellValue(venta.getObservaciones());
             }
 
@@ -358,8 +358,8 @@ public class GeneradorArchivosServicio {
             csv.append(venta.getSubtotal() != null ? venta.getSubtotal() : "").append(",");
             csv.append(venta.getImpuesto() != null ? venta.getImpuesto() : "").append(",");
             csv.append(venta.getTotal() != null ? venta.getTotal() : "").append(",");
-            csv.append(escapeCSV(venta.getMetodoPago())).append(",");
-            csv.append(escapeCSV(venta.getEstado())).append(",");
+            csv.append(escapeCSV(venta.getDescripcionMetodoPago())).append(",");
+            csv.append(escapeCSV(venta.getDescripcionEstado())).append(",");
             csv.append(escapeCSV(venta.getObservaciones()));
             csv.append("\n");
         }

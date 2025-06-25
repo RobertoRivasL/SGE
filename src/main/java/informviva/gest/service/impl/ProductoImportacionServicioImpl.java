@@ -36,6 +36,8 @@ public class ProductoImportacionServicioImpl implements ProductoImportacionServi
         return filename != null && (filename.endsWith(".xlsx") || filename.endsWith(".xls"));
     }
 
+
+
     @Override
     public byte[] generarPlantillaImportacion() {
         try {

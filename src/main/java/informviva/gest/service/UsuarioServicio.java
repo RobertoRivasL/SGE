@@ -1,19 +1,16 @@
 package informviva.gest.service;
 
-/**
- * @author Roberto Rivas
- * @version 2.0
- */
-
 import informviva.gest.model.Usuario;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
-
 /**
  * Interfaz para la gestión de usuarios del sistema
+ *
+ * @author Roberto Rivas
+ * @version 2.0
  */
 public interface UsuarioServicio {
 
@@ -123,31 +120,53 @@ public interface UsuarioServicio {
      */
     List<Usuario> buscarPorNombreOEmail(String query);
 
-
-    // NUEVOS MÉTODOS CON LocalDateTime
-
     /**
      * Obtiene usuarios que han accedido desde una fecha específica
+     *
+     * @param fechaAcceso Fecha límite de acceso
+     * @return Lista de usuarios activos desde la fecha
      */
     List<Usuario> obtenerUsuariosActivosDesde(LocalDateTime fechaAcceso);
 
     /**
      * Obtiene usuarios creados en un período con hora específica
+     *
+     * @param inicio Fecha y hora de inicio del período
+     * @param fin    Fecha y hora de fin del período
+     * @return Lista de usuarios creados en el período
      */
     List<Usuario> obtenerUsuariosCreadosEnPeriodo(LocalDateTime inicio, LocalDateTime fin);
 
     /**
      * Actualiza la fecha de último acceso de un usuario
+     *
+     * @param usuarioId   ID del usuario
+     * @param fechaAcceso Nueva fecha de último acceso
      */
     void actualizarUltimoAcceso(Long usuarioId, LocalDateTime fechaAcceso);
 
     /**
      * Obtiene estadísticas de actividad de usuarios
+     *
+     * @param inicio Fecha y hora de inicio del análisis
+     * @param fin    Fecha y hora de fin del análisis
+     * @return Mapa con estadísticas de actividad
      */
     Map<String, Object> obtenerEstadisticasActividad(LocalDateTime inicio, LocalDateTime fin);
 
     /**
      * Obtiene usuarios que no han accedido en un período determinado
+     *
+     * @param diasInactividad Número de días de inactividad
+     * @return Lista de usuarios inactivos
      */
     List<Usuario> obtenerUsuariosInactivos(int diasInactividad);
+
+    /**
+     * Verifica si existe un usuario con el username especificado
+     *
+     * @param username Username a verificar
+     * @return true si existe un usuario con ese username
+     */
+    boolean existePorUsername(String username);
 }

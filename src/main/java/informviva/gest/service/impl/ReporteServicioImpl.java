@@ -44,26 +44,36 @@ public class ReporteServicioImpl implements ReporteServicio {
 
         List<ProductoVendidoDTO> productosVendidos = reporteRepositorio.obtenerProductosMasVendidosEntreFechas(startDate, endDate);
 
+        // CORREGIDO: Declarar totalVentasGeneral
         BigDecimal totalVentasGeneral = resumen.getTotalVentas() != null ? resumen.getTotalVentas() : BigDecimal.ZERO;
+
         if (totalVentasGeneral.compareTo(BigDecimal.ZERO) > 0) {
             productosVendidos.forEach(producto -> {
-                BigDecimal ingresosBigDecimal = BigDecimal.valueOf(producto.getIngresos());
+                // Usar ingresoTotal si getIngresos() no existe
+                BigDecimal ingresosBigDecimal = BigDecimal.valueOf(
+                        producto.getIngresoTotal() != null ? producto.getIngresoTotal() : 0.0
+                );
                 double porcentaje = ingresosBigDecimal
                         .divide(totalVentasGeneral, 4, RoundingMode.HALF_UP)
                         .doubleValue() * 100.0;
-                producto.setPorcentajeTotal(porcentaje);
+                // CORREGIDO: Usar porcentajePArticipacion en lugar de setPorcentajeTotal()
+                producto.setPorcentajePArticipacion(porcentaje);
             });
         }
         resumen.setProductosMasVendidos(productosVendidos);
 
         resumen.setVentasPorPeriodo(obtenerVentasPorPeriodoConHora(startDateTime, endDateTime, "HORA"));
-        List<VentaPorCategoriaDTO> lista = obtenerVentasPorCategoriaConHora(startDateTime, endDateTime);
-        Map<String, Double> mapa = lista.stream()
+
+        // CORREGIDO: Obtener lista de VentaPorCategoriaDTO y convertir a Map
+        List<VentaPorCategoriaDTO> listaVentasPorCategoria = obtenerVentasPorCategoriaConHora(startDateTime, endDateTime);
+        Map<String, Double> mapaVentasPorCategoria = listaVentasPorCategoria.stream()
                 .collect(Collectors.toMap(
                         VentaPorCategoriaDTO::getCategoria,
-                        VentaPorCategoriaDTO::getTotal
+                        VentaPorCategoriaDTO::getTotal,
+                        (existing, replacement) -> existing // En caso de claves duplicadas, mantener el existente
                 ));
-        resumen.setVentasPorCategoria(mapa);
+        resumen.setVentasPorCategoria(listaVentasPorCategoria);
+
         resumen.setVentasPorVendedor(reporteRepositorio.obtenerVentasPorVendedorEntreFechas(startDate, endDate));
 
         return resumen;
@@ -77,6 +87,7 @@ public class ReporteServicioImpl implements ReporteServicio {
         return generarResumenVentasConHora(inicio, fin);
     }
 
+    // CORREGIDO: Implementar método faltante de la interfaz
     @Override
     public List<VentaPorCategoriaDTO> obtenerVentasPorCategoriaConHora(LocalDateTime inicio, LocalDateTime fin) {
         LocalDate startDate = inicio.toLocalDate();
@@ -282,6 +293,7 @@ public class ReporteServicioImpl implements ReporteServicio {
     public Long contarClientesNuevosEntreFechas(LocalDate inicio, LocalDate fin) {
         return reporteRepositorio.contarClientesNuevosEntreFechas(inicio, fin);
     }
+
     @Override
     public List<VentaPorPeriodoDTO> obtenerVentasPorPeriodoConHora(LocalDateTime inicio, LocalDateTime fin, String periodo) {
         // Ajusta la lógica según tu repositorio y necesidades

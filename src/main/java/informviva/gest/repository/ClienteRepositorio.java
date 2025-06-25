@@ -460,7 +460,12 @@ public interface ClienteRepositorio extends JpaRepository<Cliente, Long>, JpaSpe
 
     Page<Cliente> listarClientesPaginadas(Pageable pageable);
 
+    Page<Cliente> findByActivo(boolean activo, Pageable pageable);
 
+    List<Cliente> findByFechaNacimientoBetween(LocalDate fechaMin, LocalDate fechaMax);
 
+    Long countByActivo(boolean activo);
+
+    Optional<Cliente> findByTelefono(String telefono);
 }
 

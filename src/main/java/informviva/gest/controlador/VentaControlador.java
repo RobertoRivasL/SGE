@@ -11,11 +11,9 @@ import informviva.gest.service.ClienteServicio;
 import informviva.gest.service.ProductoServicio;
 import informviva.gest.service.UsuarioServicio;
 import informviva.gest.service.VentaServicio;
-import informviva.gest.util.RutasConstantes;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,14 +26,16 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 /**
- * Controlador para el manejo de ventas
+ * Controlador refactorizado para el manejo de ventas
+ * Aplica principios SOLID, manejo robusto de errores y separación de responsabilidades
  *
  * @author Roberto Rivas
- * @version 2.0
+ * @version 4.0 - REFACTORIZADO COMPLETO
  */
 @Controller
 @RequestMapping("/ventas")
@@ -43,56 +43,80 @@ public class VentaControlador {
 
     private static final Logger logger = LoggerFactory.getLogger(VentaControlador.class);
 
-    @Autowired
-    private VentaServicio ventaServicio;
+    // ===== CONSTANTES DE VISTAS =====
+    private static final String VISTA_LISTA = "ventas/lista";
+    private static final String VISTA_NUEVA = "ventas/nueva";
+    private static final String VISTA_DETALLE = "ventas/detalle";
+    private static final String VISTA_EDITAR = "ventas/editar";
+    private static final String VISTA_ERROR = "error/general";
 
-    @Autowired
-    private ClienteServicio clienteServicio;
+    // ===== CONSTANTES DE PARÁMETROS =====
+    private static final String PARAM_VENTA = "venta";
+    private static final String PARAM_VENTAS = "ventas";
+    private static final String PARAM_CLIENTES = "clientes";
+    private static final String PARAM_PRODUCTOS = "productos";
+    private static final String PARAM_VENDEDORES = "vendedores";
+    private static final String PARAM_ERROR = "error";
+    private static final String PARAM_MENSAJE_EXITO = "mensajeExito";
+    private static final String PARAM_MENSAJE_ADVERTENCIA = "mensajeAdvertencia";
 
-    @Autowired
-    private ProductoServicio productoServicio;
+    // ===== CONSTANTES DE REDIRECCIÓN =====
+    private static final String REDIRECT_LISTA = "redirect:/ventas/lista";
+    private static final String REDIRECT_DETALLE = "redirect:/ventas/detalle/";
 
-    @Autowired
-    private UsuarioServicio usuarioServicio;
+    // ===== CONSTANTES DE MENSAJES =====
+    private static final String MENSAJE_VENTA_GUARDADA = "Venta guardada exitosamente con ID: ";
+    private static final String MENSAJE_VENTA_ACTUALIZADA = "Venta actualizada exitosamente";
+    private static final String MENSAJE_VENTA_ELIMINADA = "Venta eliminada exitosamente";
+    private static final String ERROR_VENTA_NO_ENCONTRADA = "Venta no encontrada con ID: ";
+    private static final String ERROR_CLIENTE_NO_ENCONTRADO = "Cliente no encontrado con ID: ";
+    private static final String ERROR_PRODUCTO_NO_ENCONTRADO = "Producto no encontrado con ID: ";
+    private static final String ERROR_USUARIO_NO_ENCONTRADO = "Usuario no encontrado con ID: ";
+    private static final String ERROR_GENERICO = "Ha ocurrido un error inesperado";
+
+    // ===== INYECCIÓN DE DEPENDENCIAS =====
+    private final VentaServicio ventaServicio;
+    private final ClienteServicio clienteServicio;
+    private final ProductoServicio productoServicio;
+    private final UsuarioServicio usuarioServicio;
+
+    public VentaControlador(VentaServicio ventaServicio,
+                            ClienteServicio clienteServicio,
+                            ProductoServicio productoServicio,
+                            UsuarioServicio usuarioServicio) {
+        this.ventaServicio = ventaServicio;
+        this.clienteServicio = clienteServicio;
+        this.productoServicio = productoServicio;
+        this.usuarioServicio = usuarioServicio;
+    }
+
+    // ==================== ENDPOINTS PRINCIPALES ====================
 
     /**
-     * Muestra la lista de ventas con paginación y filtros
+     * Lista las ventas con filtros y paginación
      */
     @GetMapping({"/lista", ""})
     public String listarVentas(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "20") int size,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin,
             @RequestParam(required = false) Long clienteId,
+            @RequestParam(required = false) Long vendedorId,
+            @RequestParam(required = false) String estado,
+            @RequestParam(required = false) String metodoPago,
             Model model) {
 
         try {
-            List<Venta> ventas;
-
-            if (fechaInicio != null && fechaFin != null) {
-                ventas = ventaServicio.buscarPorRangoFechas(
-                        fechaInicio.atStartOfDay(),
-                        fechaFin.atTime(LocalTime.MAX)
-                );
-            } else if (clienteId != null && clienteId > 0) {
-                ventas = ventaServicio.buscarPorCliente(clienteId);
-            } else {
-                ventas = ventaServicio.listarTodas();
-            }
-
-            model.addAttribute("ventas", ventas);
-            model.addAttribute("clientes", clienteServicio.obtenerTodos());
-            model.addAttribute("fechaInicio", fechaInicio);
-            model.addAttribute("fechaFin", fechaFin);
-            model.addAttribute("clienteId", clienteId);
-
-            return RutasConstantes.VISTA_LISTA_VENTAS;
+            List<Venta> ventas = obtenerVentasFiltradas(fechaInicio, fechaFin, clienteId, vendedorId, estado, metodoPago);
+            cargarDatosListado(model, ventas, fechaInicio, fechaFin, clienteId, vendedorId, estado, metodoPago);
+            return VISTA_LISTA;
 
         } catch (Exception e) {
-            logger.error("Error al listar ventas: {}", e.getMessage());
-            model.addAttribute("error", "Error al cargar las ventas");
-            return RutasConstantes.VISTA_LISTA_VENTAS;
+            logger.error("Error al listar ventas: {}", e.getMessage(), e);
+            model.addAttribute(PARAM_ERROR, "Error al cargar las ventas: " + e.getMessage());
+            model.addAttribute(PARAM_VENTAS, Collections.emptyList());
+            return VISTA_LISTA;
         }
     }
 
@@ -102,19 +126,14 @@ public class VentaControlador {
     @GetMapping("/nueva")
     public String mostrarFormularioNuevaVenta(Model model) {
         try {
-            VentaDTO ventaDTO = new VentaDTO();
-            ventaDTO.setFechaVenta(LocalDateTime.now());
-
-            model.addAttribute("venta", ventaDTO);
-            model.addAttribute("clientes", clienteServicio.obtenerTodos());
-            model.addAttribute("productos", productoServicio.listarActivos());
-
-            return RutasConstantes.VISTA_NUEVA_VENTA;
+            VentaDTO ventaDTO = crearVentaDTOVacia();
+            cargarDatosFormulario(model, ventaDTO);
+            return VISTA_NUEVA;
 
         } catch (Exception e) {
-            logger.error("Error al mostrar formulario de nueva venta: {}", e.getMessage());
-            model.addAttribute("error", "Error al cargar el formulario");
-            return "redirect:/ventas/lista";
+            logger.error("Error al mostrar formulario de nueva venta: {}", e.getMessage(), e);
+            model.addAttribute(PARAM_ERROR, "Error al cargar el formulario de nueva venta");
+            return REDIRECT_LISTA;
         }
     }
 
@@ -123,47 +142,34 @@ public class VentaControlador {
      */
     @PostMapping("/guardar")
     public String guardarVenta(
-            @Valid @ModelAttribute("venta") VentaDTO ventaDTO,
+            @Valid @ModelAttribute(PARAM_VENTA) VentaDTO ventaDTO,
             BindingResult result,
             Model model,
             RedirectAttributes redirectAttributes) {
 
+        // Asegurar que la fecha esté establecida
+        if (ventaDTO.getFecha() == null) {
+            ventaDTO.setFecha(LocalDateTime.now());
+        }
+
         if (result.hasErrors()) {
-            model.addAttribute("clientes", clienteServicio.obtenerTodos());
-            model.addAttribute("productos", productoServicio.listarActivos());
-            return RutasConstantes.VISTA_NUEVA_VENTA;
+            logger.warn("Errores de validación al guardar venta: {}", result.getAllErrors());
+            cargarDatosFormulario(model, ventaDTO);
+            return VISTA_NUEVA;
         }
 
         try {
-            // Obtener usuario actual
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            Usuario usuarioActual = usuarioServicio.buscarPorUsername(auth.getName());
-
-            // Convertir DTO a entidad
-            Venta venta = convertirDTOAEntidad(ventaDTO);
-            venta.setUsuario(usuarioActual);
-
-            // Guardar venta
-            Venta ventaGuardada = ventaServicio.guardar(venta);
-
-            redirectAttributes.addFlashAttribute("mensajeExito",
-                    "Venta guardada exitosamente con ID: " + ventaGuardada.getId());
-
-            return "redirect:/ventas/detalle/" + ventaGuardada.getId();
+            Venta ventaGuardada = procesarGuardadoVenta(ventaDTO);
+            redirectAttributes.addFlashAttribute(PARAM_MENSAJE_EXITO,
+                    MENSAJE_VENTA_GUARDADA + ventaGuardada.getId());
+            return REDIRECT_DETALLE + ventaGuardada.getId();
 
         } catch (StockInsuficienteException e) {
-            logger.warn("Stock insuficiente al guardar venta: {}", e.getMessage());
-            model.addAttribute("error", e.getMessage());
-            model.addAttribute("clientes", clienteServicio.obtenerTodos());
-            model.addAttribute("productos", productoServicio.listarActivos());
-            return RutasConstantes.VISTA_NUEVA_VENTA;
-
+            return manejarErrorStock(e, model, ventaDTO);
+        } catch (RecursoNoEncontradoException e) {
+            return manejarErrorRecursoNoEncontrado(e, model, ventaDTO);
         } catch (Exception e) {
-            logger.error("Error al guardar venta: {}", e.getMessage());
-            model.addAttribute("error", "Error al guardar la venta: " + e.getMessage());
-            model.addAttribute("clientes", clienteServicio.obtenerTodos());
-            model.addAttribute("productos", productoServicio.listarActivos());
-            return RutasConstantes.VISTA_NUEVA_VENTA;
+            return manejarErrorGeneral(e, model, ventaDTO, "Error al guardar la venta");
         }
     }
 
@@ -171,26 +177,20 @@ public class VentaControlador {
      * Muestra los detalles de una venta específica
      */
     @GetMapping("/detalle/{id}")
-    public String mostrarDetalleVenta(@PathVariable Long id, Model model) {
+    public String mostrarDetalleVenta(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
         try {
-            Optional<Venta> ventaOpt = ventaServicio.buscarPorId(id);
-
-            if (!ventaOpt.isPresent()) {
-                throw new RecursoNoEncontradoException("Venta no encontrada con ID: " + id);
-            }
-
-            model.addAttribute("venta", ventaOpt.get());
-            return RutasConstantes.VISTA_DETALLE_VENTA;
+            Venta venta = buscarVentaPorIdSeguro(id);
+            model.addAttribute(PARAM_VENTA, venta);
+            return VISTA_DETALLE;
 
         } catch (RecursoNoEncontradoException e) {
             logger.warn("Venta no encontrada: {}", e.getMessage());
-            model.addAttribute("error", e.getMessage());
-            return "redirect:/ventas/lista";
-
+            redirectAttributes.addFlashAttribute(PARAM_ERROR, e.getMessage());
+            return REDIRECT_LISTA;
         } catch (Exception e) {
-            logger.error("Error al mostrar detalle de venta: {}", e.getMessage());
-            model.addAttribute("error", "Error al cargar los detalles de la venta");
-            return "redirect:/ventas/lista";
+            logger.error("Error al mostrar detalle de venta: {}", e.getMessage(), e);
+            redirectAttributes.addFlashAttribute(PARAM_ERROR, "Error al cargar los detalles de la venta");
+            return REDIRECT_LISTA;
         }
     }
 
@@ -198,31 +198,29 @@ public class VentaControlador {
      * Muestra el formulario para editar una venta
      */
     @GetMapping("/editar/{id}")
-    public String mostrarFormularioEditarVenta(@PathVariable Long id, Model model) {
+    public String mostrarFormularioEditarVenta(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
         try {
-            Optional<Venta> ventaOpt = ventaServicio.buscarPorId(id);
+            Venta venta = buscarVentaPorIdSeguro(id);
 
-            if (ventaOpt.isPresent()) {
-                throw new RecursoNoEncontradoException("Venta no encontrada con ID: " + id);
+            // Verificar si la venta se puede editar
+            if (!ventaEsEditable(venta)) {
+                redirectAttributes.addFlashAttribute(PARAM_MENSAJE_ADVERTENCIA,
+                        "No se puede editar una venta en estado: " + venta.getEstado());
+                return REDIRECT_DETALLE + id;
             }
 
-            VentaDTO ventaDTO = convertirEntidadADTO(ventaOpt.get());
-
-            model.addAttribute("venta", ventaDTO);
-            model.addAttribute("clientes", clienteServicio.obtenerTodos());
-            model.addAttribute("productos", productoServicio.listarActivos());
-
-            return RutasConstantes.VISTA_EDITAR_VENTA;
+            VentaDTO ventaDTO = ventaServicio.convertirADTO(venta);
+            cargarDatosFormulario(model, ventaDTO);
+            return VISTA_EDITAR;
 
         } catch (RecursoNoEncontradoException e) {
             logger.warn("Venta no encontrada para editar: {}", e.getMessage());
-            model.addAttribute("error", e.getMessage());
-            return "redirect:/ventas/lista";
-
+            redirectAttributes.addFlashAttribute(PARAM_ERROR, e.getMessage());
+            return REDIRECT_LISTA;
         } catch (Exception e) {
-            logger.error("Error al mostrar formulario de edición: {}", e.getMessage());
-            model.addAttribute("error", "Error al cargar el formulario de edición");
-            return "redirect:/ventas/lista";
+            logger.error("Error al mostrar formulario de edición: {}", e.getMessage(), e);
+            redirectAttributes.addFlashAttribute(PARAM_ERROR, "Error al cargar el formulario de edición");
+            return REDIRECT_LISTA;
         }
     }
 
@@ -232,109 +230,338 @@ public class VentaControlador {
     @PostMapping("/actualizar/{id}")
     public String actualizarVenta(
             @PathVariable Long id,
-            @Valid @ModelAttribute("venta") VentaDTO ventaDTO,
+            @Valid @ModelAttribute(PARAM_VENTA) VentaDTO ventaDTO,
             BindingResult result,
             Model model,
             RedirectAttributes redirectAttributes) {
 
         if (result.hasErrors()) {
-            model.addAttribute("clientes", clienteServicio.obtenerTodos());
-            model.addAttribute("productos", productoServicio.listarActivos());
-            return RutasConstantes.VISTA_EDITAR_VENTA;
+            logger.warn("Errores de validación al actualizar venta ID {}: {}", id, result.getAllErrors());
+            cargarDatosFormulario(model, ventaDTO);
+            return VISTA_EDITAR;
         }
 
         try {
-            Venta ventaExistente = ventaServicio.buscarPorId(id)
-                    .orElseThrow(() -> new RecursoNoEncontradoException("Venta no encontrada con ID: " + id));
-
-            // Actualizar campos
-            ventaExistente.setCliente(clienteServicio.buscarPorId(ventaDTO.getClienteId()).get());
-            ventaExistente.setProducto(productoServicio.buscarPorId(ventaDTO.getProductoId()).get());
-            ventaExistente.setCantidad(ventaDTO.getCantidad());
-            ventaExistente.setPrecioUnitario(ventaDTO.getPrecioUnitario());
-            ventaExistente.setTotal(ventaDTO.getTotal());
-
-            Venta ventaActualizada = ventaServicio.actualizar(ventaExistente);
-
-            redirectAttributes.addFlashAttribute("mensajeExito", "Venta actualizada exitosamente");
-            return "redirect:/ventas/detalle/" + ventaActualizada.getId();
+            Venta ventaActualizada = procesarActualizacionVenta(id, ventaDTO);
+            redirectAttributes.addFlashAttribute(PARAM_MENSAJE_EXITO, MENSAJE_VENTA_ACTUALIZADA);
+            return REDIRECT_DETALLE + ventaActualizada.getId();
 
         } catch (RecursoNoEncontradoException e) {
             logger.warn("Venta no encontrada para actualizar: {}", e.getMessage());
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/ventas/lista";
-
+            redirectAttributes.addFlashAttribute(PARAM_ERROR, e.getMessage());
+            return REDIRECT_LISTA;
         } catch (StockInsuficienteException e) {
-            logger.warn("Stock insuficiente al actualizar venta: {}", e.getMessage());
-            model.addAttribute("error", e.getMessage());
-            model.addAttribute("clientes", clienteServicio.obtenerTodos());
-            model.addAttribute("productos", productoServicio.listarActivos());
-            return RutasConstantes.VISTA_EDITAR_VENTA;
-
+            return manejarErrorStock(e, model, ventaDTO);
         } catch (Exception e) {
-            logger.error("Error al actualizar venta: {}", e.getMessage());
-            model.addAttribute("error", "Error al actualizar la venta: " + e.getMessage());
-            model.addAttribute("clientes", clienteServicio.obtenerTodos());
-            model.addAttribute("productos", productoServicio.listarActivos());
-            return RutasConstantes.VISTA_EDITAR_VENTA;
+            return manejarErrorGeneral(e, model, ventaDTO, "Error al actualizar la venta");
         }
     }
 
     /**
-     * Elimina una venta
+     * Elimina (anula) una venta
      */
     @PostMapping("/eliminar/{id}")
     public String eliminarVenta(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
-            ventaServicio.eliminar(id);
-            redirectAttributes.addFlashAttribute("mensajeExito", "Venta eliminada exitosamente");
+            Venta venta = buscarVentaPorIdSeguro(id);
+
+            // Verificar si la venta se puede eliminar
+            if (!ventaEsEliminable(venta)) {
+                redirectAttributes.addFlashAttribute(PARAM_MENSAJE_ADVERTENCIA,
+                        "No se puede eliminar una venta en estado: " + venta.getEstado());
+                return REDIRECT_DETALLE + id;
+            }
+
+            ventaServicio.anular(id);
+            redirectAttributes.addFlashAttribute(PARAM_MENSAJE_EXITO, MENSAJE_VENTA_ELIMINADA);
 
         } catch (RecursoNoEncontradoException e) {
             logger.warn("Venta no encontrada para eliminar: {}", e.getMessage());
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            redirectAttributes.addFlashAttribute(PARAM_ERROR, e.getMessage());
+        } catch (Exception e) {
+            logger.error("Error al eliminar venta: {}", e.getMessage(), e);
+            redirectAttributes.addFlashAttribute(PARAM_ERROR, "Error al eliminar la venta: " + e.getMessage());
+        }
+
+        return REDIRECT_LISTA;
+    }
+
+    /**
+     * Duplica una venta existente
+     */
+    @PostMapping("/duplicar/{id}")
+    public String duplicarVenta(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            Venta ventaOriginal = buscarVentaPorIdSeguro(id);
+            Venta ventaDuplicada = ventaServicio.duplicarVenta(ventaOriginal);
+
+            redirectAttributes.addFlashAttribute(PARAM_MENSAJE_EXITO,
+                    "Venta duplicada exitosamente con ID: " + ventaDuplicada.getId());
+            return REDIRECT_DETALLE + ventaDuplicada.getId();
+
+        } catch (RecursoNoEncontradoException e) {
+            logger.warn("Venta no encontrada para duplicar: {}", e.getMessage());
+            redirectAttributes.addFlashAttribute(PARAM_ERROR, e.getMessage());
+            return REDIRECT_LISTA;
+        } catch (Exception e) {
+            logger.error("Error al duplicar venta: {}", e.getMessage(), e);
+            redirectAttributes.addFlashAttribute(PARAM_ERROR, "Error al duplicar la venta: " + e.getMessage());
+            return REDIRECT_LISTA;
+        }
+    }
+
+    // ==================== MÉTODOS DE PROCESAMIENTO ====================
+
+    private List<Venta> obtenerVentasFiltradas(LocalDate fechaInicio, LocalDate fechaFin,
+                                               Long clienteId, Long vendedorId,
+                                               String estado, String metodoPago) {
+        try {
+            // Filtro por rango de fechas
+            if (fechaInicio != null && fechaFin != null) {
+                LocalDateTime inicioDateTime = fechaInicio.atStartOfDay();
+                LocalDateTime finDateTime = fechaFin.atTime(LocalTime.MAX);
+
+                return ventaServicio.buscarVentasParaExportar(inicioDateTime, finDateTime, estado, metodoPago, null);
+            }
+
+            // Filtro por cliente
+            if (clienteId != null && clienteId > 0) {
+                List<Venta> ventasCliente = ventaServicio.buscarPorCliente(clienteId);
+                return aplicarFiltrosAdicionales(ventasCliente, estado, metodoPago);
+            }
+
+            // Filtro por vendedor
+            if (vendedorId != null && vendedorId > 0) {
+                LocalDateTime inicioRango = LocalDateTime.now().minusYears(1);
+                LocalDateTime finRango = LocalDateTime.now();
+                List<Venta> ventasVendedor = ventaServicio.buscarPorVendedorYFechas(vendedorId, inicioRango, finRango);
+                return aplicarFiltrosAdicionales(ventasVendedor, estado, metodoPago);
+            }
+
+            // Sin filtros específicos - obtener todas las ventas recientes
+            List<Venta> todasLasVentas = ventaServicio.listarTodas();
+            return aplicarFiltrosAdicionales(todasLasVentas, estado, metodoPago);
 
         } catch (Exception e) {
-            logger.error("Error al eliminar venta: {}", e.getMessage());
-            redirectAttributes.addFlashAttribute("error", "Error al eliminar la venta");
+            logger.error("Error al obtener ventas filtradas: {}", e.getMessage(), e);
+            return Collections.emptyList();
         }
-
-        return "redirect:/ventas/lista";
     }
 
-    // Métodos de utilidad
-
-    private Venta convertirDTOAEntidad(VentaDTO dto) {
-        Venta venta = new Venta();
-
-        if (dto.getId() != null) {
-            venta.setId(dto.getId());
-        }
-
-        Cliente cliente = clienteServicio.buscarPorId(dto.getClienteId())
-                .orElseThrow(() -> new RecursoNoEncontradoException("Cliente no encontrado"));
-        venta.setCliente(cliente);
-
-        Producto producto = productoServicio.buscarPorId(dto.getProductoId())
-                .orElseThrow(() -> new RecursoNoEncontradoException("Producto no encontrado"));
-        venta.setProducto(producto);
-
-        venta.setCantidad(dto.getCantidad());
-        venta.setPrecioUnitario(dto.getPrecioUnitario());
-        venta.setTotal(dto.getTotal());
-        venta.setFechaVenta(dto.getFechaVenta());
-
-        return venta;
+    private List<Venta> aplicarFiltrosAdicionales(List<Venta> ventas, String estado, String metodoPago) {
+        return ventas.stream()
+                .filter(venta -> estado == null || estado.isEmpty() || estado.equals(venta.getEstado()))
+                .filter(venta -> metodoPago == null || metodoPago.isEmpty() || metodoPago.equals(venta.getMetodoPago()))
+                .collect(java.util.stream.Collectors.toList());
     }
 
-    private VentaDTO convertirEntidadADTO(Venta venta) {
-        VentaDTO dto = new VentaDTO();
-        dto.setId(venta.getId());
-        dto.setClienteId(venta.getCliente().getId());
-        dto.setProductoId(venta.getProducto().getId());
-        dto.setCantidad(venta.getCantidad());
-        dto.setPrecioUnitario(venta.getPrecioUnitario());
-        dto.setTotal(venta.getTotal());
-        dto.setFechaVenta(venta.getFechaVenta());
-        return dto;
+    private Venta procesarGuardadoVenta(VentaDTO ventaDTO) {
+        asignarVendedorSiNoEspecificado(ventaDTO);
+        return ventaServicio.guardar(ventaDTO);
+    }
+
+    private Venta procesarActualizacionVenta(Long id, VentaDTO ventaDTO) {
+        return ventaServicio.actualizar(id, ventaDTO);
+    }
+
+    private VentaDTO crearVentaDTOVacia() {
+        VentaDTO ventaDTO = new VentaDTO();
+        ventaDTO.setFecha(LocalDateTime.now());
+        return ventaDTO;
+    }
+
+    private void asignarVendedorSiNoEspecificado(VentaDTO ventaDTO) {
+        if (ventaDTO.getVendedorId() == null) {
+            try {
+                Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+                if (auth != null && auth.getName() != null) {
+                    Usuario usuarioActual = usuarioServicio.buscarPorUsername(auth.getName());
+                    if (usuarioActual != null) {
+                        ventaDTO.setVendedorId(usuarioActual.getId());
+                    }
+                }
+            } catch (Exception e) {
+                logger.warn("No se pudo asignar vendedor automáticamente: {}", e.getMessage());
+            }
+        }
+    }
+
+    // ==================== MÉTODOS DE BÚSQUEDA SEGURA ====================
+
+    private Venta buscarVentaPorIdSeguro(Long id) {
+        if (id == null || id <= 0) {
+            throw new RecursoNoEncontradoException(ERROR_VENTA_NO_ENCONTRADA + id);
+        }
+
+        return ventaServicio.buscarPorId(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException(ERROR_VENTA_NO_ENCONTRADA + id));
+    }
+
+    private Cliente buscarClientePorIdSeguro(Long id) {
+        if (id == null || id <= 0) {
+            throw new RecursoNoEncontradoException(ERROR_CLIENTE_NO_ENCONTRADO + id);
+        }
+
+        Cliente cliente = clienteServicio.buscarPorId(id);
+        if (cliente == null) {
+            throw new RecursoNoEncontradoException(ERROR_CLIENTE_NO_ENCONTRADO + id);
+        }
+        return cliente;
+    }
+
+    private Usuario buscarUsuarioPorIdSeguro(Long id) {
+        if (id == null || id <= 0) {
+            throw new RecursoNoEncontradoException(ERROR_USUARIO_NO_ENCONTRADO + id);
+        }
+
+        Usuario usuario = usuarioServicio.buscarPorId(id);
+        if (usuario == null) {
+            throw new RecursoNoEncontradoException(ERROR_USUARIO_NO_ENCONTRADO + id);
+        }
+        return usuario;
+    }
+
+    private Producto buscarProductoPorIdSeguro(Long id) {
+        if (id == null || id <= 0) {
+            throw new RecursoNoEncontradoException(ERROR_PRODUCTO_NO_ENCONTRADO + id);
+        }
+
+        Producto producto = productoServicio.buscarPorId(id);
+        if (producto == null) {
+            throw new RecursoNoEncontradoException(ERROR_PRODUCTO_NO_ENCONTRADO + id);
+        }
+        return producto;
+    }
+
+    // ==================== MÉTODOS DE CARGA DE DATOS ====================
+
+    private void cargarDatosFormulario(Model model, VentaDTO ventaDTO) {
+        model.addAttribute(PARAM_VENTA, ventaDTO);
+
+        // Cargar clientes con manejo seguro de errores
+        try {
+            List<Cliente> clientes = clienteServicio.obtenerTodos();
+            model.addAttribute(PARAM_CLIENTES, clientes != null ? clientes : Collections.emptyList());
+        } catch (Exception e) {
+            logger.warn("No se pudieron cargar clientes: {}", e.getMessage());
+            model.addAttribute(PARAM_CLIENTES, Collections.emptyList());
+        }
+
+        // Cargar productos con manejo seguro de errores
+        try {
+            List<Producto> productos = productoServicio.listar();
+            model.addAttribute(PARAM_PRODUCTOS, productos != null ? productos : Collections.emptyList());
+        } catch (Exception e) {
+            logger.warn("No se pudieron cargar productos: {}", e.getMessage());
+            model.addAttribute(PARAM_PRODUCTOS, Collections.emptyList());
+        }
+
+        // Cargar vendedores con manejo seguro de errores
+        try {
+            List<Usuario> vendedores = usuarioServicio.listarVendedores();
+            model.addAttribute(PARAM_VENDEDORES, vendedores != null ? vendedores : Collections.emptyList());
+        } catch (Exception e) {
+            logger.debug("No se pudieron cargar vendedores: {}", e.getMessage());
+            model.addAttribute(PARAM_VENDEDORES, Collections.emptyList());
+        }
+
+        // Agregar opciones para selects
+        model.addAttribute("estadosVenta", obtenerEstadosVenta());
+        model.addAttribute("metodosPago", obtenerMetodosPago());
+    }
+
+    private void cargarDatosListado(Model model, List<Venta> ventas,
+                                    LocalDate fechaInicio, LocalDate fechaFin,
+                                    Long clienteId, Long vendedorId,
+                                    String estado, String metodoPago) {
+
+        model.addAttribute(PARAM_VENTAS, ventas != null ? ventas : Collections.emptyList());
+
+        // Cargar datos para filtros
+        try {
+            List<Cliente> clientes = clienteServicio.obtenerTodos();
+            model.addAttribute(PARAM_CLIENTES, clientes != null ? clientes : Collections.emptyList());
+        } catch (Exception e) {
+            logger.warn("No se pudieron cargar clientes para listado: {}", e.getMessage());
+            model.addAttribute(PARAM_CLIENTES, Collections.emptyList());
+        }
+
+        try {
+            List<Usuario> vendedores = usuarioServicio.listarVendedores();
+            model.addAttribute(PARAM_VENDEDORES, vendedores != null ? vendedores : Collections.emptyList());
+        } catch (Exception e) {
+            logger.warn("No se pudieron cargar vendedores para listado: {}", e.getMessage());
+            model.addAttribute(PARAM_VENDEDORES, Collections.emptyList());
+        }
+
+        // Parámetros de filtros
+        model.addAttribute("fechaInicio", fechaInicio);
+        model.addAttribute("fechaFin", fechaFin);
+        model.addAttribute("clienteId", clienteId);
+        model.addAttribute("vendedorId", vendedorId);
+        model.addAttribute("estado", estado);
+        model.addAttribute("metodoPago", metodoPago);
+
+        // Estadísticas básicas
+        if (ventas != null && !ventas.isEmpty()) {
+            model.addAttribute("totalVentas", ventas.size());
+            double totalMonto = ventas.stream()
+                    .filter(v -> v.getTotal() != null)
+                    .mapToDouble(Venta::getTotal)
+                    .sum();
+            model.addAttribute("totalMonto", totalMonto);
+            model.addAttribute("promedioVenta", ventas.size() > 0 ? totalMonto / ventas.size() : 0.0);
+        } else {
+            model.addAttribute("totalVentas", 0);
+            model.addAttribute("totalMonto", 0.0);
+            model.addAttribute("promedioVenta", 0.0);
+        }
+
+        // Opciones para filtros
+        model.addAttribute("estadosVenta", obtenerEstadosVenta());
+        model.addAttribute("metodosPago", obtenerMetodosPago());
+    }
+
+    // ==================== MÉTODOS DE VALIDACIÓN ====================
+
+    private boolean ventaEsEditable(Venta venta) {
+        return venta != null && !"ANULADA".equals(venta.getEstado()) && !"COMPLETADA".equals(venta.getEstado());
+    }
+
+    private boolean ventaEsEliminable(Venta venta) {
+        return venta != null && !"ANULADA".equals(venta.getEstado());
+    }
+
+    // ==================== MÉTODOS DE MANEJO DE ERRORES ====================
+
+    private String manejarErrorStock(StockInsuficienteException e, Model model, VentaDTO ventaDTO) {
+        logger.warn("Stock insuficiente: {}", e.getMessage());
+        model.addAttribute(PARAM_ERROR, e.getMessage());
+        cargarDatosFormulario(model, ventaDTO);
+        return VISTA_NUEVA;
+    }
+
+    private String manejarErrorRecursoNoEncontrado(RecursoNoEncontradoException e, Model model, VentaDTO ventaDTO) {
+        logger.warn("Recurso no encontrado: {}", e.getMessage());
+        model.addAttribute(PARAM_ERROR, e.getMessage());
+        cargarDatosFormulario(model, ventaDTO);
+        return VISTA_NUEVA;
+    }
+
+    private String manejarErrorGeneral(Exception e, Model model, VentaDTO ventaDTO, String mensajeBase) {
+        logger.error("{}: {}", mensajeBase, e.getMessage(), e);
+        model.addAttribute(PARAM_ERROR, mensajeBase + ": " + e.getMessage());
+        cargarDatosFormulario(model, ventaDTO);
+        return VISTA_NUEVA;
+    }
+
+    // ==================== MÉTODOS DE UTILIDAD ====================
+
+    private List<String> obtenerEstadosVenta() {
+        return List.of("PENDIENTE", "COMPLETADA", "ANULADA", "EN_PROCESO");
+    }
+
+    private List<String> obtenerMetodosPago() {
+        return List.of("EFECTIVO", "TARJETA_CREDITO", "TARJETA_DEBITO", "TRANSFERENCIA", "CHEQUE");
     }
 }

@@ -136,7 +136,7 @@ public class ImportacionControlador {
                 return ResponseEntity.badRequest().build();
             }
 
-            byte[] plantilla = importacionServicio.generarPlantillaImportacion(tipoEntidad);
+            byte[] plantilla = importacionServicio.generarPlantillaImportacion(tipoEntidad, "xlsx");
             String nombreArchivo = "plantilla_" + tipoEntidad + ".xlsx";
 
             return ResponseEntity.ok()

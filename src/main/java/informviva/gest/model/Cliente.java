@@ -1,5 +1,6 @@
 package informviva.gest.model;
 
+
 import informviva.gest.validador.ValidadorRut;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
@@ -55,8 +56,6 @@ public class Cliente {
     @Size(max = 30, message = "La categoría no puede tener más de 30 caracteres")
     private String categoria;
 
-    private boolean activo;
-
     @Size(max = 50, message = "La ciudad no puede tener más de 50 caracteres")
     private String ciudad;
 
@@ -65,6 +64,8 @@ public class Cliente {
     private LocalDateTime fechaUltimaCompra;
 
     private LocalDate fechaNacimiento;
+
+    private boolean activo = true;
 
     @DecimalMin(value = "0.0", message = "El total de compras no puede ser negativo")
     private BigDecimal totalCompras;

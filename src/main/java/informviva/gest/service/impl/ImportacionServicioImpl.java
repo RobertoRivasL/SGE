@@ -1,7 +1,6 @@
 package informviva.gest.service.impl;
 
 import informviva.gest.dto.ImportacionResultadoDTO;
-import informviva.gest.exception.ImportacionException;
 import informviva.gest.model.Cliente;
 import informviva.gest.model.Producto;
 import informviva.gest.model.Usuario;
@@ -23,10 +22,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.*;
 
 /**
@@ -40,6 +37,9 @@ import java.util.*;
 public class ImportacionServicioImpl implements ImportacionServicio {
 
     private static final Logger logger = LoggerFactory.getLogger(ImportacionServicioImpl.class);
+    private static final List<String> FORMATOS_SOPORTADOS = Arrays.asList("csv", "xlsx", "xls");
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+    private static final DateTimeFormatter DATE_FORMATTER_SIMPLE = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     @Autowired
     private ClienteServicio clienteServicio;
@@ -55,181 +55,366 @@ public class ImportacionServicioImpl implements ImportacionServicio {
 
     @Override
     public ImportacionResultadoDTO importarClientes(MultipartFile archivo) {
+        logger.info("Iniciando importación de clientes desde archivo: {}", archivo.getOriginalFilename());
+
         ImportacionResultadoDTO resultado = new ImportacionResultadoDTO();
-        resultado.setTipoImportacion("Clientes");
+        resultado.setTipoEntidad("Cliente");
         resultado.setNombreArchivo(archivo.getOriginalFilename());
         resultado.setFechaImportacion(LocalDateTime.now());
 
         try {
-            List<Map<String, Object>> datos = procesarArchivoExcel(archivo);
+            List<Map<String, Object>> datos = procesarArchivo(archivo);
 
+            if (datos.isEmpty()) {
+                resultado.agregarError("El archivo está vacío o no contiene datos válidos");
+                return resultado;
+            }
+
+            // Validar columnas requeridas
+            Set<String> columnasArchivo = datos.get(0).keySet();
+            List<String> columnasRequeridas = obtenerColumnasRequeridas("cliente");
+
+            for (String columnaRequerida : columnasRequeridas) {
+                if (!columnasArchivo.contains(columnaRequerida)) {
+                    resultado.agregarError("Falta la columna requerida: " + columnaRequerida);
+                }
+            }
+
+            if (resultado.tieneErrores()) {
+                return resultado;
+            }
+
+            // Procesar cada fila
             for (int i = 0; i < datos.size(); i++) {
                 try {
-                    Cliente cliente = mapearCliente(datos.get(i), i + 2); // +2 porque la fila 1 son headers
-                    clienteServicio.guardar(cliente);
-                    resultado.incrementarExitosos();
+                    Map<String, Object> fila = datos.get(i);
+                    Cliente cliente = mapearCliente(fila, i + 2); // +2 porque empezamos en fila 2 (después del header)
 
+                    if (cliente != null) {
+                        // Verificar si ya existe
+                        if (clienteServicio.existePorRut(cliente.getRut())) {
+                            resultado.agregarAdvertencia("Fila " + (i + 2) + ": Cliente con RUT " + cliente.getRut() + " ya existe, se omite");
+                            resultado.incrementarOmitidos();
+                        } else {
+                            clienteServicio.guardar(cliente);
+                            resultado.incrementarExitosos();
+                        }
+                    }
                 } catch (Exception e) {
-                    logger.warn("Error procesando cliente en fila {}: {}", i + 2, e.getMessage());
-                    resultado.agregarError(i + 2, e.getMessage());
+                    resultado.agregarError("Fila " + (i + 2) + ": " + e.getMessage());
+                    resultado.incrementarErrores();
                 }
             }
 
         } catch (Exception e) {
-            logger.error("Error general en importación de clientes: {}", e.getMessage());
-            resultado.setErrorGeneral(e.getMessage());
+            logger.error("Error durante la importación de clientes: {}", e.getMessage());
+            resultado.agregarError("Error general: " + e.getMessage());
         }
+
+        resultado.calcularTotales();
+        logger.info("Importación de clientes completada: {} exitosos, {} errores, {} omitidos",
+                resultado.getRegistrosExitosos(), resultado.getRegistrosConError(), resultado.getRegistrosOmitidos());
 
         return resultado;
     }
 
     @Override
     public ImportacionResultadoDTO importarProductos(MultipartFile archivo) {
+        logger.info("Iniciando importación de productos desde archivo: {}", archivo.getOriginalFilename());
+
         ImportacionResultadoDTO resultado = new ImportacionResultadoDTO();
-        resultado.setTipoImportacion("Productos");
+        resultado.setTipoEntidad("Producto");
         resultado.setNombreArchivo(archivo.getOriginalFilename());
         resultado.setFechaImportacion(LocalDateTime.now());
 
         try {
-            List<Map<String, Object>> datos = procesarArchivoExcel(archivo);
+            List<Map<String, Object>> datos = procesarArchivo(archivo);
 
+            if (datos.isEmpty()) {
+                resultado.agregarError("El archivo está vacío o no contiene datos válidos");
+                return resultado;
+            }
+
+            // Validar columnas requeridas
+            Set<String> columnasArchivo = datos.get(0).keySet();
+            List<String> columnasRequeridas = obtenerColumnasRequeridas("producto");
+
+            for (String columnaRequerida : columnasRequeridas) {
+                if (!columnasArchivo.contains(columnaRequerida)) {
+                    resultado.agregarError("Falta la columna requerida: " + columnaRequerida);
+                }
+            }
+
+            if (resultado.tieneErrores()) {
+                return resultado;
+            }
+
+            // Procesar cada fila
             for (int i = 0; i < datos.size(); i++) {
                 try {
-                    Producto producto = mapearProducto(datos.get(i), i + 2);
-                    productoServicio.guardar(producto);
-                    resultado.incrementarExitosos();
+                    Map<String, Object> fila = datos.get(i);
+                    Producto producto = mapearProducto(fila, i + 2);
 
+                    if (producto != null) {
+                        // Verificar si ya existe
+                        if (productoServicio.existePorCodigo(producto.getCodigo())) {
+                            resultado.agregarAdvertencia("Fila " + (i + 2) + ": Producto con código " + producto.getCodigo() + " ya existe, se omite");
+                            resultado.incrementarOmitidos();
+                        } else {
+                            productoServicio.guardar(producto);
+                            resultado.incrementarExitosos();
+                        }
+                    }
                 } catch (Exception e) {
-                    logger.warn("Error procesando producto en fila {}: {}", i + 2, e.getMessage());
-                    resultado.agregarError(i + 2, e.getMessage());
+                    resultado.agregarError("Fila " + (i + 2) + ": " + e.getMessage());
+                    resultado.incrementarErrores();
                 }
             }
 
         } catch (Exception e) {
-            logger.error("Error general en importación de productos: {}", e.getMessage());
-            resultado.setErrorGeneral(e.getMessage());
+            logger.error("Error durante la importación de productos: {}", e.getMessage());
+            resultado.agregarError("Error general: " + e.getMessage());
         }
+
+        resultado.calcularTotales();
+        logger.info("Importación de productos completada: {} exitosos, {} errores, {} omitidos",
+                resultado.getRegistrosExitosos(), resultado.getRegistrosConError(), resultado.getRegistrosOmitidos());
 
         return resultado;
     }
 
     @Override
     public ImportacionResultadoDTO importarUsuarios(MultipartFile archivo) {
+        logger.info("Iniciando importación de usuarios desde archivo: {}", archivo.getOriginalFilename());
+
         ImportacionResultadoDTO resultado = new ImportacionResultadoDTO();
-        resultado.setTipoImportacion("Usuarios");
+        resultado.setTipoEntidad("Usuario");
         resultado.setNombreArchivo(archivo.getOriginalFilename());
         resultado.setFechaImportacion(LocalDateTime.now());
 
         try {
-            List<Map<String, Object>> datos = procesarArchivoExcel(archivo);
+            List<Map<String, Object>> datos = procesarArchivo(archivo);
 
+            if (datos.isEmpty()) {
+                resultado.agregarError("El archivo está vacío o no contiene datos válidos");
+                return resultado;
+            }
+
+            // Validar columnas requeridas
+            Set<String> columnasArchivo = datos.get(0).keySet();
+            List<String> columnasRequeridas = obtenerColumnasRequeridas("usuario");
+
+            for (String columnaRequerida : columnasRequeridas) {
+                if (!columnasArchivo.contains(columnaRequerida)) {
+                    resultado.agregarError("Falta la columna requerida: " + columnaRequerida);
+                }
+            }
+
+            if (resultado.tieneErrores()) {
+                return resultado;
+            }
+
+            // Procesar cada fila
             for (int i = 0; i < datos.size(); i++) {
                 try {
-                    Usuario usuario = mapearUsuario(datos.get(i), i + 2);
-                    usuarioServicio.guardar(usuario);
-                    resultado.incrementarExitosos();
+                    Map<String, Object> fila = datos.get(i);
+                    Usuario usuario = mapearUsuario(fila, i + 2);
 
+                    if (usuario != null) {
+                        // Verificar si ya existe
+                        if (usuarioServicio.existePorUsername(usuario.getUsername())) {
+                            resultado.agregarAdvertencia("Fila " + (i + 2) + ": Usuario " + usuario.getUsername() + " ya existe, se omite");
+                            resultado.incrementarOmitidos();
+                        } else {
+                            usuarioServicio.guardar(usuario);
+                            resultado.incrementarExitosos();
+                        }
+                    }
                 } catch (Exception e) {
-                    logger.warn("Error procesando usuario en fila {}: {}", i + 2, e.getMessage());
-                    resultado.agregarError(i + 2, e.getMessage());
+                    resultado.agregarError("Fila " + (i + 2) + ": " + e.getMessage());
+                    resultado.incrementarErrores();
                 }
             }
 
         } catch (Exception e) {
-            logger.error("Error general en importación de usuarios: {}", e.getMessage());
-            resultado.setErrorGeneral(e.getMessage());
+            logger.error("Error durante la importación de usuarios: {}", e.getMessage());
+            resultado.agregarError("Error general: " + e.getMessage());
         }
+
+        resultado.calcularTotales();
+        logger.info("Importación de usuarios completada: {} exitosos, {} errores, {} omitidos",
+                resultado.getRegistrosExitosos(), resultado.getRegistrosConError(), resultado.getRegistrosOmitidos());
 
         return resultado;
     }
 
     @Override
-    public byte[] generarPlantillaClientes() throws IOException {
-        try (XSSFWorkbook workbook = new XSSFWorkbook()) {
-            Sheet sheet = workbook.createSheet("Clientes");
+    public Map<String, Object> validarArchivoImportacion(MultipartFile archivo, String tipoEntidad) {
+        Map<String, Object> resultado = new HashMap<>();
+        List<String> errores = new ArrayList<>();
+        List<String> advertencias = new ArrayList<>();
 
-            // Crear encabezados
-            Row headerRow = sheet.createRow(0);
-            String[] headers = {"nombre", "apellido", "email", "rut", "telefono", "direccion", "categoria"};
-
-            for (int i = 0; i < headers.length; i++) {
-                Cell cell = headerRow.createCell(i);
-                cell.setCellValue(headers[i]);
-
-                // Estilo para encabezados
-                CellStyle headerStyle = workbook.createCellStyle();
-                Font font = workbook.createFont();
-                font.setBold(true);
-                headerStyle.setFont(font);
-                cell.setCellStyle(headerStyle);
+        try {
+            // Validar formato de archivo
+            String nombreArchivo = archivo.getOriginalFilename();
+            if (nombreArchivo == null || !esFormatoValido(nombreArchivo)) {
+                errores.add("Formato de archivo no soportado. Use: " + String.join(", ", FORMATOS_SOPORTADOS));
+                resultado.put("valido", false);
+                resultado.put("errores", errores);
+                return resultado;
             }
 
-            // Ejemplo de datos
-            Row exampleRow = sheet.createRow(1);
-            exampleRow.createCell(0).setCellValue("Juan");
-            exampleRow.createCell(1).setCellValue("Pérez");
-            exampleRow.createCell(2).setCellValue("juan.perez@email.com");
-            exampleRow.createCell(3).setCellValue("12.345.678-9");
-            exampleRow.createCell(4).setCellValue("+56912345678");
-            exampleRow.createCell(5).setCellValue("Av. Principal 123");
-            exampleRow.createCell(6).setCellValue("VIP");
-
-            // Ajustar ancho de columnas
-            for (int i = 0; i < headers.length; i++) {
-                sheet.autoSizeColumn(i);
+            // Validar tamaño del archivo (máximo 10MB)
+            if (archivo.getSize() > 10 * 1024 * 1024) {
+                errores.add("El archivo es demasiado grande. Tamaño máximo: 10MB");
             }
 
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            workbook.write(outputStream);
-            return outputStream.toByteArray();
+            // Validar contenido del archivo
+            List<Map<String, Object>> datos = procesarArchivo(archivo);
+
+            if (datos.isEmpty()) {
+                errores.add("El archivo está vacío o no contiene datos válidos");
+            } else {
+                // Validar columnas requeridas
+                Set<String> columnasArchivo = datos.get(0).keySet();
+                List<String> columnasRequeridas = obtenerColumnasRequeridas(tipoEntidad);
+
+                List<String> columnasFaltantes = new ArrayList<>();
+                for (String columnaRequerida : columnasRequeridas) {
+                    if (!columnasArchivo.contains(columnaRequerida)) {
+                        columnasFaltantes.add(columnaRequerida);
+                    }
+                }
+
+                if (!columnasFaltantes.isEmpty()) {
+                    errores.add("Faltan columnas requeridas: " + String.join(", ", columnasFaltantes));
+                }
+
+                // Información adicional
+                resultado.put("totalFilas", datos.size());
+                resultado.put("columnasEncontradas", new ArrayList<>(columnasArchivo));
+                resultado.put("columnasRequeridas", columnasRequeridas);
+            }
+
+        } catch (Exception e) {
+            logger.error("Error validando archivo: {}", e.getMessage());
+            errores.add("Error procesando archivo: " + e.getMessage());
+        }
+
+        resultado.put("valido", errores.isEmpty());
+        resultado.put("errores", errores);
+        resultado.put("advertencias", advertencias);
+        resultado.put("nombreArchivo", archivo.getOriginalFilename());
+        resultado.put("tamahoArchivo", archivo.getSize());
+
+        return resultado;
+    }
+
+    @Override
+    public byte[] generarPlantillaImportacion(String tipoEntidad, String formato) {
+        try {
+            if ("CSV".equalsIgnoreCase(formato)) {
+                return generarPlantillaCSV(tipoEntidad);
+            } else if ("EXCEL".equalsIgnoreCase(formato)) {
+                return generarPlantillaExcel(tipoEntidad);
+            } else {
+                throw new IllegalArgumentException("Formato no soportado: " + formato);
+            }
+        } catch (Exception e) {
+            logger.error("Error generando plantilla {}: {}", tipoEntidad, e.getMessage());
+            throw new RuntimeException("Error generando plantilla: " + e.getMessage());
         }
     }
 
     @Override
-    public byte[] generarPlantillaProductos() throws IOException {
-        try (XSSFWorkbook workbook = new XSSFWorkbook()) {
-            Sheet sheet = workbook.createSheet("Productos");
+    public List<Map<String, Object>> obtenerVistaPreviaArchivo(MultipartFile archivo, int limite) {
+        try {
+            List<Map<String, Object>> datos = procesarArchivo(archivo);
 
-            // Crear encabezados
-            Row headerRow = sheet.createRow(0);
-            String[] headers = {"codigo", "nombre", "descripcion", "precio", "stock", "categoria", "proveedor"};
-
-            for (int i = 0; i < headers.length; i++) {
-                Cell cell = headerRow.createCell(i);
-                cell.setCellValue(headers[i]);
-
-                // Estilo para encabezados
-                CellStyle headerStyle = workbook.createCellStyle();
-                Font font = workbook.createFont();
-                font.setBold(true);
-                headerStyle.setFont(font);
-                cell.setCellStyle(headerStyle);
+            if (datos.size() <= limite) {
+                return datos;
+            } else {
+                return datos.subList(0, limite);
             }
-
-            // Ejemplo de datos
-            Row exampleRow = sheet.createRow(1);
-            exampleRow.createCell(0).setCellValue("PROD001");
-            exampleRow.createCell(1).setCellValue("Producto Ejemplo");
-            exampleRow.createCell(2).setCellValue("Descripción del producto");
-            exampleRow.createCell(3).setCellValue(19990);
-            exampleRow.createCell(4).setCellValue(50);
-            exampleRow.createCell(5).setCellValue("Electrónicos");
-            exampleRow.createCell(6).setCellValue("Proveedor ABC");
-
-            // Ajustar ancho de columnas
-            for (int i = 0; i < headers.length; i++) {
-                sheet.autoSizeColumn(i);
-            }
-
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            workbook.write(outputStream);
-            return outputStream.toByteArray();
+        } catch (Exception e) {
+            logger.error("Error obteniendo vista previa: {}", e.getMessage());
+            throw new RuntimeException("Error procesando archivo: " + e.getMessage());
         }
     }
 
-    // Métodos privados de utilidad
+    @Override
+    public List<String> obtenerFormatosSoportados() {
+        return new ArrayList<>(FORMATOS_SOPORTADOS);
+    }
 
-    private List<Map<String, Object>> procesarArchivoExcel(MultipartFile archivo) throws IOException {
+    @Override
+    public List<String> obtenerColumnasRequeridas(String tipoEntidad) {
+        switch (tipoEntidad.toLowerCase()) {
+            case "cliente":
+                return Arrays.asList("nombre", "apellido", "email", "rut", "telefono", "direccion", "categoria");
+            case "producto":
+                return Arrays.asList("codigo", "nombre", "descripcion", "precio", "stock", "marca", "modelo");
+            case "usuario":
+                return Arrays.asList("username", "password", "nombre", "apellido", "email", "roles", "activo");
+            default:
+                return new ArrayList<>();
+        }
+    }
+
+    // Métodos auxiliares privados
+
+    private List<Map<String, Object>> procesarArchivo(MultipartFile archivo) throws IOException {
+        String nombreArchivo = archivo.getOriginalFilename();
+        if (nombreArchivo == null) {
+            throw new IllegalArgumentException("Nombre de archivo no válido");
+        }
+
+        if (nombreArchivo.toLowerCase().endsWith(".csv")) {
+            return procesarCSV(archivo);
+        } else if (nombreArchivo.toLowerCase().endsWith(".xlsx") || nombreArchivo.toLowerCase().endsWith(".xls")) {
+            return procesarExcel(archivo);
+        } else {
+            throw new IllegalArgumentException("Formato de archivo no soportado");
+        }
+    }
+
+    private List<Map<String, Object>> procesarCSV(MultipartFile archivo) throws IOException {
+        List<Map<String, Object>> datos = new ArrayList<>();
+
+        try (Scanner scanner = new Scanner(new InputStreamReader(archivo.getInputStream(), "UTF-8"))) {
+            if (!scanner.hasNextLine()) {
+                return datos;
+            }
+
+            // Leer header
+            String headerLine = scanner.nextLine();
+            String[] headers = headerLine.split(",");
+
+            // Limpiar headers
+            for (int i = 0; i < headers.length; i++) {
+                headers[i] = headers[i].trim().toLowerCase().replace("\"", "");
+            }
+
+            // Leer datos
+            while (scanner.hasNextLine()) {
+                String dataLine = scanner.nextLine();
+                if (dataLine.trim().isEmpty()) continue;
+
+                String[] valores = dataLine.split(",");
+                Map<String, Object> fila = new HashMap<>();
+
+                for (int i = 0; i < headers.length && i < valores.length; i++) {
+                    String valor = valores[i].trim().replace("\"", "");
+                    fila.put(headers[i], valor);
+                }
+                datos.add(fila);
+            }
+        }
+
+        return datos;
+    }
+
+    private List<Map<String, Object>> procesarExcel(MultipartFile archivo) throws IOException {
         List<Map<String, Object>> datos = new ArrayList<>();
 
         try (Workbook workbook = new XSSFWorkbook(archivo.getInputStream())) {
@@ -238,7 +423,7 @@ public class ImportacionServicioImpl implements ImportacionServicio {
             // Obtener encabezados de la primera fila
             Row headerRow = sheet.getRow(0);
             if (headerRow == null) {
-                throw new ImportacionException("El archivo no contiene encabezados");
+                throw new IllegalArgumentException("El archivo no contiene encabezados");
             }
 
             List<String> headers = new ArrayList<>();
@@ -315,11 +500,11 @@ public class ImportacionServicioImpl implements ImportacionServicio {
             cliente.setTelefono(obtenerValorString(fila, "telefono"));
             cliente.setDireccion(obtenerValorString(fila, "direccion"));
             cliente.setCategoria(obtenerValorString(fila, "categoria"));
-            cliente.setFechaRegistro(LocalDate.now());
+            cliente.setFechaRegistro(LocalDateTime.now());
 
             return cliente;
         } catch (Exception e) {
-            throw new ImportacionException("Error mapeando cliente en fila " + numeroFila + ": " + e.getMessage());
+            throw new RuntimeException("Error mapeando cliente en fila " + numeroFila + ": " + e.getMessage());
         }
     }
 
@@ -359,14 +544,14 @@ public class ImportacionServicioImpl implements ImportacionServicio {
             producto.setCodigo(codigo.toUpperCase());
             producto.setNombre(nombre);
             producto.setDescripcion(obtenerValorString(fila, "descripcion"));
-            producto.setCategoria(obtenerValorString(fila, "categoria"));
-            producto.setProveedor(obtenerValorString(fila, "proveedor"));
+            producto.setMarca(obtenerValorString(fila, "marca"));
+            producto.setModelo(obtenerValorString(fila, "modelo"));
             producto.setFechaCreacion(LocalDateTime.now());
             producto.setActivo(true);
 
             return producto;
         } catch (Exception e) {
-            throw new ImportacionException("Error mapeando producto en fila " + numeroFila + ": " + e.getMessage());
+            throw new RuntimeException("Error mapeando producto en fila " + numeroFila + ": " + e.getMessage());
         }
     }
 
@@ -376,6 +561,7 @@ public class ImportacionServicioImpl implements ImportacionServicio {
 
             String username = obtenerValorString(fila, "username");
             String nombre = obtenerValorString(fila, "nombre");
+            String apellido = obtenerValorString(fila, "apellido");
             String email = obtenerValorString(fila, "email");
             String password = obtenerValorString(fila, "password");
 
@@ -383,33 +569,82 @@ public class ImportacionServicioImpl implements ImportacionServicio {
                 throw new IllegalArgumentException("Campos obligatorios faltantes (username, nombre, email, password)");
             }
 
-            // Validar que el username no exista
-            if (usuarioServicio.existePorUsername(username)) {
-                throw new IllegalArgumentException("El username ya existe: " + username);
-            }
-
-            // Validar que el email no exista
-            if (usuarioServicio.existePorEmail(email)) {
-                throw new IllegalArgumentException("El email ya existe: " + email);
-            }
-
             usuario.setUsername(username);
             usuario.setNombre(nombre);
+            usuario.setApellido(apellido);
             usuario.setEmail(email);
             usuario.setPassword(passwordEncoder.encode(password));
             usuario.setActivo(true);
             usuario.setFechaCreacion(LocalDateTime.now());
 
             // Rol por defecto
-            String rol = obtenerValorString(fila, "rol");
-            if (rol.isEmpty()) {
-                rol = "USER";
+            String roles = obtenerValorString(fila, "roles");
+            if (roles.isEmpty()) {
+                roles = "USER";
             }
-            usuario.setRol(rol.toUpperCase());
+            usuario.setRoles(Collections.singleton(roles.toUpperCase()));
 
             return usuario;
         } catch (Exception e) {
-            throw new ImportacionException("Error mapeando usuario en fila " + numeroFila + ": " + e.getMessage());
+            throw new RuntimeException("Error mapeando usuario en fila " + numeroFila + ": " + e.getMessage());
+        }
+    }
+
+    private boolean esFormatoValido(String nombreArchivo) {
+        String extension = nombreArchivo.substring(nombreArchivo.lastIndexOf(".") + 1).toLowerCase();
+        return FORMATOS_SOPORTADOS.contains(extension);
+    }
+
+    private byte[] generarPlantillaCSV(String tipoEntidad) throws IOException {
+        List<String> columnas = obtenerColumnasRequeridas(tipoEntidad);
+        StringBuilder csv = new StringBuilder();
+
+        // Header
+        csv.append(String.join(",", columnas)).append("\n");
+
+        // Ejemplo de fila
+        for (int i = 0; i < columnas.size(); i++) {
+            if (i > 0) csv.append(",");
+            csv.append("ejemplo_").append(columnas.get(i));
+        }
+
+        return csv.toString().getBytes("UTF-8");
+    }
+
+    private byte[] generarPlantillaExcel(String tipoEntidad) throws IOException {
+        List<String> columnas = obtenerColumnasRequeridas(tipoEntidad);
+
+        try (XSSFWorkbook workbook = new XSSFWorkbook()) {
+            Sheet sheet = workbook.createSheet(tipoEntidad.substring(0, 1).toUpperCase() + tipoEntidad.substring(1));
+
+            // Crear encabezados
+            Row headerRow = sheet.createRow(0);
+            for (int i = 0; i < columnas.size(); i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(columnas.get(i));
+
+                // Estilo para encabezados
+                CellStyle headerStyle = workbook.createCellStyle();
+                Font font = workbook.createFont();
+                font.setBold(true);
+                headerStyle.setFont(font);
+                cell.setCellStyle(headerStyle);
+            }
+
+            // Fila de ejemplo
+            Row exampleRow = sheet.createRow(1);
+            for (int i = 0; i < columnas.size(); i++) {
+                exampleRow.createCell(i).setCellValue("ejemplo_" + columnas.get(i));
+            }
+
+            // Ajustar ancho de columnas
+            for (int i = 0; i < columnas.size(); i++) {
+                sheet.autoSizeColumn(i);
+            }
+
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            workbook.write(outputStream);
+            return outputStream.toByteArray();
         }
     }
 }

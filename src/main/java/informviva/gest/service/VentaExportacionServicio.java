@@ -43,9 +43,9 @@ public interface VentaExportacionServicio {
      */
     byte[] exportarResumenVentasPorPeriodo(LocalDateTime fechaInicio, LocalDateTime fechaFin);
 
-    // ✅ Métodos comentados hasta verificar que existen en VentaServicio
-    /*
-    byte[] exportarVentasPorVendedor(Long vendedorId, LocalDateTime fechaInicio, LocalDateTime fechaFin);
-    byte[] exportarVentasPorCliente(Long clienteId);
-    */
+//    // ✅ Métodos comentados hasta verificar que existen en VentaServicio
+//    /*
+//    byte[] exportarVentasPorVendedor(Long vendedorId, LocalDateTime fechaInicio, LocalDateTime fechaFin);
+//    byte[] exportarVentasPorCliente(Long clienteId);
+//    */
 }

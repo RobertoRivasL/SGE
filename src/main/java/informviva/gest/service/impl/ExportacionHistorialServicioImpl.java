@@ -11,11 +11,11 @@ import informviva.gest.service.VentaServicio;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -322,5 +322,66 @@ public class ExportacionHistorialServicioImpl implements ExportacionHistorialSer
         // En un entorno real, esto vendría del HttpServletRequest
         // Por ahora retornamos un valor por defecto
         return "127.0.0.1";
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ExportacionHistorial> obtenerHistorialPaginado(Pageable pageable) {
+        try {
+            return exportacionHistorialRepositorio.findAllByOrderByFechaSolicitudDesc(pageable);
+        } catch (Exception e) {
+            logger.error("Error al obtener historial paginado: {}", e.getMessage());
+            return Page.empty();
+        }
+    }
+
+    /**
+     * Registra una exportación exitosa
+     */
+    public ExportacionHistorial registrarExportacionExitosa(String tipoExportacion, String formato,
+                                                            String usuarioSolicitante, Integer registros, Long tamanoArchivo) {
+        try {
+            ExportacionHistorial historial = new ExportacionHistorial();
+            historial.setTipoExportacion(tipoExportacion.toUpperCase());
+            historial.setFormato(formato.toUpperCase());
+            historial.setUsuarioSolicitante(usuarioSolicitante);
+            historial.setEstado("COMPLETADO");
+            historial.setNumeroRegistros(registros);
+            historial.setTamanoArchivo(tamanoArchivo);
+            historial.setFechaSolicitud(LocalDateTime.now());
+
+            ExportacionHistorial guardado = exportacionHistorialRepositorio.save(historial);
+            logger.info("Exportación exitosa registrada: {} {} por usuario {}", formato, tipoExportacion, usuarioSolicitante);
+
+            return guardado;
+        } catch (Exception e) {
+            logger.error("Error al registrar exportación exitosa: {}", e.getMessage());
+            throw new RuntimeException("Error al registrar exportación exitosa", e);
+        }
+    }
+
+    /**
+     * Registra una exportación fallida
+     */
+    public ExportacionHistorial registrarExportacionFallida(String tipoExportacion, String formato,
+                                                            String usuarioSolicitante, String mensajeError) {
+        try {
+            ExportacionHistorial historial = new ExportacionHistorial();
+            historial.setTipoExportacion(tipoExportacion.toUpperCase());
+            historial.setFormato(formato.toUpperCase());
+            historial.setUsuarioSolicitante(usuarioSolicitante);
+            historial.setEstado("FALLIDO");
+            historial.setMensajeError(mensajeError);
+            historial.setFechaSolicitud(LocalDateTime.now());
+
+            ExportacionHistorial guardado = exportacionHistorialRepositorio.save(historial);
+            logger.error("Exportación fallida registrada: {} {} por usuario {} - Error: {}",
+                    formato, tipoExportacion, usuarioSolicitante, mensajeError);
+
+            return guardado;
+        } catch (Exception e) {
+            logger.error("Error al registrar exportación fallida: {}", e.getMessage());
+            throw new RuntimeException("Error al registrar exportación fallida", e);
+        }
     }
 }

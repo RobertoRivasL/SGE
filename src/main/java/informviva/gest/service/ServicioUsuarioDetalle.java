@@ -16,6 +16,9 @@ import java.util.stream.Collectors;
 
 /**
  * Servicio para cargar detalles de usuario para Spring Security
+ *
+ * @author Roberto Rivas
+ * @version 1.1 - CORREGIDO
  */
 @Service
 public class ServicioUsuarioDetalle implements UserDetailsService {
@@ -70,6 +73,7 @@ public class ServicioUsuarioDetalle implements UserDetailsService {
     @Transactional
     public void actualizarUltimoAcceso(Long userId) {
         repositorioUsuario.findById(userId).ifPresent(usuario -> {
+            // CORREGIDO: Usar LocalDateTime.now() en lugar de LocalDate.now().atStartOfDay()
             usuario.setUltimoAcceso(LocalDateTime.now());
             repositorioUsuario.save(usuario);
         });

@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 import com.lowagie.text.Font;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -50,6 +49,13 @@ public class ExportacionServicioImpl implements ExportacionServicio {
 
     private static final Logger logger = LoggerFactory.getLogger(ExportacionServicioImpl.class);
 
+    private final ClienteServicio clienteServicio;
+    private final ProductoServicio productoServicio;
+    private final VentaServicio ventaServicio;
+    private final UsuarioServicio usuarioServicio;
+    private final ReporteServicio reporteServicio;
+    private final ExportacionHistorialServicio historialServicio;
+
     // Formatos soportados
     public static final String FORMATO_PDF = "PDF";
     public static final String FORMATO_EXCEL = "EXCEL";
@@ -72,24 +78,21 @@ public class ExportacionServicioImpl implements ExportacionServicio {
     private static final DateTimeFormatter FECHA_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     private static final DateTimeFormatter ARCHIVO_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd_HHmm");
 
-    @Autowired
-    private ClienteServicio clienteServicio;
-
-    @Autowired
-    @Qualifier("productoServicioImpl")
-    private ProductoServicio productoServicio;
-
-    @Autowired
-    private VentaServicio ventaServicio;
-
-    @Autowired
-    private UsuarioServicio usuarioServicio;
-
-    @Autowired
-    private ReporteServicio reporteServicio;
-
-    @Autowired
-    private ExportacionHistorialServicio historialServicio;
+    public ExportacionServicioImpl(
+            ClienteServicio clienteServicio,
+            @Qualifier("productoServicioImpl") ProductoServicio productoServicio,
+            VentaServicio ventaServicio,
+            UsuarioServicio usuarioServicio,
+            ReporteServicio reporteServicio,
+            ExportacionHistorialServicio historialServicio
+    ) {
+        this.clienteServicio = clienteServicio;
+        this.productoServicio = productoServicio;
+        this.ventaServicio = ventaServicio;
+        this.usuarioServicio = usuarioServicio;
+        this.reporteServicio = reporteServicio;
+        this.historialServicio = historialServicio;
+    }
 
     // ==================== MÉTODOS PRINCIPALES DE LA INTERFAZ ====================
 
@@ -429,12 +432,12 @@ public class ExportacionServicioImpl implements ExportacionServicio {
 
         String estado = (String) filtros.get("estado");
         if (estado != null && !estado.isEmpty()) {
-            return estado.equalsIgnoreCase(venta.getEstado());
+            return venta.getEstado() != null && estado.equalsIgnoreCase(venta.getEstado().name());
         }
 
         String metodo = (String) filtros.get("metodo");
         if (metodo != null && !metodo.isEmpty()) {
-            return metodo.equalsIgnoreCase(venta.getMetodoPago());
+            return venta.getMetodoPago() != null && metodo.equalsIgnoreCase(venta.getMetodoPago().name());
         }
 
         return true;
@@ -508,10 +511,9 @@ public class ExportacionServicioImpl implements ExportacionServicio {
         dto.setSubtotal(venta.getSubtotal());
         dto.setImpuesto(venta.getImpuesto());
         dto.setTotal(venta.getTotal());
-        dto.setMetodoPago(venta.getMetodoPago());
-        dto.setEstado(venta.getEstado());
+        dto.setMetodoPago(venta.getMetodoPago() != null ? venta.getMetodoPago().name() : "");
+        dto.setEstado(venta.getEstado() != null ? venta.getEstado().name() : "");
         dto.setObservaciones(venta.getObservaciones());
-
         return dto;
     }
 
