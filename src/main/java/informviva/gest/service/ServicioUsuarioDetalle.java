@@ -73,7 +73,6 @@ public class ServicioUsuarioDetalle implements UserDetailsService {
     @Transactional
     public void actualizarUltimoAcceso(Long userId) {
         repositorioUsuario.findById(userId).ifPresent(usuario -> {
-            // CORREGIDO: Usar LocalDateTime.now() en lugar de LocalDate.now().atStartOfDay()
             usuario.setUltimoAcceso(LocalDateTime.now());
             repositorioUsuario.save(usuario);
         });

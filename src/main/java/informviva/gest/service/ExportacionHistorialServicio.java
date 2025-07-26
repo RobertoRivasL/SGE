@@ -7,12 +7,13 @@ import org.springframework.data.domain.Pageable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Servicio para la gestión del historial de exportaciones
  *
  * @author Roberto Rivas
- * @version 2.0
+ * @version 2.1 - ACTUALIZADO CON MÉTODOS FALTANTES
  */
 public interface ExportacionHistorialServicio {
 
@@ -98,7 +99,7 @@ public interface ExportacionHistorialServicio {
      *
      * @return Mapa con estadísticas
      */
-    java.util.Map<String, Object> obtenerEstadisticasExportacion();
+    Map<String, Object> obtenerEstadisticasExportacion();
 
     /**
      * Limpia el historial de exportaciones anterior a una fecha
@@ -121,5 +122,39 @@ public interface ExportacionHistorialServicio {
      */
     ExportacionHistorial buscarPorId(Long id);
 
+    // =============== MÉTODOS FALTANTES AGREGADOS ===============
+
+    /**
+     * Obtiene el historial paginado para administración
+     *
+     * @param pageable Configuración de paginación
+     * @return Página de exportaciones
+     */
     Page<ExportacionHistorial> obtenerHistorialPaginado(Pageable pageable);
+
+    /**
+     * Registra una exportación exitosa directamente
+     *
+     * @param tipoExportacion Tipo de exportación
+     * @param formato Formato del archivo
+     * @param usuarioSolicitante Usuario que realizó la exportación
+     * @param registros Número de registros exportados
+     * @param tamanoArchivo Tamaño del archivo en bytes
+     * @return Historial de exportación registrado
+     */
+    ExportacionHistorial registrarExportacionExitosa(String tipoExportacion, String formato,
+                                                     String usuarioSolicitante, Integer registros,
+                                                     Long tamanoArchivo);
+
+    /**
+     * Registra una exportación fallida directamente
+     *
+     * @param tipoExportacion Tipo de exportación
+     * @param formato Formato del archivo
+     * @param usuarioSolicitante Usuario que realizó la exportación
+     * @param mensajeError Mensaje de error
+     * @return Historial de exportación registrado
+     */
+    ExportacionHistorial registrarExportacionFallida(String tipoExportacion, String formato,
+                                                     String usuarioSolicitante, String mensajeError);
 }

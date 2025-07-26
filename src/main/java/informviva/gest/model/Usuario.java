@@ -47,6 +47,7 @@ public class Usuario {
     private LocalDateTime fechaCreacion;
     private LocalDateTime ultimoAcceso;
 
+
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "usuario_roles", joinColumns = @JoinColumn(name = "usuario_id"))
     @Column(name = "rol")

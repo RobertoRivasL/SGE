@@ -1,0 +1,108 @@
+uman_@LAPTOP-B78MGBJP MINGW64 /d/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02 (main)
+$ mvn clean compile
+MINGW support requires --add-opens java.base/java.lang=ALL-UNNAMED
+MINGW support requires --add-opens java.base/java.lang=ALL-UNNAMED
+[INFO] Scanning for projects...
+[INFO]
+[INFO] ---------------------< informviva:informviva-gest >---------------------
+[INFO] Building InformViva Gesti▒n 1.0.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO]
+[INFO] --- clean:3.2.0:clean (default-clean) @ informviva-gest ---
+[INFO] Deleting D:\Doc_HP_RRL\RRL\Sence\Iseg Spa\Dashboard de Ventas\02\target
+[INFO]
+[INFO] --- jacoco:0.8.10:prepare-agent (default) @ informviva-gest ---
+[INFO] argLine set to "-javaagent:C:\\Users\\uman_\\.m2\\repository\\org\\jacoco\\org.jacoco.agent\\0.8.10\\org.jacoco.agent-0.8.10-runtime.jar=destfile=D:\\Doc_HP_RRL\\RRL\\Sence\\Iseg Spa\\Dashboard de Ventas\\02\\target\\jacoco.exec"
+[INFO]
+[INFO] --- resources:3.3.1:resources (default-resources) @ informviva-gest ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 107 resources from src\main\resources to target\classes
+[INFO]
+[INFO] --- compiler:3.11.0:compile (default-compile) @ informviva-gest ---
+[INFO] Changes detected - recompiling the module! :source
+[INFO] Compiling 223 source files with javac [debug release 17] to target\classes
+[INFO] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/dto/VentaResumenDTO.java: Some input files use or override a deprecated API.
+[INFO] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/dto/VentaResumenDTO.java: Recompile with -Xlint:deprecation for details.
+[INFO] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/AsyncExportController.java: D:\Doc_HP_RRL\RRL\Sence\Iseg Spa\Dashboard de Ventas\02\src\main\java\informviva\gest\controlador\AsyncExportController.java uses unchecked or unsafe operations.
+[INFO] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/controlador/AsyncExportController.java: Recompile with -Xlint:unchecked for details.
+[INFO] Some messages have been simplified; recompile with -Xdiags:verbose to get full output
+[INFO] -------------------------------------------------------------
+[ERROR] COMPILATION ERROR :
+[INFO] -------------------------------------------------------------
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/VentaExportacionServicioImpl.java:[81,86] incompatible types: bad type in conditional expression
+    informviva.gest.model.Venta.MetodoPago cannot be converted to java.lang.String
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/VentaExportacionServicioImpl.java:[117,86] incompatible types: bad type in conditional expression
+    informviva.gest.model.Venta.MetodoPago cannot be converted to java.lang.String
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/VentaExportacionServicioImpl.java:[244,30] no suitable method found for setCellValue(venta.getM[...] : "")
+    method org.apache.poi.ss.usermodel.Cell.setCellValue(double) is not applicable
+      (argument mismatch; bad type in conditional expression
+          informviva.gest.model.Venta.MetodoPago cannot be converted to double)
+    method org.apache.poi.ss.usermodel.Cell.setCellValue(java.util.Date) is not applicable
+      (argument mismatch; bad type in conditional expression
+          informviva.gest.model.Venta.MetodoPago cannot be converted to java.util.Date)
+    method org.apache.poi.ss.usermodel.Cell.setCellValue(java.time.LocalDateTime) is not applicable
+      (argument mismatch; bad type in conditional expression
+          informviva.gest.model.Venta.MetodoPago cannot be converted to java.time.LocalDateTime)
+    method org.apache.poi.ss.usermodel.Cell.setCellValue(java.time.LocalDate) is not applicable
+      (argument mismatch; bad type in conditional expression
+          informviva.gest.model.Venta.MetodoPago cannot be converted to java.time.LocalDate)
+    method org.apache.poi.ss.usermodel.Cell.setCellValue(java.util.Calendar) is not applicable
+      (argument mismatch; bad type in conditional expression
+          informviva.gest.model.Venta.MetodoPago cannot be converted to java.util.Calendar)
+    method org.apache.poi.ss.usermodel.Cell.setCellValue(org.apache.poi.ss.usermodel.RichTextString) is not applicable
+      (argument mismatch; bad type in conditional expression
+          informviva.gest.model.Venta.MetodoPago cannot be converted to org.apache.poi.ss.usermodel.RichTextString)
+    method org.apache.poi.ss.usermodel.Cell.setCellValue(java.lang.String) is not applicable
+      (argument mismatch; bad type in conditional expression
+          informviva.gest.model.Venta.MetodoPago cannot be converted to java.lang.String)
+    method org.apache.poi.ss.usermodel.Cell.setCellValue(boolean) is not applicable
+      (argument mismatch; bad type in conditional expression
+          informviva.gest.model.Venta.MetodoPago cannot be converted to boolean)
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/seguridad/ServicioUsuarioDetalle.java:[75,50] incompatible types: java.time.LocalDate cannot be converted to java.time.LocalDateTime
+[INFO] 4 errors
+[INFO] -------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  27.466 s
+[INFO] Finished at: 2025-06-25T23:27:37-04:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.11.0:compile (default-compile) on project informviva-gest: Compilation failure: Compilation failure:
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/VentaExportacionServicioImpl.java:[81,86] incompatible types: bad type in conditional expression
+[ERROR]     informviva.gest.model.Venta.MetodoPago cannot be converted to java.lang.String
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/VentaExportacionServicioImpl.java:[117,86] incompatible types: bad type in conditional expression
+[ERROR]     informviva.gest.model.Venta.MetodoPago cannot be converted to java.lang.String
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/service/impl/VentaExportacionServicioImpl.java:[244,30] no suitable method found for setCellValue(venta.getM[...] : "")
+[ERROR]     method org.apache.poi.ss.usermodel.Cell.setCellValue(double) is not applicable
+[ERROR]       (argument mismatch; bad type in conditional expression
+[ERROR]           informviva.gest.model.Venta.MetodoPago cannot be converted to double)
+[ERROR]     method org.apache.poi.ss.usermodel.Cell.setCellValue(java.util.Date) is not applicable
+[ERROR]       (argument mismatch; bad type in conditional expression
+[ERROR]           informviva.gest.model.Venta.MetodoPago cannot be converted to java.util.Date)
+[ERROR]     method org.apache.poi.ss.usermodel.Cell.setCellValue(java.time.LocalDateTime) is not applicable
+[ERROR]       (argument mismatch; bad type in conditional expression
+[ERROR]           informviva.gest.model.Venta.MetodoPago cannot be converted to java.time.LocalDateTime)
+[ERROR]     method org.apache.poi.ss.usermodel.Cell.setCellValue(java.time.LocalDate) is not applicable
+[ERROR]       (argument mismatch; bad type in conditional expression
+[ERROR]           informviva.gest.model.Venta.MetodoPago cannot be converted to java.time.LocalDate)
+[ERROR]     method org.apache.poi.ss.usermodel.Cell.setCellValue(java.util.Calendar) is not applicable
+[ERROR]       (argument mismatch; bad type in conditional expression
+[ERROR]           informviva.gest.model.Venta.MetodoPago cannot be converted to java.util.Calendar)
+[ERROR]     method org.apache.poi.ss.usermodel.Cell.setCellValue(org.apache.poi.ss.usermodel.RichTextString) is not applicable
+[ERROR]       (argument mismatch; bad type in conditional expression
+[ERROR]           informviva.gest.model.Venta.MetodoPago cannot be converted to org.apache.poi.ss.usermodel.RichTextString)
+[ERROR]     method org.apache.poi.ss.usermodel.Cell.setCellValue(java.lang.String) is not applicable
+[ERROR]       (argument mismatch; bad type in conditional expression
+[ERROR]           informviva.gest.model.Venta.MetodoPago cannot be converted to java.lang.String)
+[ERROR]     method org.apache.poi.ss.usermodel.Cell.setCellValue(boolean) is not applicable
+[ERROR]       (argument mismatch; bad type in conditional expression
+[ERROR]           informviva.gest.model.Venta.MetodoPago cannot be converted to boolean)
+[ERROR] /D:/Doc_HP_RRL/RRL/Sence/Iseg Spa/Dashboard de Ventas/02/src/main/java/informviva/gest/seguridad/ServicioUsuarioDetalle.java:[75,50] incompatible types: java.time.LocalDate cannot be converted to java.time.LocalDateTime
+[ERROR] -> [Help 1]
+[ERROR]
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR]
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

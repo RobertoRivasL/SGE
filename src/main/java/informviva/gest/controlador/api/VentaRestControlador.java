@@ -160,10 +160,19 @@ public class VentaRestControlador {
                     ventaMap.put("fecha", venta.getFecha() != null ? venta.getFechaAsLocalDate().toString() : "");
                     ventaMap.put("cliente", venta.getCliente() != null ? venta.getCliente().getNombreCompleto() : "");
                     ventaMap.put("vendedor", venta.getVendedor() != null ? venta.getVendedor().getNombreCompleto() : "");
-                    ventaMap.put("producto", venta.getProducto() != null ? venta.getProducto().getNombre() : "Sin producto");
-                    ventaMap.put("cantidad", venta.getCantidad() != null ? venta.getCantidad() : 1);
-                    ventaMap.put("precioUnitario", venta.getTotal() != null && venta.getCantidad() != null && venta.getCantidad() > 0
-                            ? venta.getTotal() / venta.getCantidad() : 0.0);
+
+                    // Obtener el primer detalle si existe
+                    if (venta.getDetalles() != null && !venta.getDetalles().isEmpty()) {
+                        var detalle = venta.getDetalles().get(0);
+                        ventaMap.put("producto", detalle.getProducto() != null ? detalle.getProducto().getNombre() : "Sin producto");
+                        ventaMap.put("cantidad", detalle.getCantidad());
+                        ventaMap.put("precioUnitario", detalle.getPrecioUnitario());
+                    } else {
+                        ventaMap.put("producto", "Sin producto");
+                        ventaMap.put("cantidad", 0);
+                        ventaMap.put("precioUnitario", 0.0);
+                    }
+
                     ventaMap.put("total", venta.getTotal());
                     ventaMap.put("estado", venta.getEstado());
                     return ventaMap;

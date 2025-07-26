@@ -382,7 +382,7 @@ public class ReporteExportacionControlador {
                 row.createCell(2).setCellValue(venta.getCliente().getNombreCompleto());
                 row.createCell(3).setCellValue(venta.getVendedor().getNombreCompleto());
                 row.createCell(4).setCellValue(venta.getTotal());
-                row.createCell(5).setCellValue(venta.getEstado());
+                row.createCell(5).setCellValue(venta.getEstado() != null ? venta.getEstado().toString() : "COMPLETADA");
             }
 
             // Ajustar ancho de columnas

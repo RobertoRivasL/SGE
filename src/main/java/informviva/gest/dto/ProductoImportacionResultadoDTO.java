@@ -1,6 +1,7 @@
 package informviva.gest.dto;
 
-import informviva.gest.model.Cliente;
+
+import informviva.gest.model.Producto;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -8,21 +9,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * DTO para el resultado de importación de clientes
+ * DTO extendido para importación de productos que incluye la lista de productos exitosos
  *
  * @author Roberto Rivas
  * @version 2.0
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class ResultadoImportacionCliente extends ImportacionResultadoDTO {
+public class ProductoImportacionResultadoDTO extends ImportacionResultadoDTO {
 
-    private List<Cliente> clientesExitosos = new ArrayList<>();
+    private List<Producto> productosExitosos = new ArrayList<>();
 
     /**
      * Constructor que copia los datos del DTO base
      */
-    public ResultadoImportacionCliente(ImportacionResultadoDTO base) {
+    public ProductoImportacionResultadoDTO(ImportacionResultadoDTO base) {
         this.setTipoEntidad(base.getTipoEntidad());
         this.setNombreArchivo(base.getNombreArchivo());
         this.setFechaImportacion(base.getFechaImportacion());
@@ -40,7 +41,7 @@ public class ResultadoImportacionCliente extends ImportacionResultadoDTO {
     /**
      * Constructor vacío
      */
-    public ResultadoImportacionCliente() {
+    public ProductoImportacionResultadoDTO() {
         super();
     }
 
@@ -66,19 +67,12 @@ public class ResultadoImportacionCliente extends ImportacionResultadoDTO {
     }
 
     /**
-     * Agrega un cliente a la lista de exitosos
+     * Agrega un producto a la lista de exitosos
      */
-    public void agregarClienteExitoso(Cliente cliente) {
-        if (this.clientesExitosos == null) {
-            this.clientesExitosos = new ArrayList<>();
+    public void agregarProductoExitoso(Producto producto) {
+        if (this.productosExitosos == null) {
+            this.productosExitosos = new ArrayList<>();
         }
-        this.clientesExitosos.add(cliente);
-    }
-
-    /**
-     * Obtiene la cantidad de clientes exitosos
-     */
-    public int getCantidadClientesExitosos() {
-        return this.clientesExitosos != null ? this.clientesExitosos.size() : 0;
+        this.productosExitosos.add(producto);
     }
 }

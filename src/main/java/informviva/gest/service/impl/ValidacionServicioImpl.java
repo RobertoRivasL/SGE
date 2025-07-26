@@ -323,7 +323,13 @@ public class ValidacionServicioImpl implements ValidacionServicio {
 
                     try {
                         Long prodId = Long.valueOf(productoId.toString());
-                        Integer cant = Integer.valueOf(cantidad.toString());
+                        Integer cant;
+                        if (cantidad instanceof Integer) {
+                            cant = (Integer) cantidad;
+                        } else {
+                            cant = Integer.valueOf(cantidad.toString());
+                        }
+
 
                         if (cant <= 0) {
                             errores.add("La cantidad debe ser mayor que cero en la línea " + (i + 1));

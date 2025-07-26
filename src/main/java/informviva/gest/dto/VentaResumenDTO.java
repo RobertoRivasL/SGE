@@ -133,7 +133,7 @@ public class VentaResumenDTO {
      */
     public BigDecimal calcularTicketPromedio() {
         if (totalTransacciones != null && totalTransacciones > 0 && totalIngresos != null) {
-            return totalIngresos.divide(BigDecimal.valueOf(totalTransacciones), 2, BigDecimal.ROUND_HALF_UP);
+            return totalIngresos.divide(BigDecimal.valueOf(totalTransacciones), 2, java.math.RoundingMode.HALF_UP);
         }
         return BigDecimal.ZERO;
     }

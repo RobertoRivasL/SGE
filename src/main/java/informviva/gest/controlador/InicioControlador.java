@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 
 @Controller
 public class InicioControlador {
@@ -72,10 +73,19 @@ public class InicioControlador {
         return new LocalDate[]{fechaInicio, fechaFin};
     }
 
+
     private void inicializarResumenVentas(VentaResumenDTO resumen) {
-        resumen.setVentasPorVendedor(resumenVentasServicio.inicializarLista(resumen.getVentasPorVendedor()));
-        resumen.setVentasPorPeriodo(resumenVentasServicio.inicializarLista(resumen.getVentasPorPeriodo()));
-        resumen.setVentasPorCategoria(resumenVentasServicio.inicializarMapa(resumen.getVentasPorCategoria()));
-        resumen.setProductosMasVendidos(resumenVentasServicio.inicializarLista(resumen.getProductosMasVendidos()));
+        if (resumen.getVentasPorVendedor() == null) {
+            resumen.setVentasPorVendedor(new ArrayList<>());
+        }
+        if (resumen.getVentasPorPeriodo() == null) {
+            resumen.setVentasPorPeriodo(new ArrayList<>());
+        }
+        if (resumen.getVentasPorCategoria() == null) {
+            resumen.setVentasPorCategoria(new ArrayList<>());
+        }
+        if (resumen.getProductosMasVendidos() == null) {
+            resumen.setProductosMasVendidos(new ArrayList<>());
+        }
     }
 }
