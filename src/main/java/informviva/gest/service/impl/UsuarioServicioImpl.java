@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  * @author Roberto Rivas
  * @version 2.1
  */
-@Service
+@Service("usuarioServicioImpl")  // AGREGAR EL NOMBRE DEL BEAN
 @Transactional
 public class UsuarioServicioImpl implements UsuarioServicio {
 

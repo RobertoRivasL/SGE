@@ -1,8 +1,8 @@
 package informviva.gest.service.validacion;
 
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-@Component
+@Service("importacionValidadorValidacion")
 public class ImportacionValidador {
 
     public boolean validarDatos(Object datos) {

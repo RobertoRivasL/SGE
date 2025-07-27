@@ -387,13 +387,6 @@ public interface ClienteRepositorio extends JpaRepository<Cliente, Long>, JpaSpe
     Page<Cliente> findByNombreContainingIgnoreCaseOrApellidoContainingIgnoreCaseOrEmailContainingIgnoreCaseAndCiudadIgnoreCaseAndActivoTrue(
             String nombre, String apellido, String email, String ciudad, Pageable pageable);
 
-    public boolean existeClienteConEmailExcluyendo(String email, Long id);
-
-    public boolean existeClienteConRutExcluyendo(String rut, Long id);
-
-    public java.util.List<Cliente> buscarPorTermino(String termino);
-
-    public Cliente buscarPorRut(String rut);
 
     List<Cliente> findByNombreContainingIgnoreCaseOrEmailContainingIgnoreCase(String nombre, String email);
 
@@ -414,11 +407,6 @@ public interface ClienteRepositorio extends JpaRepository<Cliente, Long>, JpaSpe
     long countByRutIsNullOrRutEquals(String rut);
     long countByNombreIsNullOrNombreEquals(String nombre);
     long count();
-
-
-
-
-
 
 
     // Buscar clientes por rango de edad (asumiendo que hay un campo fechaNacimiento)
@@ -442,11 +430,6 @@ public interface ClienteRepositorio extends JpaRepository<Cliente, Long>, JpaSpe
     // Buscar clientes por múltiples categorías
     List<Cliente> findByCategoriaIn(List<String> categorias);
 
-    // Obtener clientes con ventas en un rango de fechas y categoría específica
-    @Query("SELECT c FROM Cliente c WHERE EXISTS (SELECT v FROM Venta v WHERE v.cliente = c AND v.fecha BETWEEN :fechaInicio AND :fechaFin AND v.categoria = :categoria)")
-    List<Cliente> findClientesConVentasPorCategoriaYFechas(@Param("fechaInicio") LocalDate fechaInicio, @Param("fechaFin") LocalDate fechaFin, @Param("categoria") String categoria);
-
-
     @Query("SELECT c FROM Cliente c WHERE c.id NOT IN (SELECT v.cliente.id FROM Venta v WHERE v.fecha BETWEEN :fechaInicio AND :fechaFin)") List<Cliente> findClientesSinVentas(@Param("fechaInicio") LocalDate fechaInicio, @Param("fechaFin") LocalDate fechaFin);
     List<Cliente> findByTelefonoContaining(String telefono);
     List<Cliente> findByDireccionContainingIgnoreCase(String direccion);
@@ -458,6 +441,7 @@ public interface ClienteRepositorio extends JpaRepository<Cliente, Long>, JpaSpe
 
     Page<Cliente> findAll(Pageable pageable);
 
+    @Query("SELECT c FROM Cliente c ORDER BY c.nombre, c.apellido")
     Page<Cliente> listarClientesPaginadas(Pageable pageable);
 
     Page<Cliente> findByActivo(boolean activo, Pageable pageable);
@@ -467,5 +451,21 @@ public interface ClienteRepositorio extends JpaRepository<Cliente, Long>, JpaSpe
     Long countByActivo(boolean activo);
 
     Optional<Cliente> findByTelefono(String telefono);
+
+    @Query("SELECT COUNT(c) > 0 FROM Cliente c WHERE c.rut = :rut AND c.id <> :id")
+    boolean existeClienteConRutExcluyendo(@Param("rut") String rut, @Param("id") Long id);
+
+    @Query("SELECT c FROM Cliente c WHERE " +
+            "LOWER(c.nombre) LIKE LOWER(CONCAT('%', :termino, '%')) OR " +
+            "LOWER(c.apellido) LIKE LOWER(CONCAT('%', :termino, '%')) OR " +
+            "LOWER(c.email) LIKE LOWER(CONCAT('%', :termino, '%'))")
+    List<Cliente> buscarPorTermino(@Param("termino") String termino);
+
+    @Query("SELECT COUNT(c) > 0 FROM Cliente c WHERE c.email = :email AND c.id <> :id")
+    boolean existeClienteConEmailExcluyendo(@Param("email") String email, @Param("id") Long id);
+
+    @Query("SELECT c FROM Cliente c WHERE EXISTS (SELECT v FROM Venta v WHERE v.cliente = c AND v.fecha BETWEEN :fechaInicio AND :fechaFin AND c.categoria = :categoria)")
+    List<Cliente> findClientesConVentasPorCategoriaYFechas(@Param("fechaInicio") LocalDate fechaInicio, @Param("fechaFin") LocalDate fechaFin, @Param("categoria") String categoria);
+
 }
 

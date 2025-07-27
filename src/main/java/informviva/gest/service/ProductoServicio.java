@@ -4,234 +4,209 @@ import informviva.gest.model.Producto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-
 import java.util.List;
 
 /**
- * Interfaz para la gestión de productos
+ * Interfaz del servicio para la gestión de productos del sistema.
+ * 100% Compatible con ProductoServicioImpl existente.
  *
- * @author Roberto Rivas
- * @version 2.0
+ * @author Roberto Rivas Lopez
+ * @version 2.1.0 - EXACTAMENTE COMPATIBLE CON IMPLEMENTACIÓN
  */
-
 public interface ProductoServicio {
 
+    // ===================== MÉTODOS DE CONSULTA BÁSICA =====================
+
     /**
-     * Obtiene todos los productos
-     *
-     * @return Lista de productos
+     * Lista todos los productos del sistema
      */
     List<Producto> listar();
 
     /**
-     * Obtiene productos paginados
-     *
-     * @param pageable Configuración de paginación
-     * @return Página de productos
+     * Lista productos con paginación
      */
     Page<Producto> listarPaginados(Pageable pageable);
 
     /**
-     * Busca un producto por su ID
-     *
-     * @param id ID del producto
-     * @return Producto encontrado o null si no existe
+     * Busca producto por ID - RETORNA PRODUCTO DIRECTAMENTE
      */
     Producto buscarPorId(Long id);
 
     /**
-     * Busca un producto por su código
-     *
-     * @param codigo Código del producto
-     * @return Producto encontrado o null si no existe
+     * Busca producto por código
      */
     Producto buscarPorCodigo(String codigo);
 
     /**
-     * Guarda un nuevo producto o actualiza uno existente
-     *
-     * @param producto Producto a guardar
-     * @return Producto guardado
+     * Lista solo productos activos
+     */
+    List<Producto> listarActivos();
+
+    /**
+     * Lista productos con bajo stock
+     */
+    List<Producto> listarConBajoStock(int umbral);
+
+    // ===================== MÉTODOS DE BÚSQUEDA =====================
+
+    /**
+     * Busca productos por nombre
+     */
+    List<Producto> buscarPorNombre(String nombre);
+
+    /**
+     * Busca productos por nombre con paginación
+     */
+    Page<Producto> buscarPorNombre(String nombre, Pageable pageable);
+
+    /**
+     * Lista productos por categoría ID
+     */
+    List<Producto> listarPorCategoria(Long categoriaId);
+
+    /**
+     * Busca productos por nombre o código (paginado)
+     */
+    Page<Producto> buscarPorNombreOCodigoPaginado(String search, Pageable pageable);
+
+    /**
+     * Busca productos por categoría (paginado)
+     */
+    Page<Producto> buscarPorCategoriaPaginado(String categoria, Pageable pageable);
+
+    /**
+     * Lista productos con stock disponible (paginado)
+     */
+    Page<Producto> listarConStockPaginado(Pageable pageable);
+
+    /**
+     * Busca productos por categoría ID con paginación
+     */
+    Page<Producto> findByCategoriaId(Long categoriaId, Pageable pageable);
+
+    /**
+     * Lista productos activos con paginación
+     */
+    Page<Producto> findAllActivos(Pageable pageable);
+
+    /**
+     * Lista productos inactivos con paginación
+     */
+    Page<Producto> findAllInactivos(Pageable pageable);
+
+    /**
+     * Busca todos los productos con término de búsqueda
+     */
+    Page<Producto> buscarTodosProductos(String termino, Pageable pageable);
+
+    // ===================== MÉTODOS DE PERSISTENCIA =====================
+
+    /**
+     * Guarda o actualiza un producto
      */
     Producto guardar(Producto producto);
 
     /**
      * Actualiza un producto existente
-     *
-     * @param id       ID del producto
-     * @param producto Datos actualizados del producto
-     * @return Producto actualizado
      */
     Producto actualizar(Long id, Producto producto);
 
     /**
-     * Elimina un producto por su ID
-     *
-     * @param id ID del producto
+     * Elimina un producto por ID (eliminación lógica)
      */
     void eliminar(Long id);
 
-    /**
-     * Verifica si existe un producto con el código dado
-     *
-     * @param codigo Código del producto
-     * @return true si existe, false en caso contrario
-     */
-    boolean existePorCodigo(String codigo);
-
-    /**
-     * Obtiene productos con stock menor al umbral especificado
-     *
-     * @param umbral Cantidad máxima de stock para considerar como bajo
-     * @return Lista de productos con bajo stock
-     */
-    List<Producto> listarConBajoStock(int umbral);
-
-    /**
-     * Busca productos por nombre (contiene el texto)
-     *
-     * @param nombre Texto a buscar en el nombre
-     * @return Lista de productos que coinciden
-     */
-    List<Producto> buscarPorNombre(String nombre);
-
-    /**
-     * Obtiene productos por categoría
-     *
-     * @param categoriaId ID de la categoría
-     * @return Lista de productos de la categoría
-     */
-    List<Producto> listarPorCategoria(Long categoriaId);
-
-    /**
-     * Obtiene productos activos solamente
-     *
-     * @return Lista de productos activos
-     */
-    List<Producto> listarActivos();
-
-    /**
-     * Activa o desactiva un producto
-     *
-     * @param id     ID del producto
-     * @param activo true para activar, false para desactivar
-     * @return true si se cambió correctamente, false en caso contrario
-     */
-    boolean cambiarEstado(Long id, boolean activo);
+    // ===================== MÉTODOS DE GESTIÓN DE STOCK =====================
 
     /**
      * Actualiza el stock de un producto
-     *
-     * @param id         ID del producto
-     * @param nuevoStock Nuevo valor de stock
-     * @return Producto actualizado
      */
     Producto actualizarStock(Long id, Integer nuevoStock);
 
     /**
-     * Reduce el stock de un producto (para ventas)
-     *
-     * @param id       ID del producto
-     * @param cantidad Cantidad a reducir
-     * @return Producto actualizado
-     * @throws IllegalArgumentException si no hay suficiente stock
+     * Reduce el stock de un producto
      */
     Producto reducirStock(Long id, Integer cantidad);
 
     /**
-     * Aumenta el stock de un producto (para compras/devoluciones)
-     *
-     * @param id       ID del producto
-     * @param cantidad Cantidad a aumentar
-     * @return Producto actualizado
+     * Aumenta el stock de un producto
      */
     Producto aumentarStock(Long id, Integer cantidad);
 
+    // ===================== MÉTODOS DE ESTADO =====================
+
+    /**
+     * Cambia el estado activo/inactivo de un producto
+     */
+    boolean cambiarEstado(Long id, boolean activo);
+
+    // ===================== MÉTODOS DE VALIDACIÓN =====================
+
+    /**
+     * Verifica si existe un producto con el código dado
+     */
+    boolean existePorCodigo(String codigo);
+
+    /**
+     * Verifica si existe un producto con el código dado, excluyendo un ID
+     */
+    boolean existePorCodigo(String codigo, Long excludeId);
+
+    // ===================== MÉTODOS ESTADÍSTICOS =====================
+
     /**
      * Cuenta el total de productos
-     *
-     * @return Número total de productos
      */
     Long contarTodos();
 
     /**
      * Cuenta productos activos
-     *
-     * @return Número de productos activos
      */
     Long contarActivos();
 
     /**
-     * Cuenta productos con bajo stock
-     *
-     * @param umbral Umbral de stock bajo
-     * @return Número de productos con bajo stock
+     * Cuenta productos con stock bajo
      */
     Long contarConBajoStock(int umbral);
 
-    Page<Producto> buscarPorNombreOCodigoPaginado(String search, Pageable pageable);
+    // ===================== MÉTODOS ADICIONALES =====================
 
-    Page<Producto> buscarPorCategoriaPaginado(String categoria, Pageable pageable);
-
-    Page<Producto> listarConStockPaginado(Pageable pageable);
-
-
-    boolean existePorCodigo(String codigo, Long excludeId);
-
-    //
+    /**
+     * Lista categorías disponibles
+     */
     List<String> listarCategorias();
 
     /**
-     * Busca productos por nombre o código con paginación.
-     *
-     * @param buscar   Texto a buscar.
-     * @param pageable Configuración de paginación.
-     * @return Página de productos encontrados.
+     * Busca productos (método genérico)
      */
     Page<Producto> buscarProductos(String buscar, Pageable pageable);
 
-    /**
-     * Obtiene productos por categoría con paginación.
-     *
-     * @param categoriaId ID de la categoría.
-     * @param pageable    Configuración de paginación.
-     * @return Página de productos de la categoría.
-     */
-    Page<Producto> findByCategoriaId(Long categoriaId, Pageable pageable);
+    // ===================== MÉTODOS DE COMPATIBILIDAD SPRING DATA =====================
 
     /**
-     * Obtiene todos los productos activos con paginación.
-     *
-     * @param pageable Configuración de paginación.
-     * @return Página de productos activos.
+     * Método de compatibilidad - busca por ID
      */
-    Page<Producto> findAllActivos(Pageable pageable);
+    Producto findById(Long id);
 
     /**
-     * Obtiene todos los productos inactivos con paginación.
-     *
-     * @param pageable Configuración de paginación.
-     * @return Página de productos inactivos.
-     */
-    Page<Producto> findAllInactivos(Pageable pageable);
-
-    /**
-     * Obtiene todos los productos con paginación.
-     *
-     * @param pageable Configuración de paginación.
-     * @return Página de productos.
+     * Método de compatibilidad - lista todos paginado
      */
     Page<Producto> findAll(Pageable pageable);
 
-    Producto save(Producto producto);
-
-    Page<Producto> buscarPorNombre(String nombre, Pageable pageable);
-
-    Page<Producto> buscarTodosProductos(String termino, Pageable pageable);
-
-    Producto findById(Long id);
-
+    /**
+     * Método de compatibilidad - productos con bajo stock
+     */
     Page<Producto> findProductosBajoStock(int stockMinimo, Pageable pageable);
 
+    /**
+     * Método de compatibilidad - guardar
+     */
+    Producto save(Producto producto);
 
+    // ===================== MÉTODOS DE CACHE =====================
+
+    /**
+     * Limpia el cache de productos
+     */
+    void limpiarCacheProductos();
 }

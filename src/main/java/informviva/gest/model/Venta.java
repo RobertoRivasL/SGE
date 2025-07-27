@@ -1,4 +1,3 @@
-// src/main/java/informviva/gest/model/Venta.java
 package informviva.gest.model;
 
 import jakarta.persistence.*;
@@ -10,6 +9,13 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Entidad que representa una venta en el sistema.
+ * Contiene toda la información relacionada con las transacciones de venta.
+ *
+ * @author Roberto Rivas
+ * @version 2.1
+ */
 @Entity
 @Table(name = "ventas", indexes = {
         @Index(name = "idx_venta_fecha", columnList = "fecha"),
@@ -32,9 +38,11 @@ public class Venta {
 
     @NotNull(message = "El cliente no puede ser nulo")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "cliente_id")
     private Cliente cliente;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "vendedor_id")
     private Usuario vendedor;
 
     @OneToMany(mappedBy = "venta", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
@@ -83,8 +91,12 @@ public class Venta {
         PARCIALMENTE_PAGADA("Parcialmente Pagada");
 
         private final String descripcion;
-        EstadoVenta(String descripcion) { this.descripcion = descripcion; }
-        public String getDescripcion() { return descripcion; }
+        EstadoVenta(String descripcion) { 
+            this.descripcion = descripcion; 
+        }
+        public String getDescripcion() { 
+            return descripcion; 
+        }
     }
 
     public enum MetodoPago {
@@ -96,8 +108,12 @@ public class Venta {
         CREDITO("Crédito");
 
         private final String descripcion;
-        MetodoPago(String descripcion) { this.descripcion = descripcion; }
-        public String getDescripcion() { return descripcion; }
+        MetodoPago(String descripcion) { 
+            this.descripcion = descripcion; 
+        }
+        public String getDescripcion() { 
+            return descripcion; 
+        }
     }
 
     // ==================== CALLBACKS JPA ====================
@@ -114,6 +130,54 @@ public class Venta {
     @PreUpdate
     protected void onUpdate() {
         fechaActualizacion = LocalDateTime.now();
+    }
+
+    // ==================== MÉTODOS REQUERIDOS POR SERVICIOS ====================
+
+    /**
+     * Obtiene el estado como string.
+     * Método requerido por VentaServicioImpl.
+     */
+    @Transient
+    public String getEstadoAsString() {
+        return estado != null ? estado.name() : "PENDIENTE";
+    }
+
+    /**
+     * Obtiene el método de pago como string.
+     * Método requerido por VentaServicioImpl.
+     */
+    @Transient
+    public String getMetodoPagoAsString() {
+        return metodoPago != null ? metodoPago.name() : "EFECTIVO";
+    }
+
+    /**
+     * Obtiene la cantidad total de items en la venta.
+     * Este método está relacionado con los detalles de venta.
+     */
+    @Transient
+    public Integer getCantidad() {
+        if (detalles == null || detalles.isEmpty()) {
+            return 0;
+        }
+        return detalles.stream()
+                .mapToInt(VentaDetalle::getCantidad)
+                .sum();
+    }
+
+    /**
+     * Obtiene el primer producto de la venta (del primer detalle).
+     * NOTA: Este método es requerido por el código existente,
+     * aunque trabajar directamente con detalles es más apropiado.
+     */
+    @Transient
+    public Producto getProducto() {
+        if (detalles == null || detalles.isEmpty()) {
+            return null;
+        }
+        VentaDetalle primerDetalle = detalles.get(0);
+        return primerDetalle != null ? primerDetalle.getProducto() : null;
     }
 
     // ==================== MÉTODOS DE UTILIDAD ====================
@@ -190,6 +254,38 @@ public class Venta {
     @Transient
     public String getDescripcionEstado() {
         return estado != null ? estado.getDescripcion() : "No especificado";
+    }
+
+    // ==================== MÉTODOS DE CONVENIENCIA ====================
+
+    /**
+     * Establece el método de pago desde un string.
+     * Método de conveniencia para compatibilidad con DTOs.
+     */
+    public void setMetodoPago(String metodoPagoStr) {
+        if (metodoPagoStr != null && !metodoPagoStr.trim().isEmpty()) {
+            try {
+                this.metodoPago = MetodoPago.valueOf(metodoPagoStr.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                // Si no se puede convertir, usar EFECTIVO por defecto
+                this.metodoPago = MetodoPago.EFECTIVO;
+            }
+        }
+    }
+
+    /**
+     * Establece el estado desde un string.
+     * Método de conveniencia para compatibilidad con DTOs.
+     */
+    public void setEstado(String estadoStr) {
+        if (estadoStr != null && !estadoStr.trim().isEmpty()) {
+            try {
+                this.estado = EstadoVenta.valueOf(estadoStr.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                // Si no se puede convertir, usar PENDIENTE por defecto
+                this.estado = EstadoVenta.PENDIENTE;
+            }
+        }
     }
 
     // ==================== MÉTODOS DE GESTIÓN DE DETALLES ====================

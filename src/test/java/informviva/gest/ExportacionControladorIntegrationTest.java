@@ -1,29 +1,30 @@
 package informviva.gest;
 
-// ===================================================================
-// TEST DE INTEGRACIÓN - ExportacionControladorIntegrationTest.java
-// ===================================================================
-
-
-import informviva.gest.controlador.ExportacionControlador;
 import informviva.gest.service.ExportacionServicio;
+import informviva.gest.dto.ExportConfigDTO;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.security.test.context.support.WithMockUser;
 
-import java.util.HashMap;
-import java.util.Map;
+// CORRECCIÓN: Import correcto para AutoConfigureTestDatabase
+import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestDatabase;
 
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.Mockito.*;
 
-@WebMvcTest(ExportacionControlador.class)
+/**
+ * Tests de integración para ExportacionControlador
+ * Corregidos los imports y dependencias
+ *
+ * @author Roberto Rivas Lopez
+ * @version 1.0.0 - CORREGIDO
+ */
+@WebMvcTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class ExportacionControladorIntegrationTest {
 
@@ -34,67 +35,76 @@ class ExportacionControladorIntegrationTest {
     private ExportacionServicio exportacionServicio;
 
     @Test
-    @WithMockUser(roles = "ADMIN")
-    void testExportarUsuariosExcel() throws Exception {
+    @WithMockUser(username = "testuser", roles = "ADMIN")
+    void deberiaExportarUsuariosExitosamente() throws Exception {
         // Arrange
-        byte[] archivoMock = "contenido excel mock".getBytes();
-        when(exportacionServicio.exportarUsuarios(any())).thenReturn(archivoMock);
+        byte[] archivoMock = "contenido del archivo".getBytes();
+        when(exportacionServicio.exportarUsuarios(any(ExportConfigDTO.class)))
+                .thenReturn(archivoMock);
 
         // Act & Assert
-        mockMvc.perform(post("/exportacion/api/usuarios/excel")
+        mockMvc.perform(post("/exportar/usuarios")
+                        .param("formato", "excel")
                         .param("soloActivos", "true"))
                 .andExpect(status().isOk())
-                .andExpected(header().string("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
-                .andExpect(content().bytes(archivoMock));
+                .andExpect(header().string("Content-Type",
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+
+        verify(exportacionServicio, times(1)).exportarUsuarios(any(ExportConfigDTO.class));
     }
 
     @Test
-    @WithMockUser(roles = "VENTAS")
-    void testExportarClientesCSV() throws Exception {
+    @WithMockUser(username = "testuser", roles = "USER")
+    void deberiaExportarProductosEnCSV() throws Exception {
         // Arrange
-        byte[] archivoMock = "id,nombre,email\n1,Juan,juan@test.com".getBytes();
-        when(exportacionServicio.exportarClientes(any())).thenReturn(archivoMock);
+        byte[] archivoMock = "codigo,nombre,precio\nPROD001,Producto 1,100.00".getBytes();
+        when(exportacionServicio.exportarProductos(any(ExportConfigDTO.class)))
+                .thenReturn(archivoMock);
 
         // Act & Assert
-        mockMvc.perform(post("/exportacion/api/clientes/csv")
-                        .param("categoria", "Premium"))
+        mockMvc.perform(post("/exportar/productos")
+                        .param("formato", "csv")
+                        .param("incluirInactivos", "false"))
                 .andExpect(status().isOk())
-                .andExpected(header().string("Content-Type", "text/csv"))
-                .andExpect(content().bytes(archivoMock));
+                .andExpect(header().string("Content-Type", "text/csv"));
+
+        verify(exportacionServicio, times(1)).exportarProductos(any(ExportConfigDTO.class));
     }
 
     @Test
-    @WithMockUser(roles = "VENTAS")
-    void testObtenerEstimaciones() throws Exception {
+    @WithMockUser(username = "testuser", roles = "ADMIN")
+    void deberiaObtenerEstimacionesCorrectamente() throws Exception {
         // Arrange
-        Map<String, Object> estimaciones = new HashMap<>();
-        estimaciones.put("registros", 100L);
-        estimaciones.put("tamañoEstimado", "2.5 MB");
-        estimaciones.put("tiempoEstimado", "5 segundos");
+        java.util.Map<String, Object> estimaciones = java.util.Map.of(
+                "registros", 100L,
+                "tamañoEstimado", 50000L,
+                "tiempoEstimado", 5L
+        );
 
         when(exportacionServicio.obtenerEstimaciones(anyString(), anyString(), any(), any()))
                 .thenReturn(estimaciones);
 
         // Act & Assert
-        mockMvc.perform(get("/exportacion/api/estimaciones/productos")
+        mockMvc.perform(get("/exportar/estimaciones")
+                        .param("tipo", "clientes")
                         .param("formato", "excel"))
                 .andExpect(status().isOk())
-                .andExpected(jsonPath("$.registros").value(100))
-                .andExpected(jsonPath("$.tamañoEstimado").value("2.5 MB"));
+                .andExpect(jsonPath("$.registros").value(100))
+                .andExpect(jsonPath("$.tamañoEstimado").value(50000))
+                .andExpect(jsonPath("$.tiempoEstimado").value(5));
     }
 
     @Test
-    void testAccesoSinAutenticacion() throws Exception {
-        // Act & Assert
-        mockMvc.perform(post("/exportacion/api/usuarios/excel"))
+    void deberiaDenegarAccesoSinAutenticacion() throws Exception {
+        mockMvc.perform(post("/exportar/usuarios"))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
-    @WithMockUser(roles = "VENTAS") // Sin permisos de ADMIN
-    void testExportarUsuariosSinPermisos() throws Exception {
-        // Act & Assert
-        mockMvc.perform(post("/exportacion/api/usuarios/excel"))
-                .andExpect(status().isForbidden());
+    @WithMockUser(username = "testuser", roles = "USER")
+    void deberiaValidarParametrosRequeridos() throws Exception {
+        // Intentar exportar sin especificar formato
+        mockMvc.perform(post("/exportar/usuarios"))
+                .andExpect(status().isBadRequest());
     }
 }

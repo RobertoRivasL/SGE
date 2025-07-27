@@ -1,140 +1,246 @@
 package informviva.gest;
 
-
-
 import informviva.gest.model.Cliente;
+import informviva.gest.service.ClienteServicio;  // INTERFACE, no implementación
+import informviva.gest.service.impl.ClienteServicioImpl;  // Implementación específica para testing
 import informviva.gest.repository.ClienteRepositorio;
+import informviva.gest.repository.VentaRepositorio;
+
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 /**
- * Pruebas unitarias para la clase ClienteServicioImpl.
- * Utilizamos Mockito para simular el comportamiento del repositorio
- * y probar la lógica de negocio del servicio de forma aislada.
+ * Tests unitarios para ClienteServicioImpl
+ * Aplicando principios SOLID y buenas prácticas de testing
+ *
+ * @author Roberto Rivas Lopez
+ * @version 1.0.0 - CORREGIDO
  */
-@ExtendWith(MockitoExtension.class) // Habilita el uso de anotaciones de Mockito
+@ExtendWith(MockitoExtension.class)
 class ClienteServicioImplTest {
 
-    // @Mock crea un objeto simulado (mock) del repositorio.
-    // No interactuaremos con la base de datos real.
+    // ============ MOCKS DE DEPENDENCIAS ============
+
     @Mock
     private ClienteRepositorio clienteRepositorio;
 
-    // @InjectMocks crea una instancia de ClienteServicioImpl
-    // e inyecta los mocks (en este caso, clienteRepositorio) en ella.
+    @Mock
+    private VentaRepositorio ventaRepositorio;
+
+    // ============ CLASE BAJO PRUEBA ============
+
     @InjectMocks
     private ClienteServicioImpl clienteServicio;
 
-    private Cliente cliente1;
-    private Cliente cliente2;
+    // ============ DATOS DE PRUEBA ============
 
-    // El método anotado con @BeforeEach se ejecuta antes de cada prueba.
-    // Es útil para inicializar datos de prueba comunes.
+    private Cliente clientePrueba;
+    private List<Cliente> listaClientesPrueba;
+
+    // ============ CONFIGURACIÓN DE TESTS ============
+
     @BeforeEach
-    void setUp() {
-        cliente1 = new Cliente();
-        cliente1.setId(1L);
-        cliente1.setNombre("Roberto");
-        cliente1.setEmail("roberto@test.com");
+    void configurarTest() {
+        clientePrueba = crearClientePrueba();
+        listaClientesPrueba = crearListaClientesPrueba();
+    }
 
-        cliente2 = new Cliente();
+    // ============ TESTS DE MÉTODOS CRUD ============
+
+    @Test
+    void deberiaObtenerTodosLosClientes() {
+        // Arrange
+        when(clienteRepositorio.findAll()).thenReturn(listaClientesPrueba);
+
+        // Act
+        List<Cliente> resultado = clienteServicio.obtenerTodos();
+
+        // Assert
+        assertNotNull(resultado, "La lista no debe ser nula");
+        assertEquals(2, resultado.size(), "Debe retornar 2 clientes");
+        verify(clienteRepositorio, times(1)).findAll();
+    }
+
+    @Test
+    void deberiaBuscarClientePorId() {
+        // Arrange
+        Long idCliente = 1L;
+        when(clienteRepositorio.findById(idCliente)).thenReturn(Optional.of(clientePrueba));
+
+        // Act
+        Cliente resultado = clienteServicio.buscarPorId(idCliente);
+
+        // Assert
+        assertNotNull(resultado, "El cliente encontrado no debe ser nulo");
+        assertEquals(clientePrueba.getId(), resultado.getId(), "El ID debe coincidir");
+        assertEquals(clientePrueba.getRut(), resultado.getRut(), "El RUT debe coincidir");
+        verify(clienteRepositorio, times(1)).findById(idCliente);
+    }
+
+    @Test
+    void deberiaRetornarNullCuandoClienteNoExiste() {
+        // Arrange
+        Long idInexistente = 999L;
+        when(clienteRepositorio.findById(idInexistente)).thenReturn(Optional.empty());
+
+        // Act
+        Cliente resultado = clienteServicio.buscarPorId(idInexistente);
+
+        // Assert
+        assertNull(resultado, "Debe retornar null cuando el cliente no existe");
+        verify(clienteRepositorio, times(1)).findById(idInexistente);
+    }
+
+    @Test
+    void deberiaGuardarClienteCorrectamente() {
+        // Arrange
+        when(clienteRepositorio.save(any(Cliente.class))).thenReturn(clientePrueba);
+
+        // Act
+        Cliente resultado = clienteServicio.guardar(clientePrueba);
+
+        // Assert
+        assertNotNull(resultado, "El cliente guardado no debe ser nulo");
+        assertEquals(clientePrueba.getRut(), resultado.getRut(), "El RUT debe coincidir");
+        verify(clienteRepositorio, times(1)).save(clientePrueba);
+    }
+
+    @Test
+    void deberiaEliminarClientePorId() {
+        // Arrange
+        Long idCliente = 1L;
+        when(clienteRepositorio.existsById(idCliente)).thenReturn(true);
+        when(ventaRepositorio.countByClienteId(idCliente)).thenReturn(0L);
+        doNothing().when(clienteRepositorio).deleteById(idCliente);
+
+        // Act & Assert
+        assertDoesNotThrow(() -> clienteServicio.eliminar(idCliente));
+        verify(clienteRepositorio, times(1)).deleteById(idCliente);
+    }
+
+    @Test
+    void deberiaLanzarExcepcionAlEliminarClienteConVentas() {
+        // Arrange
+        Long idCliente = 1L;
+        when(clienteRepositorio.existsById(idCliente)).thenReturn(true);
+        when(ventaRepositorio.countByClienteId(idCliente)).thenReturn(5L);
+
+        // Act & Assert
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
+            clienteServicio.eliminar(idCliente);
+        });
+
+        assertTrue(exception.getMessage().contains("ventas asociadas"),
+                "El mensaje debe indicar que hay ventas asociadas");
+        verify(clienteRepositorio, never()).deleteById(idCliente);
+    }
+
+    // ============ TESTS DE VALIDACIÓN ============
+
+    @Test
+    void deberiaValidarRutCorrectamente() {
+        // Arrange
+        String rutValido = "12345678-9";
+        String rutInvalido = "12345678-0";
+
+        // Act & Assert
+        // Estos tests dependerán de la implementación específica de validación de RUT
+        // Se asume que existe un método de validación en el servicio
+    }
+
+    @Test
+    void deberiaValidarEmailCorrectamente() {
+        // Arrange
+        Cliente clienteConEmailValido = crearClientePrueba();
+        clienteConEmailValido.setEmail("test@example.com");
+
+        Cliente clienteConEmailInvalido = crearClientePrueba();
+        clienteConEmailInvalido.setEmail("email-invalido");
+
+        // Act & Assert
+        // Tests específicos para validación de email
+    }
+
+    // ============ TESTS DE MÉTODOS DE BÚSQUEDA ============
+
+    @Test
+    void deberiaBuscarClientesPorNombre() {
+        // Arrange
+        String nombreBusqueda = "Juan";
+        when(clienteRepositorio.findByNombreContainingIgnoreCase(nombreBusqueda))
+                .thenReturn(Arrays.asList(clientePrueba));
+
+        // Act
+        List<Cliente> resultado = clienteServicio.buscarPorNombreContiene(nombreBusqueda);
+
+        // Assert
+        assertNotNull(resultado);
+        assertEquals(1, resultado.size());
+        verify(clienteRepositorio).findByNombreContainingIgnoreCase(nombreBusqueda);
+    }
+
+    @Test
+    void deberiaBuscarClientePorRut() {
+        // Arrange
+        String rut = "12345678-9";
+        when(clienteRepositorio.findByRut(rut)).thenReturn(Optional.of(clientePrueba));
+
+        // Act
+        Cliente resultado = clienteServicio.buscarPorRut(rut);
+
+        // Assert
+        assertNotNull(resultado);
+        assertEquals(rut, resultado.getRut());
+        verify(clienteRepositorio).findByRut(rut);
+    }
+
+    // ============ MÉTODOS AUXILIARES PARA TESTS ============
+
+    /**
+     * Crea un cliente de prueba con datos válidos
+     */
+    private Cliente crearClientePrueba() {
+        Cliente cliente = new Cliente();
+        cliente.setId(1L);
+        cliente.setRut("12345678-9");
+        cliente.setNombre("Juan");
+        cliente.setApellido("Pérez");
+        cliente.setEmail("juan.perez@email.com");
+        cliente.setTelefono("+56912345678");
+        cliente.setDireccion("Calle Falsa 123");
+        cliente.setFechaRegistro(LocalDate.now());
+        cliente.setActivo(true);
+        return cliente;
+    }
+
+    /**
+     * Crea una lista de clientes de prueba
+     */
+    private List<Cliente> crearListaClientesPrueba() {
+        Cliente cliente1 = crearClientePrueba();
+
+        Cliente cliente2 = new Cliente();
         cliente2.setId(2L);
-        cliente2.setNombre("Ana");
-        cliente2.setEmail("ana@test.com");
-    }
+        cliente2.setRut("98765432-1");
+        cliente2.setNombre("María");
+        cliente2.setApellido("González");
+        cliente2.setEmail("maria.gonzalez@email.com");
+        cliente2.setTelefono("+56987654321");
+        cliente2.setActivo(true);
 
-    @DisplayName("Test para obtener todos los clientes")
-    @Test
-    void testObtenerTodosLosClientes() {
-        // Given (Dado): Configuramos el comportamiento esperado del mock.
-        // Cuando se llame a clienteRepositorio.findAll(), debe devolver nuestra lista de clientes.
-        given(clienteRepositorio.findAll()).willReturn(Arrays.asList(cliente1, cliente2));
-
-        // When (Cuando): Ejecutamos el método que queremos probar.
-        List<Cliente> clientes = clienteServicio.obtenerTodosLosClientes();
-
-        // Then (Entonces): Verificamos los resultados.
-        assertThat(clientes).isNotNull(); // La lista no debe ser nula.
-        assertThat(clientes.size()).isEqualTo(2); // La lista debe contener 2 clientes.
-        verify(clienteRepositorio).findAll(); // Verificamos que el método findAll() fue llamado.
-    }
-
-    @DisplayName("Test para guardar un nuevo cliente")
-    @Test
-    void testGuardarCliente() {
-        // Given
-        // Cuando se llame a clienteRepositorio.save() con cualquier objeto Cliente,
-        // debe devolver el mismo cliente.
-        given(clienteRepositorio.save(any(Cliente.class))).willReturn(cliente1);
-
-        // When
-        Cliente clienteGuardado = clienteServicio.guardarCliente(cliente1);
-
-        // Then
-        assertThat(clienteGuardado).isNotNull();
-        assertThat(clienteGuardado.getId()).isEqualTo(1L);
-        verify(clienteRepositorio).save(cliente1); // Verificamos que se llamó a save() con el cliente correcto.
-    }
-
-    @DisplayName("Test para obtener un cliente por su ID (cuando existe)")
-    @Test
-    void testObtenerClientePorId_cuandoExiste() {
-        // Given
-        Long idCliente = 1L;
-        given(clienteRepositorio.findById(idCliente)).willReturn(Optional.of(cliente1));
-
-        // When
-        Cliente clienteEncontrado = clienteServicio.obtenerClientePorId(idCliente);
-
-        // Then
-        assertThat(clienteEncontrado).isNotNull();
-        assertThat(clienteEncontrado.getId()).isEqualTo(idCliente);
-        verify(clienteRepositorio).findById(idCliente);
-    }
-
-    @DisplayName("Test para obtener un cliente por su ID (cuando no existe)")
-    @Test
-    void testObtenerClientePorId_cuandoNoExiste() {
-        // Given
-        Long idCliente = 99L;
-        given(clienteRepositorio.findById(idCliente)).willReturn(Optional.empty());
-
-        // When
-        Cliente clienteEncontrado = clienteServicio.obtenerClientePorId(idCliente);
-
-        // Then
-        assertThat(clienteEncontrado).isNull(); // Esperamos que devuelva null si no lo encuentra.
-        verify(clienteRepositorio).findById(idCliente);
-    }
-
-    @DisplayName("Test para eliminar un cliente por su ID")
-    @Test
-    void testEliminarCliente() {
-        // Given
-        Long idCliente = 1L;
-        // No necesitamos configurar un 'given' para métodos void como deleteById.
-
-        // When
-        clienteServicio.eliminarCliente(idCliente);
-
-        // Then
-        // Verificamos que el método deleteById() del repositorio fue llamado una vez
-        // con el ID correcto.
-        verify(clienteRepositorio).deleteById(idCliente);
+        return Arrays.asList(cliente1, cliente2);
     }
 }

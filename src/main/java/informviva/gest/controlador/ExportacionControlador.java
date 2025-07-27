@@ -315,7 +315,9 @@ public class ExportacionControlador {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin) {
 
         try {
-            Map<String, Object> estimaciones = exportacionServicio.obtenerEstimaciones(tipo, formato, fechaInicio, fechaFin);
+            Map<String, Object> estimaciones = exportacionServicio.obtenerEstimaciones(tipo, formato,
+                    fechaInicio != null ? fechaInicio.atStartOfDay() : null,
+                    fechaFin != null ? fechaFin.atTime(23, 59, 59) : null);
             return ResponseEntity.ok(estimaciones);
         } catch (Exception e) {
             logger.error("Error obteniendo estimaciones: {}", e.getMessage());

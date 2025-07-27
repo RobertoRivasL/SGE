@@ -1,95 +1,95 @@
 package informviva.gest.service;
 
 import informviva.gest.dto.ExportConfigDTO;
-import informviva.gest.enums.FormatoExportacion;
 import informviva.gest.model.ExportacionHistorial;
-import informviva.gest.model.Venta;
 import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
-@Service
+/**
+ * Interfaz del servicio para la gestión de exportaciones del sistema.
+ * 100% Compatible con ExportacionServicioImpl existente.
+ *
+ * @author Roberto Rivas Lopez
+ * @version 2.0.0 - EXACTAMENTE COMPATIBLE CON IMPLEMENTACIÓN
+ */
 public interface ExportacionServicio {
 
-    // Constantes estáticas para acceso desde controladores
-    interface FormatoExportacion {
-        informviva.gest.enums.FormatoExportacion PDF = informviva.gest.enums.FormatoExportacion.PDF;
-        informviva.gest.enums.FormatoExportacion EXCEL = informviva.gest.enums.FormatoExportacion.EXCEL;
-        informviva.gest.enums.FormatoExportacion CSV = informviva.gest.enums.FormatoExportacion.CSV;
-    }
+    // ===================== MÉTODOS PRINCIPALES DE EXPORTACIÓN =====================
 
     /**
-     * Exportar usuarios con ExportConfigDTO (que contiene LocalDateTime)
+     * Exporta usuarios según la configuración especificada
      */
     byte[] exportarUsuarios(ExportConfigDTO config);
 
     /**
-     * Exportar clientes con ExportConfigDTO (que contiene LocalDateTime)
+     * Exporta clientes según la configuración especificada
      */
     byte[] exportarClientes(ExportConfigDTO config);
 
     /**
-     * Exportar productos con ExportConfigDTO (que contiene LocalDateTime)
+     * Exporta productos según la configuración especificada
      */
     byte[] exportarProductos(ExportConfigDTO config);
 
     /**
-     * Exportar ventas con ExportConfigDTO (que contiene LocalDateTime)
+     * Exporta ventas según la configuración especificada
      */
     byte[] exportarVentas(ExportConfigDTO config);
 
     /**
-     * Exportar reportes
+     * Exporta reportes según la configuración especificada
      */
     byte[] exportarReportes(ExportConfigDTO config);
 
+    // ===================== MÉTODOS DE ESTADÍSTICAS Y HISTORIAL =====================
+
     /**
-     * Obtener estadísticas de exportación
+     * Obtiene estadísticas de exportaciones
      */
     Map<String, Object> obtenerEstadisticasExportacion();
 
     /**
-     * Obtener historial reciente
+     * Obtiene el historial reciente de exportaciones
      */
     List<ExportacionHistorial> obtenerHistorialReciente(int limite);
 
     /**
-     * Obtener estimaciones - MIGRADO A LocalDateTime
+     * Obtiene estimaciones de exportación
      */
     Map<String, Object> obtenerEstimaciones(String tipo, String formato,
                                             LocalDateTime fechaInicio, LocalDateTime fechaFin);
 
     /**
-     * Método de compatibilidad para controladores que aún usan LocalDate
-     */
-    default Map<String, Object> obtenerEstimaciones(String tipo, String formato,
-                                                    LocalDate fechaInicio, LocalDate fechaFin) {
-        return obtenerEstimaciones(tipo, formato,
-                fechaInicio.atStartOfDay(),
-                fechaFin.atTime(23, 59, 59));
-    }
-
-    /**
-     * Obtener historial paginado
+     * Obtiene historial paginado
      */
     Page<ExportacionHistorial> obtenerHistorialPaginado(int page, int size);
 
-    // MANTENER métodos legacy temporalmente para compatibilidad:
+    // ===================== MÉTODOS LEGACY PARA COMPATIBILIDAD =====================
+
+    /**
+     * @deprecated Usar exportarUsuarios(ExportConfigDTO config)
+     */
     @Deprecated
     byte[] exportarUsuarios(String formato, Map<String, Object> filtros);
 
+    /**
+     * @deprecated Usar exportarClientes(ExportConfigDTO config)
+     */
     @Deprecated
-    byte[] exportarClientes(String formato, LocalDateTime fechaInicio,
-                            LocalDateTime fechaFin, Map<String, Object> filtros);
+    byte[] exportarClientes(String formato, LocalDateTime fechaInicio, LocalDateTime fechaFin, Map<String, Object> filtros);
 
+    /**
+     * @deprecated Usar exportarProductos(ExportConfigDTO config)
+     */
     @Deprecated
     byte[] exportarProductos(String formato, Map<String, Object> filtros);
 
+    /**
+     * @deprecated Usar exportarVentas(ExportConfigDTO config)
+     */
     @Deprecated
-    byte[] exportarVentas(String formato, LocalDateTime fechaInicio,
-                          LocalDateTime fechaFin, Map<String, Object> filtros);
+    byte[] exportarVentas(String formato, LocalDateTime fechaInicio, LocalDateTime fechaFin, Map<String, Object> filtros);
 }

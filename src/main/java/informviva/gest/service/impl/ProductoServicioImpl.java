@@ -24,7 +24,7 @@ import java.util.List;
  * @author Roberto Rivas
  * @version 2.1
  */
-@Service
+@Service("productoServicioImpl")  // AGREGAR EL NOMBRE DEL BEAN
 @Transactional
 public class ProductoServicioImpl implements ProductoServicio {
 
