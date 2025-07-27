@@ -36,11 +36,19 @@ public class ConfiguracionSeguridad {
 
     private final ServicioUsuarioDetalle servicioUsuarioDetalle;
     private final LoggingFilter loggingFilter;
+    private final BCryptPasswordEncoder passwordEncoder;
 
+    /**
+     * Constructor con inyección de dependencias
+     * Principio de Inversión de Dependencias: Recibe el passwordEncoder desde configuración externa
+     */
     @Autowired
-    public ConfiguracionSeguridad(ServicioUsuarioDetalle servicioUsuarioDetalle, LoggingFilter loggingFilter) {
+    public ConfiguracionSeguridad(ServicioUsuarioDetalle servicioUsuarioDetalle,
+                                  LoggingFilter loggingFilter,
+                                  BCryptPasswordEncoder passwordEncoder) {
         this.servicioUsuarioDetalle = servicioUsuarioDetalle;
         this.loggingFilter = loggingFilter;
+        this.passwordEncoder = passwordEncoder;
     }
 
     /**
@@ -132,22 +140,11 @@ public class ConfiguracionSeguridad {
         return http.build();
     }
 
-    /**
-     * Configura el encriptador de contraseñas
-     */
-    @Bean
-    public BCryptPasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(12); // Fuerza de encriptación 12 (recomendada)
-    }
-
-    /**
-     * Configura el administrador de autenticación
-     */
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
         AuthenticationManagerBuilder authBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
         authBuilder.userDetailsService(servicioUsuarioDetalle)
-                .passwordEncoder(passwordEncoder());
+                .passwordEncoder(passwordEncoder); // Usa el campo inyectado (sin paréntesis)
         return authBuilder.build();
     }
 }
