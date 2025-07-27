@@ -1,212 +1,132 @@
 package informviva.gest.service;
 
-import informviva.gest.model.Producto;
+import informviva.gest.dto.ProductoDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
- * Interfaz del servicio para la gestión de productos del sistema.
- * 100% Compatible con ProductoServicioImpl existente.
+ * Interface del servicio de productos que define el contrato
+ * para la gestión de productos en el sistema.
  *
- * @author Roberto Rivas Lopez
- * @version 2.1.0 - EXACTAMENTE COMPATIBLE CON IMPLEMENTACIÓN
+ * Aplicación del principio de Inversión de Dependencias (D de SOLID):
+ * - Los módulos de alto nivel no dependen de módulos de bajo nivel
+ * - Ambos dependen de abstracciones (esta interface)
+ *
+ * @author Tu nombre
+ * @version 1.0
  */
 public interface ProductoServicio {
 
-    // ===================== MÉTODOS DE CONSULTA BÁSICA =====================
+    /**
+     * Obtiene todos los productos como DTOs
+     *
+     * @return Lista de ProductoDTO
+     */
+    List<ProductoDTO> buscarTodosDTO();
 
     /**
-     * Lista todos los productos del sistema
+     * Obtiene todos los productos con paginación como DTOs
+     *
+     * @param pageable Información de paginación
+     * @return Página de ProductoDTO
      */
-    List<Producto> listar();
+    Page<ProductoDTO> buscarTodosDTO(Pageable pageable);
 
     /**
-     * Lista productos con paginación
+     * Busca un producto por su ID y lo devuelve como DTO
+     *
+     * @param id Identificador del producto
+     * @return ProductoDTO encontrado
+     * @throws informviva.gest.exception.RecursoNoEncontradoException si no existe
      */
-    Page<Producto> listarPaginados(Pageable pageable);
+    ProductoDTO buscarPorIdDTO(Long id);
 
     /**
-     * Busca producto por ID - RETORNA PRODUCTO DIRECTAMENTE
+     * Guarda un nuevo producto desde un DTO
+     *
+     * @param productoDTO Datos del producto a guardar
+     * @return ProductoDTO guardado con su ID asignado
+     * @throws IllegalArgumentException si los datos no son válidos
      */
-    Producto buscarPorId(Long id);
+    ProductoDTO guardarDTO(ProductoDTO productoDTO);
 
     /**
-     * Busca producto por código
+     * Actualiza un producto existente desde un DTO
+     *
+     * @param id Identificador del producto a actualizar
+     * @param productoDTO Nuevos datos del producto
+     * @return ProductoDTO actualizado
+     * @throws informviva.gest.exception.RecursoNoEncontradoException si no existe
+     * @throws IllegalArgumentException si los datos no son válidos
      */
-    Producto buscarPorCodigo(String codigo);
+    ProductoDTO actualizarDTO(Long id, ProductoDTO productoDTO);
 
     /**
-     * Lista solo productos activos
+     * Busca productos por nombre (búsqueda parcial, insensible a mayúsculas)
+     *
+     * @param nombre Nombre o parte del nombre a buscar
+     * @return Lista de ProductoDTO que coinciden
      */
-    List<Producto> listarActivos();
+    List<ProductoDTO> buscarPorNombre(String nombre);
 
     /**
-     * Lista productos con bajo stock
+     * Busca productos por categoría
+     *
+     * @param categoria Categoría del producto
+     * @return Lista de ProductoDTO de la categoría
      */
-    List<Producto> listarConBajoStock(int umbral);
-
-    // ===================== MÉTODOS DE BÚSQUEDA =====================
+    List<ProductoDTO> buscarPorCategoria(String categoria);
 
     /**
-     * Busca productos por nombre
+     * Busca productos dentro de un rango de precios
+     *
+     * @param precioMin Precio mínimo (inclusive)
+     * @param precioMax Precio máximo (inclusive)
+     * @return Lista de ProductoDTO en el rango de precios
      */
-    List<Producto> buscarPorNombre(String nombre);
-
-    /**
-     * Busca productos por nombre con paginación
-     */
-    Page<Producto> buscarPorNombre(String nombre, Pageable pageable);
-
-    /**
-     * Lista productos por categoría ID
-     */
-    List<Producto> listarPorCategoria(Long categoriaId);
-
-    /**
-     * Busca productos por nombre o código (paginado)
-     */
-    Page<Producto> buscarPorNombreOCodigoPaginado(String search, Pageable pageable);
-
-    /**
-     * Busca productos por categoría (paginado)
-     */
-    Page<Producto> buscarPorCategoriaPaginado(String categoria, Pageable pageable);
-
-    /**
-     * Lista productos con stock disponible (paginado)
-     */
-    Page<Producto> listarConStockPaginado(Pageable pageable);
-
-    /**
-     * Busca productos por categoría ID con paginación
-     */
-    Page<Producto> findByCategoriaId(Long categoriaId, Pageable pageable);
-
-    /**
-     * Lista productos activos con paginación
-     */
-    Page<Producto> findAllActivos(Pageable pageable);
-
-    /**
-     * Lista productos inactivos con paginación
-     */
-    Page<Producto> findAllInactivos(Pageable pageable);
-
-    /**
-     * Busca todos los productos con término de búsqueda
-     */
-    Page<Producto> buscarTodosProductos(String termino, Pageable pageable);
-
-    // ===================== MÉTODOS DE PERSISTENCIA =====================
-
-    /**
-     * Guarda o actualiza un producto
-     */
-    Producto guardar(Producto producto);
-
-    /**
-     * Actualiza un producto existente
-     */
-    Producto actualizar(Long id, Producto producto);
-
-    /**
-     * Elimina un producto por ID (eliminación lógica)
-     */
-    void eliminar(Long id);
-
-    // ===================== MÉTODOS DE GESTIÓN DE STOCK =====================
+    List<ProductoDTO> buscarPorRangoPrecio(BigDecimal precioMin, BigDecimal precioMax);
 
     /**
      * Actualiza el stock de un producto
+     *
+     * @param id Identificador del producto
+     * @param cantidad Cantidad a sumar/restar del stock (positiva para agregar, negativa para quitar)
+     * @throws informviva.gest.exception.RecursoNoEncontradoException si el producto no existe
+     * @throws informviva.gest.exception.StockInsuficienteException si se intenta restar más stock del disponible
      */
-    Producto actualizarStock(Long id, Integer nuevoStock);
+    void actualizarStock(Long id, Integer cantidad);
 
     /**
-     * Reduce el stock de un producto
+     * Busca productos con stock bajo (menor al mínimo especificado)
+     *
+     * @param minimoStock Cantidad mínima de stock
+     * @return Lista de ProductoDTO con stock bajo
      */
-    Producto reducirStock(Long id, Integer cantidad);
+    List<ProductoDTO> buscarConStockBajo(Integer minimoStock);
 
     /**
-     * Aumenta el stock de un producto
+     * Elimina un producto por su ID
+     *
+     * @param id Identificador del producto a eliminar
+     * @throws informviva.gest.exception.RecursoNoEncontradoException si el producto no existe
      */
-    Producto aumentarStock(Long id, Integer cantidad);
-
-    // ===================== MÉTODOS DE ESTADO =====================
+    void eliminar(Long id);
 
     /**
-     * Cambia el estado activo/inactivo de un producto
+     * Verifica si existe un producto con el ID dado
+     *
+     * @param id Identificador a verificar
+     * @return true si existe, false en caso contrario
      */
-    boolean cambiarEstado(Long id, boolean activo);
-
-    // ===================== MÉTODOS DE VALIDACIÓN =====================
+    boolean existe(Long id);
 
     /**
-     * Verifica si existe un producto con el código dado
+     * Cuenta el número total de productos
+     *
+     * @return Número total de productos
      */
-    boolean existePorCodigo(String codigo);
-
-    /**
-     * Verifica si existe un producto con el código dado, excluyendo un ID
-     */
-    boolean existePorCodigo(String codigo, Long excludeId);
-
-    // ===================== MÉTODOS ESTADÍSTICOS =====================
-
-    /**
-     * Cuenta el total de productos
-     */
-    Long contarTodos();
-
-    /**
-     * Cuenta productos activos
-     */
-    Long contarActivos();
-
-    /**
-     * Cuenta productos con stock bajo
-     */
-    Long contarConBajoStock(int umbral);
-
-    // ===================== MÉTODOS ADICIONALES =====================
-
-    /**
-     * Lista categorías disponibles
-     */
-    List<String> listarCategorias();
-
-    /**
-     * Busca productos (método genérico)
-     */
-    Page<Producto> buscarProductos(String buscar, Pageable pageable);
-
-    // ===================== MÉTODOS DE COMPATIBILIDAD SPRING DATA =====================
-
-    /**
-     * Método de compatibilidad - busca por ID
-     */
-    Producto findById(Long id);
-
-    /**
-     * Método de compatibilidad - lista todos paginado
-     */
-    Page<Producto> findAll(Pageable pageable);
-
-    /**
-     * Método de compatibilidad - productos con bajo stock
-     */
-    Page<Producto> findProductosBajoStock(int stockMinimo, Pageable pageable);
-
-    /**
-     * Método de compatibilidad - guardar
-     */
-    Producto save(Producto producto);
-
-    // ===================== MÉTODOS DE CACHE =====================
-
-    /**
-     * Limpia el cache de productos
-     */
-    void limpiarCacheProductos();
+    long contar();
 }

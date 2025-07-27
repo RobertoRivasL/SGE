@@ -4,212 +4,179 @@ import informviva.gest.model.Producto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
 /**
- * Repositorio para acceder a las entidades Producto en la base de datos.
- * Proporciona métodos para consultas específicas relacionadas con productos.
+ * Repositorio para la entidad Producto siguiendo el patrón Repository
  *
- * @author Roberto Rivas
- * @version 2.0
+ * Aplicación de principios SOLID:
+ * - S: Responsabilidad única para acceso a datos de productos
+ * - I: Interface segregada específica para productos
+ * - D: Abstracción para el acceso a datos
+ *
+ * @author Tu nombre
+ * @version 1.0
  */
 @Repository
-public interface ProductoRepositorio extends JpaRepository<Producto, Long>, JpaSpecificationExecutor<Producto> {
+public interface ProductoRepositorio extends JpaRepository<Producto, Long> {
 
     /**
-     * Verifica si existe un producto con el código especificado
-     * @param codigo Código del producto
-     * @return true si existe, false en caso contrario
-     */
-
-
-    /**
-     * Busca un producto por su código
+     * Busca productos por nombre (búsqueda parcial, insensible a mayúsculas)
      *
-     * @param codigo Código del producto
-     * @return Producto encontrado o null si no existe
-     */
-    Optional<Producto> findByCodigo(String codigo);
-
-    /**
-     * Obtiene productos con stock menor al umbral especificado, ordenados por stock ascendente
-     *
-     * @param umbral Cantidad máxima de stock para considerar como bajo
-     * @return Lista de productos con bajo stock
-     */
-    List<Producto> findByStockLessThanOrderByStockAsc(int umbral);
-
-    /**
-     * Busca productos por nombre que contenga el texto especificado (case insensitive)
-     *
-     * @param nombre Texto a buscar en el nombre
+     * @param nombre Nombre o parte del nombre a buscar
      * @return Lista de productos que coinciden
      */
     List<Producto> findByNombreContainingIgnoreCase(String nombre);
 
     /**
-     * Obtiene productos por categoría
+     * Busca productos por categoría (insensible a mayúsculas)
      *
-     * @param categoriaId ID de la categoría
+     * @param categoria Categoría del producto
      * @return Lista de productos de la categoría
      */
-    List<Producto> findByCategoriaId(Long categoriaId);
+    List<Producto> findByCategoriaIgnoreCase(String categoria);
 
     /**
-     * Obtiene solo los productos activos
+     * Busca productos dentro de un rango de precios
+     *
+     * @param precioMin Precio mínimo (inclusive)
+     * @param precioMax Precio máximo (inclusive)
+     * @return Lista de productos en el rango
+     */
+    List<Producto> findByPrecioBetween(BigDecimal precioMin, BigDecimal precioMax);
+
+    /**
+     * Busca productos con stock menor al especificado
+     *
+     * @param stock Cantidad de stock límite
+     * @return Lista de productos con stock bajo
+     */
+    List<Producto> findByStockLessThan(Integer stock);
+
+    /**
+     * Busca productos activos
      *
      * @return Lista de productos activos
      */
     List<Producto> findByActivoTrue();
 
     /**
-     * Obtiene productos inactivos
+     * Busca productos activos con paginación
      *
-     * @return Lista de productos inactivos
+     * @param pageable Información de paginación
+     * @return Página de productos activos
      */
-    List<Producto> findByActivoFalse();
+    Page<Producto> findByActivoTrue(Pageable pageable);
 
     /**
-     * Busca productos por marca
+     * Busca productos por nombre y que estén activos
      *
-     * @param marca Marca del producto
-     * @return Lista de productos de la marca
+     * @param nombre Nombre o parte del nombre
+     * @return Lista de productos activos que coinciden
      */
-    List<Producto> findByMarcaContainingIgnoreCase(String marca);
+    List<Producto> findByNombreContainingIgnoreCaseAndActivoTrue(String nombre);
 
     /**
-     * Busca productos por rango de precios
+     * Busca productos por categoría y que estén activos
      *
-     * @param precioMin Precio mínimo
-     * @param precioMax Precio máximo
-     * @return Lista de productos en el rango de precios
+     * @param categoria Categoría del producto
+     * @return Lista de productos activos de la categoría
      */
-    List<Producto> findByPrecioBetween(Double precioMin, Double precioMax);
+    List<Producto> findByCategoriaIgnoreCaseAndActivoTrue(String categoria);
+
+    /**
+     * Verifica si existe un producto con el nombre dado (excluyendo un ID específico)
+     * Útil para validaciones de unicidad en actualizaciones
+     *
+     * @param nombre Nombre del producto
+     * @param id ID a excluir de la búsqueda
+     * @return true si existe otro producto con ese nombre
+     */
+    boolean existsByNombreIgnoreCaseAndIdNot(String nombre, Long id);
+
+    /**
+     * Verifica si existe un producto con el nombre dado
+     *
+     * @param nombre Nombre del producto
+     * @return true si existe un producto con ese nombre
+     */
+    boolean existsByNombreIgnoreCase(String nombre);
+
+    /**
+     * Busca un producto por nombre exacto (insensible a mayúsculas)
+     *
+     * @param nombre Nombre exacto del producto
+     * @return Optional con el producto si existe
+     */
+    Optional<Producto> findByNombreIgnoreCase(String nombre);
+
+    /**
+     * Cuenta productos por categoría
+     *
+     * @param categoria Categoría a contar
+     * @return Número de productos en la categoría
+     */
+    long countByCategoriaIgnoreCase(String categoria);
 
     /**
      * Cuenta productos activos
      *
      * @return Número de productos activos
      */
-    Long countByActivoTrue();
+    long countByActivoTrue();
 
     /**
-     * Cuenta productos inactivos
-     *
-     * @return Número de productos inactivos
-     */
-    Long countByActivoFalse();
-
-    /**
-     * Cuenta productos con stock menor al umbral
-     *
-     * @param umbral Umbral de stock
-     * @return Número de productos con bajo stock
-     */
-    Long countByStockLessThan(int umbral);
-
-    /**
-     * Cuenta productos por categoría
-     *
-     * @param categoriaId ID de la categoría
-     * @return Número de productos en la categoría
-     */
-    Long countByCategoriaId(Long categoriaId);
-
-    /**
-     * Obtiene productos ordenados por fecha de creación (más recientes primero)
-     *
-     * @return Lista de productos ordenados por fecha de creación descendente
-     */
-    List<Producto> findAllByOrderByFechaCreacionDesc();
-
-    /**
-     * Obtiene productos ordenados por stock ascendente
-     *
-     * @return Lista de productos ordenados por stock ascendente
-     */
-    List<Producto> findAllByOrderByStockAsc();
-
-    /**
-     * Busca productos con stock mayor a cero (disponibles)
-     *
-     * @return Lista de productos disponibles
-     */
-    @Query("SELECT p FROM Producto p WHERE p.stock > 0 AND p.activo = true")
-    List<Producto> findProductosDisponibles();
-
-    /**
-     * Busca productos sin stock
+     * Busca productos con stock igual a cero
      *
      * @return Lista de productos sin stock
      */
-    @Query("SELECT p FROM Producto p WHERE p.stock = 0 OR p.stock IS NULL")
-    List<Producto> findProductosSinStock();
+    List<Producto> findByStock(Integer stock);
 
     /**
-     * Búsqueda combinada por nombre, código o marca
+     * Query personalizada para buscar productos por múltiples criterios
      *
-     * @param texto Texto a buscar
-     * @return Lista de productos que coinciden
+     * @param nombre Nombre del producto (puede ser null)
+     * @param categoria Categoría del producto (puede ser null)
+     * @param precioMin Precio mínimo (puede ser null)
+     * @param precioMax Precio máximo (puede ser null)
+     * @param soloActivos Si solo buscar productos activos
+     * @param pageable Información de paginación
+     * @return Página de productos que cumplen los criterios
      */
     @Query("SELECT p FROM Producto p WHERE " +
-            "LOWER(p.nombre) LIKE LOWER(CONCAT('%', :texto, '%')) OR " +
-            "LOWER(p.codigo) LIKE LOWER(CONCAT('%', :texto, '%')) OR " +
-            "LOWER(p.marca) LIKE LOWER(CONCAT('%', :texto, '%'))")
-    List<Producto> buscarPorTexto(@Param("texto") String texto);
+            "(:nombre IS NULL OR LOWER(p.nombre) LIKE LOWER(CONCAT('%', :nombre, '%'))) AND " +
+            "(:categoria IS NULL OR LOWER(p.categoria) = LOWER(:categoria)) AND " +
+            "(:precioMin IS NULL OR p.precio >= :precioMin) AND " +
+            "(:precioMax IS NULL OR p.precio <= :precioMax) AND " +
+            "(:soloActivos = false OR p.activo = true)")
+    Page<Producto> buscarConCriterios(
+            @Param("nombre") String nombre,
+            @Param("categoria") String categoria,
+            @Param("precioMin") BigDecimal precioMin,
+            @Param("precioMax") BigDecimal precioMax,
+            @Param("soloActivos") boolean soloActivos,
+            Pageable pageable);
 
     /**
-     * Obtiene productos más vendidos (requiere relación con VentaDetalle)
+     * Query para obtener las categorías únicas de productos
+     *
+     * @return Lista de categorías distintas
+     */
+    @Query("SELECT DISTINCT p.categoria FROM Producto p WHERE p.categoria IS NOT NULL ORDER BY p.categoria")
+    List<String> findDistinctCategorias();
+
+    /**
+     * Query para obtener productos más vendidos (requiere relación con ventas)
      *
      * @param limite Número máximo de productos a retornar
      * @return Lista de productos más vendidos
      */
-    @Query("SELECT p FROM Producto p WHERE p.id IN " +
-            "(SELECT vd.producto.id FROM VentaDetalle vd " +
-            "GROUP BY vd.producto.id " +
-            "ORDER BY SUM(vd.cantidad) DESC) " +
-            "ORDER BY (SELECT SUM(vd2.cantidad) FROM VentaDetalle vd2 WHERE vd2.producto.id = p.id) DESC")
-    List<Producto> findProductosMasVendidos(@Param("limite") int limite);
-
-    @Query("SELECT DISTINCT c.nombre FROM Producto p JOIN p.categoria c WHERE c IS NOT NULL")
-    List<String> obtenerCategorias();
-
-    boolean existsByCodigo(String codigo);
-
-    boolean existsByCodigoAndIdNot(String codigo, Long id);
-
-    @Query("SELECT p FROM Producto p WHERE UPPER(p.nombre) LIKE %:termino% OR UPPER(p.codigo) LIKE %:termino%")
-    Page<Producto> buscarPorNombreOCodigo(@Param("termino") String termino, Pageable pageable);
-
-    @Query("SELECT p FROM Producto p WHERE LOWER(p.categoria) LIKE LOWER(CONCAT('%', :categoria, '%'))")
-    Page<Producto> buscarPorCategoria(@Param("categoria") String categoria, Pageable pageable);
-
-    @Query("SELECT p FROM Producto p WHERE p.stock > 0")
-    Page<Producto> listarConStock(Pageable pageable);
-
-    Page<Producto> findByNombreContainingOrCodigoContainingIgnoreCase(
-            String nombre, String codigo, Pageable pageable);
-
-    Page<Producto> findByCategoriaId(Long categoriaId, Pageable pageable);
-
-    Page<Producto> findByStockGreaterThan(Integer stock, Pageable pageable);
-
-    Page<Producto> findByNombreContainingIgnoreCase(String nombre, Pageable pageable);
-
-    Page<Producto> findByStockLessThan(int stock, Pageable pageable);
-
-    // En ProductoRepositorio
-    Page<Producto> findByActivoFalse(Pageable pageable);
-
-    // En ProductoRepositorio
-    Page<Producto> findByActivoTrue(Pageable pageable);
-
-
+    @Query("SELECT p FROM Producto p WHERE p.activo = true ORDER BY p.id DESC")
+    List<Producto> findTopProductos(Pageable pageable);
 }
-

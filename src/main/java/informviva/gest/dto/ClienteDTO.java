@@ -1,277 +1,277 @@
 package informviva.gest.dto;
 
-
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import jakarta.validation.constraints.*;
 import java.time.LocalDateTime;
 
 /**
- * Data Transfer Object para Cliente
- * Utilizado en APIs REST y transferencia de datos
+ * DTO (Data Transfer Object) para la entidad Cliente
  *
- * Siguiendo el patrón de DTOs del proyecto
+ * Aplicación de principios:
+ * - Encapsulación: Datos del cliente encapsulados en un objeto
+ * - Separación de Responsabilidades: DTO para transferencia, Entidad para persistencia
+ * - Abstracción: Representa el cliente desde la perspectiva del cliente
  *
- * @author Roberto
- * @version 2.1
- * @since FASE 2 - Estandarización Arquitectónica
+ * @author Tu nombre
+ * @version 1.0
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ClienteDTO {
 
-    // ========== IDENTIFICACIÓN ==========
-
     /**
-     * ID único del cliente
+     * Identificador único del cliente
      */
     private Long id;
 
     /**
-     * RUT del cliente (formato chileno con dígito verificador)
-     */
-    @NotBlank(message = "El RUT es obligatorio")
-    @Pattern(regexp = "^[0-9]{7,8}-[0-9Kk]$",
-            message = "RUT debe tener formato válido (ej: 12345678-9)")
-    private String rut;
-
-    // ========== DATOS PERSONALES ==========
-
-    /**
      * Nombre del cliente
+     * Obligatorio, longitud entre 2 y 50 caracteres
      */
-    @NotBlank(message = "El nombre es obligatorio")
+    @NotBlank(message = "El nombre del cliente es obligatorio")
     @Size(min = 2, max = 50, message = "El nombre debe tener entre 2 y 50 caracteres")
-    @Pattern(regexp = "^[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+$",
-            message = "El nombre solo puede contener letras y espacios")
     private String nombre;
 
     /**
      * Apellido del cliente
+     * Obligatorio, longitud entre 2 y 50 caracteres
      */
-    @NotBlank(message = "El apellido es obligatorio")
+    @NotBlank(message = "El apellido del cliente es obligatorio")
     @Size(min = 2, max = 50, message = "El apellido debe tener entre 2 y 50 caracteres")
-    @Pattern(regexp = "^[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+$",
-            message = "El apellido solo puede contener letras y espacios")
     private String apellido;
 
     /**
+     * RUT del cliente en formato chileno
+     * Obligatorio, formato: xx.xxx.xxx-x
+     */
+    @NotBlank(message = "El RUT es obligatorio")
+    @Pattern(regexp = "^[0-9]{1,2}\\.[0-9]{3}\\.[0-9]{3}-[0-9kK]{1}$",
+            message = "El RUT debe tener el formato xx.xxx.xxx-x")
+    private String rut;
+
+    /**
      * Email del cliente
+     * Obligatorio, debe ser un email válido
      */
     @NotBlank(message = "El email es obligatorio")
-    @Email(message = "Debe ser un email válido")
+    @Email(message = "El email debe tener un formato válido")
     @Size(max = 100, message = "El email no puede exceder 100 caracteres")
     private String email;
 
     /**
-     * Teléfono del cliente (formato chileno)
+     * Teléfono del cliente
+     * Opcional, máximo 20 caracteres
      */
-    @Pattern(regexp = "^(\\+56|56)?[2-9]\\d{8}$|^(\\+56|56)?9\\d{8}$",
-            message = "Teléfono debe ser válido (formato chileno)")
+    @Size(max = 20, message = "El teléfono no puede exceder 20 caracteres")
     private String telefono;
 
-    // ========== UBICACIÓN ==========
-
     /**
-     * Dirección completa del cliente
+     * Dirección del cliente
+     * Opcional, máximo 200 caracteres
      */
     @Size(max = 200, message = "La dirección no puede exceder 200 caracteres")
     private String direccion;
 
     /**
-     * Ciudad del cliente
-     */
-    @Size(max = 50, message = "La ciudad no puede exceder 50 caracteres")
-    private String ciudad;
-
-    // ========== ESTADO Y CONTROL ==========
-
-    /**
-     * Estado activo/inactivo del cliente
+     * Estado del cliente (activo/inactivo)
+     * Por defecto es true
      */
     @NotNull(message = "El estado activo es obligatorio")
-    private boolean activo = true;
-
-    // ========== FECHAS DE AUDITORÍA ==========
+    private Boolean activo = true;
 
     /**
-     * Fecha de registro del cliente
+     * Fecha y hora de creación del cliente
+     * Solo lectura
      */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime fechaRegistro;
+    private LocalDateTime fechaCreacion;
 
     /**
-     * Fecha de última modificación
+     * Fecha y hora de última actualización
+     * Solo lectura
      */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime fechaModificacion;
+    private LocalDateTime fechaActualizacion;
 
     /**
-     * Fecha de última compra
+     * Notas adicionales sobre el cliente
+     * Opcional, máximo 500 caracteres
      */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime fechaUltimaCompra;
-
-    // ========== ESTADÍSTICAS DE COMPRAS ==========
+    @Size(max = 500, message = "Las notas no pueden exceder 500 caracteres")
+    private String notas;
 
     /**
-     * Total gastado por el cliente
+     * Número de ventas realizadas al cliente
+     * Campo calculado, no se persiste
      */
-    @DecimalMin(value = "0.0", message = "El total de compras no puede ser negativo")
-    private Double totalCompras;
+    private Long numeroVentas;
 
     /**
-     * Número total de compras realizadas
+     * Constructor para crear DTO con datos básicos
+     *
+     * @param nombre Nombre del cliente
+     * @param apellido Apellido del cliente
+     * @param rut RUT del cliente
+     * @param email Email del cliente
      */
-    @Min(value = 0, message = "El número de compras no puede ser negativo")
-    private Integer numeroCompras;
+    public ClienteDTO(String nombre, String apellido, String rut, String email) {
+        this.nombre = nombre;
+        this.apellido = apellido;
+        this.rut = rut;
+        this.email = email;
+        this.activo = true;
+    }
 
     /**
-     * Promedio de gasto por compra
-     */
-    @DecimalMin(value = "0.0", message = "El promedio de compra no puede ser negativo")
-    private Double promedioCompra;
-
-    // ========== CAMPOS CALCULADOS ==========
-
-    /**
-     * Nombre completo (nombre + apellido)
-     * Se calcula automáticamente, no se persiste
+     * Obtiene el nombre completo del cliente
+     *
+     * @return Nombre y apellido concatenados
      */
     public String getNombreCompleto() {
-        if (nombre != null && apellido != null) {
-            return nombre + " " + apellido;
+        StringBuilder nombreCompleto = new StringBuilder();
+
+        if (nombre != null) {
+            nombreCompleto.append(nombre);
         }
-        return nombre != null ? nombre : (apellido != null ? apellido : "");
-    }
 
-    /**
-     * Categoría del cliente basada en su comportamiento de compra
-     * Se calcula dinámicamente
-     */
-    public String getCategoriaCliente() {
-        if (numeroCompras == null || numeroCompras == 0) {
-            return "NUEVO";
-        } else if (numeroCompras >= 10 && totalCompras != null && totalCompras >= 500000) {
-            return "VIP";
-        } else if (numeroCompras >= 5) {
-            return "FRECUENTE";
-        } else if (fechaUltimaCompra == null ||
-                fechaUltimaCompra.isBefore(LocalDateTime.now().minusMonths(6))) {
-            return "INACTIVO";
-        } else {
-            return "REGULAR";
+        if (apellido != null) {
+            if (nombreCompleto.length() > 0) {
+                nombreCompleto.append(" ");
+            }
+            nombreCompleto.append(apellido);
         }
+
+        return nombreCompleto.toString();
     }
 
     /**
-     * Indica si es un cliente reciente (registrado en los últimos 30 días)
-     */
-    public boolean esClienteReciente() {
-        return fechaRegistro != null &&
-                fechaRegistro.isAfter(LocalDateTime.now().minusDays(30));
-    }
-
-    /**
-     * Días desde la última compra
-     */
-    public Long diasSinComprar() {
-        if (fechaUltimaCompra == null) {
-            return null;
-        }
-        return java.time.temporal.ChronoUnit.DAYS.between(
-                fechaUltimaCompra.toLocalDate(),
-                LocalDateTime.now().toLocalDate()
-        );
-    }
-
-    // ========== MÉTODOS DE UTILIDAD ==========
-
-    /**
-     * Validar si el cliente está activo y es válido para ventas
-     */
-    public boolean puedeRealizarCompras() {
-        return activo && rut != null && !rut.trim().isEmpty() &&
-                email != null && !email.trim().isEmpty();
-    }
-
-    /**
-     * Obtener iniciales del cliente
+     * Obtiene las iniciales del cliente
+     *
+     * @return Iniciales del nombre y apellido
      */
     public String getIniciales() {
         StringBuilder iniciales = new StringBuilder();
+
         if (nombre != null && !nombre.isEmpty()) {
             iniciales.append(nombre.charAt(0));
         }
+
         if (apellido != null && !apellido.isEmpty()) {
             iniciales.append(apellido.charAt(0));
         }
+
         return iniciales.toString().toUpperCase();
     }
 
     /**
-     * Obtener representación textual para logs
+     * Verifica si el cliente tiene datos de contacto completos
+     *
+     * @return true si tiene email y teléfono
      */
-    @Override
-    public String toString() {
-        return String.format("ClienteDTO{id=%s, rut='%s', nombre='%s', apellido='%s', email='%s', activo=%s}",
-                id, rut, nombre, apellido, email, activo);
-    }
-
-    // ========== CONSTRUCTORES AUXILIARES ==========
-
-    /**
-     * Constructor para crear un cliente básico (usado en formularios)
-     */
-    public ClienteDTO(String nombre, String apellido, String email, String rut) {
-        this.nombre = nombre;
-        this.apellido = apellido;
-        this.email = email;
-        this.rut = rut;
-        this.activo = true;
-        this.fechaRegistro = LocalDateTime.now();
+    public boolean tieneContactoCompleto() {
+        return email != null && !email.trim().isEmpty() &&
+                telefono != null && !telefono.trim().isEmpty();
     }
 
     /**
-     * Constructor para búsquedas/autocompletado (solo datos esenciales)
+     * Verifica si el cliente tiene dirección registrada
+     *
+     * @return true si tiene dirección
      */
-    public ClienteDTO(Long id, String nombre, String apellido, String email, String rut) {
-        this.id = id;
-        this.nombre = nombre;
-        this.apellido = apellido;
-        this.email = email;
-        this.rut = rut;
-        this.activo = true;
+    public boolean tieneDireccion() {
+        return direccion != null && !direccion.trim().isEmpty();
     }
 
     /**
-     * Constructor completo para reportes
+     * Método para validar si el DTO tiene los datos mínimos requeridos
+     *
+     * @return true si tiene los datos básicos válidos
      */
-    public ClienteDTO(Long id, String rut, String nombre, String apellido, String email,
-                      String telefono, String direccion, String ciudad, boolean activo,
-                      LocalDateTime fechaRegistro, Double totalCompras, Integer numeroCompras) {
-        this.id = id;
-        this.rut = rut;
-        this.nombre = nombre;
-        this.apellido = apellido;
-        this.email = email;
-        this.telefono = telefono;
-        this.direccion = direccion;
-        this.ciudad = ciudad;
-        this.activo = activo;
-        this.fechaRegistro = fechaRegistro;
-        this.totalCompras = totalCompras;
-        this.numeroCompras = numeroCompras;
+    public boolean esValido() {
+        return nombre != null && !nombre.trim().isEmpty() &&
+                apellido != null && !apellido.trim().isEmpty() &&
+                rut != null && !rut.trim().isEmpty() &&
+                email != null && !email.trim().isEmpty();
+    }
 
-        // Calcular promedio si hay datos
-        if (numeroCompras != null && numeroCompras > 0 && totalCompras != null) {
-            this.promedioCompra = totalCompras / numeroCompras;
+    /**
+     * Genera una representación compacta del cliente
+     *
+     * @return String con formato "Nombre Apellido (RUT)"
+     */
+    public String toStringCompacto() {
+        return String.format("%s (%s)",
+                getNombreCompleto(),
+                rut != null ? rut : "Sin RUT");
+    }
+
+    /**
+     * Obtiene el RUT sin formato (solo números y dígito verificador)
+     *
+     * @return RUT sin puntos ni guión
+     */
+    public String getRutSinFormato() {
+        if (rut == null) {
+            return null;
         }
+        return rut.replace(".", "").replace("-", "");
+    }
+
+    /**
+     * Obtiene solo el cuerpo del RUT (sin dígito verificador)
+     *
+     * @return Cuerpo del RUT sin dígito verificador
+     */
+    public String getCuerpoRut() {
+        String rutSinFormato = getRutSinFormato();
+        if (rutSinFormato == null || rutSinFormato.length() < 2) {
+            return null;
+        }
+        return rutSinFormato.substring(0, rutSinFormato.length() - 1);
+    }
+
+    /**
+     * Obtiene el dígito verificador del RUT
+     *
+     * @return Dígito verificador del RUT
+     */
+    public String getDigitoVerificador() {
+        String rutSinFormato = getRutSinFormato();
+        if (rutSinFormato == null || rutSinFormato.isEmpty()) {
+            return null;
+        }
+        return rutSinFormato.substring(rutSinFormato.length() - 1);
+    }
+
+    /**
+     * Formatea el RUT si viene sin formato
+     *
+     * @param rutSinFormato RUT sin puntos ni guión
+     * @return RUT formateado
+     */
+    public static String formatearRut(String rutSinFormato) {
+        if (rutSinFormato == null || rutSinFormato.length() < 2) {
+            return rutSinFormato;
+        }
+
+        String cuerpo = rutSinFormato.substring(0, rutSinFormato.length() - 1);
+        String dv = rutSinFormato.substring(rutSinFormato.length() - 1);
+
+        // Agregar puntos al cuerpo
+        StringBuilder rutFormateado = new StringBuilder();
+        int contador = 0;
+
+        for (int i = cuerpo.length() - 1; i >= 0; i--) {
+            if (contador > 0 && contador % 3 == 0) {
+                rutFormateado.insert(0, ".");
+            }
+            rutFormateado.insert(0, cuerpo.charAt(i));
+            contador++;
+        }
+
+        rutFormateado.append("-").append(dv);
+        return rutFormateado.toString();
     }
 }

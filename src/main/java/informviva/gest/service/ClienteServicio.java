@@ -1,337 +1,199 @@
 package informviva.gest.service;
 
-import informviva.gest.dto.ClienteReporteDTO;
-import informviva.gest.model.Cliente;
+import informviva.gest.dto.ClienteDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 /**
- * Servicio para la gestión de clientes
- * Interfaz completa con todos los métodos requeridos por controladores
+ * Interface del servicio de clientes que define el contrato
+ * para la gestión de clientes en el sistema.
  *
- * @author Roberto Rivas
- * @version 4.1
+ * Aplicación del principio de Inversión de Dependencias (D de SOLID):
+ * - Los módulos de alto nivel no dependen de módulos de bajo nivel
+ * - Ambos dependen de abstracciones (esta interface)
+ *
+ * @author Tu nombre
+ * @version 1.0
  */
 public interface ClienteServicio {
 
-    // ========== MÉTODOS BÁSICOS CRUD ==========
-
     /**
-     * Obtiene todos los clientes
+     * Obtiene todos los clientes como DTOs
+     *
+     * @return Lista de ClienteDTO
      */
-    List<Cliente> obtenerTodos();
+    List<ClienteDTO> buscarTodosDTO();
 
     /**
-     * Busca un cliente por su ID
+     * Obtiene todos los clientes con paginación como DTOs
+     *
+     * @param pageable Información de paginación
+     * @return Página de ClienteDTO
      */
-    Cliente buscarPorId(Long id);
+    Page<ClienteDTO> buscarTodosDTO(Pageable pageable);
 
     /**
-     * Guarda un nuevo cliente o actualiza uno existente
+     * Busca un cliente por su ID y lo devuelve como DTO
+     *
+     * @param id Identificador del cliente
+     * @return ClienteDTO encontrado
+     * @throws informviva.gest.exception.RecursoNoEncontradoException si no existe
      */
-    Cliente guardar(Cliente cliente);
+    ClienteDTO buscarPorIdDTO(Long id);
 
     /**
-     * Elimina un cliente por su ID
+     * Guarda un nuevo cliente desde un DTO
+     *
+     * @param clienteDTO Datos del cliente a guardar
+     * @return ClienteDTO guardado con su ID asignado
+     * @throws IllegalArgumentException si los datos no son válidos
      */
-    void eliminar(Long id);
-
-    // ========== MÉTODOS DE VALIDACIÓN ==========
+    ClienteDTO guardarDTO(ClienteDTO clienteDTO);
 
     /**
-     * Valida si un RUT tiene el formato correcto
+     * Actualiza un cliente existente desde un DTO
+     *
+     * @param id Identificador del cliente a actualizar
+     * @param clienteDTO Nuevos datos del cliente
+     * @return ClienteDTO actualizado
+     * @throws informviva.gest.exception.RecursoNoEncontradoException si no existe
+     * @throws IllegalArgumentException si los datos no son válidos
      */
-    boolean rutEsValido(String rut);
+    ClienteDTO actualizarDTO(Long id, ClienteDTO clienteDTO);
 
     /**
-     * Verifica si existe un cliente con el email especificado
+     * Busca clientes por nombre (búsqueda parcial, insensible a mayúsculas)
+     *
+     * @param nombre Nombre o parte del nombre a buscar
+     * @return Lista de ClienteDTO que coinciden
      */
-    boolean existeClienteConEmail(String email);
+    List<ClienteDTO> buscarPorNombre(String nombre);
 
     /**
-     * Verifica si existe un cliente con el RUT especificado
+     * Busca clientes por apellido (búsqueda parcial, insensible a mayúsculas)
+     *
+     * @param apellido Apellido o parte del apellido a buscar
+     * @return Lista de ClienteDTO que coinciden
      */
-    boolean existeClienteConRut(String rut);
+    List<ClienteDTO> buscarPorApellido(String apellido);
 
     /**
-     * Verifica si existe un cliente con el RUT especificado (alias)
+     * Busca un cliente por su RUT
+     *
+     * @param rut RUT del cliente (formato: xx.xxx.xxx-x)
+     * @return Optional con ClienteDTO si existe
+     */
+    Optional<ClienteDTO> buscarPorRut(String rut);
+
+    /**
+     * Busca un cliente por su email
+     *
+     * @param email Email del cliente
+     * @return Optional con ClienteDTO si existe
+     */
+    Optional<ClienteDTO> buscarPorEmail(String email);
+
+    /**
+     * Busca clientes por texto libre (nombre, apellido, email)
+     *
+     * @param texto Texto a buscar
+     * @return Lista de ClienteDTO que coinciden
+     */
+    List<ClienteDTO> buscarPorTexto(String texto);
+
+    /**
+     * Verifica si existe un cliente con el RUT dado
+     *
+     * @param rut RUT a verificar
+     * @return true si existe, false en caso contrario
      */
     boolean existePorRut(String rut);
 
     /**
-     * Verifica si existe un email en otro cliente (para edición)
+     * Verifica si existe un cliente con el email dado
+     *
+     * @param email Email a verificar
+     * @return true si existe, false en caso contrario
      */
-    boolean existeClienteConEmailExcluyendo(String email, Long id);
+    boolean existePorEmail(String email);
 
     /**
-     * Verifica si existe un RUT en otro cliente (para edición)
+     * Valida si un RUT tiene el formato y dígito verificador correctos
+     *
+     * @param rut RUT a validar (formato: xx.xxx.xxx-x)
+     * @return true si es válido, false en caso contrario
      */
-    boolean existeClienteConRutExcluyendo(String rut, Long id);
-
-    // ===== MÉTODOS ADICIONALES PARA CONTROLADORES =====
+    boolean rutEsValido(String rut);
 
     /**
-     * Verifica si existe un email (alias para controladores)
+     * Valida si un email tiene el formato correcto
+     *
+     * @param email Email a validar
+     * @return true si es válido, false en caso contrario
      */
-    boolean existeEmail(String email);
+    boolean emailEsValido(String email);
 
     /**
-     * Verifica si existe email en otro cliente (alias para controladores)
+     * Cuenta el número de clientes activos
+     *
+     * @return Número de clientes activos
      */
-    boolean existeEmailOtroCliente(String email, Long id);
-
-    // ========== MÉTODOS DE BÚSQUEDA ==========
+    long contarClientesActivos();
 
     /**
-     * Busca un cliente por su RUT
+     * Busca todos los clientes activos
+     *
+     * @return Lista de ClienteDTO activos
      */
-    Cliente buscarPorRut(String rut);
+    List<ClienteDTO> buscarClientesActivos();
 
     /**
-     * Busca clientes por nombre
+     * Activa un cliente (marca como activo)
+     *
+     * @param id Identificador del cliente
+     * @throws informviva.gest.exception.RecursoNoEncontradoException si no existe
      */
-    List<Cliente> buscarPorNombre(String nombre);
+    void activarCliente(Long id);
 
     /**
-     * Busca clientes por apellido
+     * Desactiva un cliente (marca como inactivo)
+     *
+     * @param id Identificador del cliente
+     * @throws informviva.gest.exception.RecursoNoEncontradoException si no existe
      */
-    List<Cliente> buscarPorApellido(String apellido);
+    void desactivarCliente(Long id);
 
     /**
-     * Busca un cliente por su email
+     * Cuenta el número de ventas realizadas por un cliente
+     *
+     * @param clienteId Identificador del cliente
+     * @return Número de ventas del cliente
      */
-    Optional<Cliente> buscarPorEmail(String email);
+    long contarVentasPorCliente(Long clienteId);
 
     /**
-     * Busca clientes por teléfono
+     * Elimina un cliente por su ID
+     *
+     * @param id Identificador del cliente a eliminar
+     * @throws informviva.gest.exception.RecursoNoEncontradoException si el cliente no existe
      */
-    List<Cliente> buscarPorTelefono(String telefono);
+    void eliminar(Long id);
 
     /**
-     * Busca clientes por dirección
+     * Verifica si existe un cliente con el ID dado
+     *
+     * @param id Identificador a verificar
+     * @return true si existe, false en caso contrario
      */
-    List<Cliente> buscarPorDireccion(String direccion);
+    boolean existe(Long id);
 
     /**
-     * Busca clientes por término general (nombre, apellido, email, RUT)
+     * Cuenta el número total de clientes
+     *
+     * @return Número total de clientes
      */
-    List<Cliente> buscarPorTermino(String termino);
-
-    /**
-     * Busca clientes por término con límite
-     */
-    List<Cliente> buscarPorTermino(String termino, int limite);
-
-    /**
-     * Busca clientes por término con paginación
-     */
-    Page<Cliente> buscarPorTermino(String termino, Pageable pageable);
-
-    /**
-     * Busca clientes por nombre o email con paginación
-     */
-    Page<Cliente> buscarPorNombreOEmail(String busqueda, Pageable pageable);
-
-    // ========== MÉTODOS POR CATEGORÍA Y ESTADO ==========
-
-    /**
-     * Obtiene clientes por categoría
-     */
-    List<Cliente> obtenerClientesPorCategoria(String categoria);
-
-    /**
-     * Busca clientes por múltiples categorías
-     */
-    List<Cliente> buscarPorCategorias(List<String> categorias);
-
-    /**
-     * Busca clientes por estado activo/inactivo
-     */
-    List<Cliente> buscarPorEstadoActivo(boolean activo);
-
-    /**
-     * Obtiene solo clientes activos
-     */
-    List<Cliente> obtenerActivos();
-
-    /**
-     * Obtiene clientes activos con paginación
-     */
-    Page<Cliente> obtenerActivosPaginados(Pageable pageable);
-
-    // ========== MÉTODOS POR FECHAS ==========
-
-    /**
-     * Busca clientes por rango de fecha de registro
-     */
-    List<Cliente> buscarPorFechaRegistro(LocalDate fechaInicio, LocalDate fechaFin);
-
-    /**
-     * Obtiene clientes nuevos en un período
-     */
-    List<Cliente> obtenerClientesNuevos(LocalDate fechaInicio, LocalDate fechaFin);
-
-    /**
-     * Obtiene clientes registrados recientemente
-     */
-    List<Cliente> obtenerClientesRegistradosRecientemente(LocalDate fechaInicio);
-
-    /**
-     * Busca clientes por rango de edad
-     */
-    List<Cliente> buscarPorEdadEntre(int edadMin, int edadMax);
-
-    // ========== MÉTODOS DE PAGINACIÓN ==========
-
-    /**
-     * Obtiene todos los clientes con paginación
-     */
-    Page<Cliente> obtenerTodosPaginados(Pageable pageable);
-
-    /**
-     * Lista clientes con paginación
-     */
-    Page<Cliente> listarClientesPaginadas(Pageable pageable);
-
-    // ========== MÉTODOS DE CONTEO ==========
-
-    /**
-     * Cuenta el total de clientes
-     */
-    Long contarTotalClientes();
-
-    /**
-     * Cuenta el total de clientes (alias para controladores)
-     */
-    Long contarTodos();
-
-    /**
-     * Cuenta clientes nuevos en un período
-     */
-    Long contarClientesNuevos(LocalDate fechaInicio, LocalDate fechaFin);
-
-    /**
-     * Cuenta clientes activos
-     */
-    Long contarClientesActivos();
-
-    /**
-     * Cuenta clientes activos (alias)
-     */
-    Long contarActivos();
-
-    /**
-     * Cuenta clientes inactivos
-     */
-    Long contarInactivos();
-
-    /**
-     * Cuenta clientes nuevos hoy
-     */
-    Long contarNuevosHoy();
-
-    /**
-     * Cuenta clientes nuevos este mes
-     */
-    Long contarNuevosMes();
-
-    // ========== MÉTODOS DE REPORTES ==========
-
-    /**
-     * Obtiene clientes con compras en un período
-     */
-    List<ClienteReporteDTO> obtenerClientesConCompras(LocalDate fechaInicio, LocalDate fechaFin);
-
-    /**
-     * Obtiene top clientes por compras
-     */
-    List<ClienteReporteDTO> obtenerTopClientesPorCompras(int limite);
-
-    /**
-     * Obtiene clientes sin ventas en un período
-     */
-    List<Cliente> obtenerClientesSinVentas(LocalDate fechaInicio, LocalDate fechaFin);
-
-    // ========== MÉTODOS DE ANÁLISIS ==========
-
-    /**
-     * Calcula el promedio de compras por cliente
-     */
-    Double calcularPromedioComprasPorCliente();
-
-    /**
-     * Obtiene estadísticas de clientes para un período
-     */
-    Map<String, Object> obtenerEstadisticasPeriodo(LocalDate fechaInicio, LocalDate fechaFin);
-
-    // ========== MÉTODOS DE BÚSQUEDA POR CIUDAD ==========
-
-    /**
-     * Lista todas las ciudades disponibles
-     */
-    List<String> listarCiudades();
-
-    /**
-     * Cuenta el número de ciudades
-     */
-    Long contarCiudades();
-
-    /**
-     * Busca clientes por ciudad con paginación
-     */
-    Page<Cliente> buscarPorCiudad(String ciudad, Pageable pageable);
-
-    /**
-     * Busca clientes activos por ciudad con paginación
-     */
-    Page<Cliente> buscarPorCiudadYActivos(String ciudad, Pageable pageable);
-
-    /**
-     * Busca clientes activos por término con paginación
-     */
-    Page<Cliente> buscarPorTerminoYActivos(String termino, Pageable pageable);
-
-    /**
-     * Busca clientes por término y ciudad con paginación
-     */
-    Page<Cliente> buscarPorTerminoYCiudad(String termino, String ciudad, Pageable pageable);
-
-    /**
-     * Busca clientes activos por término y ciudad con paginación
-     */
-    Page<Cliente> buscarPorTerminoYCiudadYActivos(String termino, String ciudad, Pageable pageable);
-
-    // ========== MÉTODOS DE IMPORTACIÓN/EXPORTACIÓN ==========
-
-    /**
-     * Exporta datos de clientes en formato específico
-     */
-    String exportarDatos(String formato, LocalDate fechaInicio, LocalDate fechaFin);
-
-    /**
-     * Exporta datos de clientes en formato específico (sobrecarga)
-     */
-    String exportarDatos(String formato, List<Cliente> clientes);
-
-    /**
-     * Importa datos de clientes desde formato específico
-     */
-    int importarDatos(String datos, String formato);
-
-    /**
-     * Valida la integridad de los datos de clientes
-     */
-    Map<String, Object> validarIntegridadDatos();
-
-    // ========== MÉTODOS DE ACTUALIZACIÓN MASIVA ==========
-
-    /**
-     * Actualiza masivamente la categoría de clientes
-     */
-    int actualizarCategoriaEnLote(List<Long> clienteIds, String nuevaCategoria);
+    long contar();
 }

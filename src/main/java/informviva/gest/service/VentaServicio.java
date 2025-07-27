@@ -1,199 +1,151 @@
 package informviva.gest.service;
 
 import informviva.gest.dto.VentaDTO;
-import informviva.gest.model.Cliente;
-import informviva.gest.model.Venta;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 /**
- * Interfaz para el servicio de ventas
- * @author Roberto Rivas
- * @version 2.0
+ * Interface del servicio de ventas que define el contrato
+ * para la gestión de ventas en el sistema.
+ *
+ * Aplicación del principio de Inversión de Dependencias (D de SOLID):
+ * - Los módulos de alto nivel no dependen de módulos de bajo nivel
+ * - Ambos dependen de abstracciones (esta interface)
+ *
+ * @author Tu nombre
+ * @version 1.0
  */
 public interface VentaServicio {
 
-    // ==================== MÉTODOS PRINCIPALES ====================
-
     /**
-     * Crear una nueva venta a partir de un DTO
+     * Obtiene todas las ventas como DTOs
+     *
+     * @return Lista de VentaDTO
      */
-    Venta crearNuevaVenta(VentaDTO ventaDTO);
+    List<VentaDTO> buscarTodosDTO();
 
     /**
-     * Obtener todas las ventas
+     * Obtiene todas las ventas con paginación como DTOs
+     *
+     * @param pageable Información de paginación
+     * @return Página de VentaDTO
      */
-    List<Venta> obtenerTodasLasVentas();
+    Page<VentaDTO> buscarTodosDTO(Pageable pageable);
 
     /**
-     * Obtener venta por ID
+     * Busca una venta por su ID y la devuelve como DTO
+     *
+     * @param id Identificador de la venta
+     * @return VentaDTO encontrada
+     * @throws informviva.gest.exception.RecursoNoEncontradoException si no existe
      */
-    Venta obtenerVentaPorId(Long id);
-
-    // ==================== MÉTODOS DE BÚSQUEDA ====================
+    VentaDTO buscarPorIdDTO(Long id);
 
     /**
-     * Buscar ventas por rango de fechas
+     * Crea una nueva venta desde un DTO
+     *
+     * @param ventaDTO Datos de la venta a crear
+     * @return VentaDTO creada con su ID asignado
+     * @throws IllegalArgumentException si los datos no son válidos
+     * @throws informviva.gest.exception.StockInsuficienteException si no hay stock suficiente
      */
-    List<Venta> buscarPorRangoFechas(LocalDateTime fechaInicio, LocalDateTime fechaFin);
+    VentaDTO crearVenta(VentaDTO ventaDTO);
 
     /**
-     * Buscar ventas por rango de fechas con paginación
+     * Actualiza una venta existente desde un DTO
+     *
+     * @param id Identificador de la venta a actualizar
+     * @param ventaDTO Nuevos datos de la venta
+     * @return VentaDTO actualizada
+     * @throws informviva.gest.exception.RecursoNoEncontradoException si no existe
+     * @throws IllegalArgumentException si los datos no son válidos
      */
-    Page<Venta> buscarPorRangoFechas(LocalDateTime fechaInicio, LocalDateTime fechaFin, Pageable pageable);
+    VentaDTO actualizarVenta(Long id, VentaDTO ventaDTO);
 
     /**
-     * Buscar ventas por cliente
+     * Busca ventas por cliente
+     *
+     * @param clienteId Identificador del cliente
+     * @return Lista de VentaDTO del cliente
      */
-    List<Venta> buscarPorCliente(Long clienteId);
+    List<VentaDTO> buscarPorCliente(Long clienteId);
 
     /**
-     * Buscar ventas por cliente (sobrecarga)
+     * Busca ventas por vendedor
+     *
+     * @param vendedorId Identificador del vendedor
+     * @return Lista de VentaDTO del vendedor
      */
-    List<Venta> buscarPorCliente(Cliente cliente);
+    List<VentaDTO> buscarPorVendedor(Long vendedorId);
 
     /**
-     * Buscar ventas por vendedor y fechas
+     * Busca ventas en un rango de fechas
+     *
+     * @param fechaInicio Fecha de inicio (inclusive)
+     * @param fechaFin Fecha de fin (inclusive)
+     * @return Lista de VentaDTO en el rango
      */
-    List<Venta> buscarPorVendedorYFechas(Long vendedorId, LocalDateTime fechaInicio, LocalDateTime fechaFin);
+    List<VentaDTO> buscarPorRangoFechas(LocalDateTime fechaInicio, LocalDateTime fechaFin);
 
     /**
-     * Buscar ventas para exportar con filtros
+     * Busca ventas por estado
+     *
+     * @param estado Estado de la venta (PENDIENTE, COMPLETADA, ANULADA)
+     * @return Lista de VentaDTO con el estado especificado
      */
-    List<Venta> buscarVentasParaExportar(LocalDateTime fechaInicio, LocalDateTime fechaFin,
-                                         String estado, String metodoPago, String vendedor);
+    List<VentaDTO> buscarPorEstado(String estado);
 
     /**
-     * Buscar ventas recientes por producto
+     * Anula una venta y restaura el stock de productos
+     *
+     * @param id Identificador de la venta a anular
+     * @param motivoAnulacion Motivo de la anulación
+     * @throws informviva.gest.exception.RecursoNoEncontradoException si la venta no existe
+     * @throws IllegalStateException si la venta ya está anulada
      */
-    List<Venta> buscarVentasRecientesPorProducto(Long productoId, int limite);
+    void anularVenta(Long id, String motivoAnulacion);
 
     /**
-     * Buscar ventas recientes por cliente
+     * Calcula el total de ventas realizadas a un cliente
+     *
+     * @param clienteId Identificador del cliente
+     * @return Total de ventas (excluyendo anuladas)
      */
-    List<Venta> buscarVentasRecientesPorCliente(Long clienteId, int limite);
-
-    // ==================== MÉTODOS CRUD ====================
+    BigDecimal calcularTotalVentasPorCliente(Long clienteId);
 
     /**
-     * Buscar venta por ID (Optional)
+     * Cuenta el número de ventas en un período
+     *
+     * @param fechaInicio Fecha de inicio
+     * @param fechaFin Fecha de fin
+     * @return Número de ventas en el período
      */
-    Optional<Venta> buscarPorId(Long id);
+    long contarVentasPorPeriodo(LocalDateTime fechaInicio, LocalDateTime fechaFin);
 
     /**
-     * Listar todas las ventas (alias para compatibilidad)
-     */
-    List<Venta> listarTodas();
-
-    /**
-     * Guardar venta
-     */
-    Venta guardar(Venta venta);
-
-    /**
-     * Guardar venta desde DTO
-     */
-    Venta guardar(VentaDTO ventaDTO);
-
-    /**
-     * Actualizar venta
-     */
-    Venta actualizar(Venta venta);
-
-    /**
-     * Actualizar venta desde DTO
-     */
-    Venta actualizar(Long id, VentaDTO ventaDTO);
-
-    /**
-     * Eliminar venta
+     * Elimina una venta por su ID
+     *
+     * @param id Identificador de la venta a eliminar
+     * @throws informviva.gest.exception.RecursoNoEncontradoException si la venta no existe
      */
     void eliminar(Long id);
 
     /**
-     * Anular venta
+     * Verifica si existe una venta con el ID dado
+     *
+     * @param id Identificador a verificar
+     * @return true si existe, false en caso contrario
      */
-    Venta anular(Long id);
+    boolean existe(Long id);
 
     /**
-     * Duplicar venta
+     * Cuenta el número total de ventas
+     *
+     * @return Número total de ventas
      */
-    Venta duplicarVenta(Venta ventaOriginal);
-
-    // ==================== MÉTODOS DE CONVERSIÓN ====================
-
-    /**
-     * Convertir venta a DTO
-     */
-    VentaDTO convertirADTO(Venta venta);
-
-    // ==================== MÉTODOS DE CÁLCULO Y ESTADÍSTICAS ====================
-
-    /**
-     * Contar transacciones en un rango de fechas
-     */
-    Long contarTransacciones(LocalDateTime fechaInicio, LocalDateTime fechaFin);
-
-    /**
-     * Contar ventas por cliente
-     */
-    Long contarVentasPorCliente(Long clienteId);
-
-    /**
-     * Contar ventas de hoy
-     */
-    Long contarVentasHoy();
-
-    /**
-     * Calcular total de ventas por cliente
-     */
-    Double calcularTotalVentasPorCliente(Long clienteId);
-
-    /**
-     * Calcular total de ventas en un período
-     */
-    Double calcularTotalVentas(LocalDateTime inicio, LocalDateTime fin);
-
-    /**
-     * Calcular porcentaje de cambio
-     */
-    Double calcularPorcentajeCambio(Double actual, Double anterior);
-
-    /**
-     * Calcular ticket promedio
-     */
-    Double calcularTicketPromedio(LocalDateTime inicio, LocalDateTime fin);
-
-    // ==================== MÉTODOS DE VALIDACIÓN ====================
-
-    /**
-     * Verificar si existen ventas por cliente
-     */
-    boolean existenVentasPorCliente(Long clienteId);
-
-    /**
-     * Verificar si existen ventas por producto
-     */
-    boolean existenVentasPorProducto(Long productoId);
-
-    // ==================== MÉTODOS DE ARTÍCULOS Y PRODUCTOS ====================
-
-    /**
-     * Contar artículos vendidos en un período
-     */
-    Long contarArticulosVendidos(LocalDateTime fechaInicio, LocalDateTime fechaFin);
-
-    /**
-     * Contar unidades vendidas por producto
-     */
-    Long contarUnidadesVendidasPorProducto(Long productoId);
-
-    /**
-     * Calcular ingresos por producto
-     */
-    Double calcularIngresosPorProducto(Long productoId);
+    long contar();
 }
