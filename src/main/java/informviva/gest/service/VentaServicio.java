@@ -9,54 +9,61 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * Interface del servicio de ventas que define el contrato
+ * Interfaz del servicio de ventas que define el contrato
  * para la gestión de ventas en el sistema.
+ *
+ * IMPORTANTE: Todos los métodos públicos trabajan exclusivamente con DTOs.
+ * Las entidades JPA son manejadas internamente por la implementación.
  *
  * Aplicación del principio de Inversión de Dependencias (D de SOLID):
  * - Los módulos de alto nivel no dependen de módulos de bajo nivel
- * - Ambos dependen de abstracciones (esta interface)
+ * - Ambos dependen de abstracciones (esta interfaz)
  *
- * @author Tu nombre
- * @version 1.0
+ * @author Sistema de Gestión Empresarial
+ * @version 2.0 - Refactorizado Fase 1
  */
 public interface VentaServicio {
 
+    // ============================================
+    // OPERACIONES CRUD PRINCIPALES
+    // ============================================
+
     /**
-     * Obtiene todas las ventas como DTOs
+     * Obtiene todas las ventas
      *
      * @return Lista de VentaDTO
      */
-    List<VentaDTO> buscarTodosDTO();
+    List<VentaDTO> buscarTodos();
 
     /**
-     * Obtiene todas las ventas con paginación como DTOs
+     * Obtiene todas las ventas con paginación
      *
      * @param pageable Información de paginación
      * @return Página de VentaDTO
      */
-    Page<VentaDTO> buscarTodosDTO(Pageable pageable);
+    Page<VentaDTO> buscarTodos(Pageable pageable);
 
     /**
-     * Busca una venta por su ID y la devuelve como DTO
+     * Busca una venta por su ID
      *
      * @param id Identificador de la venta
      * @return VentaDTO encontrada
      * @throws informviva.gest.exception.RecursoNoEncontradoException si no existe
      */
-    VentaDTO buscarPorIdDTO(Long id);
+    VentaDTO buscarPorId(Long id);
 
     /**
-     * Crea una nueva venta desde un DTO
+     * Guarda una nueva venta o actualiza una existente
      *
-     * @param ventaDTO Datos de la venta a crear
-     * @return VentaDTO creada con su ID asignado
+     * @param ventaDTO Datos de la venta a guardar
+     * @return VentaDTO guardada con su ID asignado
      * @throws IllegalArgumentException si los datos no son válidos
      * @throws informviva.gest.exception.StockInsuficienteException si no hay stock suficiente
      */
-    VentaDTO crearVenta(VentaDTO ventaDTO);
+    VentaDTO guardar(VentaDTO ventaDTO);
 
     /**
-     * Actualiza una venta existente desde un DTO
+     * Actualiza una venta existente
      *
      * @param id Identificador de la venta a actualizar
      * @param ventaDTO Nuevos datos de la venta
@@ -64,7 +71,19 @@ public interface VentaServicio {
      * @throws informviva.gest.exception.RecursoNoEncontradoException si no existe
      * @throws IllegalArgumentException si los datos no son válidos
      */
-    VentaDTO actualizarVenta(Long id, VentaDTO ventaDTO);
+    VentaDTO actualizar(Long id, VentaDTO ventaDTO);
+
+    /**
+     * Elimina una venta por su ID
+     *
+     * @param id Identificador de la venta a eliminar
+     * @throws informviva.gest.exception.RecursoNoEncontradoException si la venta no existe
+     */
+    void eliminar(Long id);
+
+    // ============================================
+    // BÚSQUEDAS ESPECÍFICAS
+    // ============================================
 
     /**
      * Busca ventas por cliente
@@ -99,6 +118,10 @@ public interface VentaServicio {
      */
     List<VentaDTO> buscarPorEstado(String estado);
 
+    // ============================================
+    // OPERACIONES DE NEGOCIO
+    // ============================================
+
     /**
      * Anula una venta y restaura el stock de productos
      *
@@ -109,30 +132,9 @@ public interface VentaServicio {
      */
     void anularVenta(Long id, String motivoAnulacion);
 
-    /**
-     * Calcula el total de ventas realizadas a un cliente
-     *
-     * @param clienteId Identificador del cliente
-     * @return Total de ventas (excluyendo anuladas)
-     */
-    BigDecimal calcularTotalVentasPorCliente(Long clienteId);
-
-    /**
-     * Cuenta el número de ventas en un período
-     *
-     * @param fechaInicio Fecha de inicio
-     * @param fechaFin Fecha de fin
-     * @return Número de ventas en el período
-     */
-    long contarVentasPorPeriodo(LocalDateTime fechaInicio, LocalDateTime fechaFin);
-
-    /**
-     * Elimina una venta por su ID
-     *
-     * @param id Identificador de la venta a eliminar
-     * @throws informviva.gest.exception.RecursoNoEncontradoException si la venta no existe
-     */
-    void eliminar(Long id);
+    // ============================================
+    // VALIDACIONES Y VERIFICACIONES
+    // ============================================
 
     /**
      * Verifica si existe una venta con el ID dado
@@ -142,10 +144,31 @@ public interface VentaServicio {
      */
     boolean existe(Long id);
 
+    // ============================================
+    // CÁLCULOS Y ESTADÍSTICAS
+    // ============================================
+
+    /**
+     * Calcula el total de ventas realizadas a un cliente
+     *
+     * @param clienteId Identificador del cliente
+     * @return Total de ventas (excluyendo anuladas)
+     */
+    BigDecimal calcularTotalVentasPorCliente(Long clienteId);
+
     /**
      * Cuenta el número total de ventas
      *
      * @return Número total de ventas
      */
     long contar();
+
+    /**
+     * Cuenta el número de ventas en un período
+     *
+     * @param fechaInicio Fecha de inicio
+     * @param fechaFin Fecha de fin
+     * @return Número de ventas en el período
+     */
+    long contarVentasPorPeriodo(LocalDateTime fechaInicio, LocalDateTime fechaFin);
 }

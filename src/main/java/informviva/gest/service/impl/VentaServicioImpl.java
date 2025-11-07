@@ -24,11 +24,16 @@ import java.util.stream.Collectors;
  * - S: Responsabilidad única para gestión de ventas
  * - O: Abierto para extensión, cerrado para modificación
  * - L: Cumple el contrato de VentaServicio
- * - I: Implementa interface específica de ventas
+ * - I: Implementa interfaz específica de ventas
  * - D: Depende de abstracciones (repositorios, mapper)
  *
- * @author Tu nombre
- * @version 1.0
+ * IMPORTANTE:
+ * - Todos los métodos públicos trabajan con DTOs
+ * - Los métodos privados manejan entidades JPA
+ * - Usa ModelMapper para conversiones automáticas
+ *
+ * @author Sistema de Gestión Empresarial
+ * @version 2.0 - Refactorizado Fase 1
  */
 @Slf4j
 @Service
@@ -58,50 +63,42 @@ public class VentaServicioImpl extends BaseServiceImpl<Venta, Long>
         this.modelMapper = modelMapper;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    // ============================================
+    // OPERACIONES CRUD PRINCIPALES
+    // ============================================
+
     @Override
     @Transactional(readOnly = true)
-    public List<VentaDTO> buscarTodosDTO() {
-        log.debug("Buscando todas las ventas como DTO");
+    public List<VentaDTO> buscarTodos() {
+        log.debug("Buscando todas las ventas");
 
         return ventaRepositorio.findAll()
                 .stream()
-                .map(venta -> modelMapper.map(venta, VentaDTO.class))
+                .map(this::convertirADTO)
                 .collect(Collectors.toList());
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     @Transactional(readOnly = true)
-    public Page<VentaDTO> buscarTodosDTO(Pageable pageable) {
-        log.debug("Buscando ventas paginadas como DTO - Página: {}", pageable.getPageNumber());
+    public Page<VentaDTO> buscarTodos(Pageable pageable) {
+        log.debug("Buscando ventas paginadas - Página: {}", pageable.getPageNumber());
 
         return ventaRepositorio.findAll(pageable)
-                .map(venta -> modelMapper.map(venta, VentaDTO.class));
+                .map(this::convertirADTO);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     @Transactional(readOnly = true)
-    public VentaDTO buscarPorIdDTO(Long id) {
-        log.debug("Buscando venta por ID como DTO: {}", id);
+    public VentaDTO buscarPorId(Long id) {
+        log.debug("Buscando venta por ID: {}", id);
 
-        Venta venta = obtenerPorId(id);
-        return modelMapper.map(venta, VentaDTO.class);
+        Venta venta = obtenerEntidadPorId(id);
+        return convertirADTO(venta);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public VentaDTO crearVenta(VentaDTO ventaDTO) {
-        log.debug("Creando nueva venta para cliente ID: {}", ventaDTO.getClienteId());
+    public VentaDTO guardar(VentaDTO ventaDTO) {
+        log.debug("Guardando nueva venta para cliente ID: {}", ventaDTO.getClienteId());
 
         validarVentaDTO(ventaDTO);
 
@@ -122,34 +119,44 @@ public class VentaServicioImpl extends BaseServiceImpl<Venta, Long>
         // Calcular totales
         calcularTotalesVenta(venta);
 
-        Venta ventaGuardada = guardar(venta);
+        Venta ventaGuardada = guardarEntidad(venta);
 
-        log.info("Venta creada exitosamente con ID: {}", ventaGuardada.getId());
-        return modelMapper.map(ventaGuardada, VentaDTO.class);
+        log.info("Venta guardada exitosamente con ID: {}", ventaGuardada.getId());
+        return convertirADTO(ventaGuardada);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public VentaDTO actualizarVenta(Long id, VentaDTO ventaDTO) {
+    public VentaDTO actualizar(Long id, VentaDTO ventaDTO) {
         log.debug("Actualizando venta ID: {}", id);
 
-        Venta ventaExistente = obtenerPorId(id);
+        Venta ventaExistente = obtenerEntidadPorId(id);
         validarVentaDTO(ventaDTO);
 
         // Solo actualizar ciertos campos (no productos una vez creada)
         actualizarCamposVenta(ventaExistente, ventaDTO);
 
-        Venta ventaActualizada = guardar(ventaExistente);
+        Venta ventaActualizada = guardarEntidad(ventaExistente);
 
         log.info("Venta actualizada exitosamente: {}", ventaActualizada.getId());
-        return modelMapper.map(ventaActualizada, VentaDTO.class);
+        return convertirADTO(ventaActualizada);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
+    public void eliminar(Long id) {
+        log.debug("Eliminando venta ID: {}", id);
+
+        if (!existe(id)) {
+            throw new RecursoNoEncontradoException("Venta no encontrada con ID: " + id);
+        }
+
+        ventaRepositorio.deleteById(id);
+        log.info("Venta eliminada exitosamente: {}", id);
+    }
+
+    // ============================================
+    // BÚSQUEDAS ESPECÍFICAS
+    // ============================================
+
     @Override
     @Transactional(readOnly = true)
     public List<VentaDTO> buscarPorCliente(Long clienteId) {
@@ -157,13 +164,10 @@ public class VentaServicioImpl extends BaseServiceImpl<Venta, Long>
 
         return ventaRepositorio.findByClienteId(clienteId)
                 .stream()
-                .map(venta -> modelMapper.map(venta, VentaDTO.class))
+                .map(this::convertirADTO)
                 .collect(Collectors.toList());
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     @Transactional(readOnly = true)
     public List<VentaDTO> buscarPorVendedor(Long vendedorId) {
@@ -171,13 +175,10 @@ public class VentaServicioImpl extends BaseServiceImpl<Venta, Long>
 
         return ventaRepositorio.findByVendedorId(vendedorId)
                 .stream()
-                .map(venta -> modelMapper.map(venta, VentaDTO.class))
+                .map(this::convertirADTO)
                 .collect(Collectors.toList());
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     @Transactional(readOnly = true)
     public List<VentaDTO> buscarPorRangoFechas(LocalDateTime fechaInicio, LocalDateTime fechaFin) {
@@ -185,13 +186,10 @@ public class VentaServicioImpl extends BaseServiceImpl<Venta, Long>
 
         return ventaRepositorio.findByFechaBetween(fechaInicio, fechaFin)
                 .stream()
-                .map(venta -> modelMapper.map(venta, VentaDTO.class))
+                .map(this::convertirADTO)
                 .collect(Collectors.toList());
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     @Transactional(readOnly = true)
     public List<VentaDTO> buscarPorEstado(String estado) {
@@ -199,18 +197,19 @@ public class VentaServicioImpl extends BaseServiceImpl<Venta, Long>
 
         return ventaRepositorio.findByEstado(estado)
                 .stream()
-                .map(venta -> modelMapper.map(venta, VentaDTO.class))
+                .map(this::convertirADTO)
                 .collect(Collectors.toList());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    // ============================================
+    // OPERACIONES DE NEGOCIO
+    // ============================================
+
     @Override
     public void anularVenta(Long id, String motivoAnulacion) {
         log.debug("Anulando venta ID: {} con motivo: {}", id, motivoAnulacion);
 
-        Venta venta = obtenerPorId(id);
+        Venta venta = obtenerEntidadPorId(id);
 
         if ("ANULADA".equals(venta.getEstado())) {
             throw new IllegalStateException("La venta ya está anulada");
@@ -224,14 +223,25 @@ public class VentaServicioImpl extends BaseServiceImpl<Venta, Long>
         venta.setObservaciones(venta.getObservaciones() + " | ANULADA: " + motivoAnulacion);
         venta.setFechaActualizacion(LocalDateTime.now());
 
-        guardar(venta);
+        guardarEntidad(venta);
 
         log.info("Venta anulada exitosamente: {}", id);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    // ============================================
+    // VALIDACIONES Y VERIFICACIONES
+    // ============================================
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean existe(Long id) {
+        return ventaRepositorio.existsById(id);
+    }
+
+    // ============================================
+    // CÁLCULOS Y ESTADÍSTICAS
+    // ============================================
+
     @Override
     @Transactional(readOnly = true)
     public BigDecimal calcularTotalVentasPorCliente(Long clienteId) {
@@ -245,9 +255,12 @@ public class VentaServicioImpl extends BaseServiceImpl<Venta, Long>
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
+    @Transactional(readOnly = true)
+    public long contar() {
+        return ventaRepositorio.count();
+    }
+
     @Override
     @Transactional(readOnly = true)
     public long contarVentasPorPeriodo(LocalDateTime fechaInicio, LocalDateTime fechaFin) {
@@ -264,7 +277,42 @@ public class VentaServicioImpl extends BaseServiceImpl<Venta, Long>
         return "Venta";
     }
 
-    // ==================== MÉTODOS PRIVADOS ====================
+    // ============================================
+    // MÉTODOS PRIVADOS Y HELPER
+    // ============================================
+
+    /**
+     * Obtiene una entidad Venta por ID (uso interno)
+     *
+     * @param id ID de la venta
+     * @return Entidad Venta
+     * @throws RecursoNoEncontradoException si no existe
+     */
+    private Venta obtenerEntidadPorId(Long id) {
+        return ventaRepositorio.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException(
+                        "Venta no encontrada con ID: " + id));
+    }
+
+    /**
+     * Guarda una entidad Venta (uso interno)
+     *
+     * @param venta Entidad a guardar
+     * @return Entidad guardada
+     */
+    private Venta guardarEntidad(Venta venta) {
+        return ventaRepositorio.save(venta);
+    }
+
+    /**
+     * Convierte entidad Venta a VentaDTO
+     *
+     * @param venta Entidad
+     * @return DTO
+     */
+    private VentaDTO convertirADTO(Venta venta) {
+        return modelMapper.map(venta, VentaDTO.class);
+    }
 
     /**
      * Valida los datos del VentaDTO
