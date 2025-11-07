@@ -111,6 +111,16 @@ public interface VentaServicio {
     List<VentaDTO> buscarPorRangoFechas(LocalDateTime fechaInicio, LocalDateTime fechaFin);
 
     /**
+     * Busca ventas en un rango de fechas con paginación
+     *
+     * @param fechaInicio Fecha de inicio (inclusive)
+     * @param fechaFin Fecha de fin (inclusive)
+     * @param pageable Información de paginación
+     * @return Página de VentaDTO en el rango
+     */
+    Page<VentaDTO> buscarPorRangoFechas(LocalDateTime fechaInicio, LocalDateTime fechaFin, Pageable pageable);
+
+    /**
      * Busca ventas por estado
      *
      * @param estado Estado de la venta (PENDIENTE, COMPLETADA, ANULADA)

@@ -192,6 +192,15 @@ public class VentaServicioImpl extends BaseServiceImpl<Venta, Long>
 
     @Override
     @Transactional(readOnly = true)
+    public Page<VentaDTO> buscarPorRangoFechas(LocalDateTime fechaInicio, LocalDateTime fechaFin, Pageable pageable) {
+        log.debug("Buscando ventas por rango de fechas paginado: {} - {}", fechaInicio, fechaFin);
+
+        return ventaRepositorio.findByFechaBetween(fechaInicio, fechaFin, pageable)
+                .map(this::convertirADTO);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<VentaDTO> buscarPorEstado(String estado) {
         log.debug("Buscando ventas por estado: {}", estado);
 

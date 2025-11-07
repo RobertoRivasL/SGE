@@ -4,7 +4,7 @@ package informviva.gest.controlador;
 import java.util.Optional;
 
 import informviva.gest.dto.ExportConfigDTO;
-import informviva.gest.model.Venta;
+import informviva.gest.dto.VentaDTO;
 import informviva.gest.service.VentaServicio;
 import informviva.gest.service.ClienteServicio;
 import informviva.gest.service.ExportacionServicio;
@@ -118,12 +118,11 @@ public class HistorialVentasControlador {
                 Pageable pageable = PageRequest.of(page, size, Sort.by("fecha").descending());
             }
 
-            // Configurar paginaci// Obtener ventas filtradas
-            //        Page<Venta> ventas = ventaServicio.buscarPorRangoFechas(fechaInicio.atStartOfDay(), fechaFin.atTime(23, 59, 59), pageable);ón
+            // Configurar paginación
             Pageable pageable = PageRequest.of(page, size, Sort.by("fecha").descending());
 
             // Obtener ventas filtradas
-            Page<Venta> ventas = ventaServicio.buscarPorRangoFechas(fechaInicio.atStartOfDay(), fechaFin.atTime(23, 59, 59), pageable);
+            Page<VentaDTO> ventas = ventaServicio.buscarPorRangoFechas(fechaInicio.atStartOfDay(), fechaFin.atTime(23, 59, 59), pageable);
 
             // Calcular estadísticas del período
             Map<String, Object> estadisticas = calcularEstadisticasPeriodo(
@@ -206,13 +205,12 @@ public class HistorialVentasControlador {
     @PostMapping("/duplicar/{id}")
     public String duplicarVenta(@PathVariable Long id, Model model) {
         try {
-            Optional<Venta> ventaOptional = ventaServicio.buscarPorId(id);
-            if (!ventaOptional.isPresent()) {
+            VentaDTO ventaOriginal = ventaServicio.buscarPorId(id);
+            if (ventaOriginal == null) {
                 return manejarVentaNoEncontrada(model);
             }
 
-            Venta ventaOriginal = ventaOptional.get();
-            Venta nuevaVenta = ventaServicio.duplicarVenta(ventaOriginal);
+            VentaDTO nuevaVenta = ventaServicio.duplicarVenta(ventaOriginal);
 
             // Redirigir al formulario de edición de la nueva venta
             return "redirect:/ventas/editar/" + nuevaVenta.getId() + "?duplicada=true";
@@ -247,19 +245,18 @@ public class HistorialVentasControlador {
     @GetMapping("/devolucion/{id}")
     public String procesarDevolucion(@PathVariable Long id, Model model) {
         try {
-            Optional<Venta> ventaOptional = ventaServicio.buscarPorId(id);
-            if (!ventaOptional.isPresent()) {
+            VentaDTO venta = ventaServicio.buscarPorId(id);
+            if (venta == null) {
                 return manejarVentaNoEncontrada(model);
             }
 
-            Venta venta = ventaOptional.get();
             if (!"completada".equals(venta.getEstado())) {
                 return manejarEstadoInvalido(model);
             }
 
             // Cargar vista de devolución
             model.addAttribute("venta", venta);
-            model.addAttribute("ventaDTO", ventaServicio.convertirADTO(venta));
+            model.addAttribute("ventaDTO", venta);
 
             return "ventas/devolucion";
 
@@ -287,13 +284,7 @@ public class HistorialVentasControlador {
     @GetMapping("/factura/{id}")
     public String generarFactura(@PathVariable Long id, Model model) {
         try {
-            Optional<Venta> ventaOptional = ventaServicio.buscarPorId(id);
-            if (!ventaOptional.isPresent()) {
-                model.addAttribute("mensaje", "Venta no encontrada");
-                model.addAttribute("tipoMensaje", "error");
-                return "redirect:/ventas/historial";
-            }
-            Venta venta = ventaOptional.get();
+            VentaDTO venta = ventaServicio.buscarPorId(id);
             if (venta == null) {
                 model.addAttribute("mensaje", "Venta no encontrada");
                 model.addAttribute("tipoMensaje", "error");
@@ -346,13 +337,15 @@ public class HistorialVentasControlador {
 
         try {
             // Obtener ventas del período para cálculos
-            List<Venta> ventasPeriodo = ventaServicio.buscarVentasParaExportar(
-                    fechaInicio.atStartOfDay(), fechaFin.atTime(23, 59, 59), cliente, metodo, estado);
+            // Nota: Los parámetros cliente, metodo son nombres de String, no IDs
+            // Para simplificar, usamos el método con solo fechas y filtros básicos
+            List<VentaDTO> ventasPeriodo = ventaServicio.buscarVentasParaExportar(
+                    fechaInicio.atStartOfDay(), fechaFin.atTime(23, 59, 59), estado, metodo, null);
 
             // Calcular totales
             BigDecimal totalIngresos = ventasPeriodo.stream()
                     .filter(v -> "completada".equals(v.getEstado()))
-                    .map(v -> BigDecimal.valueOf(v.getTotal()))
+                    .map(VentaDTO::getTotal)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
 
             long ventasCompletadas = ventasPeriodo.stream()
@@ -364,7 +357,7 @@ public class HistorialVentasControlador {
                     BigDecimal.ZERO;
 
             long clientesUnicos = ventasPeriodo.stream()
-                    .map(v -> v.getCliente().getId())
+                    .map(VentaDTO::getClienteId)
                     .collect(Collectors.toSet())
                     .size();
 
