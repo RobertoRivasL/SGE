@@ -7,10 +7,10 @@ package informviva.gest.controlador;
  * @version 2.0
  */
 
+import informviva.gest.dto.ProductoDTO;
 import informviva.gest.dto.ProductoReporteDTO;
+import informviva.gest.dto.VentaDTO;
 import informviva.gest.dto.VentaResumenDTO;
-import informviva.gest.model.Producto;
-import informviva.gest.model.Venta;
 import informviva.gest.service.ProductoServicio;
 import informviva.gest.service.ReporteServicio;
 import informviva.gest.service.VentaServicio;
@@ -71,13 +71,13 @@ public class ReporteExportacionControlador {
 
         try {
             // Obtener todos los productos
-            List<Producto> productos = productoServicio.listar();
+            List<ProductoDTO> productos = productoServicio.buscarTodos();
 
             // Aplicar filtros
             if (categoria != null && !categoria.isEmpty()) {
                 productos = productos.stream()
                         .filter(p -> p.getCategoria() != null &&
-                                p.getCategoria().getNombre().equalsIgnoreCase(categoria))
+                                p.getCategoria().equalsIgnoreCase(categoria))
                         .collect(Collectors.toList());
             }
 
@@ -92,7 +92,7 @@ public class ReporteExportacionControlador {
             List<ProductoReporteDTO> topVendidos = obtenerTopProductosVendidos(10);
 
             // Productos con bajo stock
-            List<Producto> productosBajoStock = productoServicio.listarConBajoStock(10);
+            List<ProductoDTO> productosBajoStock = productoServicio.listarConBajoStock(10);
 
             // Categorías disponibles
             List<String> categorias = productoServicio.listarCategorias();
@@ -123,7 +123,7 @@ public class ReporteExportacionControlador {
 
         try {
             VentaResumenDTO resumen = reporteServicio.generarResumenVentas(startDate, endDate);
-            List<Venta> ventas = ventaServicio.buscarPorRangoFechas(startDate.atStartOfDay(), endDate.atStartOfDay().plusDays(1).minusNanos(1));
+            List<VentaDTO> ventas = ventaServicio.buscarPorRangoFechas(startDate.atStartOfDay(), endDate.atStartOfDay().plusDays(1).minusNanos(1));
 
             byte[] data;
             String fileName;
@@ -164,12 +164,12 @@ public class ReporteExportacionControlador {
 
         try {
             // Obtener productos con filtros aplicados
-            List<Producto> productos = productoServicio.listar();
+            List<ProductoDTO> productos = productoServicio.buscarTodos();
 
             if (categoria != null && !categoria.isEmpty()) {
                 productos = productos.stream()
                         .filter(p -> p.getCategoria() != null &&
-                                p.getCategoria().getNombre().equalsIgnoreCase(categoria))
+                                p.getCategoria().equalsIgnoreCase(categoria))
                         .collect(Collectors.toList());
             }
 
@@ -238,7 +238,7 @@ public class ReporteExportacionControlador {
             }
 
             VentaResumenDTO resumen = reporteServicio.generarResumenVentas(inicio, fin);
-            Map<String, Object> estadisticasProductos = generarEstadisticasProductos(productoServicio.listar());
+            Map<String, Object> estadisticasProductos = generarEstadisticasProductos(productoServicio.buscarTodos());
 
             Map<String, Object> respuesta = new HashMap<>();
             respuesta.put("ventas", resumen);
@@ -257,7 +257,7 @@ public class ReporteExportacionControlador {
 
     // Métodos auxiliares
 
-    private List<Producto> aplicarFiltroStock(List<Producto> productos, String filtro) {
+    private List<ProductoDTO> aplicarFiltroStock(List<ProductoDTO> productos, String filtro) {
         return productos.stream().filter(p -> {
             int stock = p.getStock() != null ? p.getStock() : 0;
             switch (filtro) {
@@ -275,11 +275,11 @@ public class ReporteExportacionControlador {
         }).collect(Collectors.toList());
     }
 
-    private Map<String, Object> generarEstadisticasProductos(List<Producto> productos) {
+    private Map<String, Object> generarEstadisticasProductos(List<ProductoDTO> productos) {
         Map<String, Object> estadisticas = new HashMap<>();
 
         long totalProductos = productos.size();
-        long productosActivos = productos.stream().mapToLong(p -> p.isActivo() ? 1 : 0).sum();
+        long productosActivos = productos.stream().mapToLong(p -> (p.getActivo() != null && p.getActivo()) ? 1 : 0).sum();
         long productosBajoStock = productos.stream().mapToLong(p ->
                 (p.getStock() != null && p.getStock() > 0 && p.getStock() < 10) ? 1 : 0).sum();
         long productosAgotados = productos.stream().mapToLong(p ->
@@ -293,7 +293,7 @@ public class ReporteExportacionControlador {
         // Distribución por categorías
         Map<String, Long> distribucionCategorias = productos.stream()
                 .collect(Collectors.groupingBy(
-                        p -> p.getCategoria() != null ? p.getCategoria().getNombre() : "Sin categoría",
+                        p -> p.getCategoria() != null ? p.getCategoria() : "Sin categoría",
                         Collectors.counting()
                 ));
 
@@ -315,12 +315,12 @@ public class ReporteExportacionControlador {
     private List<ProductoReporteDTO> obtenerTopProductosVendidos(int limite) {
         // Esta sería una implementación simplificada
         // En un escenario real, consultarías la base de datos para obtener las estadísticas de ventas
-        return productoServicio.listar().stream()
+        return productoServicio.buscarTodos().stream()
                 .limit(limite)
                 .map(p -> {
                     ProductoReporteDTO dto = new ProductoReporteDTO();
                     dto.setId(p.getId());
-                    dto.setCodigo(p.getCodigo());
+                    dto.setCodigo(p.getSku());
                     dto.setNombre(p.getNombre());
                     dto.setCategoria(p.getCategoria());
                     dto.setStock(p.getStock());
@@ -332,7 +332,7 @@ public class ReporteExportacionControlador {
                 .collect(Collectors.toList());
     }
 
-    private byte[] generarReporteVentasExcel(VentaResumenDTO resumen, List<Venta> ventas) throws IOException {
+    private byte[] generarReporteVentasExcel(VentaResumenDTO resumen, List<VentaDTO> ventas) throws IOException {
         try (Workbook workbook = new XSSFWorkbook();
              ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
 
@@ -365,7 +365,7 @@ public class ReporteExportacionControlador {
 
             // Crear tabla de ventas detalladas
             Row detailHeaderRow = sheet.createRow(7);
-            String[] headers = {"ID", "Fecha", "Cliente", "Vendedor", "Total", "Estado"};
+            String[] headers = {"ID", "Fecha", "Cliente ID", "Vendedor ID", "Total", "Estado"};
 
             for (int i = 0; i < headers.length; i++) {
                 Cell cell = detailHeaderRow.createCell(i);
@@ -375,14 +375,14 @@ public class ReporteExportacionControlador {
 
             // Llenar datos de ventas
             int rowIdx = 8;
-            for (Venta venta : ventas) {
+            for (VentaDTO venta : ventas) {
                 Row row = sheet.createRow(rowIdx++);
                 row.createCell(0).setCellValue(venta.getId());
                 row.createCell(1).setCellValue(venta.getFecha().toString());
-                row.createCell(2).setCellValue(venta.getCliente().getNombreCompleto());
-                row.createCell(3).setCellValue(venta.getVendedor().getNombreCompleto());
-                row.createCell(4).setCellValue(venta.getTotal());
-                row.createCell(5).setCellValue(venta.getEstado() != null ? venta.getEstado().toString() : "COMPLETADA");
+                row.createCell(2).setCellValue(venta.getClienteId() != null ? venta.getClienteId() : 0);
+                row.createCell(3).setCellValue(venta.getVendedorId() != null ? venta.getVendedorId() : 0);
+                row.createCell(4).setCellValue(venta.getTotal() != null ? venta.getTotal().doubleValue() : 0.0);
+                row.createCell(5).setCellValue(venta.getEstado() != null ? venta.getEstado() : "COMPLETADA");
             }
 
             // Ajustar ancho de columnas
@@ -395,7 +395,7 @@ public class ReporteExportacionControlador {
         }
     }
 
-    private byte[] generarReporteProductosExcel(List<Producto> productos) throws IOException {
+    private byte[] generarReporteProductosExcel(List<ProductoDTO> productos) throws IOException {
         try (Workbook workbook = new XSSFWorkbook();
              ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
 
@@ -411,7 +411,7 @@ public class ReporteExportacionControlador {
 
             // Crear encabezados
             Row headerRow = sheet.createRow(0);
-            String[] headers = {"Código", "Nombre", "Descripción", "Categoría", "Precio", "Stock", "Estado"};
+            String[] headers = {"SKU", "Nombre", "Descripción", "Categoría", "Precio", "Stock", "Estado"};
 
             for (int i = 0; i < headers.length; i++) {
                 Cell cell = headerRow.createCell(i);
@@ -421,16 +421,15 @@ public class ReporteExportacionControlador {
 
             // Llenar datos
             int rowIdx = 1;
-            for (Producto producto : productos) {
+            for (ProductoDTO producto : productos) {
                 Row row = sheet.createRow(rowIdx++);
-                row.createCell(0).setCellValue(producto.getCodigo());
+                row.createCell(0).setCellValue(producto.getSku() != null ? producto.getSku() : "");
                 row.createCell(1).setCellValue(producto.getNombre());
-                row.createCell(2).setCellValue(producto.getDescripcion());
-                row.createCell(3).setCellValue(producto.getCategoria() != null ?
-                        producto.getCategoria().getNombre() : "Sin categoría");
-                row.createCell(4).setCellValue(producto.getPrecio());
-                row.createCell(5).setCellValue(producto.getStock());
-                row.createCell(6).setCellValue(producto.isActivo() ? "Activo" : "Inactivo");
+                row.createCell(2).setCellValue(producto.getDescripcion() != null ? producto.getDescripcion() : "");
+                row.createCell(3).setCellValue(producto.getCategoria() != null ? producto.getCategoria() : "Sin categoría");
+                row.createCell(4).setCellValue(producto.getPrecio() != null ? producto.getPrecio().doubleValue() : 0.0);
+                row.createCell(5).setCellValue(producto.getStock() != null ? producto.getStock() : 0);
+                row.createCell(6).setCellValue((producto.getActivo() != null && producto.getActivo()) ? "Activo" : "Inactivo");
             }
 
             // Ajustar ancho de columnas
@@ -443,13 +442,13 @@ public class ReporteExportacionControlador {
         }
     }
 
-    private byte[] generarReporteVentasPDF(VentaResumenDTO resumen, List<Venta> ventas) {
+    private byte[] generarReporteVentasPDF(VentaResumenDTO resumen, List<VentaDTO> ventas) {
         // Implementación simplificada para PDF
         // En producción usarías iText o similar
         return "PDF de ventas no implementado aún".getBytes();
     }
 
-    private byte[] generarReporteProductosPDF(List<Producto> productos) {
+    private byte[] generarReporteProductosPDF(List<ProductoDTO> productos) {
         // Implementación simplificada para PDF
         // En producción usarías iText o similar
         return "PDF de productos no implementado aún".getBytes();
