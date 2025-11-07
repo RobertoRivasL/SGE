@@ -1,7 +1,7 @@
 package informviva.gest.controlador;
 
+import informviva.gest.dto.ClienteDTO;
 import informviva.gest.dto.ClienteReporteDTO;
-import informviva.gest.model.Cliente;
 import informviva.gest.service.ClienteServicio;
 import informviva.gest.service.VentaServicio;
 import informviva.gest.util.MensajesConstantes;
@@ -66,7 +66,7 @@ public class ClienteControlador {
 
         try {
             Pageable pageable = PageRequest.of(page, size);
-            Page<Cliente> clientesPage;
+            Page<ClienteDTO> clientesPage;
 
             if (search != null && !search.trim().isEmpty()) {
                 clientesPage = clienteServicio.buscarPorNombreOEmail(search.trim(), pageable);
@@ -97,7 +97,7 @@ public class ClienteControlador {
     @GetMapping("/nuevo")
     @PreAuthorize("hasAnyRole('ADMIN', 'VENTAS', 'GERENTE')")
     public String mostrarFormularioNuevo(Model modelo) {
-        modelo.addAttribute("cliente", new Cliente());
+        modelo.addAttribute("cliente", new ClienteDTO());
         modelo.addAttribute("esNuevo", true);
         modelo.addAttribute("categorias", obtenerCategoriasDisponibles());
 
@@ -113,7 +113,7 @@ public class ClienteControlador {
     @PreAuthorize("hasAnyRole('ADMIN', 'VENTAS', 'GERENTE')")
     public String editarCliente(@PathVariable Long id, Model modelo, RedirectAttributes redirectAttributes) {
         try {
-            Cliente cliente = clienteServicio.buscarPorId(id);
+            ClienteDTO cliente = clienteServicio.buscarPorId(id);
 
             if (cliente == null) {
                 redirectAttributes.addFlashAttribute("error", "Cliente no encontrado");
@@ -142,7 +142,7 @@ public class ClienteControlador {
     @PreAuthorize("hasAnyRole('ADMIN', 'VENTAS', 'GERENTE')")
     public String mostrarDetalleCliente(@PathVariable Long id, Model modelo, RedirectAttributes redirectAttributes) {
         try {
-            Cliente cliente = clienteServicio.buscarPorId(id);
+            ClienteDTO cliente = clienteServicio.buscarPorId(id);
 
             if (cliente == null) {
                 redirectAttributes.addFlashAttribute("error", "Cliente no encontrado");
@@ -150,9 +150,9 @@ public class ClienteControlador {
             }
 
             // Obtener información adicional del cliente
-            var ventasCliente = ventaServicio.buscarPorCliente(cliente);
+            var ventasCliente = ventaServicio.buscarPorClienteId(id);
             var totalCompras = ventasCliente.stream()
-                    .mapToDouble(venta -> venta.getTotal() != null ? venta.getTotal() : 0.0)
+                    .mapToDouble(venta -> venta.getTotal() != null ? venta.getTotal().doubleValue() : 0.0)
                     .sum();
 
             modelo.addAttribute("cliente", cliente);
