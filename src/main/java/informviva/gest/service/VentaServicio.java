@@ -144,6 +144,22 @@ public interface VentaServicio {
      */
     boolean existe(Long id);
 
+    /**
+     * Verifica si existen ventas asociadas a un cliente
+     *
+     * @param clienteId ID del cliente
+     * @return true si el cliente tiene ventas, false en caso contrario
+     */
+    boolean existenVentasPorCliente(Long clienteId);
+
+    /**
+     * Verifica si existen ventas asociadas a un producto
+     *
+     * @param productoId ID del producto
+     * @return true si el producto tiene ventas, false en caso contrario
+     */
+    boolean existenVentasPorProducto(Long productoId);
+
     // ============================================
     // CÁLCULOS Y ESTADÍSTICAS
     // ============================================
@@ -171,4 +187,47 @@ public interface VentaServicio {
      * @return Número de ventas en el período
      */
     long contarVentasPorPeriodo(LocalDateTime fechaInicio, LocalDateTime fechaFin);
+
+    /**
+     * Calcula el total monetario de ventas en un período
+     *
+     * @param fechaInicio Fecha de inicio
+     * @param fechaFin Fecha de fin
+     * @return Total de ventas (suma de totales, excluyendo anuladas)
+     */
+    BigDecimal calcularTotalVentas(LocalDateTime fechaInicio, LocalDateTime fechaFin);
+
+    /**
+     * Cuenta el número total de artículos vendidos en un período
+     *
+     * @param fechaInicio Fecha de inicio
+     * @param fechaFin Fecha de fin
+     * @return Número total de unidades vendidas
+     */
+    Long contarArticulosVendidos(LocalDateTime fechaInicio, LocalDateTime fechaFin);
+
+    /**
+     * Cuenta las unidades vendidas de un producto específico
+     *
+     * @param productoId ID del producto
+     * @return Número de unidades vendidas del producto
+     */
+    Long contarUnidadesVendidasPorProducto(Long productoId);
+
+    /**
+     * Calcula los ingresos totales generados por un producto
+     *
+     * @param productoId ID del producto
+     * @return Total de ingresos del producto
+     */
+    BigDecimal calcularIngresosPorProducto(Long productoId);
+
+    /**
+     * Busca las ventas más recientes de un producto
+     *
+     * @param productoId ID del producto
+     * @param limite Número máximo de ventas a retornar
+     * @return Lista de VentaDTO más recientes del producto
+     */
+    List<VentaDTO> buscarVentasRecientesPorProducto(Long productoId, int limite);
 }

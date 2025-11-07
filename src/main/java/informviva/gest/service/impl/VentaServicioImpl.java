@@ -269,6 +269,102 @@ public class VentaServicioImpl extends BaseServiceImpl<Venta, Long>
         return ventaRepositorio.countByFechaBetween(fechaInicio, fechaFin);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public BigDecimal calcularTotalVentas(LocalDateTime fechaInicio, LocalDateTime fechaFin) {
+        log.debug("Calculando total de ventas por período: {} - {}", fechaInicio, fechaFin);
+
+        List<Venta> ventas = ventaRepositorio.findByFechaBetween(fechaInicio, fechaFin);
+
+        return ventas.stream()
+                .filter(venta -> !"ANULADA".equals(venta.getEstado()))
+                .map(Venta::getTotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Long contarArticulosVendidos(LocalDateTime fechaInicio, LocalDateTime fechaFin) {
+        log.debug("Contando artículos vendidos por período: {} - {}", fechaInicio, fechaFin);
+
+        List<Venta> ventas = ventaRepositorio.findByFechaBetween(fechaInicio, fechaFin);
+
+        return ventas.stream()
+                .filter(venta -> !"ANULADA".equals(venta.getEstado()))
+                .flatMap(venta -> venta.getDetalles().stream())
+                .mapToLong(detalle -> detalle.getCantidad())
+                .sum();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Long contarUnidadesVendidasPorProducto(Long productoId) {
+        log.debug("Contando unidades vendidas del producto ID: {}", productoId);
+
+        // TODO: Implementar query eficiente en repositorio
+        List<Venta> ventas = ventaRepositorio.findAll();
+
+        return ventas.stream()
+                .filter(venta -> !"ANULADA".equals(venta.getEstado()))
+                .flatMap(venta -> venta.getDetalles().stream())
+                .filter(detalle -> detalle.getProducto().getId().equals(productoId))
+                .mapToLong(detalle -> detalle.getCantidad())
+                .sum();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public BigDecimal calcularIngresosPorProducto(Long productoId) {
+        log.debug("Calculando ingresos del producto ID: {}", productoId);
+
+        // TODO: Implementar query eficiente en repositorio
+        List<Venta> ventas = ventaRepositorio.findAll();
+
+        return ventas.stream()
+                .filter(venta -> !"ANULADA".equals(venta.getEstado()))
+                .flatMap(venta -> venta.getDetalles().stream())
+                .filter(detalle -> detalle.getProducto().getId().equals(productoId))
+                .map(detalle -> detalle.getSubtotal())
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<VentaDTO> buscarVentasRecientesPorProducto(Long productoId, int limite) {
+        log.debug("Buscando ventas recientes del producto ID: {}, límite: {}", productoId, limite);
+
+        // TODO: Implementar query eficiente en repositorio
+        List<Venta> ventas = ventaRepositorio.findAll();
+
+        return ventas.stream()
+                .filter(venta -> venta.getDetalles().stream()
+                        .anyMatch(detalle -> detalle.getProducto().getId().equals(productoId)))
+                .sorted((v1, v2) -> v2.getFecha().compareTo(v1.getFecha()))
+                .limit(limite)
+                .map(this::convertirADTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean existenVentasPorCliente(Long clienteId) {
+        log.debug("Verificando si existen ventas para cliente ID: {}", clienteId);
+        return !ventaRepositorio.findByClienteId(clienteId).isEmpty();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean existenVentasPorProducto(Long productoId) {
+        log.debug("Verificando si existen ventas para producto ID: {}", productoId);
+
+        // TODO: Implementar query eficiente en repositorio
+        List<Venta> ventas = ventaRepositorio.findAll();
+
+        return ventas.stream()
+                .anyMatch(venta -> venta.getDetalles().stream()
+                        .anyMatch(detalle -> detalle.getProducto().getId().equals(productoId)));
+    }
+
     /**
      * {@inheritDoc}
      */
