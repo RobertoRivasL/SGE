@@ -230,4 +230,59 @@ public interface VentaServicio {
      * @return Lista de VentaDTO más recientes del producto
      */
     List<VentaDTO> buscarVentasRecientesPorProducto(Long productoId, int limite);
+
+    // ============================================
+    // MÉTODOS LEGACY PARA COMPATIBILIDAD CON CONTROLADORES
+    // ============================================
+
+    /**
+     * Busca ventas para exportar con filtros (legacy)
+     * Método agregado para compatibilidad con VentaControlador
+     *
+     * @param fechaInicio Fecha de inicio
+     * @param fechaFin Fecha de fin
+     * @param estado Estado de la venta (puede ser null)
+     * @param metodoPago Método de pago (puede ser null)
+     * @param vendedorId ID del vendedor (puede ser null)
+     * @return Lista de VentaDTO que coinciden con los filtros
+     */
+    List<VentaDTO> buscarVentasParaExportar(LocalDateTime fechaInicio, LocalDateTime fechaFin,
+                                            String estado, String metodoPago, Long vendedorId);
+
+    /**
+     * Busca ventas por vendedor y rango de fechas (legacy)
+     * Método agregado para compatibilidad con VentaControlador
+     *
+     * @param vendedorId ID del vendedor
+     * @param fechaInicio Fecha de inicio
+     * @param fechaFin Fecha de fin
+     * @return Lista de VentaDTO del vendedor en el rango de fechas
+     */
+    List<VentaDTO> buscarPorVendedorYFechas(Long vendedorId, LocalDateTime fechaInicio, LocalDateTime fechaFin);
+
+    /**
+     * Lista todas las ventas (legacy)
+     * Método agregado para compatibilidad con VentaControlador
+     *
+     * @return Lista de todas las VentaDTO
+     */
+    List<VentaDTO> listarTodas();
+
+    /**
+     * Anula una venta (legacy - sin motivo)
+     * Método agregado para compatibilidad con VentaControlador
+     *
+     * @param id Identificador de la venta a anular
+     * @throws informviva.gest.exception.RecursoNoEncontradoException si la venta no existe
+     */
+    void anular(Long id);
+
+    /**
+     * Duplica una venta existente (legacy)
+     * Método agregado para compatibilidad con VentaControlador
+     *
+     * @param ventaDTO Venta original a duplicar
+     * @return Nueva VentaDTO duplicada
+     */
+    VentaDTO duplicarVenta(VentaDTO ventaDTO);
 }

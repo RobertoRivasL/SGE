@@ -540,4 +540,67 @@ public class VentaServicioImpl extends BaseServiceImpl<Venta, Long>
             productoRepositorio.save(producto);
         });
     }
+
+    // ============================================
+    // MÉTODOS LEGACY PARA COMPATIBILIDAD CON CONTROLADORES
+    // ============================================
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<VentaDTO> buscarVentasParaExportar(LocalDateTime fechaInicio, LocalDateTime fechaFin,
+                                                   String estado, String metodoPago, Long vendedorId) {
+        log.debug("Buscando ventas para exportar - Fechas: {} a {}, Estado: {}, Método pago: {}, Vendedor: {}",
+                fechaInicio, fechaFin, estado, metodoPago, vendedorId);
+
+        List<Venta> ventas = ventaRepositorio.findByFechaBetween(fechaInicio, fechaFin);
+
+        return ventas.stream()
+                .filter(venta -> estado == null || estado.isEmpty() || estado.equals(venta.getEstado()))
+                .filter(venta -> metodoPago == null || metodoPago.isEmpty() || metodoPago.equals(venta.getMetodoPago()))
+                .filter(venta -> vendedorId == null || (venta.getVendedor() != null && venta.getVendedor().getId().equals(vendedorId)))
+                .map(this::convertirADTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<VentaDTO> buscarPorVendedorYFechas(Long vendedorId, LocalDateTime fechaInicio, LocalDateTime fechaFin) {
+        log.debug("Buscando ventas por vendedor {} y fechas: {} a {}", vendedorId, fechaInicio, fechaFin);
+
+        List<Venta> ventas = ventaRepositorio.findByFechaBetween(fechaInicio, fechaFin);
+
+        return ventas.stream()
+                .filter(venta -> venta.getVendedor() != null && venta.getVendedor().getId().equals(vendedorId))
+                .map(this::convertirADTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<VentaDTO> listarTodas() {
+        log.debug("Listando todas las ventas (legacy)");
+        return buscarTodos();
+    }
+
+    @Override
+    public void anular(Long id) {
+        log.debug("Anulando venta ID: {} (legacy - sin motivo específico)", id);
+        anularVenta(id, "Anulada por el usuario");
+    }
+
+    @Override
+    public VentaDTO duplicarVenta(VentaDTO ventaOriginalDTO) {
+        log.debug("Duplicando venta (legacy)");
+
+        // Crear nueva venta con los mismos datos pero nueva fecha
+        VentaDTO ventaNuevaDTO = new VentaDTO();
+        ventaNuevaDTO.setClienteId(ventaOriginalDTO.getClienteId());
+        ventaNuevaDTO.setVendedorId(ventaOriginalDTO.getVendedorId());
+        ventaNuevaDTO.setMetodoPago(ventaOriginalDTO.getMetodoPago());
+        ventaNuevaDTO.setObservaciones("Duplicada de venta original - " +
+                (ventaOriginalDTO.getObservaciones() != null ? ventaOriginalDTO.getObservaciones() : ""));
+        ventaNuevaDTO.setProductos(ventaOriginalDTO.getProductos());
+
+        return guardar(ventaNuevaDTO);
+    }
 }
