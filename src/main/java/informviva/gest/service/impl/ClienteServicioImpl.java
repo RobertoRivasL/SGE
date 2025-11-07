@@ -98,10 +98,10 @@ public class ClienteServicioImpl extends BaseServiceImpl<Cliente, Long>
     @Override
     @Transactional(readOnly = true)
     public ClienteDTO buscarPorId(Long id) {
-        log.debug("Buscando cliente por ID como DTO: {}", id);
+        log.debug("Buscando cliente por ID: {}", id);
 
-        Cliente cliente = obtenerPorId(id);
-        return modelMapper.map(cliente, ClienteDTO.class);
+        Cliente cliente = obtenerEntidadPorId(id);
+        return convertirADTO(cliente);
     }
 
     @Override

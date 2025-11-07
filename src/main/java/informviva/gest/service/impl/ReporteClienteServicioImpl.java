@@ -63,7 +63,7 @@ public class ReporteClienteServicioImpl implements ReporteClienteServicio {
             Long totalClientes = clienteServicio.contarClientesNuevos(fechaInicio, fechaFin);
 
             // Calcular estadísticas básicas
-            estadisticas.put("totalClientesRegistrados", clienteServicio.obtenerTodos().size());
+            estadisticas.put("totalClientesRegistrados", clienteServicio.buscarTodos().size());
             estadisticas.put("clientesNuevosEnPeriodo", totalClientes);
             estadisticas.put("clientesConCompras", clientesConCompras.size());
             estadisticas.put("clientesActivos", clienteServicio.contarActivos());
@@ -115,7 +115,7 @@ public class ReporteClienteServicioImpl implements ReporteClienteServicio {
         Map<String, Long> distribucion = new LinkedHashMap<>();
         LocalDate hoy = LocalDate.now();
 
-        List<Cliente> todosLosClientes = clienteServicio.obtenerTodos();
+        List<Cliente> todosLosClientes = clienteServicio.buscarTodos();
 
         // Inicializar contadores
         distribucion.put("Menos de 3 meses", 0L);

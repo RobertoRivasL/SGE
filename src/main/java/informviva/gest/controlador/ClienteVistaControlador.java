@@ -311,9 +311,9 @@ public class ClienteVistaControlador {
                 return clienteServicio.buscarPorCiudad(ciudad.trim(), pageable);
             }
         } else if (soloActivos != null && soloActivos) {
-            return clienteServicio.obtenerActivosPaginados(pageable);
+            return clienteServicio.buscarActivos(pageable);
         } else {
-            return clienteServicio.obtenerTodosPaginados(pageable);
+            return clienteServicio.buscarTodos(pageable);
         }
     }
 }

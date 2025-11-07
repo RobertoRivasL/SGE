@@ -141,7 +141,7 @@ public class ClienteRestControlador {
     @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'VENTAS')")
     public ResponseEntity<List<ClienteDTO>> obtenerClientesActivos() {
         try {
-            List<Cliente> clientes = clienteServicio.obtenerActivos();
+            List<Cliente> clientes = clienteServicio.buscarActivos();
 
             List<ClienteDTO> clientesDTO = clientes.stream()
                     .map(this::convertirADTOSimple)
@@ -378,9 +378,9 @@ public class ClienteRestControlador {
             return clienteServicio.buscarPorCiudad(ciudad.trim(), pageable);
         }
         if (activos) {
-            return clienteServicio.obtenerActivosPaginados(pageable);
+            return clienteServicio.buscarActivos(pageable);
         }
-        return clienteServicio.obtenerTodosPaginados(pageable);
+        return clienteServicio.buscarTodos(pageable);
     }
 
     /**

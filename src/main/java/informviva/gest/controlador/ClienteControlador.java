@@ -72,7 +72,7 @@ public class ClienteControlador {
                 clientesPage = clienteServicio.buscarPorNombreOEmail(search.trim(), pageable);
                 modelo.addAttribute("search", search);
             } else {
-                clientesPage = clienteServicio.obtenerTodosPaginados(pageable);
+                clientesPage = clienteServicio.buscarTodos(pageable);
             }
 
             modelo.addAttribute("clientes", clientesPage.getContent());
@@ -429,6 +429,6 @@ public class ClienteControlador {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = Pageable.ofSize(size).withPage(page);
-        return clienteServicio.obtenerTodosPaginados(pageable);
+        return clienteServicio.buscarTodos(pageable);
     }
 }

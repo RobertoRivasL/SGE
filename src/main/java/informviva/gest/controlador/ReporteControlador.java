@@ -85,7 +85,7 @@ public class ReporteControlador {
             kpis.put("totalProductos", productoServicio.contarTodos());
             kpis.put("productosActivos", productoServicio.contarActivos());
             kpis.put("productosBajoStock", productoServicio.contarConBajoStock(5));
-            kpis.put("totalClientes", clienteServicio.obtenerTodos().size());
+            kpis.put("totalClientes", clienteServicio.buscarTodos().size());
             kpis.put("clientesActivos", clienteServicio.contarActivos());
             kpis.put("clientesNuevos", clienteServicio.contarClientesNuevos(inicio, fin));
 

@@ -440,7 +440,7 @@ public class VentaControlador {
 
         // Cargar clientes con manejo seguro de errores
         try {
-            List<Cliente> clientes = clienteServicio.obtenerTodos();
+            List<Cliente> clientes = clienteServicio.buscarTodos();
             model.addAttribute(PARAM_CLIENTES, clientes != null ? clientes : Collections.emptyList());
         } catch (Exception e) {
             logger.warn("No se pudieron cargar clientes: {}", e.getMessage());
@@ -479,7 +479,7 @@ public class VentaControlador {
 
         // Cargar datos para filtros
         try {
-            List<Cliente> clientes = clienteServicio.obtenerTodos();
+            List<Cliente> clientes = clienteServicio.buscarTodos();
             model.addAttribute(PARAM_CLIENTES, clientes != null ? clientes : Collections.emptyList());
         } catch (Exception e) {
             logger.warn("No se pudieron cargar clientes para listado: {}", e.getMessage());

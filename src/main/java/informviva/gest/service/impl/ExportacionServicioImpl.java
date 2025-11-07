@@ -321,7 +321,7 @@ public class ExportacionServicioImpl implements ExportacionServicio {
     // ==================== MÉTODOS AUXILIARES DE OBTENCIÓN DE DATOS ====================
 
     private List<ClienteExportDTO> obtenerClientesParaExportacion(ExportConfigDTO config) {
-        List<Cliente> clientes = clienteServicio.obtenerTodos();
+        List<Cliente> clientes = clienteServicio.buscarTodos();
 
         return clientes.stream()
                 .filter(cliente -> aplicarFiltrosCliente(cliente, config))
@@ -639,7 +639,7 @@ public class ExportacionServicioImpl implements ExportacionServicio {
 
     private int calcularRegistrosEstimados(String tipo, LocalDateTime fechaInicio, LocalDateTime fechaFin) {
         return switch (tipo.toLowerCase()) {
-            case "clientes" -> clienteServicio.obtenerTodos().size();
+            case "clientes" -> clienteServicio.buscarTodos().size();
             case "productos" -> productoServicio.listar().size();
             case "usuarios" -> usuarioServicio.listarTodos().size();
             case "ventas" -> {
