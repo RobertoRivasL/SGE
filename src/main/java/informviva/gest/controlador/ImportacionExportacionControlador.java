@@ -57,7 +57,7 @@ public class ImportacionExportacionControlador {
     @GetMapping
     public String mostrarPaginaPrincipal(Model model) {
         // Estadísticas básicas
-        model.addAttribute("totalProductos", productoServicio.contarTodos());
+        model.addAttribute("totalProductos", productoServicio.contar());
         model.addAttribute("totalVentas", ventaServicio.listarTodas().size());
         model.addAttribute("fechaActual", LocalDate.now());
 
@@ -369,7 +369,7 @@ public class ImportacionExportacionControlador {
     public ResponseEntity<Object> obtenerEstadisticas() {
         try {
             var stats = new java.util.HashMap<String, Object>();
-            stats.put("totalProductos", productoServicio.contarTodos());
+            stats.put("totalProductos", productoServicio.contar());
             stats.put("productosActivos", productoServicio.contarActivos());
             stats.put("productosBajoStock", productoServicio.contarConBajoStock(5));
             stats.put("totalVentas", ventaServicio.listarTodas().size());

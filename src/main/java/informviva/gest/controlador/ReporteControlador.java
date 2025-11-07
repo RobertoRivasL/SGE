@@ -82,7 +82,7 @@ public class ReporteControlador {
     private Map<String, Object> calcularKPIs(LocalDate inicio, LocalDate fin) {
         Map<String, Object> kpis = new HashMap<>();
         try {
-            kpis.put("totalProductos", productoServicio.contarTodos());
+            kpis.put("totalProductos", productoServicio.contar());
             kpis.put("productosActivos", productoServicio.contarActivos());
             kpis.put("productosBajoStock", productoServicio.contarConBajoStock(5));
             kpis.put("totalClientes", clienteServicio.buscarTodos().size());
