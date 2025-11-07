@@ -3,7 +3,7 @@ package informviva.gest.controlador.api;
 
 
 import informviva.gest.dto.ClienteDTO;
-import informviva.gest.dto.ResultadoValidacionDTO;
+import informviva.gest.dto.ResultadoValidacion;
 import informviva.gest.service.ClienteServicio;
 import informviva.gest.service.VentaServicio;
 import informviva.gest.util.MensajesConstantes;
@@ -255,12 +255,12 @@ public class ClienteRestControlador {
      */
     @PostMapping("/validar-rut")
     @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'VENTAS')")
-    public ResponseEntity<ResultadoValidacionDTO> validarRUT(@RequestBody Map<String, String> datos) {
+    public ResponseEntity<ResultadoValidacion> validarRUT(@RequestBody Map<String, String> datos) {
         try {
             String rut = datos.get("rut");
             boolean esValido = clienteServicio.esRutValido(rut);
 
-            ResultadoValidacionDTO resultado = new ResultadoValidacionDTO();
+            ResultadoValidacion resultado = new ResultadoValidacion();
             resultado.setValido(esValido);
             resultado.setMensaje(esValido ? "RUT válido" : "RUT inválido");
 
@@ -278,7 +278,7 @@ public class ClienteRestControlador {
      */
     @PostMapping("/validar-email")
     @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'VENTAS')")
-    public ResponseEntity<ResultadoValidacionDTO> validarEmail(@RequestBody Map<String, Object> datos) {
+    public ResponseEntity<ResultadoValidacion> validarEmail(@RequestBody Map<String, Object> datos) {
         try {
             String email = (String) datos.get("email");
             Long clienteId = datos.get("clienteId") != null ?
@@ -288,7 +288,7 @@ public class ClienteRestControlador {
                     !clienteServicio.existeEmail(email) :
                     !clienteServicio.existeEmailOtroCliente(email, clienteId);
 
-            ResultadoValidacionDTO resultado = new ResultadoValidacionDTO();
+            ResultadoValidacion resultado = new ResultadoValidacion();
             resultado.setValido(esUnico);
             resultado.setMensaje(esUnico ? "Email disponible" : "Email ya registrado");
 
