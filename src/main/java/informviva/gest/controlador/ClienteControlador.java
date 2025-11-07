@@ -199,7 +199,7 @@ public class ClienteControlador {
 
         try {
             // Validar RUT
-            if (!clienteServicio.rutEsValido(cliente.getRut())) {
+            if (!clienteServicio.esRutValido(cliente.getRut())) {
                 resultado.rejectValue("rut", "error.cliente", MensajesConstantes.ERROR_RUT_INVALIDO);
             }
 
@@ -323,7 +323,7 @@ public class ClienteControlador {
         Map<String, Object> respuesta = new HashMap<>();
 
         try {
-            boolean esValido = clienteServicio.rutEsValido(rut);
+            boolean esValido = clienteServicio.esRutValido(rut);
             boolean existe = esValido && clienteServicio.existeClienteConRut(rut);
 
             respuesta.put("valido", esValido);

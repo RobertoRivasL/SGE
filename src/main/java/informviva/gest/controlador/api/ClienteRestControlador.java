@@ -166,7 +166,7 @@ public class ClienteRestControlador {
     public ResponseEntity<ClienteDTO> crearCliente(@Valid @RequestBody ClienteDTO clienteDTO) {
         try {
             // Validar RUT
-            if (!clienteServicio.rutEsValido(clienteDTO.getRut())) {
+            if (!clienteServicio.esRutValido(clienteDTO.getRut())) {
                 return ResponseEntity.badRequest().build();
             }
 
@@ -209,7 +209,7 @@ public class ClienteRestControlador {
             }
 
             // Validar RUT
-            if (!clienteServicio.rutEsValido(clienteDTO.getRut())) {
+            if (!clienteServicio.esRutValido(clienteDTO.getRut())) {
                 return ResponseEntity.badRequest().build();
             }
 
@@ -280,7 +280,7 @@ public class ClienteRestControlador {
     public ResponseEntity<ResultadoValidacionDTO> validarRUT(@RequestBody Map<String, String> datos) {
         try {
             String rut = datos.get("rut");
-            boolean esValido = clienteServicio.rutEsValido(rut);
+            boolean esValido = clienteServicio.esRutValido(rut);
 
             ResultadoValidacionDTO resultado = new ResultadoValidacionDTO();
             resultado.setValido(esValido);

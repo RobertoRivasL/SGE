@@ -200,7 +200,7 @@ public class ClienteVistaControlador {
                                  Authentication authentication) {
 
         // Validar RUT
-        if (!clienteServicio.rutEsValido(cliente.getRut())) {
+        if (!clienteServicio.esRutValido(cliente.getRut())) {
             resultado.rejectValue("rut", "error.cliente", MensajesConstantes.ERROR_RUT_INVALIDO);
         }
 

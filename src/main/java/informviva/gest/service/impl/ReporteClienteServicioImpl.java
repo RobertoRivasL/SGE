@@ -66,7 +66,7 @@ public class ReporteClienteServicioImpl implements ReporteClienteServicio {
             estadisticas.put("totalClientesRegistrados", clienteServicio.obtenerTodos().size());
             estadisticas.put("clientesNuevosEnPeriodo", totalClientes);
             estadisticas.put("clientesConCompras", clientesConCompras.size());
-            estadisticas.put("clientesActivos", clienteServicio.contarClientesActivos());
+            estadisticas.put("clientesActivos", clienteServicio.contarActivos());
 
             // Calcular valores monetarios
             BigDecimal ventasTotales = clientesConCompras.stream()

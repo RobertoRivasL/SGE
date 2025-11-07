@@ -86,7 +86,7 @@ public class ReporteControlador {
             kpis.put("productosActivos", productoServicio.contarActivos());
             kpis.put("productosBajoStock", productoServicio.contarConBajoStock(5));
             kpis.put("totalClientes", clienteServicio.obtenerTodos().size());
-            kpis.put("clientesActivos", clienteServicio.contarClientesActivos());
+            kpis.put("clientesActivos", clienteServicio.contarActivos());
             kpis.put("clientesNuevos", clienteServicio.contarClientesNuevos(inicio, fin));
 
             LocalDateTime inicioDateTime = inicio.atStartOfDay();
