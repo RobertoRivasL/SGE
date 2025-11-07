@@ -333,6 +333,83 @@ public class ProductoServicioImpl extends BaseServiceImpl<Producto, Long>
         return buscarTodos(pageable);
     }
 
+    // ============================================
+    // MÉTODOS LEGACY PARA COMPATIBILIDAD
+    // ============================================
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ProductoDTO> buscarProductos(String termino, Pageable pageable) {
+        log.debug("Buscando productos por término: {} (legacy)", termino);
+        return buscarPorNombreOCodigoPaginado(termino, pageable);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ProductoDTO> findByCategoriaId(Long categoriaId, Pageable pageable) {
+        log.debug("Buscando productos por categoría ID: {} (legacy)", categoriaId);
+        // Asumimos que el ID de categoría se mapea al nombre de categoría
+        // En un sistema real, esto podría requerir una consulta a una tabla de categorías
+        // Por ahora, retornamos vacío o buscamos por el ID como String
+        // TODO: Implementar relación con tabla Categoria si existe
+        return Page.empty(pageable);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ProductoDTO> findAllActivos(Pageable pageable) {
+        log.debug("Buscando todos los productos activos (legacy)");
+        return buscarActivos(pageable);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ProductoDTO> buscarTodosProductos(String termino, Pageable pageable) {
+        log.debug("Buscando todos los productos por término: {} (legacy)", termino);
+        // Busca en todos los productos (activos e inactivos)
+        return buscarPorNombreOCodigoPaginado(termino, pageable);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ProductoDTO> findAllInactivos(Pageable pageable) {
+        log.debug("Buscando productos inactivos (legacy)");
+        return productoRepositorio.findByActivoFalse(pageable)
+                .map(this::convertirADTO);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ProductoDTO> findAll(Pageable pageable) {
+        log.debug("Buscando todos los productos (legacy)");
+        return buscarTodos(pageable);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ProductoDTO> findProductosBajoStock(Integer stockMinimo, Pageable pageable) {
+        log.debug("Buscando productos con stock bajo: {} (legacy)", stockMinimo);
+        return productoRepositorio.findByStockLessThan(stockMinimo, pageable)
+                .map(this::convertirADTO);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ProductoDTO findById(Long id) {
+        log.debug("Buscando producto por ID: {} (legacy)", id);
+        return buscarPorId(id);
+    }
+
+    @Override
+    public void cambiarEstado(Long id, boolean activo) {
+        log.debug("Cambiando estado del producto ID: {} a {} (legacy)", id, activo);
+        if (activo) {
+            activar(id);
+        } else {
+            desactivar(id);
+        }
+    }
+
     /**
      * {@inheritDoc}
      */

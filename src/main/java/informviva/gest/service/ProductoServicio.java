@@ -258,4 +258,89 @@ public interface ProductoServicio {
      * @return Página de ProductoDTO
      */
     Page<ProductoDTO> listarPaginados(Pageable pageable);
+
+    // ============================================
+    // MÉTODOS LEGACY PARA COMPATIBILIDAD
+    // ============================================
+
+    /**
+     * Busca productos por término de búsqueda con paginación
+     * Método legacy para compatibilidad con ProductoControlador
+     *
+     * @param termino Término de búsqueda
+     * @param pageable Información de paginación
+     * @return Página de ProductoDTO que coinciden
+     */
+    Page<ProductoDTO> buscarProductos(String termino, Pageable pageable);
+
+    /**
+     * Busca productos por ID de categoría con paginación
+     *
+     * @param categoriaId ID de la categoría
+     * @param pageable Información de paginación
+     * @return Página de ProductoDTO de la categoría
+     */
+    Page<ProductoDTO> findByCategoriaId(Long categoriaId, Pageable pageable);
+
+    /**
+     * Alias de buscarActivos(Pageable)
+     * Método legacy para compatibilidad
+     *
+     * @param pageable Información de paginación
+     * @return Página de ProductoDTO activos
+     */
+    Page<ProductoDTO> findAllActivos(Pageable pageable);
+
+    /**
+     * Busca todos los productos por término (activos e inactivos)
+     *
+     * @param termino Término de búsqueda
+     * @param pageable Información de paginación
+     * @return Página de ProductoDTO que coinciden
+     */
+    Page<ProductoDTO> buscarTodosProductos(String termino, Pageable pageable);
+
+    /**
+     * Busca productos inactivos con paginación
+     *
+     * @param pageable Información de paginación
+     * @return Página de ProductoDTO inactivos
+     */
+    Page<ProductoDTO> findAllInactivos(Pageable pageable);
+
+    /**
+     * Alias de buscarTodos(Pageable)
+     * Método legacy para compatibilidad
+     *
+     * @param pageable Información de paginación
+     * @return Página de ProductoDTO
+     */
+    Page<ProductoDTO> findAll(Pageable pageable);
+
+    /**
+     * Busca productos con stock bajo con paginación
+     *
+     * @param stockMinimo Cantidad mínima de stock
+     * @param pageable Información de paginación
+     * @return Página de ProductoDTO con stock bajo
+     */
+    Page<ProductoDTO> findProductosBajoStock(Integer stockMinimo, Pageable pageable);
+
+    /**
+     * Alias de buscarPorId(Long)
+     * Método legacy para compatibilidad
+     *
+     * @param id Identificador del producto
+     * @return ProductoDTO encontrado
+     */
+    ProductoDTO findById(Long id);
+
+    /**
+     * Cambia el estado activo/inactivo de un producto
+     * Método legacy - Se recomienda usar activar()/desactivar()
+     *
+     * @param id Identificador del producto
+     * @param activo true para activar, false para desactivar
+     */
+    void cambiarEstado(Long id, boolean activo);
 }

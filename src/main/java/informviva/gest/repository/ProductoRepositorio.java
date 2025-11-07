@@ -208,4 +208,21 @@ public interface ProductoRepositorio extends JpaRepository<Producto, Long> {
      * @return Página de productos con stock suficiente
      */
     Page<Producto> findByStockGreaterThan(Integer stock, Pageable pageable);
+
+    /**
+     * Busca productos inactivos con paginación
+     *
+     * @param pageable Información de paginación
+     * @return Página de productos inactivos
+     */
+    Page<Producto> findByActivoFalse(Pageable pageable);
+
+    /**
+     * Busca productos con stock menor al especificado con paginación
+     *
+     * @param stock Cantidad máxima de stock
+     * @param pageable Información de paginación
+     * @return Página de productos con stock bajo
+     */
+    Page<Producto> findByStockLessThan(Integer stock, Pageable pageable);
 }
