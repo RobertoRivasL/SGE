@@ -355,4 +355,14 @@ public interface ClienteServicio {
      * @return Página de ClienteDTO activos que coinciden
      */
     Page<ClienteDTO> buscarPorCiudadYActivos(String ciudad, Pageable pageable);
+
+    /**
+     * Busca clientes por nombre o email con paginación
+     * Método legacy para compatibilidad con ClienteControlador
+     *
+     * @param termino Término de búsqueda
+     * @param pageable Información de paginación
+     * @return Página de ClienteDTO que coinciden
+     */
+    Page<ClienteDTO> buscarPorNombreOEmail(String termino, Pageable pageable);
 }

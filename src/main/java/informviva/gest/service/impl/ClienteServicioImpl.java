@@ -458,6 +458,16 @@ public class ClienteServicioImpl extends BaseServiceImpl<Cliente, Long>
                 .map(this::convertirADTO);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ClienteDTO> buscarPorNombreOEmail(String termino, Pageable pageable) {
+        log.debug("Buscando clientes por nombre o email: {} (legacy)", termino);
+
+        return clienteRepositorio.findByNombreContainingIgnoreCaseOrEmailContainingIgnoreCase(
+                termino, termino, pageable)
+                .map(this::convertirADTO);
+    }
+
     /**
      * {@inheritDoc}
      */
