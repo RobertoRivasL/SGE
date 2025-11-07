@@ -2,10 +2,10 @@ package informviva.gest.controlador;
 
 import informviva.gest.dto.KpisDTO;
 import informviva.gest.dto.MetricaDTO;
+import informviva.gest.dto.ProductoDTO;
+import informviva.gest.dto.VentaDTO;
 import informviva.gest.dto.VentaPorCategoriaDTO;
 import informviva.gest.dto.VentaPorPeriodoDTO;
-import informviva.gest.model.Producto;
-import informviva.gest.model.Venta;
 import informviva.gest.service.ProductoServicio;
 import informviva.gest.service.ReporteServicio;
 import informviva.gest.service.VentaServicio;
@@ -77,8 +77,8 @@ public class DashboardControladorVista {
         // Datos adicionales
         List<VentaPorPeriodoDTO> ventasPorDia = reporteServicio.obtenerVentasPorPeriodoEntreFechas(semanaActual[0].toLocalDate(), semanaActual[1].toLocalDate());
         List<VentaPorCategoriaDTO> ventasPorCategoria = reporteServicio.obtenerVentasPorCategoriaEntreFechas(semanaActual[0].toLocalDate(), semanaActual[1].toLocalDate());
-        List<Venta> ventasRecientes = ventaServicio.buscarPorRangoFechas(semanaActual[0], LocalDateTime.now());
-        List<Producto> productosConBajoStock = productoServicio.listarConBajoStock(5);
+        List<VentaDTO> ventasRecientes = ventaServicio.buscarPorRangoFechas(semanaActual[0], LocalDateTime.now());
+        List<ProductoDTO> productosConBajoStock = productoServicio.listarConBajoStock(5);
 
         // Agregar datos al modelo
         model.addAttribute("ventasMetrica", ventasMetrica);
