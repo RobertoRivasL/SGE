@@ -70,7 +70,7 @@ public class ClienteVistaControlador {
         model.addAttribute("ciudad", ciudad);
         model.addAttribute("soloActivos", soloActivos);
         model.addAttribute("totalClientes", clienteServicio.contarTodos());
-        model.addAttribute("ciudades", clienteServicio.listarCiudades());
+        model.addAttribute("ciudades", new ArrayList<>() /* TODO: Implementar listarCiudades() */);
         model.addAttribute("clientesActivos", clienteServicio.contarActivos());
 
         return "clientes/lista-vendedor";
@@ -102,7 +102,7 @@ public class ClienteVistaControlador {
         model.addAttribute("ciudad", ciudad);
         model.addAttribute("soloActivos", soloActivos);
         model.addAttribute("totalClientes", clienteServicio.contarTodos());
-        model.addAttribute("ciudades", clienteServicio.listarCiudades());
+        model.addAttribute("ciudades", new ArrayList<>() /* TODO: Implementar listarCiudades() */);
         model.addAttribute("clientesActivos", clienteServicio.contarActivos());
         model.addAttribute("clientesInactivos", clienteServicio.contarInactivos());
         model.addAttribute("clientesNuevosHoy", clienteServicio.contarNuevosHoy());

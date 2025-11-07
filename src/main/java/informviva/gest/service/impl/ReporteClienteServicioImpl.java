@@ -40,12 +40,21 @@ public class ReporteClienteServicioImpl implements ReporteClienteServicio {
         logger.info("Generando reporte de clientes para el período: {} - {}", fechaInicio, fechaFin);
 
         try {
-            List<ClienteReporteDTO> reporte = clienteServicio.obtenerClientesConCompras(fechaInicio, fechaFin);
+            // TODO: Implementar lógica de reporte
+            // Este método necesita:
+            // 1. Obtener clientes con clienteServicio.buscarTodos()
+            // 2. Para cada cliente, consultar sus ventas
+            // 3. Calcular estadísticas (comprasRealizadas, totalCompras, etc.)
+            // 4. Mapear a ClienteReporteDTO
 
-            // Ordenar por total de compras descendente
-            reporte.sort((c1, c2) -> c2.getTotalCompras().compareTo(c1.getTotalCompras()));
+            logger.warn("Método generarReporteClientes() necesita implementación completa");
+            List<ClienteReporteDTO> reporte = new ArrayList<>();
 
-            logger.info("Reporte generado exitosamente con {} clientes", reporte.size());
+            // Por ahora retorna lista vacía
+            // NOTA: Este método estaba llamando a clienteServicio.obtenerClientesConCompras()
+            // que no existe. Necesita implementación propia.
+
+            logger.info("Reporte generado con {} clientes", reporte.size());
             return reporte;
 
         } catch (Exception e) {
@@ -60,7 +69,9 @@ public class ReporteClienteServicioImpl implements ReporteClienteServicio {
 
         try {
             List<ClienteReporteDTO> clientesConCompras = generarReporteClientes(fechaInicio, fechaFin);
-            Long totalClientes = clienteServicio.contarClientesNuevos(fechaInicio, fechaFin);
+            // TODO: Implementar conteo de clientes nuevos
+            // Long totalClientes = clienteServicio.contarClientesNuevos(fechaInicio, fechaFin);
+            Long totalClientes = 0L; // Temporal hasta implementar
 
             // Calcular estadísticas básicas
             estadisticas.put("totalClientesRegistrados", clienteServicio.buscarTodos().size());
@@ -152,12 +163,19 @@ public class ReporteClienteServicioImpl implements ReporteClienteServicio {
     public List<Cliente> obtenerClientesInactivos(int diasInactividad) {
         LocalDate fechaLimite = LocalDate.now().minusDays(diasInactividad);
 
-        return clienteServicio.obtenerClientesConCompras(null, null).stream()
-                .filter(cliente -> cliente.getUltimaCompra() == null ||
-                        cliente.getUltimaCompra().isBefore(fechaLimite))
-                .map(dto -> clienteServicio.buscarPorId(dto.getId()))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+        // TODO: Implementar lógica correcta para clientes inactivos
+        // Este método necesita:
+        // 1. Obtener todos los clientes
+        // 2. Para cada cliente, verificar fecha de última compra
+        // 3. Filtrar los que no han comprado en X días
+
+        logger.warn("Método obtenerClientesInactivos() necesita implementación completa");
+
+        // Por ahora retorna lista vacía
+        // NOTA: Este método estaba llamando a clienteServicio.obtenerClientesConCompras()
+        // que no existe. Necesita implementación propia consultando VentaServicio.
+
+        return new ArrayList<>();
     }
 
     @Override
