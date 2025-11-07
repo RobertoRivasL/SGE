@@ -4,7 +4,6 @@ package informviva.gest.controlador.api;
 
 import informviva.gest.dto.ClienteDTO;
 import informviva.gest.dto.ResultadoValidacionDTO;
-import informviva.gest.model.Cliente;
 import informviva.gest.service.ClienteServicio;
 import informviva.gest.service.VentaServicio;
 import informviva.gest.util.MensajesConstantes;
@@ -20,11 +19,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * API REST para gestión de clientes
@@ -73,11 +70,9 @@ public class ClienteRestControlador {
 
             Pageable pageable = PageRequest.of(page, size, sort);
 
-            Page<Cliente> clientesPage = aplicarFiltros(search, ciudad, soloActivos, pageable);
+            Page<ClienteDTO> clientesPage = aplicarFiltros(search, ciudad, soloActivos, pageable);
 
-            Page<ClienteDTO> clientesDTO = clientesPage.map(this::convertirADTO);
-
-            return ResponseEntity.ok(clientesDTO);
+            return ResponseEntity.ok(clientesPage);
 
         } catch (Exception e) {
             logger.error("Error obteniendo clientes: {}", e.getMessage());
@@ -93,14 +88,13 @@ public class ClienteRestControlador {
     @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'VENTAS')")
     public ResponseEntity<ClienteDTO> obtenerClientePorId(@PathVariable Long id) {
         try {
-            Cliente cliente = clienteServicio.buscarPorId(id);
+            ClienteDTO cliente = clienteServicio.buscarPorId(id);
 
             if (cliente == null) {
                 return ResponseEntity.notFound().build();
             }
 
-            ClienteDTO clienteDTO = convertirADTODetallado(cliente);
-            return ResponseEntity.ok(clienteDTO);
+            return ResponseEntity.ok(cliente);
 
         } catch (Exception e) {
             logger.error("Error obteniendo cliente {}: {}", id, e.getMessage());
@@ -119,13 +113,9 @@ public class ClienteRestControlador {
             @RequestParam(defaultValue = "10") int limite) {
 
         try {
-            List<Cliente> clientes = clienteServicio.buscarPorTermino(termino, limite);
+            List<ClienteDTO> clientes = clienteServicio.buscarPorTermino(termino, limite);
 
-            List<ClienteDTO> clientesDTO = clientes.stream()
-                    .map(this::convertirADTOSimple)
-                    .collect(Collectors.toList());
-
-            return ResponseEntity.ok(clientesDTO);
+            return ResponseEntity.ok(clientes);
 
         } catch (Exception e) {
             logger.error("Error buscando clientes con término '{}': {}", termino, e.getMessage());
@@ -141,13 +131,9 @@ public class ClienteRestControlador {
     @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'VENTAS')")
     public ResponseEntity<List<ClienteDTO>> obtenerClientesActivos() {
         try {
-            List<Cliente> clientes = clienteServicio.buscarActivos();
+            List<ClienteDTO> clientes = clienteServicio.buscarActivos();
 
-            List<ClienteDTO> clientesDTO = clientes.stream()
-                    .map(this::convertirADTOSimple)
-                    .collect(Collectors.toList());
-
-            return ResponseEntity.ok(clientesDTO);
+            return ResponseEntity.ok(clientes);
 
         } catch (Exception e) {
             logger.error("Error obteniendo clientes activos: {}", e.getMessage());
@@ -175,15 +161,11 @@ public class ClienteRestControlador {
                 return ResponseEntity.status(HttpStatus.CONFLICT).build();
             }
 
-            Cliente cliente = convertirDTOAEntidad(clienteDTO);
-            cliente.setFechaRegistro(LocalDateTime.now());
-            cliente.setActivo(true);
-
-            Cliente clienteGuardado = clienteServicio.guardar(cliente);
-            ClienteDTO respuestaDTO = convertirADTODetallado(clienteGuardado);
+            // Las fechas y estado deben ser manejados por el servicio
+            ClienteDTO clienteGuardado = clienteServicio.guardar(clienteDTO);
 
             logger.info("Cliente creado exitosamente: {}", clienteGuardado.getId());
-            return ResponseEntity.status(HttpStatus.CREATED).body(respuestaDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body(clienteGuardado);
 
         } catch (Exception e) {
             logger.error("Error creando cliente: {}", e.getMessage());
@@ -202,7 +184,7 @@ public class ClienteRestControlador {
             @Valid @RequestBody ClienteDTO clienteDTO) {
 
         try {
-            Cliente clienteExistente = clienteServicio.buscarPorId(id);
+            ClienteDTO clienteExistente = clienteServicio.buscarPorId(id);
 
             if (clienteExistente == null) {
                 return ResponseEntity.notFound().build();
@@ -218,15 +200,11 @@ public class ClienteRestControlador {
                 return ResponseEntity.status(HttpStatus.CONFLICT).build();
             }
 
-            // Actualizar campos
-            actualizarDatosCliente(clienteExistente, clienteDTO);
-            clienteExistente.setFechaModificacion(LocalDateTime.now());
-
-            Cliente clienteActualizado = clienteServicio.guardar(clienteExistente);
-            ClienteDTO respuestaDTO = convertirADTODetallado(clienteActualizado);
+            // Usar el método actualizar del servicio que maneja fechas internamente
+            ClienteDTO clienteActualizado = clienteServicio.actualizar(id, clienteDTO);
 
             logger.info("Cliente actualizado exitosamente: {}", id);
-            return ResponseEntity.ok(respuestaDTO);
+            return ResponseEntity.ok(clienteActualizado);
 
         } catch (Exception e) {
             logger.error("Error actualizando cliente {}: {}", id, e.getMessage());
@@ -242,7 +220,7 @@ public class ClienteRestControlador {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, String>> eliminarCliente(@PathVariable Long id) {
         try {
-            Cliente cliente = clienteServicio.buscarPorId(id);
+            ClienteDTO cliente = clienteServicio.buscarPorId(id);
 
             if (cliente == null) {
                 return ResponseEntity.notFound().build();
@@ -338,8 +316,10 @@ public class ClienteRestControlador {
             estadisticas.put("clientesActivos", clienteServicio.contarActivos());
             estadisticas.put("clientesInactivos", clienteServicio.contarInactivos());
             estadisticas.put("clientesNuevosHoy", clienteServicio.contarNuevosHoy());
-            estadisticas.put("clientesNuevosMes", clienteServicio.contarNuevosMes());
-            estadisticas.put("ciudadesRepresentadas", clienteServicio.contarCiudades());
+            // TODO: Implementar contarNuevosMes() en ClienteServicio
+            // estadisticas.put("clientesNuevosMes", clienteServicio.contarNuevosMes());
+            // TODO: Implementar contarCiudades() en ClienteServicio
+            // estadisticas.put("ciudadesRepresentadas", clienteServicio.contarCiudades());
 
             return ResponseEntity.ok(estadisticas);
 
@@ -354,7 +334,7 @@ public class ClienteRestControlador {
     /**
      * Aplica filtros de búsqueda
      */
-    private Page<Cliente> aplicarFiltros(String search, String ciudad, Boolean soloActivos, Pageable pageable) {
+    private Page<ClienteDTO> aplicarFiltros(String search, String ciudad, Boolean soloActivos, Pageable pageable) {
         boolean haySearch = search != null && !search.trim().isEmpty();
         boolean hayCiudad = ciudad != null && !ciudad.trim().isEmpty();
         boolean activos = Boolean.TRUE.equals(soloActivos);
@@ -381,73 +361,5 @@ public class ClienteRestControlador {
             return clienteServicio.buscarActivos(pageable);
         }
         return clienteServicio.buscarTodos(pageable);
-    }
-
-    /**
-     * Convierte Cliente a ClienteDTO simple (para listas)
-     */
-    private ClienteDTO convertirADTOSimple(Cliente cliente) {
-        ClienteDTO dto = new ClienteDTO();
-        dto.setId(cliente.getId());
-        dto.setNombre(cliente.getNombre());
-        dto.setApellido(cliente.getApellido());
-        dto.setEmail(cliente.getEmail());
-        dto.setRut(cliente.getRut());
-        dto.setTelefono(cliente.getTelefono());
-        dto.setActivo(cliente.isActivo());
-        return dto;
-    }
-
-    /**
-     * Convierte Cliente a ClienteDTO detallado (para vista individual)
-     */
-    private ClienteDTO convertirADTODetallado(Cliente cliente) {
-        ClienteDTO dto = convertirADTOSimple(cliente);
-        dto.setDireccion(cliente.getDireccion());
-        dto.setCiudad(cliente.getCiudad());
-        dto.setFechaRegistro(cliente.getFechaRegistro());
-        dto.setFechaModificacion(cliente.getFechaModificacion());
-        dto.setFechaUltimaCompra(cliente.getFechaUltimaCompra());
-        dto.setTotalCompras(cliente.getTotalCompras() != null ? cliente.getTotalCompras().doubleValue() : null);
-        dto.setNumeroCompras(cliente.getNumeroCompras());
-        return dto;
-    }
-
-    /**
-     * Convierte ClienteDTO a Cliente
-     */
-    private Cliente convertirDTOAEntidad(ClienteDTO dto) {
-        Cliente cliente = new Cliente();
-        cliente.setId(dto.getId());
-        cliente.setNombre(dto.getNombre());
-        cliente.setApellido(dto.getApellido());
-        cliente.setEmail(dto.getEmail());
-        cliente.setRut(dto.getRut());
-        cliente.setTelefono(dto.getTelefono());
-        cliente.setDireccion(dto.getDireccion());
-        cliente.setCiudad(dto.getCiudad());
-        cliente.setActivo(dto.isActivo());
-        return cliente;
-    }
-
-    /**
-     * Actualiza los datos de un cliente existente con los del DTO
-     */
-    private void actualizarDatosCliente(Cliente cliente, ClienteDTO dto) {
-        cliente.setNombre(dto.getNombre());
-        cliente.setApellido(dto.getApellido());
-        cliente.setEmail(dto.getEmail());
-        cliente.setRut(dto.getRut());
-        cliente.setTelefono(dto.getTelefono());
-        cliente.setDireccion(dto.getDireccion());
-        cliente.setCiudad(dto.getCiudad());
-        cliente.setActivo(dto.isActivo());
-    }
-
-    /**
-     * Convierte Page<Cliente> a ClienteDTO
-     */
-    private ClienteDTO convertirADTO(Cliente cliente) {
-        return convertirADTOSimple(cliente);
     }
 }
