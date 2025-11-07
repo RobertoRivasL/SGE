@@ -82,12 +82,14 @@ public class ReporteControlador {
     private Map<String, Object> calcularKPIs(LocalDate inicio, LocalDate fin) {
         Map<String, Object> kpis = new HashMap<>();
         try {
-            kpis.put("totalProductos", productoServicio.contarTodos());
+            kpis.put("totalProductos", productoServicio.contar());
             kpis.put("productosActivos", productoServicio.contarActivos());
             kpis.put("productosBajoStock", productoServicio.contarConBajoStock(5));
-            kpis.put("totalClientes", clienteServicio.obtenerTodos().size());
-            kpis.put("clientesActivos", clienteServicio.contarClientesActivos());
-            kpis.put("clientesNuevos", clienteServicio.contarClientesNuevos(inicio, fin));
+            kpis.put("totalClientes", clienteServicio.buscarTodos().size());
+            kpis.put("clientesActivos", clienteServicio.contarActivos());
+            // TODO: Implementar conteo de clientes nuevos
+            // kpis.put("clientesNuevos", clienteServicio.contarClientesNuevos(inicio, fin));
+            kpis.put("clientesNuevos", 0L); // Temporal hasta implementar
 
             LocalDateTime inicioDateTime = inicio.atStartOfDay();
             LocalDateTime finDateTime = fin.atTime(23, 59, 59);

@@ -26,11 +26,16 @@ import java.util.stream.Collectors;
  * - S: Responsabilidad única para gestión de clientes
  * - O: Abierto para extensión, cerrado para modificación
  * - L: Cumple el contrato de ClienteServicio
- * - I: Implementa interface específica de clientes
+ * - I: Implementa interfaz específica de clientes
  * - D: Depende de abstracciones (repositorios, mapper)
  *
- * @author Tu nombre
- * @version 1.0
+ * IMPORTANTE:
+ * - Todos los métodos públicos trabajan con DTOs
+ * - Los métodos privados manejan entidades JPA
+ * - Usa ModelMapper para conversiones automáticas
+ *
+ * @author Sistema de Gestión Empresarial
+ * @version 2.0 - Refactorizado Fase 1
  */
 @Slf4j
 @Service
@@ -66,83 +71,85 @@ public class ClienteServicioImpl extends BaseServiceImpl<Cliente, Long>
         this.modelMapper = modelMapper;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    // ============================================
+    // OPERACIONES CRUD PRINCIPALES
+    // ============================================
+
     @Override
     @Transactional(readOnly = true)
-    public List<ClienteDTO> buscarTodosDTO() {
-        log.debug("Buscando todos los clientes como DTO");
+    public List<ClienteDTO> buscarTodos() {
+        log.debug("Buscando todos los clientes");
 
         return clienteRepositorio.findAll()
                 .stream()
-                .map(cliente -> modelMapper.map(cliente, ClienteDTO.class))
+                .map(this::convertirADTO)
                 .collect(Collectors.toList());
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     @Transactional(readOnly = true)
-    public Page<ClienteDTO> buscarTodosDTO(Pageable pageable) {
-        log.debug("Buscando clientes paginados como DTO - Página: {}", pageable.getPageNumber());
+    public Page<ClienteDTO> buscarTodos(Pageable pageable) {
+        log.debug("Buscando clientes paginados - Página: {}", pageable.getPageNumber());
 
         return clienteRepositorio.findAll(pageable)
-                .map(cliente -> modelMapper.map(cliente, ClienteDTO.class));
+                .map(this::convertirADTO);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     @Transactional(readOnly = true)
-    public ClienteDTO buscarPorIdDTO(Long id) {
-        log.debug("Buscando cliente por ID como DTO: {}", id);
+    public ClienteDTO buscarPorId(Long id) {
+        log.debug("Buscando cliente por ID: {}", id);
 
-        Cliente cliente = obtenerPorId(id);
-        return modelMapper.map(cliente, ClienteDTO.class);
+        Cliente cliente = obtenerEntidadPorId(id);
+        return convertirADTO(cliente);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public ClienteDTO guardarDTO(ClienteDTO clienteDTO) {
-        log.debug("Guardando cliente DTO: {} {}", clienteDTO.getNombre(), clienteDTO.getApellido());
+    public ClienteDTO guardar(ClienteDTO clienteDTO) {
+        log.debug("Guardando cliente: {} {}", clienteDTO.getNombre(), clienteDTO.getApellido());
 
         validarClienteDTO(clienteDTO);
 
-        Cliente cliente = modelMapper.map(clienteDTO, Cliente.class);
-        Cliente clienteGuardado = guardar(cliente);
+        Cliente cliente = convertirAEntidad(clienteDTO);
+        Cliente clienteGuardado = guardarEntidad(cliente);
 
         log.info("Cliente guardado exitosamente con ID: {}", clienteGuardado.getId());
-        return modelMapper.map(clienteGuardado, ClienteDTO.class);
+        return convertirADTO(clienteGuardado);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public ClienteDTO actualizarDTO(Long id, ClienteDTO clienteDTO) {
+    public ClienteDTO actualizar(Long id, ClienteDTO clienteDTO) {
         log.debug("Actualizando cliente ID: {} con datos: {} {}",
                 id, clienteDTO.getNombre(), clienteDTO.getApellido());
 
-        Cliente clienteExistente = obtenerPorId(id);
+        Cliente clienteExistente = obtenerEntidadPorId(id);
         validarClienteDTO(clienteDTO);
 
         // Mapear solo los campos actualizables
         actualizarCamposCliente(clienteExistente, clienteDTO);
 
-        Cliente clienteActualizado = guardar(clienteExistente);
+        Cliente clienteActualizado = guardarEntidad(clienteExistente);
 
         log.info("Cliente actualizado exitosamente: {}", clienteActualizado.getId());
-        return modelMapper.map(clienteActualizado, ClienteDTO.class);
+        return convertirADTO(clienteActualizado);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
+    public void eliminar(Long id) {
+        log.debug("Eliminando cliente ID: {}", id);
+
+        if (!existe(id)) {
+            throw new RecursoNoEncontradoException("Cliente no encontrado con ID: " + id);
+        }
+
+        clienteRepositorio.deleteById(id);
+        log.info("Cliente eliminado exitosamente: {}", id);
+    }
+
+    // ============================================
+    // BÚSQUEDAS ESPECÍFICAS
+    // ============================================
+
     @Override
     @Transactional(readOnly = true)
     public List<ClienteDTO> buscarPorNombre(String nombre) {
@@ -150,13 +157,10 @@ public class ClienteServicioImpl extends BaseServiceImpl<Cliente, Long>
 
         return clienteRepositorio.findByNombreContainingIgnoreCase(nombre)
                 .stream()
-                .map(cliente -> modelMapper.map(cliente, ClienteDTO.class))
+                .map(this::convertirADTO)
                 .collect(Collectors.toList());
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     @Transactional(readOnly = true)
     public List<ClienteDTO> buscarPorApellido(String apellido) {
@@ -164,47 +168,38 @@ public class ClienteServicioImpl extends BaseServiceImpl<Cliente, Long>
 
         return clienteRepositorio.findByApellidoContainingIgnoreCase(apellido)
                 .stream()
-                .map(cliente -> modelMapper.map(cliente, ClienteDTO.class))
+                .map(this::convertirADTO)
                 .collect(Collectors.toList());
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     @Transactional(readOnly = true)
     public Optional<ClienteDTO> buscarPorRut(String rut) {
         log.debug("Buscando cliente por RUT: {}", rut);
 
-        if (!rutEsValido(rut)) {
+        if (!esRutValido(rut)) {
             log.warn("RUT inválido: {}", rut);
             return Optional.empty();
         }
 
         return clienteRepositorio.findByRut(rut)
-                .map(cliente -> modelMapper.map(cliente, ClienteDTO.class));
+                .map(this::convertirADTO);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     @Transactional(readOnly = true)
     public Optional<ClienteDTO> buscarPorEmail(String email) {
         log.debug("Buscando cliente por email: {}", email);
 
-        if (!emailEsValido(email)) {
+        if (!esEmailValido(email)) {
             log.warn("Email inválido: {}", email);
             return Optional.empty();
         }
 
         return clienteRepositorio.findByEmail(email)
-                .map(cliente -> modelMapper.map(cliente, ClienteDTO.class));
+                .map(this::convertirADTO);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     @Transactional(readOnly = true)
     public List<ClienteDTO> buscarPorTexto(String texto) {
@@ -212,36 +207,92 @@ public class ClienteServicioImpl extends BaseServiceImpl<Cliente, Long>
 
         return clienteRepositorio.buscarPorTexto(texto)
                 .stream()
-                .map(cliente -> modelMapper.map(cliente, ClienteDTO.class))
+                .map(this::convertirADTO)
                 .collect(Collectors.toList());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ClienteDTO> buscarPorTexto(String texto, Pageable pageable) {
+        log.debug("Buscando clientes por texto con paginación: {}", texto);
+
+        return clienteRepositorio.buscarPorTexto(texto, pageable)
+                .map(this::convertirADTO);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ClienteDTO> buscarActivos() {
+        log.debug("Buscando clientes activos");
+
+        return clienteRepositorio.findByActivo(true)
+                .stream()
+                .map(this::convertirADTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ClienteDTO> buscarActivos(Pageable pageable) {
+        log.debug("Buscando clientes activos con paginación");
+
+        return clienteRepositorio.findByActivo(true, pageable)
+                .map(this::convertirADTO);
+    }
+
+    // ============================================
+    // OPERACIONES DE ACTIVACIÓN/DESACTIVACIÓN
+    // ============================================
+
+    @Override
+    public void activar(Long id) {
+        log.debug("Activando cliente ID: {}", id);
+
+        Cliente cliente = obtenerEntidadPorId(id);
+        cliente.setActivo(true);
+        guardarEntidad(cliente);
+
+        log.info("Cliente activado: {}", id);
+    }
+
+    @Override
+    public void desactivar(Long id) {
+        log.debug("Desactivando cliente ID: {}", id);
+
+        Cliente cliente = obtenerEntidadPorId(id);
+        cliente.setActivo(false);
+        guardarEntidad(cliente);
+
+        log.info("Cliente desactivado: {}", id);
+    }
+
+    // ============================================
+    // VALIDACIONES Y VERIFICACIONES
+    // ============================================
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean existe(Long id) {
+        return clienteRepositorio.existsById(id);
+    }
+
     @Override
     @Transactional(readOnly = true)
     public boolean existePorRut(String rut) {
         log.debug("Verificando existencia de RUT: {}", rut);
-        return rutEsValido(rut) && clienteRepositorio.existsByRut(rut);
+        return esRutValido(rut) && clienteRepositorio.existsByRut(rut);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     @Transactional(readOnly = true)
     public boolean existePorEmail(String email) {
         log.debug("Verificando existencia de email: {}", email);
-        return emailEsValido(email) && clienteRepositorio.existsByEmail(email);
+        return esEmailValido(email) && clienteRepositorio.existsByEmail(email);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     @Transactional(readOnly = true)
-    public boolean rutEsValido(String rut) {
+    public boolean esRutValido(String rut) {
         if (rut == null || rut.trim().isEmpty()) {
             return false;
         }
@@ -255,69 +306,28 @@ public class ClienteServicioImpl extends BaseServiceImpl<Cliente, Long>
         return validarDigitoVerificador(rut);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     @Transactional(readOnly = true)
-    public boolean emailEsValido(String email) {
+    public boolean esEmailValido(String email) {
         return email != null && PATRON_EMAIL.matcher(email).matches();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    // ============================================
+    // CONTADORES Y ESTADÍSTICAS
+    // ============================================
+
     @Override
     @Transactional(readOnly = true)
-    public long contarClientesActivos() {
-        return clienteRepositorio.countByActivoTrue();
+    public long contar() {
+        return clienteRepositorio.count();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     @Transactional(readOnly = true)
-    public List<ClienteDTO> buscarClientesActivos() {
-        log.debug("Buscando clientes activos");
-
-        return clienteRepositorio.findByActivoTrue()
-                .stream()
-                .map(cliente -> modelMapper.map(cliente, ClienteDTO.class))
-                .collect(Collectors.toList());
+    public long contarActivos() {
+        return clienteRepositorio.countByActivo(true);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void activarCliente(Long id) {
-        log.debug("Activando cliente ID: {}", id);
-
-        Cliente cliente = obtenerPorId(id);
-        cliente.setActivo(true);
-        guardar(cliente);
-
-        log.info("Cliente activado: {}", id);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void desactivarCliente(Long id) {
-        log.debug("Desactivando cliente ID: {}", id);
-
-        Cliente cliente = obtenerPorId(id);
-        cliente.setActivo(false);
-        guardar(cliente);
-
-        log.info("Cliente desactivado: {}", id);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     @Override
     @Transactional(readOnly = true)
     public long contarVentasPorCliente(Long clienteId) {
@@ -333,7 +343,52 @@ public class ClienteServicioImpl extends BaseServiceImpl<Cliente, Long>
         return "Cliente";
     }
 
-    // ==================== MÉTODOS PRIVADOS ====================
+    // ============================================
+    // MÉTODOS PRIVADOS Y HELPER
+    // ============================================
+
+    /**
+     * Obtiene una entidad Cliente por ID (uso interno)
+     *
+     * @param id ID del cliente
+     * @return Entidad Cliente
+     * @throws RecursoNoEncontradoException si no existe
+     */
+    private Cliente obtenerEntidadPorId(Long id) {
+        return clienteRepositorio.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException(
+                        "Cliente no encontrado con ID: " + id));
+    }
+
+    /**
+     * Guarda una entidad Cliente (uso interno)
+     *
+     * @param cliente Entidad a guardar
+     * @return Entidad guardada
+     */
+    private Cliente guardarEntidad(Cliente cliente) {
+        return clienteRepositorio.save(cliente);
+    }
+
+    /**
+     * Convierte entidad Cliente a ClienteDTO
+     *
+     * @param cliente Entidad
+     * @return DTO
+     */
+    private ClienteDTO convertirADTO(Cliente cliente) {
+        return modelMapper.map(cliente, ClienteDTO.class);
+    }
+
+    /**
+     * Convierte ClienteDTO a entidad Cliente
+     *
+     * @param dto DTO
+     * @return Entidad
+     */
+    private Cliente convertirAEntidad(ClienteDTO dto) {
+        return modelMapper.map(dto, Cliente.class);
+    }
 
     /**
      * Valida los datos del ClienteDTO
@@ -350,11 +405,11 @@ public class ClienteServicioImpl extends BaseServiceImpl<Cliente, Long>
             throw new IllegalArgumentException("El apellido del cliente es obligatorio");
         }
 
-        if (!rutEsValido(clienteDTO.getRut())) {
+        if (!esRutValido(clienteDTO.getRut())) {
             throw new IllegalArgumentException("El RUT del cliente no es válido");
         }
 
-        if (!emailEsValido(clienteDTO.getEmail())) {
+        if (!esEmailValido(clienteDTO.getEmail())) {
             throw new IllegalArgumentException("El email del cliente no es válido");
         }
 

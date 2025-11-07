@@ -59,7 +59,7 @@ public class ProductoVistaControlador {
         model.addAttribute("search", search);
         model.addAttribute("categoria", categoria);
         model.addAttribute("soloConStock", soloConStock);
-        model.addAttribute("totalProductos", productoServicio.contarTodos());
+        model.addAttribute("totalProductos", productoServicio.contar());
         model.addAttribute("categorias", productoServicio.listarCategorias());
         model.addAttribute("productosConBajoStock", productoServicio.contarConBajoStock(5));
 
@@ -88,7 +88,7 @@ public class ProductoVistaControlador {
         model.addAttribute("search", search);
         model.addAttribute("categoria", categoria);
         model.addAttribute("soloConStock", soloConStock);
-        model.addAttribute("totalProductos", productoServicio.contarTodos());
+        model.addAttribute("totalProductos", productoServicio.contar());
         model.addAttribute("categorias", productoServicio.listarCategorias());
         model.addAttribute("productosConBajoStock", productoServicio.contarConBajoStock(5));
 

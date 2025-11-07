@@ -72,7 +72,7 @@ public class ClienteControlador {
                 clientesPage = clienteServicio.buscarPorNombreOEmail(search.trim(), pageable);
                 modelo.addAttribute("search", search);
             } else {
-                clientesPage = clienteServicio.obtenerTodosPaginados(pageable);
+                clientesPage = clienteServicio.buscarTodos(pageable);
             }
 
             modelo.addAttribute("clientes", clientesPage.getContent());
@@ -199,7 +199,7 @@ public class ClienteControlador {
 
         try {
             // Validar RUT
-            if (!clienteServicio.rutEsValido(cliente.getRut())) {
+            if (!clienteServicio.esRutValido(cliente.getRut())) {
                 resultado.rejectValue("rut", "error.cliente", MensajesConstantes.ERROR_RUT_INVALIDO);
             }
 
@@ -323,7 +323,7 @@ public class ClienteControlador {
         Map<String, Object> respuesta = new HashMap<>();
 
         try {
-            boolean esValido = clienteServicio.rutEsValido(rut);
+            boolean esValido = clienteServicio.esRutValido(rut);
             boolean existe = esValido && clienteServicio.existeClienteConRut(rut);
 
             respuesta.put("valido", esValido);
@@ -429,6 +429,6 @@ public class ClienteControlador {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = Pageable.ofSize(size).withPage(page);
-        return clienteServicio.obtenerTodosPaginados(pageable);
+        return clienteServicio.buscarTodos(pageable);
     }
 }

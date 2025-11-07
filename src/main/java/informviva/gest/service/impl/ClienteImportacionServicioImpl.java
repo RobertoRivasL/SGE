@@ -457,7 +457,7 @@ public class ClienteImportacionServicioImpl {
      */
     private Cliente buscarClientePorRut(String rut) {
         // Como ClienteServicio no tiene buscarPorRut, buscar en todos los clientes
-        List<Cliente> todosLosClientes = clienteServicio.obtenerTodos();
+        List<Cliente> todosLosClientes = clienteServicio.buscarTodos();
         return todosLosClientes.stream()
                 .filter(cliente -> rut.equals(cliente.getRut()))
                 .findFirst()

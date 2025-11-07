@@ -49,8 +49,8 @@ public class MetricasServicio {
             metricas.setTiempoActividad(uptime / 1000); // segundos
 
             // Métricas de negocio
-            metricas.setTotalProductos(productoServicio.contarTodos());
-            metricas.setTotalClientes((long) clienteServicio.obtenerTodos().size());
+            metricas.setTotalProductos(productoServicio.contar());
+            metricas.setTotalClientes((long) clienteServicio.buscarTodos().size());
             metricas.setProductosStockBajo(productoServicio.contarConBajoStock(5));
 
             // Rendimiento

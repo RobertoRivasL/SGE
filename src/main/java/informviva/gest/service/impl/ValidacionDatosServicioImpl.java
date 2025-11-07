@@ -117,7 +117,7 @@ public class ValidacionDatosServicioImpl implements ValidacionDatosServicio {
     public ResultadoValidacionModulo validarModuloClientes() {
         logger.debug("Iniciando validación de clientes");
         try {
-            List<Cliente> clientes = clienteServicio.obtenerTodos();
+            List<Cliente> clientes = clienteServicio.buscarTodos();
             return validarModulo("Clientes", clientes, this::validarCliente);
         } catch (Exception e) {
             logger.error("Error al obtener clientes para validación: {}", e.getMessage());
@@ -563,7 +563,7 @@ public class ValidacionDatosServicioImpl implements ValidacionDatosServicio {
         try {
             // Validación rápida solo de registros críticos (primeros 100 de cada módulo)
             resultado.setValidacionClientes(validarModuloRapido("Clientes",
-                    clienteServicio.obtenerTodos().stream().limit(100).collect(Collectors.toList()),
+                    clienteServicio.buscarTodos().stream().limit(100).collect(Collectors.toList()),
                     this::validarCliente));
 
             resultado.setValidacionProductos(validarModuloRapido("Productos",

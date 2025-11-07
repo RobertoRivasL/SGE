@@ -70,7 +70,7 @@ public class ClienteVistaControlador {
         model.addAttribute("ciudad", ciudad);
         model.addAttribute("soloActivos", soloActivos);
         model.addAttribute("totalClientes", clienteServicio.contarTodos());
-        model.addAttribute("ciudades", clienteServicio.listarCiudades());
+        model.addAttribute("ciudades", new ArrayList<>() /* TODO: Implementar listarCiudades() */);
         model.addAttribute("clientesActivos", clienteServicio.contarActivos());
 
         return "clientes/lista-vendedor";
@@ -102,7 +102,7 @@ public class ClienteVistaControlador {
         model.addAttribute("ciudad", ciudad);
         model.addAttribute("soloActivos", soloActivos);
         model.addAttribute("totalClientes", clienteServicio.contarTodos());
-        model.addAttribute("ciudades", clienteServicio.listarCiudades());
+        model.addAttribute("ciudades", new ArrayList<>() /* TODO: Implementar listarCiudades() */);
         model.addAttribute("clientesActivos", clienteServicio.contarActivos());
         model.addAttribute("clientesInactivos", clienteServicio.contarInactivos());
         model.addAttribute("clientesNuevosHoy", clienteServicio.contarNuevosHoy());
@@ -200,7 +200,7 @@ public class ClienteVistaControlador {
                                  Authentication authentication) {
 
         // Validar RUT
-        if (!clienteServicio.rutEsValido(cliente.getRut())) {
+        if (!clienteServicio.esRutValido(cliente.getRut())) {
             resultado.rejectValue("rut", "error.cliente", MensajesConstantes.ERROR_RUT_INVALIDO);
         }
 
@@ -311,9 +311,9 @@ public class ClienteVistaControlador {
                 return clienteServicio.buscarPorCiudad(ciudad.trim(), pageable);
             }
         } else if (soloActivos != null && soloActivos) {
-            return clienteServicio.obtenerActivosPaginados(pageable);
+            return clienteServicio.buscarActivos(pageable);
         } else {
-            return clienteServicio.obtenerTodosPaginados(pageable);
+            return clienteServicio.buscarTodos(pageable);
         }
     }
 }
