@@ -287,6 +287,52 @@ public class ProductoServicioImpl extends BaseServiceImpl<Producto, Long>
         return productoRepositorio.findByStockLessThan(minimoStock).size();
     }
 
+    // ============================================
+    // MÉTODOS ADICIONALES PARA CONTROLADORES
+    // ============================================
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProductoDTO> listarConBajoStock(Integer umbral) {
+        log.debug("Listando productos con stock bajo (menor a {})", umbral);
+        return buscarConStockBajo(umbral);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ProductoDTO> buscarPorNombreOCodigoPaginado(String search, Pageable pageable) {
+        log.debug("Buscando productos por nombre o código: {} (paginado)", search);
+
+        return productoRepositorio.findByNombreContainingIgnoreCaseOrSkuContainingIgnoreCase(
+                search, search, pageable)
+                .map(this::convertirADTO);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ProductoDTO> buscarPorCategoriaPaginado(String categoria, Pageable pageable) {
+        log.debug("Buscando productos por categoría: {} (paginado)", categoria);
+
+        return productoRepositorio.findByCategoriaIgnoreCase(categoria, pageable)
+                .map(this::convertirADTO);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ProductoDTO> listarConStockPaginado(Pageable pageable) {
+        log.debug("Listando productos con stock disponible (paginado)");
+
+        return productoRepositorio.findByStockGreaterThan(0, pageable)
+                .map(this::convertirADTO);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ProductoDTO> listarPaginados(Pageable pageable) {
+        log.debug("Listando todos los productos (paginado)");
+        return buscarTodos(pageable);
+    }
+
     /**
      * {@inheritDoc}
      */
