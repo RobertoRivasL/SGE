@@ -8,7 +8,7 @@ import informviva.gest.service.ClienteServicio;
 import informviva.gest.service.ImportacionServicio;
 import informviva.gest.service.ProductoServicio;
 import informviva.gest.service.UsuarioServicio;
-import informviva.gest.validador.ValidadorRutUtil;
+import informviva.gest.validador.ValidadorRutClase;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
@@ -489,7 +489,7 @@ public class ImportacionServicioImpl implements ImportacionServicio {
                 throw new IllegalArgumentException("Campos obligatorios faltantes (nombre, apellido, email, rut)");
             }
 
-            if (!ValidadorRutUtil.validar(rut)) {
+            if (!ValidadorRutClase.validar(rut)) {
                 throw new IllegalArgumentException("RUT inválido: " + rut);
             }
 

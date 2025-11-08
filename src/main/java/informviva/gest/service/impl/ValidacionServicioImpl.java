@@ -13,7 +13,7 @@ import informviva.gest.repository.RepositorioUsuario;
 import informviva.gest.service.ProductoServicio;
 import informviva.gest.service.ValidacionServicio;
 import informviva.gest.service.VentaServicio;
-import informviva.gest.validador.ValidadorRutUtil;
+import informviva.gest.validador.ValidadorRutClase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,7 +75,7 @@ public class ValidacionServicioImpl implements ValidacionServicio {
             return false;
         }
         try {
-            return ValidadorRutUtil.validar(rut);
+            return ValidadorRutClase.validar(rut);
         } catch (Exception e) {
             logger.error("Error validando RUT {}: {}", rut, e.getMessage());
             return false;

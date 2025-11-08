@@ -4,7 +4,7 @@ import informviva.gest.dto.ImportacionResultadoDTO;
 import informviva.gest.dto.ResultadoImportacionCliente;
 import informviva.gest.model.Cliente;
 import informviva.gest.service.ClienteServicio;
-import informviva.gest.validador.ValidadorRutUtil;
+import informviva.gest.validador.ValidadorRutClase;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
@@ -423,7 +423,7 @@ public class ClienteImportacionServicioImpl {
         // Validar RUT
         if (cliente.getRut() == null || cliente.getRut().trim().isEmpty()) {
             errores.add("RUT requerido");
-        } else if (!ValidadorRutUtil.validar(cliente.getRut())) {
+        } else if (!ValidadorRutClase.validar(cliente.getRut())) {
             errores.add("RUT inválido: " + cliente.getRut());
         }
 

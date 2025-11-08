@@ -10,7 +10,7 @@ import informviva.gest.dto.ErrorValidacion;
 import informviva.gest.enums.NivelSeveridad;
 import informviva.gest.dto.ResultadoValidacionModulo;
 import informviva.gest.model.*;
-import informviva.gest.validador.ValidadorRutUtil;
+import informviva.gest.validador.ValidadorRutClase;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -259,7 +259,7 @@ public class ValidacionDatosServicioImpl implements ValidacionDatosServicio {
 
         // Validar formato RUT
         if (cliente.getRut() != null && !cliente.getRut().trim().isEmpty()) {
-            if (!ValidadorRutUtil.validar(cliente.getRut())) {
+            if (!ValidadorRutClase.validar(cliente.getRut())) {
                 errores.add(new ErrorValidacion("rut", RUT_INVALIDO, NivelSeveridad.CRITICO, "El formato del RUT es incorrecto"));
             }
         }
