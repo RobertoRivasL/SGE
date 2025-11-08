@@ -236,4 +236,133 @@ public interface ClienteServicio {
      * @return Número de ventas del cliente
      */
     long contarVentasPorCliente(Long clienteId);
+
+    /**
+     * Cuenta el número de clientes inactivos
+     *
+     * @return Número de clientes inactivos
+     */
+    long contarInactivos();
+
+    /**
+     * Cuenta el número de clientes registrados hoy
+     *
+     * @return Número de clientes nuevos hoy
+     */
+    long contarNuevosHoy();
+
+    /**
+     * Cuenta el número total de clientes (alias de contar)
+     * Método agregado para compatibilidad con controladores existentes
+     *
+     * @return Número total de clientes
+     */
+    long contarTodos();
+
+    // ============================================
+    // MÉTODOS ADICIONALES PARA CONTROLADORES
+    // ============================================
+
+    /**
+     * Verifica si existe un email (alias de existePorEmail)
+     * Método agregado para compatibilidad con controladores existentes
+     *
+     * @param email Email a verificar
+     * @return true si existe, false en caso contrario
+     */
+    boolean existeEmail(String email);
+
+    /**
+     * Verifica si existe un email en otro cliente (no en el cliente especificado)
+     * Útil para validaciones de unicidad en actualizaciones
+     *
+     * @param email Email a verificar
+     * @param id ID del cliente a excluir
+     * @return true si existe otro cliente con ese email
+     */
+    boolean existeEmailOtroCliente(String email, Long id);
+
+    /**
+     * Busca clientes por término de búsqueda (alias de buscarPorTexto)
+     * Método agregado para compatibilidad con controladores existentes
+     *
+     * @param termino Término de búsqueda
+     * @return Lista de ClienteDTO que coinciden
+     */
+    List<ClienteDTO> buscarPorTermino(String termino);
+
+    /**
+     * Busca clientes por término de búsqueda con límite
+     *
+     * @param termino Término de búsqueda
+     * @param limite Número máximo de resultados
+     * @return Lista de ClienteDTO que coinciden
+     */
+    List<ClienteDTO> buscarPorTermino(String termino, int limite);
+
+    /**
+     * Busca clientes por término con paginación
+     *
+     * @param search Término de búsqueda
+     * @param pageable Información de paginación
+     * @return Página de ClienteDTO que coinciden
+     */
+    Page<ClienteDTO> buscarPorTermino(String search, Pageable pageable);
+
+    /**
+     * Busca clientes por término y ciudad con paginación
+     *
+     * @param search Término de búsqueda
+     * @param ciudad Ciudad del cliente
+     * @param pageable Información de paginación
+     * @return Página de ClienteDTO que coinciden
+     */
+    Page<ClienteDTO> buscarPorTerminoYCiudad(String search, String ciudad, Pageable pageable);
+
+    /**
+     * Busca clientes activos por término con paginación
+     *
+     * @param search Término de búsqueda
+     * @param pageable Información de paginación
+     * @return Página de ClienteDTO activos que coinciden
+     */
+    Page<ClienteDTO> buscarPorTerminoYActivos(String search, Pageable pageable);
+
+    /**
+     * Busca clientes activos por término y ciudad con paginación
+     *
+     * @param search Término de búsqueda
+     * @param ciudad Ciudad del cliente
+     * @param pageable Información de paginación
+     * @return Página de ClienteDTO activos que coinciden
+     */
+    Page<ClienteDTO> buscarPorTerminoYCiudadYActivos(String search, String ciudad, Pageable pageable);
+
+    /**
+     * Busca clientes por ciudad con paginación
+     *
+     * @param ciudad Ciudad del cliente
+     * @param pageable Información de paginación
+     * @return Página de ClienteDTO que coinciden
+     */
+    Page<ClienteDTO> buscarPorCiudad(String ciudad, Pageable pageable);
+
+    /**
+     * Busca clientes activos por ciudad con paginación
+     *
+     * @param ciudad Ciudad del cliente
+     * @param pageable Información de paginación
+     * @return Página de ClienteDTO activos que coinciden
+     */
+    Page<ClienteDTO> buscarPorCiudadYActivos(String ciudad, Pageable pageable);
+
+    /**
+     * Busca clientes por nombre o email con paginación
+     * Método legacy para compatibilidad con ClienteControlador
+     *
+     * @param termino Término de búsqueda
+     * @param pageable Información de paginación
+     * @return Página de ClienteDTO que coinciden
+     */
+    Page<ClienteDTO> buscarPorNombreOEmail(String termino, Pageable pageable);
 }

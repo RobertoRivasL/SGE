@@ -335,6 +335,139 @@ public class ClienteServicioImpl extends BaseServiceImpl<Cliente, Long>
         return ventaRepositorio.countByClienteId(clienteId);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public long contarInactivos() {
+        log.debug("Contando clientes inactivos");
+        return clienteRepositorio.countByActivo(false);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long contarNuevosHoy() {
+        log.debug("Contando clientes registrados hoy");
+        return clienteRepositorio.contarClientesRegistradosHoy();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long contarTodos() {
+        return contar();
+    }
+
+    // ============================================
+    // MÉTODOS ADICIONALES PARA CONTROLADORES
+    // ============================================
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean existeEmail(String email) {
+        return existePorEmail(email);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean existeEmailOtroCliente(String email, Long id) {
+        log.debug("Verificando si existe email {} en otro cliente (excluyendo ID: {})", email, id);
+
+        if (id == null) {
+            return existePorEmail(email);
+        }
+
+        return clienteRepositorio.existeClienteConEmailExcluyendo(email, id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ClienteDTO> buscarPorTermino(String termino) {
+        log.debug("Buscando clientes por término: {}", termino);
+
+        return clienteRepositorio.buscarPorTermino(termino)
+                .stream()
+                .map(this::convertirADTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ClienteDTO> buscarPorTermino(String termino, int limite) {
+        log.debug("Buscando clientes por término: {} (límite: {})", termino, limite);
+
+        return clienteRepositorio.buscarPorTermino(termino)
+                .stream()
+                .limit(limite)
+                .map(this::convertirADTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ClienteDTO> buscarPorTermino(String search, Pageable pageable) {
+        log.debug("Buscando clientes por término con paginación: {}", search);
+
+        return clienteRepositorio.findByNombreContainingIgnoreCaseOrApellidoContainingIgnoreCaseOrEmailContainingIgnoreCaseOrRutContaining(
+                search, search, search, search, pageable)
+                .map(this::convertirADTO);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ClienteDTO> buscarPorTerminoYCiudad(String search, String ciudad, Pageable pageable) {
+        log.debug("Buscando clientes por término: {} y ciudad: {} (paginado)", search, ciudad);
+
+        return clienteRepositorio.findByNombreContainingIgnoreCaseOrApellidoContainingIgnoreCaseOrEmailContainingIgnoreCaseAndCiudadIgnoreCase(
+                search, search, search, ciudad, pageable)
+                .map(this::convertirADTO);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ClienteDTO> buscarPorTerminoYActivos(String search, Pageable pageable) {
+        log.debug("Buscando clientes activos por término: {} (paginado)", search);
+
+        return clienteRepositorio.findByNombreContainingIgnoreCaseOrApellidoContainingIgnoreCaseOrEmailContainingIgnoreCaseAndActivoTrue(
+                search, search, search, pageable)
+                .map(this::convertirADTO);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ClienteDTO> buscarPorTerminoYCiudadYActivos(String search, String ciudad, Pageable pageable) {
+        log.debug("Buscando clientes activos por término: {} y ciudad: {} (paginado)", search, ciudad);
+
+        return clienteRepositorio.findByNombreContainingIgnoreCaseOrApellidoContainingIgnoreCaseOrEmailContainingIgnoreCaseAndCiudadIgnoreCaseAndActivoTrue(
+                search, search, search, ciudad, pageable)
+                .map(this::convertirADTO);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ClienteDTO> buscarPorCiudad(String ciudad, Pageable pageable) {
+        log.debug("Buscando clientes por ciudad: {} (paginado)", ciudad);
+
+        return clienteRepositorio.findByCiudadIgnoreCase(ciudad, pageable)
+                .map(this::convertirADTO);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ClienteDTO> buscarPorCiudadYActivos(String ciudad, Pageable pageable) {
+        log.debug("Buscando clientes activos por ciudad: {} (paginado)", ciudad);
+
+        return clienteRepositorio.findByCiudadIgnoreCaseAndActivoTrue(ciudad, pageable)
+                .map(this::convertirADTO);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ClienteDTO> buscarPorNombreOEmail(String termino, Pageable pageable) {
+        log.debug("Buscando clientes por nombre o email: {} (legacy)", termino);
+
+        return clienteRepositorio.findByNombreContainingIgnoreCaseOrEmailContainingIgnoreCase(
+                termino, termino, pageable)
+                .map(this::convertirADTO);
+    }
+
     /**
      * {@inheritDoc}
      */

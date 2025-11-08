@@ -1,7 +1,7 @@
 package informviva.gest.controlador;
 
+import informviva.gest.dto.ClienteDTO;
 import informviva.gest.dto.ClienteReporteDTO;
-import informviva.gest.model.Cliente;
 import informviva.gest.service.ReporteClienteServicio;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -111,7 +111,7 @@ public class ReporteClienteControlador {
             Map<String, Object> estadisticasMes = reporteClienteServicio.obtenerEstadisticasGenerales(inicioMes, hoy);
 
             // Obtener clientes inactivos (últimos 90 días)
-            List<Cliente> clientesInactivos = reporteClienteServicio.obtenerClientesInactivos(90);
+            List<ClienteDTO> clientesInactivos = reporteClienteServicio.obtenerClientesInactivos(90);
 
             // Distribución por antigüedad
             Map<String, Long> distribucionAntiguedad = reporteClienteServicio.analizarDistribucionAntiguedad();
@@ -259,7 +259,7 @@ public class ReporteClienteControlador {
             Model modelo) {
 
         try {
-            List<Cliente> clientesInactivos = reporteClienteServicio.obtenerClientesInactivos(dias);
+            List<ClienteDTO> clientesInactivos = reporteClienteServicio.obtenerClientesInactivos(dias);
 
             modelo.addAttribute("clientesInactivos", clientesInactivos);
             modelo.addAttribute("diasInactividad", dias);

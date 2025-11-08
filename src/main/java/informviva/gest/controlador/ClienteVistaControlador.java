@@ -1,7 +1,8 @@
 package informviva.gest.controlador;
 
 
-import informviva.gest.model.Cliente;
+import informviva.gest.dto.ClienteDTO;
+import informviva.gest.dto.VentaDTO;
 import informviva.gest.service.ClienteServicio;
 import informviva.gest.service.VentaServicio;
 import informviva.gest.util.MensajesConstantes;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 
 /**
  * Controlador para las vistas de gestión de clientes
@@ -62,7 +64,7 @@ public class ClienteVistaControlador {
         Pageable pageable = PageRequest.of(page, size, Sort.by("fechaUltimaCompra").descending());
 
         // Aplicar filtros
-        Page<Cliente> clientesPage = aplicarFiltros(search, ciudad, soloActivos, pageable);
+        Page<ClienteDTO> clientesPage = aplicarFiltros(search, ciudad, soloActivos, pageable);
 
         // Estadísticas básicas para vendedores
         model.addAttribute("clientesPage", clientesPage);
@@ -70,7 +72,7 @@ public class ClienteVistaControlador {
         model.addAttribute("ciudad", ciudad);
         model.addAttribute("soloActivos", soloActivos);
         model.addAttribute("totalClientes", clienteServicio.contarTodos());
-        model.addAttribute("ciudades", new ArrayList<>() /* TODO: Implementar listarCiudades() */);
+        model.addAttribute("ciudades", Collections.emptyList()); // TODO: Implementar listarCiudades() en ClienteServicio
         model.addAttribute("clientesActivos", clienteServicio.contarActivos());
 
         return "clientes/lista-vendedor";
@@ -94,7 +96,7 @@ public class ClienteVistaControlador {
 
         // Misma lógica de filtros y paginación - Ordenar por fecha de registro
         Pageable pageable = PageRequest.of(page, size, Sort.by("fechaRegistro").descending());
-        Page<Cliente> clientesPage = aplicarFiltros(search, ciudad, soloActivos, pageable);
+        Page<ClienteDTO> clientesPage = aplicarFiltros(search, ciudad, soloActivos, pageable);
 
         // Estadísticas completas para administradores
         model.addAttribute("clientesPage", clientesPage);
@@ -102,7 +104,7 @@ public class ClienteVistaControlador {
         model.addAttribute("ciudad", ciudad);
         model.addAttribute("soloActivos", soloActivos);
         model.addAttribute("totalClientes", clienteServicio.contarTodos());
-        model.addAttribute("ciudades", new ArrayList<>() /* TODO: Implementar listarCiudades() */);
+        model.addAttribute("ciudades", Collections.emptyList()); // TODO: Implementar listarCiudades() en ClienteServicio
         model.addAttribute("clientesActivos", clienteServicio.contarActivos());
         model.addAttribute("clientesInactivos", clienteServicio.contarInactivos());
         model.addAttribute("clientesNuevosHoy", clienteServicio.contarNuevosHoy());
@@ -119,7 +121,7 @@ public class ClienteVistaControlador {
     @GetMapping("/nuevo")
     @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'VENTAS')")
     public String nuevoCliente(Model model) {
-        model.addAttribute("cliente", new Cliente());
+        model.addAttribute("cliente", new ClienteDTO());
         model.addAttribute("esNuevo", true);
         model.addAttribute("titulo", "Nuevo Cliente");
         return "clientes/formulario";
@@ -134,7 +136,7 @@ public class ClienteVistaControlador {
     @GetMapping("/editar/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'VENTAS')")
     public String editarCliente(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
-        Cliente cliente = clienteServicio.buscarPorId(id);
+        ClienteDTO cliente = clienteServicio.buscarPorId(id);
 
         if (cliente == null) {
             redirectAttributes.addFlashAttribute("error", MensajesConstantes.ERROR_CLIENTE_NO_ENCONTRADO);
@@ -156,7 +158,7 @@ public class ClienteVistaControlador {
     @GetMapping("/detalle/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'VENTAS')")
     public String detalleCliente(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
-        Cliente cliente = clienteServicio.buscarPorId(id);
+        ClienteDTO cliente = clienteServicio.buscarPorId(id);
 
         if (cliente == null) {
             redirectAttributes.addFlashAttribute("error", MensajesConstantes.ERROR_CLIENTE_NO_ENCONTRADO);
@@ -164,9 +166,9 @@ public class ClienteVistaControlador {
         }
 
         // Obtener información adicional del cliente
-        var ventasCliente = ventaServicio.buscarPorCliente(cliente);
+        var ventasCliente = ventaServicio.buscarPorClienteId(id);
         var totalCompras = ventasCliente.stream()
-                .mapToDouble(venta -> venta.getTotal())
+                .mapToDouble(venta -> venta.getTotal().doubleValue())
                 .sum();
 
         // Calcular estadísticas adicionales
@@ -193,7 +195,7 @@ public class ClienteVistaControlador {
      */
     @PostMapping("/guardar")
     @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'VENTAS')")
-    public String guardarCliente(@Valid @ModelAttribute("cliente") Cliente cliente,
+    public String guardarCliente(@Valid @ModelAttribute("cliente") ClienteDTO cliente,
                                  BindingResult resultado,
                                  RedirectAttributes redirectAttributes,
                                  Model model,
@@ -216,16 +218,16 @@ public class ClienteVistaControlador {
         }
 
         try {
-            // Establecer datos de auditoría
-            if (cliente.getId() == null) {
-                cliente.setFechaRegistro(LocalDateTime.now());
-                cliente.setUsuarioCreacion(authentication.getName());
-            } else {
-                cliente.setFechaModificacion(LocalDateTime.now());
-                cliente.setUsuarioModificacion(authentication.getName());
-            }
+            // TODO: Los datos de auditoría (fechaRegistro, usuarioCreacion, etc.)
+            // deberían ser manejados por el servicio o mediante auditoría automática de JPA
+            // Por ahora, el servicio debe encargarse de esto
 
-            Cliente clienteGuardado = clienteServicio.guardar(cliente);
+            ClienteDTO clienteGuardado;
+            if (cliente.getId() == null) {
+                clienteGuardado = clienteServicio.guardar(cliente);
+            } else {
+                clienteGuardado = clienteServicio.actualizar(cliente.getId(), cliente);
+            }
 
             String mensaje = cliente.getId() == null ?
                     MensajesConstantes.EXITO_CLIENTE_CREADO :
@@ -249,7 +251,7 @@ public class ClienteVistaControlador {
     @GetMapping("/eliminar/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public String confirmarEliminacion(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
-        Cliente cliente = clienteServicio.buscarPorId(id);
+        ClienteDTO cliente = clienteServicio.buscarPorId(id);
 
         if (cliente == null) {
             redirectAttributes.addFlashAttribute("error", MensajesConstantes.ERROR_CLIENTE_NO_ENCONTRADO);
@@ -289,7 +291,7 @@ public class ClienteVistaControlador {
     /**
      * Aplica filtros de búsqueda a la consulta de clientes
      */
-    private Page<Cliente> aplicarFiltros(String search, String ciudad, Boolean soloActivos, Pageable pageable) {
+    private Page<ClienteDTO> aplicarFiltros(String search, String ciudad, Boolean soloActivos, Pageable pageable) {
         if (search != null && !search.trim().isEmpty()) {
             if (ciudad != null && !ciudad.trim().isEmpty()) {
                 if (soloActivos != null && soloActivos) {

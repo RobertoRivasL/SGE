@@ -179,4 +179,50 @@ public interface ProductoRepositorio extends JpaRepository<Producto, Long> {
      */
     @Query("SELECT p FROM Producto p WHERE p.activo = true ORDER BY p.id DESC")
     List<Producto> findTopProductos(Pageable pageable);
+
+    /**
+     * Busca productos por nombre o SKU (código) con paginación
+     *
+     * @param nombre Nombre o parte del nombre a buscar
+     * @param sku SKU o parte del SKU a buscar
+     * @param pageable Información de paginación
+     * @return Página de productos que coinciden
+     */
+    Page<Producto> findByNombreContainingIgnoreCaseOrSkuContainingIgnoreCase(
+            String nombre, String sku, Pageable pageable);
+
+    /**
+     * Busca productos por categoría con paginación
+     *
+     * @param categoria Categoría del producto
+     * @param pageable Información de paginación
+     * @return Página de productos de la categoría
+     */
+    Page<Producto> findByCategoriaIgnoreCase(String categoria, Pageable pageable);
+
+    /**
+     * Busca productos con stock mayor al especificado con paginación
+     *
+     * @param stock Cantidad de stock mínima
+     * @param pageable Información de paginación
+     * @return Página de productos con stock suficiente
+     */
+    Page<Producto> findByStockGreaterThan(Integer stock, Pageable pageable);
+
+    /**
+     * Busca productos inactivos con paginación
+     *
+     * @param pageable Información de paginación
+     * @return Página de productos inactivos
+     */
+    Page<Producto> findByActivoFalse(Pageable pageable);
+
+    /**
+     * Busca productos con stock menor al especificado con paginación
+     *
+     * @param stock Cantidad máxima de stock
+     * @param pageable Información de paginación
+     * @return Página de productos con stock bajo
+     */
+    Page<Producto> findByStockLessThan(Integer stock, Pageable pageable);
 }

@@ -1,12 +1,11 @@
 package informviva.gest.controlador;
 
+import informviva.gest.dto.ClienteDTO;
+import informviva.gest.dto.ProductoDTO;
 import informviva.gest.dto.VentaDTO;
 import informviva.gest.exception.RecursoNoEncontradoException;
 import informviva.gest.exception.StockInsuficienteException;
-import informviva.gest.model.Cliente;
-import informviva.gest.model.Producto;
 import informviva.gest.model.Usuario;
-import informviva.gest.model.Venta;
 import informviva.gest.service.ClienteServicio;
 import informviva.gest.service.ProductoServicio;
 import informviva.gest.service.UsuarioServicio;
@@ -108,7 +107,7 @@ public class VentaControlador {
             Model model) {
 
         try {
-            List<Venta> ventas = obtenerVentasFiltradas(fechaInicio, fechaFin, clienteId, vendedorId, estado, metodoPago);
+            List<VentaDTO> ventas = obtenerVentasFiltradas(fechaInicio, fechaFin, clienteId, vendedorId, estado, metodoPago);
             cargarDatosListado(model, ventas, fechaInicio, fechaFin, clienteId, vendedorId, estado, metodoPago);
             return VISTA_LISTA;
 
@@ -159,7 +158,7 @@ public class VentaControlador {
         }
 
         try {
-            Venta ventaGuardada = procesarGuardadoVenta(ventaDTO);
+            VentaDTO ventaGuardada = procesarGuardadoVenta(ventaDTO);
             redirectAttributes.addFlashAttribute(PARAM_MENSAJE_EXITO,
                     MENSAJE_VENTA_GUARDADA + ventaGuardada.getId());
             return REDIRECT_DETALLE + ventaGuardada.getId();
@@ -179,7 +178,7 @@ public class VentaControlador {
     @GetMapping("/detalle/{id}")
     public String mostrarDetalleVenta(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
         try {
-            Venta venta = buscarVentaPorIdSeguro(id);
+            VentaDTO venta = buscarVentaPorIdSeguro(id);
             model.addAttribute(PARAM_VENTA, venta);
             return VISTA_DETALLE;
 
@@ -200,16 +199,15 @@ public class VentaControlador {
     @GetMapping("/editar/{id}")
     public String mostrarFormularioEditarVenta(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
         try {
-            Venta venta = buscarVentaPorIdSeguro(id);
+            VentaDTO ventaDTO = buscarVentaPorIdSeguro(id);
 
             // Verificar si la venta se puede editar
-            if (!ventaEsEditable(venta)) {
+            if (!ventaEsEditable(ventaDTO)) {
                 redirectAttributes.addFlashAttribute(PARAM_MENSAJE_ADVERTENCIA,
-                        "No se puede editar una venta en estado: " + venta.getEstado());
+                        "No se puede editar una venta en estado: " + ventaDTO.getEstado());
                 return REDIRECT_DETALLE + id;
             }
 
-            VentaDTO ventaDTO = ventaServicio.convertirADTO(venta);
             cargarDatosFormulario(model, ventaDTO);
             return VISTA_EDITAR;
 
@@ -242,7 +240,7 @@ public class VentaControlador {
         }
 
         try {
-            Venta ventaActualizada = procesarActualizacionVenta(id, ventaDTO);
+            VentaDTO ventaActualizada = procesarActualizacionVenta(id, ventaDTO);
             redirectAttributes.addFlashAttribute(PARAM_MENSAJE_EXITO, MENSAJE_VENTA_ACTUALIZADA);
             return REDIRECT_DETALLE + ventaActualizada.getId();
 
@@ -263,7 +261,7 @@ public class VentaControlador {
     @PostMapping("/eliminar/{id}")
     public String eliminarVenta(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
-            Venta venta = buscarVentaPorIdSeguro(id);
+            VentaDTO venta = buscarVentaPorIdSeguro(id);
 
             // Verificar si la venta se puede eliminar
             if (!ventaEsEliminable(venta)) {
@@ -292,8 +290,8 @@ public class VentaControlador {
     @PostMapping("/duplicar/{id}")
     public String duplicarVenta(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
-            Venta ventaOriginal = buscarVentaPorIdSeguro(id);
-            Venta ventaDuplicada = ventaServicio.duplicarVenta(ventaOriginal);
+            VentaDTO ventaOriginal = buscarVentaPorIdSeguro(id);
+            VentaDTO ventaDuplicada = ventaServicio.duplicarVenta(ventaOriginal);
 
             redirectAttributes.addFlashAttribute(PARAM_MENSAJE_EXITO,
                     "Venta duplicada exitosamente con ID: " + ventaDuplicada.getId());
@@ -312,9 +310,9 @@ public class VentaControlador {
 
     // ==================== MÉTODOS DE PROCESAMIENTO ====================
 
-    private List<Venta> obtenerVentasFiltradas(LocalDate fechaInicio, LocalDate fechaFin,
-                                               Long clienteId, Long vendedorId,
-                                               String estado, String metodoPago) {
+    private List<VentaDTO> obtenerVentasFiltradas(LocalDate fechaInicio, LocalDate fechaFin,
+                                                  Long clienteId, Long vendedorId,
+                                                  String estado, String metodoPago) {
         try {
             // Filtro por rango de fechas
             if (fechaInicio != null && fechaFin != null) {
@@ -326,7 +324,7 @@ public class VentaControlador {
 
             // Filtro por cliente
             if (clienteId != null && clienteId > 0) {
-                List<Venta> ventasCliente = ventaServicio.buscarPorCliente(clienteId);
+                List<VentaDTO> ventasCliente = ventaServicio.buscarPorCliente(clienteId);
                 return aplicarFiltrosAdicionales(ventasCliente, estado, metodoPago);
             }
 
@@ -334,12 +332,12 @@ public class VentaControlador {
             if (vendedorId != null && vendedorId > 0) {
                 LocalDateTime inicioRango = LocalDateTime.now().minusYears(1);
                 LocalDateTime finRango = LocalDateTime.now();
-                List<Venta> ventasVendedor = ventaServicio.buscarPorVendedorYFechas(vendedorId, inicioRango, finRango);
+                List<VentaDTO> ventasVendedor = ventaServicio.buscarPorVendedorYFechas(vendedorId, inicioRango, finRango);
                 return aplicarFiltrosAdicionales(ventasVendedor, estado, metodoPago);
             }
 
             // Sin filtros específicos - obtener todas las ventas recientes
-            List<Venta> todasLasVentas = ventaServicio.listarTodas();
+            List<VentaDTO> todasLasVentas = ventaServicio.listarTodas();
             return aplicarFiltrosAdicionales(todasLasVentas, estado, metodoPago);
 
         } catch (Exception e) {
@@ -348,19 +346,19 @@ public class VentaControlador {
         }
     }
 
-    private List<Venta> aplicarFiltrosAdicionales(List<Venta> ventas, String estado, String metodoPago) {
+    private List<VentaDTO> aplicarFiltrosAdicionales(List<VentaDTO> ventas, String estado, String metodoPago) {
         return ventas.stream()
                 .filter(venta -> estado == null || estado.isEmpty() || estado.equals(venta.getEstado()))
                 .filter(venta -> metodoPago == null || metodoPago.isEmpty() || metodoPago.equals(venta.getMetodoPago()))
                 .collect(java.util.stream.Collectors.toList());
     }
 
-    private Venta procesarGuardadoVenta(VentaDTO ventaDTO) {
+    private VentaDTO procesarGuardadoVenta(VentaDTO ventaDTO) {
         asignarVendedorSiNoEspecificado(ventaDTO);
         return ventaServicio.guardar(ventaDTO);
     }
 
-    private Venta procesarActualizacionVenta(Long id, VentaDTO ventaDTO) {
+    private VentaDTO procesarActualizacionVenta(Long id, VentaDTO ventaDTO) {
         return ventaServicio.actualizar(id, ventaDTO);
     }
 
@@ -388,21 +386,20 @@ public class VentaControlador {
 
     // ==================== MÉTODOS DE BÚSQUEDA SEGURA ====================
 
-    private Venta buscarVentaPorIdSeguro(Long id) {
+    private VentaDTO buscarVentaPorIdSeguro(Long id) {
         if (id == null || id <= 0) {
             throw new RecursoNoEncontradoException(ERROR_VENTA_NO_ENCONTRADA + id);
         }
 
-        return ventaServicio.buscarPorId(id)
-                .orElseThrow(() -> new RecursoNoEncontradoException(ERROR_VENTA_NO_ENCONTRADA + id));
+        return ventaServicio.buscarPorId(id);
     }
 
-    private Cliente buscarClientePorIdSeguro(Long id) {
+    private ClienteDTO buscarClientePorIdSeguro(Long id) {
         if (id == null || id <= 0) {
             throw new RecursoNoEncontradoException(ERROR_CLIENTE_NO_ENCONTRADO + id);
         }
 
-        Cliente cliente = clienteServicio.buscarPorId(id);
+        ClienteDTO cliente = clienteServicio.buscarPorId(id);
         if (cliente == null) {
             throw new RecursoNoEncontradoException(ERROR_CLIENTE_NO_ENCONTRADO + id);
         }
@@ -421,12 +418,12 @@ public class VentaControlador {
         return usuario;
     }
 
-    private Producto buscarProductoPorIdSeguro(Long id) {
+    private ProductoDTO buscarProductoPorIdSeguro(Long id) {
         if (id == null || id <= 0) {
             throw new RecursoNoEncontradoException(ERROR_PRODUCTO_NO_ENCONTRADO + id);
         }
 
-        Producto producto = productoServicio.buscarPorId(id);
+        ProductoDTO producto = productoServicio.buscarPorId(id);
         if (producto == null) {
             throw new RecursoNoEncontradoException(ERROR_PRODUCTO_NO_ENCONTRADO + id);
         }
@@ -440,7 +437,7 @@ public class VentaControlador {
 
         // Cargar clientes con manejo seguro de errores
         try {
-            List<Cliente> clientes = clienteServicio.buscarTodos();
+            List<ClienteDTO> clientes = clienteServicio.buscarTodos();
             model.addAttribute(PARAM_CLIENTES, clientes != null ? clientes : Collections.emptyList());
         } catch (Exception e) {
             logger.warn("No se pudieron cargar clientes: {}", e.getMessage());
@@ -449,7 +446,7 @@ public class VentaControlador {
 
         // Cargar productos con manejo seguro de errores
         try {
-            List<Producto> productos = productoServicio.listar();
+            List<ProductoDTO> productos = productoServicio.buscarTodos();
             model.addAttribute(PARAM_PRODUCTOS, productos != null ? productos : Collections.emptyList());
         } catch (Exception e) {
             logger.warn("No se pudieron cargar productos: {}", e.getMessage());
@@ -470,7 +467,7 @@ public class VentaControlador {
         model.addAttribute("metodosPago", obtenerMetodosPago());
     }
 
-    private void cargarDatosListado(Model model, List<Venta> ventas,
+    private void cargarDatosListado(Model model, List<VentaDTO> ventas,
                                     LocalDate fechaInicio, LocalDate fechaFin,
                                     Long clienteId, Long vendedorId,
                                     String estado, String metodoPago) {
@@ -479,7 +476,7 @@ public class VentaControlador {
 
         // Cargar datos para filtros
         try {
-            List<Cliente> clientes = clienteServicio.buscarTodos();
+            List<ClienteDTO> clientes = clienteServicio.buscarTodos();
             model.addAttribute(PARAM_CLIENTES, clientes != null ? clientes : Collections.emptyList());
         } catch (Exception e) {
             logger.warn("No se pudieron cargar clientes para listado: {}", e.getMessage());
@@ -507,7 +504,7 @@ public class VentaControlador {
             model.addAttribute("totalVentas", ventas.size());
             double totalMonto = ventas.stream()
                     .filter(v -> v.getTotal() != null)
-                    .mapToDouble(Venta::getTotal)
+                    .mapToDouble(v -> v.getTotal().doubleValue())
                     .sum();
             model.addAttribute("totalMonto", totalMonto);
             model.addAttribute("promedioVenta", ventas.size() > 0 ? totalMonto / ventas.size() : 0.0);
@@ -524,11 +521,11 @@ public class VentaControlador {
 
     // ==================== MÉTODOS DE VALIDACIÓN ====================
 
-    private boolean ventaEsEditable(Venta venta) {
+    private boolean ventaEsEditable(VentaDTO venta) {
         return venta != null && !"ANULADA".equals(venta.getEstado()) && !"COMPLETADA".equals(venta.getEstado());
     }
 
-    private boolean ventaEsEliminable(Venta venta) {
+    private boolean ventaEsEliminable(VentaDTO venta) {
         return venta != null && !"ANULADA".equals(venta.getEstado());
     }
 

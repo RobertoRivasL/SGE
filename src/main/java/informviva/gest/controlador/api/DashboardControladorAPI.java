@@ -1,10 +1,10 @@
 package informviva.gest.controlador.api;
 
 import informviva.gest.dto.MetricaDTO;
+import informviva.gest.dto.ProductoDTO;
+import informviva.gest.dto.VentaDTO;
 import informviva.gest.dto.VentaPorCategoriaDTO;
 import informviva.gest.dto.VentaPorPeriodoDTO;
-import informviva.gest.model.Producto;
-import informviva.gest.model.Venta;
 import informviva.gest.service.ProductoServicio;
 import informviva.gest.service.ReporteServicio;
 import informviva.gest.service.VentaServicio;
@@ -121,7 +121,7 @@ public class DashboardControladorAPI {
         List<VentaPorPeriodoDTO> ventasPorPeriodo = reporteServicio.obtenerVentasPorPeriodoEntreFechas(inicio, fin);
         List<VentaPorCategoriaDTO> ventasPorCategoria = reporteServicio.obtenerVentasPorCategoriaEntreFechas(inicio, fin);
 
-        List<Venta> ventasRecientes = ventaServicio.buscarPorRangoFechas(inicioDT, finDT)
+        List<VentaDTO> ventasRecientes = ventaServicio.buscarPorRangoFechas(inicioDT, finDT)
                 .stream()
                 .limit(10)
                 .collect(Collectors.toList());
@@ -131,24 +131,24 @@ public class DashboardControladorAPI {
                     Map<String, Object> dto = new HashMap<>();
                     dto.put("id", v.getId());
                     dto.put("fecha", v.getFecha());
-                    dto.put("cliente", v.getCliente().getNombreCompleto());
-                    dto.put("vendedor", v.getVendedor().getNombreCompleto());
+                    dto.put("clienteId", v.getClienteId());
+                    dto.put("vendedorId", v.getVendedorId());
                     dto.put("total", v.getTotal());
                     dto.put("estado", v.getEstado());
                     return dto;
                 })
                 .collect(Collectors.toList());
 
-        List<Producto> productosConBajoStock = productoServicio.listarConBajoStock(5);
+        List<ProductoDTO> productosConBajoStock = productoServicio.listarConBajoStock(5);
 
         List<Map<String, Object>> productosConBajoStockDTO = productosConBajoStock.stream()
                 .map(p -> {
                     Map<String, Object> dto = new HashMap<>();
                     dto.put("id", p.getId());
                     dto.put("nombre", p.getNombre());
-                    dto.put("codigo", p.getCodigo());
+                    dto.put("sku", p.getSku());
                     dto.put("stock", p.getStock());
-                    dto.put("categoria", p.getCategoria() != null ? p.getCategoria().getNombre() : "Sin categoría");
+                    dto.put("categoria", p.getCategoria() != null ? p.getCategoria() : "Sin categoría");
                     return dto;
                 })
                 .collect(Collectors.toList());
