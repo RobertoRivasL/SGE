@@ -262,6 +262,7 @@ public class VentaServicioImpl extends BaseServiceImpl<Venta, Long>
         return ventas.stream()
                 .filter(venta -> !"ANULADA".equals(venta.getEstado()))
                 .map(Venta::getTotal)
+                .map(BigDecimal::valueOf)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
@@ -289,6 +290,7 @@ public class VentaServicioImpl extends BaseServiceImpl<Venta, Long>
         return ventas.stream()
                 .filter(venta -> !"ANULADA".equals(venta.getEstado()))
                 .map(Venta::getTotal)
+                .map(BigDecimal::valueOf)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
@@ -334,7 +336,7 @@ public class VentaServicioImpl extends BaseServiceImpl<Venta, Long>
                 .filter(venta -> !"ANULADA".equals(venta.getEstado()))
                 .flatMap(venta -> venta.getDetalles().stream())
                 .filter(detalle -> detalle.getProducto().getId().equals(productoId))
-                .map(detalle -> detalle.getSubtotal())
+                .map(detalle -> BigDecimal.valueOf(detalle.getSubtotal()))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
@@ -506,7 +508,7 @@ public class VentaServicioImpl extends BaseServiceImpl<Venta, Long>
             detalle.setProducto(producto);
             detalle.setCantidad(detalleDTO.getCantidad());
             detalle.setPrecioUnitario(producto.getPrecio());
-            detalle.setSubtotal(producto.getPrecio().multiply(BigDecimal.valueOf(detalleDTO.getCantidad())));
+            // Subtotal se calcula automáticamente en getSubtotal()
 
             venta.getDetalles().add(detalle);
         });
@@ -516,18 +518,18 @@ public class VentaServicioImpl extends BaseServiceImpl<Venta, Long>
      * Calcula los totales de la venta
      */
     private void calcularTotalesVenta(Venta venta) {
-        BigDecimal subtotal = venta.getDetalles().stream()
-                .map(VentaDetalle::getSubtotal)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        double subtotal = venta.getDetalles().stream()
+                .mapToDouble(VentaDetalle::getSubtotal)
+                .sum();
 
         venta.setSubtotal(subtotal);
 
         // Calcular impuestos (19% IVA en Chile)
-        BigDecimal impuestos = subtotal.multiply(new BigDecimal("0.19"));
+        double impuestos = subtotal * 0.19;
         venta.setImpuestos(impuestos);
 
         // Total = subtotal + impuestos
-        venta.setTotal(subtotal.add(impuestos));
+        venta.setTotal(subtotal + impuestos);
     }
 
     /**
@@ -646,6 +648,7 @@ public class VentaServicioImpl extends BaseServiceImpl<Venta, Long>
 
         BigDecimal total = ventasValidas.stream()
                 .map(Venta::getTotal)
+                .map(BigDecimal::valueOf)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         return total.divide(BigDecimal.valueOf(ventasValidas.size()), 2, RoundingMode.HALF_UP)
