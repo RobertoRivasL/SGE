@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @Transactional
-public class ProductoServicioImpl extends BaseServiceImpl<Producto, Long>
+public class ProductoServicioImpl 
         implements ProductoServicio {
 
     private final ProductoRepositorio productoRepositorio;
@@ -51,7 +51,6 @@ public class ProductoServicioImpl extends BaseServiceImpl<Producto, Long>
      */
     public ProductoServicioImpl(ProductoRepositorio productoRepositorio,
                                 ModelMapper modelMapper) {
-        super(productoRepositorio);
         this.productoRepositorio = productoRepositorio;
         this.modelMapper = modelMapper;
     }
@@ -414,9 +413,6 @@ public class ProductoServicioImpl extends BaseServiceImpl<Producto, Long>
      * {@inheritDoc}
      */
     @Override
-    protected String getNombreEntidad() {
-        return "Producto";
-    }
 
     // ============================================
     // MÉTODOS PRIVADOS Y HELPER

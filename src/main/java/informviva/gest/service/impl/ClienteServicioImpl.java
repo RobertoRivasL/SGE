@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @Transactional
-public class ClienteServicioImpl extends BaseServiceImpl<Cliente, Long>
+public class ClienteServicioImpl 
         implements ClienteServicio {
 
     // Patrón para validar RUT chileno
@@ -65,7 +65,6 @@ public class ClienteServicioImpl extends BaseServiceImpl<Cliente, Long>
     public ClienteServicioImpl(ClienteRepositorio clienteRepositorio,
                                VentaRepositorio ventaRepositorio,
                                ModelMapper modelMapper) {
-        super(clienteRepositorio);
         this.clienteRepositorio = clienteRepositorio;
         this.ventaRepositorio = ventaRepositorio;
         this.modelMapper = modelMapper;
@@ -472,9 +471,6 @@ public class ClienteServicioImpl extends BaseServiceImpl<Cliente, Long>
      * {@inheritDoc}
      */
     @Override
-    protected String getNombreEntidad() {
-        return "Cliente";
-    }
 
     // ============================================
     // MÉTODOS PRIVADOS Y HELPER

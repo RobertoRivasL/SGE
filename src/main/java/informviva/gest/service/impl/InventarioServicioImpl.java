@@ -52,8 +52,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @Transactional
-public class InventarioServicioImpl extends BaseServiceImpl<MovimientoInventario, Long>
-        implements InventarioServicio {
+public class InventarioServicioImpl implements InventarioServicio {
 
     private final MovimientoInventarioRepositorio movimientoInventarioRepositorio;
     private final ProductoRepositorio productoRepositorio;
@@ -63,12 +62,15 @@ public class InventarioServicioImpl extends BaseServiceImpl<MovimientoInventario
     /**
      * Constructor con inyección de dependencias
      * NO usa @Autowired en campos, sino inyección por constructor
+     *
+     * NOTA: Esta clase NO extiende BaseServiceImpl porque trabaja con DTOs,
+     * no con entidades JPA directamente. BaseServiceImpl está diseñado para
+     * servicios que retornan entidades.
      */
     public InventarioServicioImpl(MovimientoInventarioRepositorio movimientoInventarioRepositorio,
                                    ProductoRepositorio productoRepositorio,
                                    RepositorioUsuario repositorioUsuario,
                                    ModelMapper modelMapper) {
-        super(movimientoInventarioRepositorio);
         this.movimientoInventarioRepositorio = movimientoInventarioRepositorio;
         this.productoRepositorio = productoRepositorio;
         this.repositorioUsuario = repositorioUsuario;
@@ -588,15 +590,6 @@ public class InventarioServicioImpl extends BaseServiceImpl<MovimientoInventario
     public long contarMovimientosPeriodo(LocalDateTime fechaInicio, LocalDateTime fechaFin) {
         log.debug("Contando movimientos del período: {} - {}", fechaInicio, fechaFin);
         return movimientoInventarioRepositorio.countByFechaBetween(fechaInicio, fechaFin);
-    }
-
-    // ============================================
-    // MÉTODO ABSTRACTO DE BaseServiceImpl
-    // ============================================
-
-    @Override
-    protected String getNombreEntidad() {
-        return "MovimientoInventario";
     }
 
     // ============================================
