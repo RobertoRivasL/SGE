@@ -91,4 +91,12 @@ public class Producto {
     public Boolean getActivo() {
         return this.activo;
     }
+
+    /**
+     * Alias para getCodigo() por compatibilidad con código existente
+     * Algunos controladores usan getSku() en lugar de getCodigo()
+     */
+    public String getSku() {
+        return this.codigo;
+    }
 }

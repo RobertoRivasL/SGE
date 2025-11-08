@@ -468,6 +468,17 @@ public class ClienteServicioImpl extends BaseServiceImpl<Cliente, Long>
                 .map(this::convertirADTO);
     }
 
+    // ============================================
+    // MÉTODOS ADICIONALES REQUERIDOS POR SERVICIOS DE IMPORTACIÓN
+    // ============================================
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean existeClienteConRut(String rut) {
+        log.debug("Verificando existencia de cliente con RUT: {}", rut);
+        return existePorRut(rut);
+    }
+
     /**
      * {@inheritDoc}
      */

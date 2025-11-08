@@ -343,4 +343,50 @@ public interface ProductoServicio {
      * @param activo true para activar, false para desactivar
      */
     void cambiarEstado(Long id, boolean activo);
+
+    // ============================================
+    // MÉTODOS ADICIONALES REQUERIDOS POR SERVICIOS DE IMPORTACIÓN
+    // ============================================
+
+    /**
+     * Verifica si existe un producto con el código especificado
+     *
+     * @param codigo Código del producto
+     * @return true si existe, false en caso contrario
+     */
+    boolean existePorCodigo(String codigo);
+
+    /**
+     * Verifica si existe un producto con el código especificado, excluyendo un ID
+     *
+     * @param codigo Código del producto
+     * @param id ID a excluir de la búsqueda
+     * @return true si existe otro producto con ese código
+     */
+    boolean existePorCodigo(String codigo, Long id);
+
+    /**
+     * Busca un producto por su código
+     *
+     * @param codigo Código del producto
+     * @return ProductoDTO encontrado
+     * @throws informviva.gest.exception.RecursoNoEncontradoException si no existe
+     */
+    ProductoDTO buscarPorCodigo(String codigo);
+
+    /**
+     * Lista todos los productos (sin paginación)
+     * Método legacy para compatibilidad con servicios de exportación/validación
+     *
+     * @return Lista de todos los ProductoDTO
+     */
+    List<ProductoDTO> listar();
+
+    /**
+     * Lista todos los productos activos (sin paginación)
+     * Método legacy para compatibilidad con servicios de exportación
+     *
+     * @return Lista de ProductoDTO activos
+     */
+    List<ProductoDTO> listarActivos();
 }

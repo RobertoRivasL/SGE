@@ -4,6 +4,7 @@ import informviva.gest.model.Producto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -24,7 +25,7 @@ import java.util.Optional;
  * @version 1.0
  */
 @Repository
-public interface ProductoRepositorio extends JpaRepository<Producto, Long> {
+public interface ProductoRepositorio extends JpaRepository<Producto, Long>, JpaSpecificationExecutor<Producto> {
 
     /**
      * Busca productos por nombre (búsqueda parcial, insensible a mayúsculas)
@@ -225,4 +226,49 @@ public interface ProductoRepositorio extends JpaRepository<Producto, Long> {
      * @return Página de productos con stock bajo
      */
     Page<Producto> findByStockLessThan(Integer stock, Pageable pageable);
+
+    /**
+     * Busca productos por texto (en nombre, código o descripción)
+     *
+     * @param texto Texto a buscar
+     * @return Lista de productos que contienen el texto
+     */
+    @Query("SELECT p FROM Producto p WHERE " +
+           "LOWER(p.nombre) LIKE LOWER(CONCAT('%', :texto, '%')) OR " +
+           "LOWER(p.codigo) LIKE LOWER(CONCAT('%', :texto, '%')) OR " +
+           "LOWER(p.descripcion) LIKE LOWER(CONCAT('%', :texto, '%'))")
+    List<Producto> buscarPorTexto(@Param("texto") String texto);
+
+    /**
+     * Cuenta productos por categoría (usando ID de categoría)
+     *
+     * @param categoriaId ID de la categoría
+     * @return Número de productos en la categoría
+     */
+    long countByCategoriaId(Long categoriaId);
+
+    /**
+     * Busca producto por código
+     *
+     * @param codigo Código del producto
+     * @return Optional con el producto si existe
+     */
+    Optional<Producto> findByCodigo(String codigo);
+
+    /**
+     * Verifica si existe un producto con el código dado
+     *
+     * @param codigo Código del producto
+     * @return true si existe un producto con ese código
+     */
+    boolean existsByCodigo(String codigo);
+
+    /**
+     * Verifica si existe un producto con el código dado (excluyendo un ID específico)
+     *
+     * @param codigo Código del producto
+     * @param id ID a excluir de la búsqueda
+     * @return true si existe otro producto con ese código
+     */
+    boolean existsByCodigoAndIdNot(String codigo, Long id);
 }

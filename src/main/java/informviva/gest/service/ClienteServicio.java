@@ -365,4 +365,16 @@ public interface ClienteServicio {
      * @return Página de ClienteDTO que coinciden
      */
     Page<ClienteDTO> buscarPorNombreOEmail(String termino, Pageable pageable);
+
+    // ============================================
+    // MÉTODOS ADICIONALES REQUERIDOS POR SERVICIOS DE IMPORTACIÓN
+    // ============================================
+
+    /**
+     * Verifica si existe un cliente con el RUT especificado
+     *
+     * @param rut RUT del cliente
+     * @return true si existe, false en caso contrario
+     */
+    boolean existeClienteConRut(String rut);
 }

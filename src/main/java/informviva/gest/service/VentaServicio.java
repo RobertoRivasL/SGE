@@ -295,4 +295,65 @@ public interface VentaServicio {
      * @return Nueva VentaDTO duplicada
      */
     VentaDTO duplicarVenta(VentaDTO ventaDTO);
+
+    // ============================================
+    // MÉTODOS ADICIONALES REQUERIDOS POR CONTROLADORES
+    // ============================================
+
+    /**
+     * Cuenta el número de transacciones en un período
+     *
+     * @param fechaInicio Fecha de inicio
+     * @param fechaFin Fecha de fin
+     * @return Número de transacciones (ventas completadas)
+     */
+    long contarTransacciones(LocalDateTime fechaInicio, LocalDateTime fechaFin);
+
+    /**
+     * Calcula el ticket promedio en un período
+     *
+     * @param fechaInicio Fecha de inicio
+     * @param fechaFin Fecha de fin
+     * @return Ticket promedio (total de ventas / número de ventas)
+     */
+    Double calcularTicketPromedio(LocalDateTime fechaInicio, LocalDateTime fechaFin);
+
+    /**
+     * Calcula el porcentaje de cambio entre dos valores
+     *
+     * @param valorActual Valor actual
+     * @param valorAnterior Valor anterior
+     * @return Porcentaje de cambio
+     */
+    Double calcularPorcentajeCambio(Double valorActual, Double valorAnterior);
+
+    /**
+     * Busca ventas por cliente ID
+     *
+     * @param clienteId ID del cliente
+     * @return Lista de ventas del cliente
+     */
+    List<VentaDTO> buscarPorClienteId(Long clienteId);
+
+    /**
+     * Cuenta ventas realizadas hoy
+     *
+     * @return Número de ventas de hoy
+     */
+    long contarVentasHoy();
+
+    /**
+     * Cuenta ventas por cliente
+     *
+     * @param clienteId ID del cliente
+     * @return Número de ventas del cliente
+     */
+    long contarVentasPorCliente(Long clienteId);
+
+    /**
+     * Obtiene todas las ventas del sistema
+     *
+     * @return Lista de todas las ventas
+     */
+    List<VentaDTO> obtenerTodasLasVentas();
 }
