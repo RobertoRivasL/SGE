@@ -182,9 +182,14 @@ public class RolServicioImpl implements RolServicio {
     public boolean puedeSerEliminado(Long id) {
         validarId(id);
 
-        // Verificar si hay usuarios con este rol
-        // Asumiendo que existe un método en el repositorio de usuarios
-        return repositorioUsuario.countByRolesId(id) == 0;
+        // Buscar el rol por ID para obtener su nombre
+        Rol rol = buscarPorId(id);
+        if (rol == null) {
+            return false;
+        }
+
+        // Verificar si hay usuarios con este rol (por nombre)
+        return repositorioUsuario.countByRolNombre(rol.getNombre()) == 0;
     }
 
     // ===================== MÉTODOS DE CONTEO =====================

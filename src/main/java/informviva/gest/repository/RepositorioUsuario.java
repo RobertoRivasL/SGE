@@ -75,6 +75,13 @@ public interface RepositorioUsuario extends JpaRepository<Usuario, Long> {
     List<Usuario> findByRolNombre(@Param("rolNombre") String rolNombre);
 
     /**
+     * Cuenta usuarios que tengan un rol específico
+     * ✅ Para Set<String> roles
+     */
+    @Query("SELECT COUNT(u) FROM Usuario u WHERE :rolNombre MEMBER OF u.roles")
+    long countByRolNombre(@Param("rolNombre") String rolNombre);
+
+    /**
      * Busca usuarios vendedores (con rol VENDEDOR o ADMIN)
      * ✅ CORREGIDO: Para Set<String> roles
      */
@@ -300,6 +307,4 @@ public interface RepositorioUsuario extends JpaRepository<Usuario, Long> {
             ":rolExcluir NOT MEMBER OF u.roles AND u.activo = true")
     List<Usuario> findByRolIncluyendoExcluyendo(@Param("rolIncluir") String rolIncluir,
                                                 @Param("rolExcluir") String rolExcluir);
-
-    long countByRolesId(Long rolId);
 }
