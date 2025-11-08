@@ -319,7 +319,6 @@ public class ImportacionResultadoDTO {
      */
     @Data
     @NoArgsConstructor
-    @AllArgsConstructor
     public static class DetalleError {
         private int fila;
         private String campo;
