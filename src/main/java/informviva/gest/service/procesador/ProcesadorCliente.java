@@ -1,10 +1,12 @@
 package informviva.gest.service.procesador;
 
 
+import informviva.gest.dto.ClienteDTO;
 import informviva.gest.dto.ValidacionResultadoDTO;
 import informviva.gest.model.Cliente;
 import informviva.gest.service.ClienteServicio;
 import informviva.gest.service.importacion.ImportacionValidador;
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,9 @@ public class ProcesadorCliente implements ProcesadorEntidad<Cliente> {
 
     @Autowired
     private ImportacionValidador validador;
+
+    @Autowired
+    private ModelMapper modelMapper;
 
     @Override
     public String getTipoEntidad() {
@@ -60,7 +65,8 @@ public class ProcesadorCliente implements ProcesadorEntidad<Cliente> {
     @Override
     @Transactional
     public void guardarEntidad(Cliente cliente) {
-        clienteServicio.guardar(cliente);
+        ClienteDTO clienteDTO = modelMapper.map(cliente, ClienteDTO.class);
+        clienteServicio.guardar(clienteDTO);
     }
 
     @Override
