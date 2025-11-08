@@ -128,7 +128,7 @@ public abstract class BaseServiceImpl<T, ID> {
      * @param entidad Entidad a eliminar
      */
     @Transactional
-    public void eliminar(T entidad) {
+    public void eliminarEntidad(T entidad) {
         repository.delete(entidad);
     }
 

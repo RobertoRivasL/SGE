@@ -340,6 +340,7 @@ public class ImportacionResultadoDTO {
      * Clase para estadísticas resumidas
      */
     @Data
+    @NoArgsConstructor
     @AllArgsConstructor
     public static class EstadisticasResumen {
         private int totalProcesados;
