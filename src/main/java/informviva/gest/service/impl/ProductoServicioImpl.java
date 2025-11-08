@@ -410,6 +410,76 @@ public class ProductoServicioImpl extends BaseServiceImpl<Producto, Long>
         }
     }
 
+    // ============================================
+    // MÉTODOS ADICIONALES REQUERIDOS POR SERVICIOS DE IMPORTACIÓN
+    // ============================================
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean existePorCodigo(String codigo) {
+        log.debug("Verificando existencia de producto con código: {}", codigo);
+
+        if (codigo == null || codigo.trim().isEmpty()) {
+            return false;
+        }
+
+        return productoRepositorio.existsByCodigo(codigo);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean existePorCodigo(String codigo, Long id) {
+        log.debug("Verificando existencia de producto con código: {} (excluyendo ID: {})", codigo, id);
+
+        if (codigo == null || codigo.trim().isEmpty()) {
+            return false;
+        }
+
+        if (id == null) {
+            return existePorCodigo(codigo);
+        }
+
+        return productoRepositorio.existsByCodigoAndIdNot(codigo, id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ProductoDTO buscarPorCodigo(String codigo) {
+        log.debug("Buscando producto por código: {}", codigo);
+
+        if (codigo == null || codigo.trim().isEmpty()) {
+            throw new IllegalArgumentException("El código del producto no puede estar vacío");
+        }
+
+        Producto producto = productoRepositorio.findByCodigo(codigo)
+                .orElseThrow(() -> new RecursoNoEncontradoException(
+                        "Producto no encontrado con código: " + codigo));
+
+        return convertirADTO(producto);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProductoDTO> listar() {
+        log.debug("Listando todos los productos (sin paginación)");
+
+        return productoRepositorio.findAll()
+                .stream()
+                .map(this::convertirADTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProductoDTO> listarActivos() {
+        log.debug("Listando productos activos (sin paginación)");
+
+        return productoRepositorio.findByActivoTrue()
+                .stream()
+                .map(this::convertirADTO)
+                .collect(Collectors.toList());
+    }
+
     /**
      * {@inheritDoc}
      */

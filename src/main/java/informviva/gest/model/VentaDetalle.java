@@ -22,4 +22,11 @@ public class VentaDetalle {
 
     private int cantidad;
     private double precioUnitario;
+
+    /**
+     * Calcula el subtotal del detalle (cantidad * precio unitario)
+     */
+    public double getSubtotal() {
+        return cantidad * precioUnitario;
+    }
 }

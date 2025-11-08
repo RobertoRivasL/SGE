@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -611,5 +612,98 @@ public class VentaServicioImpl extends BaseServiceImpl<Venta, Long>
         ventaNuevaDTO.setProductos(ventaOriginalDTO.getProductos());
 
         return guardar(ventaNuevaDTO);
+    }
+
+    // ============================================
+    // MÉTODOS ADICIONALES REQUERIDOS POR CONTROLADORES
+    // ============================================
+
+    @Override
+    @Transactional(readOnly = true)
+    public long contarTransacciones(LocalDateTime fechaInicio, LocalDateTime fechaFin) {
+        log.debug("Contando transacciones entre {} y {}", fechaInicio, fechaFin);
+
+        return ventaRepositorio.findByFechaBetween(fechaInicio, fechaFin)
+                .stream()
+                .filter(venta -> "COMPLETADA".equals(venta.getEstado()))
+                .count();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Double calcularTicketPromedio(LocalDateTime fechaInicio, LocalDateTime fechaFin) {
+        log.debug("Calculando ticket promedio entre {} y {}", fechaInicio, fechaFin);
+
+        List<Venta> ventas = ventaRepositorio.findByFechaBetween(fechaInicio, fechaFin);
+
+        List<Venta> ventasValidas = ventas.stream()
+                .filter(venta -> !"ANULADA".equals(venta.getEstado()))
+                .collect(Collectors.toList());
+
+        if (ventasValidas.isEmpty()) {
+            return 0.0;
+        }
+
+        BigDecimal total = ventasValidas.stream()
+                .map(Venta::getTotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        return total.divide(BigDecimal.valueOf(ventasValidas.size()), 2, RoundingMode.HALF_UP)
+                .doubleValue();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Double calcularPorcentajeCambio(Double valorActual, Double valorAnterior) {
+        log.debug("Calculando porcentaje de cambio: actual={}, anterior={}", valorActual, valorAnterior);
+
+        if (valorAnterior == null || valorAnterior == 0.0) {
+            return valorActual != null && valorActual > 0.0 ? 100.0 : 0.0;
+        }
+
+        if (valorActual == null) {
+            return -100.0;
+        }
+
+        return ((valorActual - valorAnterior) / valorAnterior) * 100.0;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<VentaDTO> buscarPorClienteId(Long clienteId) {
+        log.debug("Buscando ventas por cliente ID: {}", clienteId);
+
+        return ventaRepositorio.findByClienteId(clienteId)
+                .stream()
+                .map(this::convertirADTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long contarVentasHoy() {
+        log.debug("Contando ventas de hoy");
+
+        Long count = ventaRepositorio.countVentasHoy();
+        return count != null ? count : 0L;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long contarVentasPorCliente(Long clienteId) {
+        log.debug("Contando ventas para cliente ID: {}", clienteId);
+
+        return ventaRepositorio.countByClienteId(clienteId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<VentaDTO> obtenerTodasLasVentas() {
+        log.debug("Obteniendo todas las ventas");
+
+        return ventaRepositorio.findAll()
+                .stream()
+                .map(this::convertirADTO)
+                .collect(Collectors.toList());
     }
 }

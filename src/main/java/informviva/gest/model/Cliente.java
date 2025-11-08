@@ -97,6 +97,13 @@ public class Cliente {
         this.fechaModificacion = fechaModificacion;
     }
 
+    /**
+     * Alias para setFechaModificacion() por compatibilidad con código existente
+     */
+    public void setFechaActualizacion(LocalDateTime fechaActualizacion) {
+        this.fechaModificacion = fechaActualizacion;
+    }
+
     public LocalDateTime getFechaUltimaCompra() {
         return this.fechaUltimaCompra;
     }

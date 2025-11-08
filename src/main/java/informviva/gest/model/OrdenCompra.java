@@ -220,6 +220,11 @@ public class OrdenCompra {
         CONFIRMADA("Confirmada"),
 
         /**
+         * Mercancía en tránsito
+         */
+        EN_TRANSITO("En Tránsito"),
+
+        /**
          * Mercancía recibida parcialmente
          */
         RECIBIDA_PARCIAL("Recibida Parcial"),
@@ -254,7 +259,7 @@ public class OrdenCompra {
         }
 
         public boolean esRecibible() {
-            return this == ENVIADA || this == CONFIRMADA || this == RECIBIDA_PARCIAL;
+            return this == ENVIADA || this == CONFIRMADA || this == EN_TRANSITO || this == RECIBIDA_PARCIAL;
         }
 
         public boolean esCancelable() {
