@@ -37,12 +37,13 @@ import java.util.concurrent.Executor;
  * @author Roberto Rivas Lopez
  * @version 1.0
  */
+/**
+ * NOTA: @EnableJpaRepositories, @EntityScan y @EnableTransactionManagement
+ * están configuradas en DatabaseConfig.java para evitar duplicación
+ */
 @Configuration
-@EnableTransactionManagement
 @EnableAsync
 @EnableScheduling
-@EntityScan(basePackages = "informviva.gest.model")
-@EnableJpaRepositories(basePackages = "informviva.gest.repository")
 @ComponentScan(basePackages = {
         "informviva.gest.service",
         "informviva.gest.service.impl",

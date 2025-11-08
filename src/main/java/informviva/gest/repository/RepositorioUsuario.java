@@ -2,6 +2,7 @@ package informviva.gest.repository;
 
 import informviva.gest.model.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -206,6 +207,7 @@ public interface RepositorioUsuario extends JpaRepository<Usuario, Long> {
      * Actualiza la fecha de último acceso de un usuario
      * ⚠️ NOTA: Cambiar LocalDateTime por LocalDate según tu modelo Usuario
      */
+    @Modifying
     @Query("UPDATE Usuario u SET u.ultimoAcceso = :fechaAcceso WHERE u.id = :usuarioId")
     void actualizarUltimoAcceso(@Param("usuarioId") Long usuarioId,
                                 @Param("fechaAcceso") LocalDateTime fechaAcceso);
