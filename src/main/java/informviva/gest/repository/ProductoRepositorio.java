@@ -38,10 +38,10 @@ public interface ProductoRepositorio extends JpaRepository<Producto, Long>, JpaS
     /**
      * Busca productos por categoría (insensible a mayúsculas)
      *
-     * @param categoria Categoría del producto
+     * @param nombre Nombre de la categoría del producto
      * @return Lista de productos de la categoría
      */
-    List<Producto> findByCategoriaIgnoreCase(String categoria);
+    List<Producto> findByCategoriaNombreIgnoreCase(String nombre);
 
     /**
      * Busca productos dentro de un rango de precios
@@ -86,10 +86,10 @@ public interface ProductoRepositorio extends JpaRepository<Producto, Long>, JpaS
     /**
      * Busca productos por categoría y que estén activos
      *
-     * @param categoria Categoría del producto
+     * @param nombre Nombre de la categoría del producto
      * @return Lista de productos activos de la categoría
      */
-    List<Producto> findByCategoriaIgnoreCaseAndActivoTrue(String categoria);
+    List<Producto> findByCategoriaNombreIgnoreCaseAndActivoTrue(String nombre);
 
     /**
      * Verifica si existe un producto con el nombre dado (excluyendo un ID específico)
@@ -120,10 +120,10 @@ public interface ProductoRepositorio extends JpaRepository<Producto, Long>, JpaS
     /**
      * Cuenta productos por categoría
      *
-     * @param categoria Categoría a contar
+     * @param nombre Nombre de la categoría a contar
      * @return Número de productos en la categoría
      */
-    long countByCategoriaIgnoreCase(String categoria);
+    long countByCategoriaNombreIgnoreCase(String nombre);
 
     /**
      * Cuenta productos activos
@@ -152,7 +152,7 @@ public interface ProductoRepositorio extends JpaRepository<Producto, Long>, JpaS
      */
     @Query("SELECT p FROM Producto p WHERE " +
             "(:nombre IS NULL OR LOWER(p.nombre) LIKE LOWER(CONCAT('%', :nombre, '%'))) AND " +
-            "(:categoria IS NULL OR LOWER(p.categoria) = LOWER(:categoria)) AND " +
+            "(:categoria IS NULL OR LOWER(p.categoria.nombre) = LOWER(:categoria)) AND " +
             "(:precioMin IS NULL OR p.precio >= :precioMin) AND " +
             "(:precioMax IS NULL OR p.precio <= :precioMax) AND " +
             "(:soloActivos = false OR p.activo = true)")
@@ -169,7 +169,7 @@ public interface ProductoRepositorio extends JpaRepository<Producto, Long>, JpaS
      *
      * @return Lista de categorías distintas
      */
-    @Query("SELECT DISTINCT p.categoria FROM Producto p WHERE p.categoria IS NOT NULL ORDER BY p.categoria")
+    @Query("SELECT DISTINCT p.categoria.nombre FROM Producto p WHERE p.categoria IS NOT NULL ORDER BY p.categoria.nombre")
     List<String> findDistinctCategorias();
 
     /**
@@ -195,11 +195,11 @@ public interface ProductoRepositorio extends JpaRepository<Producto, Long>, JpaS
     /**
      * Busca productos por categoría con paginación
      *
-     * @param categoria Categoría del producto
+     * @param nombre Nombre de la categoría del producto
      * @param pageable Información de paginación
      * @return Página de productos de la categoría
      */
-    Page<Producto> findByCategoriaIgnoreCase(String categoria, Pageable pageable);
+    Page<Producto> findByCategoriaNombreIgnoreCase(String nombre, Pageable pageable);
 
     /**
      * Busca productos con stock mayor al especificado con paginación
