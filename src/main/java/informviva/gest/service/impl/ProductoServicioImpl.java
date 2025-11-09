@@ -42,18 +42,22 @@ public class ProductoServicioImpl extends BaseServiceImpl<Producto, Long>
 
     private final ProductoRepositorio productoRepositorio;
     private final ModelMapper modelMapper;
+    private final informviva.gest.repository.CategoriaRepositorio categoriaRepositorio;
 
     /**
      * Constructor con inyección de dependencias
      *
      * @param productoRepositorio Repositorio de productos
      * @param modelMapper Mapper para conversión DTO/Entidad
+     * @param categoriaRepositorio Repositorio de categorías
      */
     public ProductoServicioImpl(ProductoRepositorio productoRepositorio,
-                                ModelMapper modelMapper) {
+                                ModelMapper modelMapper,
+                                informviva.gest.repository.CategoriaRepositorio categoriaRepositorio) {
         super(productoRepositorio);
         this.productoRepositorio = productoRepositorio;
         this.modelMapper = modelMapper;
+        this.categoriaRepositorio = categoriaRepositorio;
     }
 
     // ============================================
@@ -564,9 +568,13 @@ public class ProductoServicioImpl extends BaseServiceImpl<Producto, Long>
     private void actualizarCamposProducto(Producto productoExistente, ProductoDTO productoDTO) {
         productoExistente.setNombre(productoDTO.getNombre());
         productoExistente.setDescripcion(productoDTO.getDescripcion());
-        productoExistente.setPrecio(productoDTO.getPrecio());
+        productoExistente.setPrecio(productoDTO.getPrecio().doubleValue());
         productoExistente.setStock(productoDTO.getStock());
-        productoExistente.setCategoria(productoDTO.getCategoria());
+        // Convertir String a Categoria entity
+        if (productoDTO.getCategoria() != null) {
+            categoriaRepositorio.findByNombre(productoDTO.getCategoria())
+                    .ifPresent(productoExistente::setCategoria);
+        }
         productoExistente.setActivo(productoDTO.getActivo());
     }
 }

@@ -57,16 +57,19 @@ public class ValidacionServicioImpl implements ValidacionServicio {
     private final VentaServicio ventaServicio;
     private final ClienteRepositorio clienteRepositorio;
     private final RepositorioUsuario usuarioRepositorio;
+    private final org.modelmapper.ModelMapper modelMapper;
 
     @Autowired
     public ValidacionServicioImpl(ProductoServicio productoServicio,
                                   VentaServicio ventaServicio,
                                   ClienteRepositorio clienteRepositorio,
-                                  RepositorioUsuario usuarioRepositorio) {
+                                  RepositorioUsuario usuarioRepositorio,
+                                  org.modelmapper.ModelMapper modelMapper) {
         this.productoServicio = productoServicio;
         this.ventaServicio = ventaServicio;
         this.clienteRepositorio = clienteRepositorio;
         this.usuarioRepositorio = usuarioRepositorio;
+        this.modelMapper = modelMapper;
     }
 
     @Override
@@ -201,7 +204,7 @@ public class ValidacionServicioImpl implements ValidacionServicio {
         }
 
         try {
-            Producto producto = productoServicio.buscarPorId(productoId);
+            informviva.gest.dto.ProductoDTO producto = productoServicio.buscarPorId(productoId);
             if (producto == null || !producto.getActivo()) {
                 return false;
             }
@@ -221,7 +224,7 @@ public class ValidacionServicioImpl implements ValidacionServicio {
         }
 
         try {
-            Producto producto = productoServicio.buscarPorId(productoId);
+            informviva.gest.dto.ProductoDTO producto = productoServicio.buscarPorId(productoId);
             return producto != null ? producto.getStock() : 0;
         } catch (Exception e) {
             logger.error("Error obteniendo stock de producto {}: {}", productoId, e.getMessage());

@@ -38,6 +38,9 @@ public class ReporteClienteControlador {
     @Autowired
     private ReporteClienteServicio reporteClienteServicio;
 
+    @Autowired
+    private org.modelmapper.ModelMapper modelMapper;
+
     /**
      * Muestra la página principal de reportes de clientes
      */
@@ -111,7 +114,9 @@ public class ReporteClienteControlador {
             Map<String, Object> estadisticasMes = reporteClienteServicio.obtenerEstadisticasGenerales(inicioMes, hoy);
 
             // Obtener clientes inactivos (últimos 90 días)
-            List<ClienteDTO> clientesInactivos = reporteClienteServicio.obtenerClientesInactivos(90);
+            List<ClienteDTO> clientesInactivos = reporteClienteServicio.obtenerClientesInactivos(90).stream()
+                    .map(cliente -> modelMapper.map(cliente, ClienteDTO.class))
+                    .collect(java.util.stream.Collectors.toList());
 
             // Distribución por antigüedad
             Map<String, Long> distribucionAntiguedad = reporteClienteServicio.analizarDistribucionAntiguedad();
@@ -259,7 +264,9 @@ public class ReporteClienteControlador {
             Model modelo) {
 
         try {
-            List<ClienteDTO> clientesInactivos = reporteClienteServicio.obtenerClientesInactivos(dias);
+            List<ClienteDTO> clientesInactivos = reporteClienteServicio.obtenerClientesInactivos(dias).stream()
+                    .map(cliente -> modelMapper.map(cliente, ClienteDTO.class))
+                    .collect(java.util.stream.Collectors.toList());
 
             modelo.addAttribute("clientesInactivos", clientesInactivos);
             modelo.addAttribute("diasInactividad", dias);

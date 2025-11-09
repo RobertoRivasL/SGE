@@ -346,6 +346,7 @@ public class HistorialVentasControlador {
             BigDecimal totalIngresos = ventasPeriodo.stream()
                     .filter(v -> "completada".equals(v.getEstado()))
                     .map(VentaDTO::getTotal)
+                    .map(BigDecimal::valueOf)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
 
             long ventasCompletadas = ventasPeriodo.stream()

@@ -524,12 +524,12 @@ public class VentaServicioImpl extends BaseServiceImpl<Venta, Long>
 
         venta.setSubtotal(subtotal);
 
-        // Calcular impuestos (19% IVA en Chile)
-        double impuestos = subtotal * 0.19;
-        venta.setImpuestos(impuestos);
+        // Calcular impuesto (19% IVA en Chile)
+        double impuesto = subtotal * 0.19;
+        venta.setImpuesto(impuesto);
 
-        // Total = subtotal + impuestos
-        venta.setTotal(subtotal + impuestos);
+        // Total = subtotal + impuesto
+        venta.setTotal(subtotal + impuesto);
     }
 
     /**

@@ -58,6 +58,9 @@ public class ValidacionDatosServicioImpl implements ValidacionDatosServicio {
     // Límites de validación
     private static final double MIN_PRECIO = 0.01;
     private static final double MAX_PRECIO = 10_000_000.0;
+
+    @Autowired
+    private org.modelmapper.ModelMapper modelMapper;
     private static final int MIN_STOCK = 0;
     private static final int MAX_STOCK = 999_999;
     private static final int MIN_CANTIDAD_VENTA = 1;
@@ -117,7 +120,9 @@ public class ValidacionDatosServicioImpl implements ValidacionDatosServicio {
     public ResultadoValidacionModulo validarModuloClientes() {
         logger.debug("Iniciando validación de clientes");
         try {
-            List<Cliente> clientes = clienteServicio.buscarTodos();
+            List<Cliente> clientes = clienteServicio.buscarTodos().stream()
+                    .map(dto -> modelMapper.map(dto, Cliente.class))
+                    .collect(Collectors.toList());
             return validarModulo("Clientes", clientes, this::validarCliente);
         } catch (Exception e) {
             logger.error("Error al obtener clientes para validación: {}", e.getMessage());
@@ -129,7 +134,9 @@ public class ValidacionDatosServicioImpl implements ValidacionDatosServicio {
     public ResultadoValidacionModulo validarModuloProductos() {
         logger.debug("Iniciando validación de productos");
         try {
-            List<Producto> productos = productoServicio.listar();
+            List<Producto> productos = productoServicio.listar().stream()
+                    .map(dto -> modelMapper.map(dto, Producto.class))
+                    .collect(Collectors.toList());
             return validarModulo("Productos", productos, this::validarProducto);
         } catch (Exception e) {
             logger.error("Error al obtener productos para validación: {}", e.getMessage());
@@ -141,7 +148,9 @@ public class ValidacionDatosServicioImpl implements ValidacionDatosServicio {
     public ResultadoValidacionModulo validarModuloVentas() {
         logger.debug("Iniciando validación de ventas");
         try {
-            List<Venta> ventas = ventaServicio.obtenerTodasLasVentas();
+            List<Venta> ventas = ventaServicio.obtenerTodasLasVentas().stream()
+                    .map(dto -> modelMapper.map(dto, Venta.class))
+                    .collect(Collectors.toList());
             return validarModulo("Ventas", ventas, this::validarVenta);
         } catch (Exception e) {
             logger.error("Error al obtener ventas para validación: {}", e.getMessage());
@@ -167,7 +176,9 @@ public class ValidacionDatosServicioImpl implements ValidacionDatosServicio {
         ResultadoValidacionModulo resultado = new ResultadoValidacionModulo("Integridad Referencial");
 
         try {
-            List<Venta> ventas = ventaServicio.obtenerTodasLasVentas();
+            List<Venta> ventas = ventaServicio.obtenerTodasLasVentas().stream()
+                    .map(dto -> modelMapper.map(dto, Venta.class))
+                    .collect(Collectors.toList());
             Map<String, List<ErrorValidacion>> registrosConErrores = new HashMap<>();
 
             for (Venta venta : ventas) {
@@ -421,7 +432,7 @@ public class ValidacionDatosServicioImpl implements ValidacionDatosServicio {
         // Verificar existencia del cliente
         if (venta.getCliente() != null && venta.getCliente().getId() != null) {
             try {
-                Cliente cliente = clienteServicio.buscarPorId(venta.getCliente().getId());
+                informviva.gest.dto.ClienteDTO cliente = clienteServicio.buscarPorId(venta.getCliente().getId());
                 if (cliente == null) {
                     errores.add(new ErrorValidacion("cliente", "Cliente inexistente", NivelSeveridad.CRITICO,
                             "El cliente asociado no existe en el sistema"));
@@ -449,7 +460,7 @@ public class ValidacionDatosServicioImpl implements ValidacionDatosServicio {
         // Verificar existencia del producto
         if (venta.getProducto() != null && venta.getProducto().getId() != null) {
             try {
-                Producto producto = productoServicio.buscarPorId(venta.getProducto().getId());
+                informviva.gest.dto.ProductoDTO producto = productoServicio.buscarPorId(venta.getProducto().getId());
                 if (producto == null) {
                     errores.add(new ErrorValidacion("producto", "Producto inexistente", NivelSeveridad.CRITICO,
                             "El producto asociado no existe en el sistema"));
@@ -563,15 +574,24 @@ public class ValidacionDatosServicioImpl implements ValidacionDatosServicio {
         try {
             // Validación rápida solo de registros críticos (primeros 100 de cada módulo)
             resultado.setValidacionClientes(validarModuloRapido("Clientes",
-                    clienteServicio.buscarTodos().stream().limit(100).collect(Collectors.toList()),
+                    clienteServicio.buscarTodos().stream()
+                            .limit(100)
+                            .map(dto -> modelMapper.map(dto, Cliente.class))
+                            .collect(Collectors.toList()),
                     this::validarCliente));
 
             resultado.setValidacionProductos(validarModuloRapido("Productos",
-                    productoServicio.listar().stream().limit(100).collect(Collectors.toList()),
+                    productoServicio.listar().stream()
+                            .limit(100)
+                            .map(dto -> modelMapper.map(dto, Producto.class))
+                            .collect(Collectors.toList()),
                     this::validarProducto));
 
             resultado.setValidacionVentas(validarModuloRapido("Ventas",
-                    ventaServicio.obtenerTodasLasVentas().stream().limit(50).collect(Collectors.toList()),
+                    ventaServicio.obtenerTodasLasVentas().stream()
+                            .limit(50)
+                            .map(dto -> modelMapper.map(dto, Venta.class))
+                            .collect(Collectors.toList()),
                     this::validarVenta));
 
             resultado.setValidacionUsuarios(validarModuloRapido("Usuarios",

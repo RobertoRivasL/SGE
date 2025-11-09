@@ -41,6 +41,9 @@ public class ClienteImportacionServicioImpl {
     @Autowired
     private ClienteServicio clienteServicio;
 
+    @Autowired
+    private org.modelmapper.ModelMapper modelMapper;
+
     /**
      * Importa clientes desde archivo Excel
      */
@@ -127,13 +130,13 @@ public class ClienteImportacionServicioImpl {
                     Cliente existente = buscarClientePorRut(cliente.getRut());
                     if (existente != null) {
                         actualizarClienteExistente(existente, cliente);
-                        clienteServicio.guardar(existente);
+                        clienteServicio.guardar(modelMapper.map(existente, informviva.gest.dto.ClienteDTO.class));
                         logger.debug("Cliente actualizado: {}", cliente.getRut());
                     }
                 } else {
                     // Crear nuevo cliente
                     cliente.setFechaRegistro(LocalDateTime.now());
-                    clienteServicio.guardar(cliente);
+                    clienteServicio.guardar(modelMapper.map(cliente, informviva.gest.dto.ClienteDTO.class));
                     logger.debug("Cliente creado: {}", cliente.getRut());
                 }
 
@@ -457,9 +460,10 @@ public class ClienteImportacionServicioImpl {
      */
     private Cliente buscarClientePorRut(String rut) {
         // Como ClienteServicio no tiene buscarPorRut, buscar en todos los clientes
-        List<Cliente> todosLosClientes = clienteServicio.buscarTodos();
+        List<informviva.gest.dto.ClienteDTO> todosLosClientes = clienteServicio.buscarTodos();
         return todosLosClientes.stream()
                 .filter(cliente -> rut.equals(cliente.getRut()))
+                .map(dto -> modelMapper.map(dto, Cliente.class))
                 .findFirst()
                 .orElse(null);
     }

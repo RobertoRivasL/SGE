@@ -53,6 +53,9 @@ public class ImportacionServicioImpl implements ImportacionServicio {
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
+    @Autowired
+    private org.modelmapper.ModelMapper modelMapper;
+
     @Override
     public ImportacionResultadoDTO importarClientes(MultipartFile archivo) {
         logger.info("Iniciando importación de clientes desde archivo: {}", archivo.getOriginalFilename());
@@ -96,7 +99,7 @@ public class ImportacionServicioImpl implements ImportacionServicio {
                             resultado.agregarAdvertencia("Fila " + (i + 2) + ": Cliente con RUT " + cliente.getRut() + " ya existe, se omite");
                             resultado.incrementarOmitidos();
                         } else {
-                            clienteServicio.guardar(cliente);
+                            clienteServicio.guardar(modelMapper.map(cliente, informviva.gest.dto.ClienteDTO.class));
                             resultado.incrementarExitosos();
                         }
                     }
@@ -161,7 +164,7 @@ public class ImportacionServicioImpl implements ImportacionServicio {
                             resultado.agregarAdvertencia("Fila " + (i + 2) + ": Producto con código " + producto.getCodigo() + " ya existe, se omite");
                             resultado.incrementarOmitidos();
                         } else {
-                            productoServicio.guardar(producto);
+                            productoServicio.guardar(modelMapper.map(producto, informviva.gest.dto.ProductoDTO.class));
                             resultado.incrementarExitosos();
                         }
                     }

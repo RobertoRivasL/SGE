@@ -322,11 +322,19 @@ public class ReporteExportacionControlador {
                     dto.setId(p.getId());
                     dto.setCodigo(p.getSku());
                     dto.setNombre(p.getNombre());
-                    dto.setCategoria(p.getCategoria());
-                    dto.setStock(p.getStock());
-                    // Simular datos de ventas (en producción estos vendrían de la BD)
-                    dto.setUnidadesVendidas((int) (Math.random() * 100));
-                    dto.setIngresos(java.math.BigDecimal.valueOf(Math.random() * 10000));
+                    // p.getCategoria() returns String, use reflection to set the categoria field directly
+                    // or create a constructor that accepts String
+                    dto = new ProductoReporteDTO(
+                            p.getId(),
+                            p.getSku(),
+                            p.getNombre(),
+                            p.getCategoria(), // String categoria
+                            p.getStock(),
+                            (int) (Math.random() * 100), // unidadesVendidas
+                            java.math.BigDecimal.valueOf(Math.random() * 10000), // ingresos
+                            null, // precioPromedio
+                            null  // porcentajeTotal
+                    );
                     return dto;
                 })
                 .collect(Collectors.toList());

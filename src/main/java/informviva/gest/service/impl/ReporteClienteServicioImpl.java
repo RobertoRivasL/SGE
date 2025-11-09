@@ -35,6 +35,9 @@ public class ReporteClienteServicioImpl implements ReporteClienteServicio {
     @Autowired
     private ClienteServicio clienteServicio;
 
+    @Autowired
+    private org.modelmapper.ModelMapper modelMapper;
+
     @Override
     public List<ClienteReporteDTO> generarReporteClientes(LocalDate fechaInicio, LocalDate fechaFin) {
         logger.info("Generando reporte de clientes para el período: {} - {}", fechaInicio, fechaFin);
@@ -126,7 +129,7 @@ public class ReporteClienteServicioImpl implements ReporteClienteServicio {
         Map<String, Long> distribucion = new LinkedHashMap<>();
         LocalDate hoy = LocalDate.now();
 
-        List<Cliente> todosLosClientes = clienteServicio.buscarTodos();
+        List<informviva.gest.dto.ClienteDTO> todosLosClientes = clienteServicio.buscarTodos();
 
         // Inicializar contadores
         distribucion.put("Menos de 3 meses", 0L);

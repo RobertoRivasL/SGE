@@ -93,9 +93,9 @@ public class ReporteControlador {
 
             LocalDateTime inicioDateTime = inicio.atStartOfDay();
             LocalDateTime finDateTime = fin.atTime(23, 59, 59);
-            Double totalVentas = ventaServicio.calcularTotalVentas(inicioDateTime, finDateTime);
+            Double totalVentas = ventaServicio.calcularTotalVentas(inicioDateTime, finDateTime).doubleValue();
             Long totalTransacciones = ventaServicio.contarTransacciones(inicioDateTime, finDateTime);
-            Double ticketPromedio = ventaServicio.calcularTicketPromedio(inicioDateTime, finDateTime);
+            Double ticketPromedio = ventaServicio.calcularTicketPromedio(inicioDateTime, finDateTime).doubleValue();
             kpis.put("totalVentas", totalVentas);
             kpis.put("totalTransacciones", totalTransacciones);
             kpis.put("ticketPromedio", ticketPromedio);
@@ -107,7 +107,7 @@ public class ReporteControlador {
             LocalDateTime inicioAnteriorDateTime = fechasAnteriores[0].atStartOfDay();
             LocalDateTime finAnteriorDateTime = fechasAnteriores[1].atTime(23, 59, 59);
 
-            Double ventasAnterior = ventaServicio.calcularTotalVentas(inicioAnteriorDateTime, finAnteriorDateTime);
+            Double ventasAnterior = ventaServicio.calcularTotalVentas(inicioAnteriorDateTime, finAnteriorDateTime).doubleValue();
             Long transaccionesAnterior = ventaServicio.contarTransacciones(inicioAnteriorDateTime, finAnteriorDateTime);
 
             kpis.put("variacionVentas", ventaServicio.calcularPorcentajeCambio(totalVentas, ventasAnterior));

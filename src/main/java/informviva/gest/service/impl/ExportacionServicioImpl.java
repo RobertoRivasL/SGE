@@ -55,6 +55,7 @@ public class ExportacionServicioImpl implements ExportacionServicio {
     private final UsuarioServicio usuarioServicio;
     private final ReporteServicio reporteServicio;
     private final ExportacionHistorialServicio historialServicio;
+    private final org.modelmapper.ModelMapper modelMapper;
 
     // Formatos soportados
     public static final String FORMATO_PDF = "PDF";
@@ -84,10 +85,12 @@ public class ExportacionServicioImpl implements ExportacionServicio {
             VentaServicio ventaServicio,
             UsuarioServicio usuarioServicio,
             ReporteServicio reporteServicio,
-            ExportacionHistorialServicio historialServicio
+            ExportacionHistorialServicio historialServicio,
+            org.modelmapper.ModelMapper modelMapper
     ) {
         this.clienteServicio = clienteServicio;
         this.productoServicio = productoServicio;
+        this.modelMapper = modelMapper;
         this.ventaServicio = ventaServicio;
         this.usuarioServicio = usuarioServicio;
         this.reporteServicio = reporteServicio;
@@ -321,18 +324,20 @@ public class ExportacionServicioImpl implements ExportacionServicio {
     // ==================== MÉTODOS AUXILIARES DE OBTENCIÓN DE DATOS ====================
 
     private List<ClienteExportDTO> obtenerClientesParaExportacion(ExportConfigDTO config) {
-        List<Cliente> clientes = clienteServicio.buscarTodos();
+        List<ClienteDTO> clientes = clienteServicio.buscarTodos();
 
         return clientes.stream()
+                .map(dto -> modelMapper.map(dto, Cliente.class))
                 .filter(cliente -> aplicarFiltrosCliente(cliente, config))
                 .map(this::convertirAClienteExportDTO)
                 .collect(Collectors.toList());
     }
 
     private List<ProductoExportDTO> obtenerProductosParaExportacion(ExportConfigDTO config) {
-        List<Producto> productos = productoServicio.listar();
+        List<ProductoDTO> productos = productoServicio.listar();
 
         return productos.stream()
+                .map(dto -> modelMapper.map(dto, Producto.class))
                 .filter(producto -> aplicarFiltrosProducto(producto, config))
                 .map(this::convertirAProductoExportDTO)
                 .collect(Collectors.toList());
@@ -348,9 +353,10 @@ public class ExportacionServicioImpl implements ExportacionServicio {
             fechaInicio = fechaFin.minusDays(30);
         }
 
-        List<Venta> ventas = ventaServicio.buscarPorRangoFechas(fechaInicio, fechaFin);
+        List<VentaDTO> ventas = ventaServicio.buscarPorRangoFechas(fechaInicio, fechaFin);
 
         return ventas.stream()
+                .map(dto -> modelMapper.map(dto, Venta.class))
                 .filter(venta -> aplicarFiltrosVenta(venta, config))
                 .map(this::convertirAVentaExportDTO)
                 .collect(Collectors.toList());
@@ -475,7 +481,7 @@ public class ExportacionServicioImpl implements ExportacionServicio {
 
         // Obtener estadísticas de compras
         Long totalCompras = ventaServicio.contarVentasPorCliente(cliente.getId());
-        Double montoTotalCompras = ventaServicio.calcularTotalVentasPorCliente(cliente.getId());
+        Double montoTotalCompras = ventaServicio.calcularTotalVentasPorCliente(cliente.getId()).doubleValue();
 
         dto.setTotalCompras(totalCompras != null ? totalCompras : 0L);
         dto.setMontoTotalCompras(montoTotalCompras != null ? montoTotalCompras : 0.0);
@@ -593,9 +599,10 @@ public class ExportacionServicioImpl implements ExportacionServicio {
 
     private List<ProductoExportDTO> obtenerProductosBajoStock(Integer umbral) {
         if (umbral == null) umbral = 5;
-        List<Producto> productos = productoServicio.listarConBajoStock(umbral);
+        List<ProductoDTO> productos = productoServicio.listarConBajoStock(umbral);
 
         return productos.stream()
+                .map(dto -> modelMapper.map(dto, Producto.class))
                 .map(this::convertirAProductoExportDTO)
                 .collect(Collectors.toList());
     }
@@ -603,7 +610,7 @@ public class ExportacionServicioImpl implements ExportacionServicio {
     private ReporteFinancieroDTO generarReporteFinanciero(LocalDateTime fechaInicio, LocalDateTime fechaFin, boolean incluirComparativo) {
         ReporteFinancieroDTO reporte = new ReporteFinancieroDTO();
 
-        Double ventasActuales = ventaServicio.calcularTotalVentas(fechaInicio, fechaFin);
+        Double ventasActuales = ventaServicio.calcularTotalVentas(fechaInicio, fechaFin).doubleValue();
         Long transaccionesActuales = ventaServicio.contarTransacciones(fechaInicio, fechaFin);
 
         reporte.setFechaInicio(fechaInicio);
@@ -616,7 +623,7 @@ public class ExportacionServicioImpl implements ExportacionServicio {
             LocalDateTime inicioAnterior = fechaInicio.minusDays(diasPeriodo);
             LocalDateTime finAnterior = fechaInicio.minusDays(1);
 
-            Double ventasAnteriores = ventaServicio.calcularTotalVentas(inicioAnterior, finAnterior);
+            Double ventasAnteriores = ventaServicio.calcularTotalVentas(inicioAnterior, finAnterior).doubleValue();
             Long transaccionesAnteriores = ventaServicio.contarTransacciones(inicioAnterior, finAnterior);
 
             reporte.setVentasAnteriores(ventasAnteriores != null ? ventasAnteriores : 0.0);

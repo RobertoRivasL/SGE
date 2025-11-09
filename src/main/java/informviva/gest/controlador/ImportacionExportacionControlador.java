@@ -51,6 +51,9 @@ public class ImportacionExportacionControlador {
     @Autowired
     private VentaServicio ventaServicio;
 
+    @Autowired
+    private org.modelmapper.ModelMapper modelMapper;
+
     /**
      * Página principal de importación/exportación
      */
@@ -81,7 +84,10 @@ public class ImportacionExportacionControlador {
                 productos = productoServicio.listarConBajoStock(5);
             }
 
-            byte[] excelData = productoExportacionServicio.exportarProductosAExcel(productos);
+            var productosEntity = productos.stream()
+                    .map(dto -> modelMapper.map(dto, informviva.gest.model.Producto.class))
+                    .collect(java.util.stream.Collectors.toList());
+            byte[] excelData = productoExportacionServicio.exportarProductosAExcel(productosEntity);
 
             String filename = "productos_" + LocalDate.now().format(DATE_FORMATTER) + ".xlsx";
 
@@ -105,7 +111,10 @@ public class ImportacionExportacionControlador {
 
         try {
             var productos = productoServicio.listarConBajoStock(umbral);
-            byte[] excelData = productoExportacionServicio.exportarProductosBajoStock(productos, umbral);
+            var productosEntity = productos.stream()
+                    .map(dto -> modelMapper.map(dto, informviva.gest.model.Producto.class))
+                    .collect(java.util.stream.Collectors.toList());
+            byte[] excelData = productoExportacionServicio.exportarProductosBajoStock(productosEntity, umbral);
 
             String filename = "productos_bajo_stock_" + LocalDate.now().format(DATE_FORMATTER) + ".xlsx";
 
@@ -127,7 +136,10 @@ public class ImportacionExportacionControlador {
     public ResponseEntity<byte[]> exportarProductosCSV() {
         try {
             var productos = productoServicio.listar();
-            byte[] csvData = productoExportacionServicio.exportarProductosACSV(productos);
+            var productosEntity = productos.stream()
+                    .map(dto -> modelMapper.map(dto, informviva.gest.model.Producto.class))
+                    .collect(java.util.stream.Collectors.toList());
+            byte[] csvData = productoExportacionServicio.exportarProductosACSV(productosEntity);
 
             String filename = "productos_" + LocalDate.now().format(DATE_FORMATTER) + ".csv";
 
@@ -156,7 +168,10 @@ public class ImportacionExportacionControlador {
             if (fechaFin == null) fechaFin = LocalDate.now();
 
             var ventas = ventaServicio.buscarPorRangoFechas(fechaInicio.atStartOfDay(), fechaFin.atTime(23, 59, 59));
-            byte[] excelData = ventaExportacionServicio.exportarVentasAExcel(ventas, fechaInicio, fechaFin);
+            var ventasEntity = ventas.stream()
+                    .map(dto -> modelMapper.map(dto, informviva.gest.model.Venta.class))
+                    .collect(java.util.stream.Collectors.toList());
+            byte[] excelData = ventaExportacionServicio.exportarVentasAExcel(ventasEntity, fechaInicio, fechaFin);
 
             String filename = "ventas_" + fechaInicio.format(DATE_FORMATTER) + "_" +
                     fechaFin.format(DATE_FORMATTER) + ".xlsx";
@@ -185,7 +200,10 @@ public class ImportacionExportacionControlador {
             if (fechaFin == null) fechaFin = LocalDate.now();
 
             var ventas = ventaServicio.buscarPorRangoFechas(fechaInicio.atStartOfDay(), fechaFin.atTime(23, 59, 59));
-            byte[] csvData = ventaExportacionServicio.exportarVentasACSV(ventas);
+            var ventasEntity = ventas.stream()
+                    .map(dto -> modelMapper.map(dto, informviva.gest.model.Venta.class))
+                    .collect(java.util.stream.Collectors.toList());
+            byte[] csvData = ventaExportacionServicio.exportarVentasACSV(ventasEntity);
 
             String filename = "ventas_" + fechaInicio.format(DATE_FORMATTER) + "_" +
                     fechaFin.format(DATE_FORMATTER) + ".csv";
