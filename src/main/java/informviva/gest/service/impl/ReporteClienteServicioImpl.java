@@ -139,8 +139,8 @@ public class ReporteClienteServicioImpl implements ReporteClienteServicio {
         distribucion.put("Más de 2 años", 0L);
 
         todosLosClientes.forEach(cliente -> {
-            if (cliente.getFechaRegistro() != null) {
-                long mesesDiferencia = ChronoUnit.MONTHS.between(cliente.getFechaRegistro(), hoy);
+            if (cliente.getFechaCreacion() != null) {
+                long mesesDiferencia = ChronoUnit.MONTHS.between(cliente.getFechaCreacion(), hoy);
 
                 String categoria;
                 if (mesesDiferencia < 3) {
