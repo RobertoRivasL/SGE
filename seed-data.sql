@@ -71,7 +71,9 @@ INSERT INTO roles (id, nombre, descripcion) VALUES
 (1, 'ADMIN', 'Administrador con acceso completo al sistema'),
 (2, 'VENDEDOR', 'Vendedor con acceso limitado a ventas'),
 (3, 'BODEGUERO', 'Encargado de bodega con acceso a inventario'),
-(4, 'USUARIO', 'Usuario con permisos básicos de lectura');
+(4, 'USUARIO', 'Usuario con permisos básicos de lectura'),
+(5, 'GERENTE_COMPRAS', 'Gerente de Compras con acceso al módulo de compras y áreas comunes'),
+(6, 'GERENTE_VENTAS', 'Gerente de Ventas con acceso al módulo de ventas y áreas comunes');
 
 -- Permisos para ADMIN
 INSERT INTO rol_permisos (rol_id, permiso) VALUES
@@ -97,11 +99,25 @@ INSERT INTO rol_permisos (rol_id, permiso) VALUES
 INSERT INTO rol_permisos (rol_id, permiso) VALUES
 (4, 'LEER');
 
+-- Permisos para GERENTE_COMPRAS
+INSERT INTO rol_permisos (rol_id, permiso) VALUES
+(5, 'CREAR'),
+(5, 'LEER'),
+(5, 'ACTUALIZAR'),
+(5, 'EXPORTAR');
+
+-- Permisos para GERENTE_VENTAS
+INSERT INTO rol_permisos (rol_id, permiso) VALUES
+(6, 'CREAR'),
+(6, 'LEER'),
+(6, 'ACTUALIZAR'),
+(6, 'EXPORTAR');
+
 -- ============================================================================
--- 4. USUARIOS (6 usuarios)
+-- 4. USUARIOS (8 usuarios)
 -- ============================================================================
 -- Nota: Las contraseñas están hasheadas con BCrypt
--- Password original para todos: admin123 / vendedor123 / bodega123 / usuario123
+-- Passwords de prueba: admin123 / vendedor123 / bodega123 / usuario123 / gerente123
 TRUNCATE TABLE usuario_roles;
 TRUNCATE TABLE usuarios;
 
@@ -111,7 +127,9 @@ INSERT INTO usuarios (id, username, password, nombre, apellido, email, activo, f
 (3, 'bodega@informviva.cl', '$2a$10$E0s0JbA8.dZcWf0ygKz6pu1L6z6YQkpXc8j4C5s5M5M5M5M5M5M5M', 'Luis', 'González', 'bodega@informviva.cl', 1, '2023-05-10 11:00:00', '2024-11-08 09:15:00'),
 (4, 'usuario@informviva.cl', '$2a$10$mE.qmcV7Xxty6z5Rxkvyxf22W0pyfJqmq2wF6l7b7M0sHIx8E7ssu', 'María', 'Silva', 'usuario@informviva.cl', 1, '2023-07-25 14:00:00', '2024-11-07 17:45:00'),
 (5, 'roberto.rivas@informviva.cl', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Roberto', 'Rivas', 'roberto.rivas@informviva.cl', 1, '2023-01-10 08:00:00', '2024-11-09 10:00:00'),
-(6, 'patricia.lopez@informviva.cl', '$2a$10$x5AZcJ6P.V6wlxIQN9ip4uwQrjrqYppVBgDEzyrHrpcGR6qUqN6S6', 'Patricia', 'López', 'patricia.lopez@informviva.cl', 0, '2022-11-05 16:00:00', '2024-06-15 12:00:00');
+(6, 'patricia.lopez@informviva.cl', '$2a$10$x5AZcJ6P.V6wlxIQN9ip4uwQrjrqYppVBgDEzyrHrpcGR6qUqN6S6', 'Patricia', 'López', 'patricia.lopez@informviva.cl', 0, '2022-11-05 16:00:00', '2024-06-15 12:00:00'),
+(7, 'gerente.compras@informviva.cl', '$2a$10$k.M5wT7xP2vN8qL4jH9gF6eD3cB1aZ0yX9wV8uT7sR6qP5oN4mL3k', 'Carlos', 'Espinoza', 'gerente.compras@informviva.cl', 1, '2023-02-01 09:00:00', '2024-11-09 08:30:00'),
+(8, 'gerente.ventas@informviva.cl', '$2a$10$r.Q6pO5nM4lK3jI2hG1fE0dC9bA8z7Y6x5W4v3U2tS1rQ0pO9nM8l', 'Andrea', 'Soto', 'gerente.ventas@informviva.cl', 1, '2023-02-15 09:00:00', '2024-11-09 09:15:00');
 
 -- Asignar roles a usuarios
 INSERT INTO usuario_roles (usuario_id, rol) VALUES
@@ -120,7 +138,9 @@ INSERT INTO usuario_roles (usuario_id, rol) VALUES
 (3, 'BODEGUERO'),
 (4, 'USUARIO'),
 (5, 'ADMIN'),
-(6, 'VENDEDOR');
+(6, 'VENDEDOR'),
+(7, 'GERENTE_COMPRAS'),
+(8, 'GERENTE_VENTAS');
 
 -- ============================================================================
 -- 5. CLIENTES (15 clientes chilenos)
