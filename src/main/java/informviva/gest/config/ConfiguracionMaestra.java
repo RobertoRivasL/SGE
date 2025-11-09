@@ -41,14 +41,11 @@ import java.util.concurrent.Executor;
 @EnableTransactionManagement
 @EnableAsync
 @EnableScheduling
-@EntityScan(basePackages = "informviva.gest.model")
-@EnableJpaRepositories(basePackages = "informviva.gest.repository")
 @ComponentScan(basePackages = {
         "informviva.gest.service",
         "informviva.gest.service.impl",
         "informviva.gest.controlador",
         "informviva.gest.config",
-        "informviva.gest.repository",
         "informviva.gest.dto",
         "informviva.gest.exception",
         "informviva.gest.util",
