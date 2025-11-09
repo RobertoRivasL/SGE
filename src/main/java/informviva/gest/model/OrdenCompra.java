@@ -55,7 +55,6 @@ public class OrdenCompra {
     /**
      * Fecha de emisión de la orden
      */
-    @Column(nullable = false)
     private LocalDate fechaOrden;
 
     /**
@@ -187,7 +186,6 @@ public class OrdenCompra {
     /**
      * Fecha de creación del registro
      */
-    @Column(nullable = false)
     private LocalDateTime fechaCreacion;
 
     /**

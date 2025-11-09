@@ -150,7 +150,7 @@ public class ProductoServicioImpl extends BaseServiceImpl<Producto, Long>
     public List<ProductoDTO> buscarPorCategoria(String categoria) {
         log.debug("Buscando productos por categoría: {}", categoria);
 
-        return productoRepositorio.findByCategoriaIgnoreCase(categoria)
+        return productoRepositorio.findByCategoriaNombreIgnoreCase(categoria)
                 .stream()
                 .map(this::convertirADTO)
                 .collect(Collectors.toList());
@@ -313,7 +313,7 @@ public class ProductoServicioImpl extends BaseServiceImpl<Producto, Long>
     public Page<ProductoDTO> buscarPorCategoriaPaginado(String categoria, Pageable pageable) {
         log.debug("Buscando productos por categoría: {} (paginado)", categoria);
 
-        return productoRepositorio.findByCategoriaIgnoreCase(categoria, pageable)
+        return productoRepositorio.findByCategoriaNombreIgnoreCase(categoria, pageable)
                 .map(this::convertirADTO);
     }
 

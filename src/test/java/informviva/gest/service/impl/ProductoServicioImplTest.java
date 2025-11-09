@@ -204,7 +204,7 @@ class ProductoServicioImplTest {
         // Given
         String categoria = "Categoría Test";
         List<Producto> productos = Arrays.asList(producto);
-        when(productoRepository.findByCategoriaIgnoreCase(categoria))
+        when(productoRepository.findByCategoriaNombreIgnoreCase(categoria))
                 .thenReturn(productos);
 
         // When
@@ -215,7 +215,7 @@ class ProductoServicioImplTest {
         assertEquals(1, resultado.size());
         assertEquals(categoria, resultado.get(0).getCategoria());
 
-        verify(productoRepository).findByCategoriaIgnoreCase(categoria);
+        verify(productoRepository).findByCategoriaNombreIgnoreCase(categoria);
     }
 
     @Test

@@ -166,7 +166,6 @@ public class Proveedor {
     /**
      * Fecha de creación del registro
      */
-    @Column(nullable = false)
     private LocalDateTime fechaCreacion;
 
     /**

@@ -50,7 +50,6 @@ public class Cliente {
     @NotBlank(message = "El RUT no puede estar vacío")
     private String rut;
 
-    @NotNull(message = "La fecha de registro no puede ser nula")
     private LocalDateTime fechaRegistro;
 
     @Size(max = 30, message = "La categoría no puede tener más de 30 caracteres")
@@ -191,4 +190,11 @@ public class Cliente {
 
     @OneToMany(mappedBy = "cliente")
     private List<Venta> ventas;
+
+    @PrePersist
+    public void establecerFechaRegistro() {
+        if (this.fechaRegistro == null) {
+            this.fechaRegistro = LocalDateTime.now();
+        }
+    }
 }
