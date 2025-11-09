@@ -4,20 +4,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 /**
  * Clase principal de la aplicación Spring Boot
  * Sistema Integrado de Gestión de Ventas y Productos - InformViva
-// *
+ *
  * Aplica principios de Clean Architecture y SOLID:
  * - Modularidad: Configuración centralizada y modular
  * - Separación de Responsabilidades: Cada capa tiene su propósito específico
@@ -25,47 +16,18 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  * - Encapsulación: Configuración encapsulada en anotaciones
  * - Inversión de Dependencias: Inyección de dependencias de Spring
  *
+ * NOTA: Toda la configuración (JPA, Security, etc.) está delegada a:
+ * - DatabaseConfig: Configuración JPA y ModelMapper
+ * - ConfiguracionMaestra: Seguridad, async, scheduling
+ * - SecurityConfig: Configuración de Spring Security (si existe)
+ *
  * @author Roberto Rivas Lopez
- * @version 3.0
+ * @version 3.1
  */
 @SpringBootApplication(scanBasePackages = "informviva.gest")
-@EnableJpaRepositories(basePackages = "informviva.gest.repository")
-@EntityScan(basePackages = "informviva.gest.model")
-@ComponentScan(basePackages = {
-        "informviva.gest.config",
-        "informviva.gest.service",
-        "informviva.gest.service.impl",
-        "informviva.gest.controlador",
-        "informviva.gest.repository",
-        "informviva.gest.exception",
-        "informviva.gest.dto",
-        "informviva.gest.util",
-        "informviva.gest.validador",
-        "informviva.gest.seguridad"
-})
-@EnableTransactionManagement
-@EnableAsync
-@EnableScheduling
 public class GestApplication {
 
     private static final Logger logger = LoggerFactory.getLogger(GestApplication.class);
-
-    /**
-     * Bean para la codificación de contraseñas
-     * Solo si no existe otro bean passwordEncoder
-     */
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    /**
-     * Bean específico BCryptPasswordEncoder para compatibilidad
-     */
-    @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
 
     public static void main(String[] args) {
         try {
