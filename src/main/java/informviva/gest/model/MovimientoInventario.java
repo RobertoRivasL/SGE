@@ -208,23 +208,28 @@ public class MovimientoInventario {
     }
 
     /**
-     * Calcula el costo total automáticamente
+     * Callback antes de persistir: establece fecha y calcula costo total
      */
     @PrePersist
-    @PreUpdate
-    public void calcularCostoTotal() {
+    public void antesDeGuardar() {
+        // Establecer fecha si no está definida
+        if (this.fecha == null) {
+            this.fecha = LocalDateTime.now();
+        }
+
+        // Calcular costo total
         if (this.costoUnitario != null && this.cantidad != null) {
             this.costoTotal = this.costoUnitario * this.cantidad;
         }
     }
 
     /**
-     * Establece la fecha si no está definida
+     * Callback antes de actualizar: recalcula costo total
      */
-    @PrePersist
-    public void establecerFecha() {
-        if (this.fecha == null) {
-            this.fecha = LocalDateTime.now();
+    @PreUpdate
+    public void antesDeActualizar() {
+        if (this.costoUnitario != null && this.cantidad != null) {
+            this.costoTotal = this.costoUnitario * this.cantidad;
         }
     }
 
