@@ -321,7 +321,7 @@ public class ExportacionServicioImpl implements ExportacionServicio {
     // ==================== MÉTODOS AUXILIARES DE OBTENCIÓN DE DATOS ====================
 
     private List<ClienteExportDTO> obtenerClientesParaExportacion(ExportConfigDTO config) {
-        List<Cliente> clientes = clienteServicio.buscarTodos();
+        List<ClienteDTO> clientes = clienteServicio.buscarTodos();
 
         return clientes.stream()
                 .filter(cliente -> aplicarFiltrosCliente(cliente, config))
@@ -330,7 +330,7 @@ public class ExportacionServicioImpl implements ExportacionServicio {
     }
 
     private List<ProductoExportDTO> obtenerProductosParaExportacion(ExportConfigDTO config) {
-        List<Producto> productos = productoServicio.listar();
+        List<ProductoDTO> productos = productoServicio.listar();
 
         return productos.stream()
                 .filter(producto -> aplicarFiltrosProducto(producto, config))
@@ -348,7 +348,7 @@ public class ExportacionServicioImpl implements ExportacionServicio {
             fechaInicio = fechaFin.minusDays(30);
         }
 
-        List<Venta> ventas = ventaServicio.buscarPorRangoFechas(fechaInicio, fechaFin);
+        List<VentaDTO> ventas = ventaServicio.buscarPorRangoFechas(fechaInicio, fechaFin);
 
         return ventas.stream()
                 .filter(venta -> aplicarFiltrosVenta(venta, config))
@@ -367,22 +367,10 @@ public class ExportacionServicioImpl implements ExportacionServicio {
 
     // ==================== MÉTODOS DE FILTRADO ====================
 
-    private boolean aplicarFiltrosCliente(Cliente cliente, ExportConfigDTO config) {
+    private boolean aplicarFiltrosCliente(ClienteDTO cliente, ExportConfigDTO config) {
         Map<String, Object> filtros = config.getFiltros();
 
         // Filtrar por rango de fechas
-        if (config.getFechaInicio() != null && cliente.getFechaRegistro() != null) {
-            if (cliente.getFechaRegistro().isBefore(config.getFechaInicio())) {
-                return false;
-            }
-        }
-
-        if (config.getFechaFin() != null && cliente.getFechaRegistro() != null) {
-            if (cliente.getFechaRegistro().isAfter(config.getFechaFin())) {
-                return false;
-            }
-        }
-
         // Aplicar filtros adicionales
         if (filtros != null) {
             String busqueda = (String) filtros.get("busqueda");
@@ -402,7 +390,7 @@ public class ExportacionServicioImpl implements ExportacionServicio {
         return true;
     }
 
-    private boolean aplicarFiltrosProducto(Producto producto, ExportConfigDTO config) {
+    private boolean aplicarFiltrosProducto(ProductoDTO producto, ExportConfigDTO config) {
         Map<String, Object> filtros = config.getFiltros();
         if (filtros == null) return true;
 
@@ -420,24 +408,24 @@ public class ExportacionServicioImpl implements ExportacionServicio {
 
         String categoria = (String) filtros.get("categoria");
         if (categoria != null && !categoria.isEmpty() && producto.getCategoria() != null) {
-            return producto.getCategoria().getNombre().equalsIgnoreCase(categoria);
+            return producto.getCategoria().equalsIgnoreCase(categoria);
         }
 
         return true;
     }
 
-    private boolean aplicarFiltrosVenta(Venta venta, ExportConfigDTO config) {
+    private boolean aplicarFiltrosVenta(VentaDTO venta, ExportConfigDTO config) {
         Map<String, Object> filtros = config.getFiltros();
         if (filtros == null) return true;
 
         String estado = (String) filtros.get("estado");
         if (estado != null && !estado.isEmpty()) {
-            return venta.getEstado() != null && estado.equalsIgnoreCase(venta.getEstado().name());
+            return venta.getEstado() != null && estado.equalsIgnoreCase(venta.getEstado());
         }
 
         String metodo = (String) filtros.get("metodo");
         if (metodo != null && !metodo.isEmpty()) {
-            return venta.getMetodoPago() != null && metodo.equalsIgnoreCase(venta.getMetodoPago().name());
+            return venta.getMetodoPago() != null && metodo.equalsIgnoreCase(venta.getMetodoPago());
         }
 
         return true;
@@ -462,7 +450,7 @@ public class ExportacionServicioImpl implements ExportacionServicio {
 
     // ==================== MÉTODOS DE CONVERSIÓN A DTOs ====================
 
-    private ClienteExportDTO convertirAClienteExportDTO(Cliente cliente) {
+    private ClienteExportDTO convertirAClienteExportDTO(ClienteDTO cliente) {
         ClienteExportDTO dto = new ClienteExportDTO();
         dto.setId(cliente.getId());
         dto.setRut(cliente.getRut());
@@ -470,12 +458,13 @@ public class ExportacionServicioImpl implements ExportacionServicio {
         dto.setEmail(cliente.getEmail());
         dto.setTelefono(cliente.getTelefono());
         dto.setDireccion(cliente.getDireccion());
-        dto.setFechaRegistro(cliente.getFechaRegistro());
-        dto.setCategoria(cliente.getCategoria());
 
         // Obtener estadísticas de compras
         Long totalCompras = ventaServicio.contarVentasPorCliente(cliente.getId());
-        Double montoTotalCompras = ventaServicio.calcularTotalVentasPorCliente(cliente.getId());
+        java.math.BigDecimal montoTotalComprasDecimal =
+                ventaServicio.calcularTotalVentasPorCliente(cliente.getId());
+        Double montoTotalCompras = montoTotalComprasDecimal != null
+                ? montoTotalComprasDecimal.doubleValue() : null;
 
         dto.setTotalCompras(totalCompras != null ? totalCompras : 0L);
         dto.setMontoTotalCompras(montoTotalCompras != null ? montoTotalCompras : 0.0);
@@ -483,17 +472,15 @@ public class ExportacionServicioImpl implements ExportacionServicio {
         return dto;
     }
 
-    private ProductoExportDTO convertirAProductoExportDTO(Producto producto) {
+    private ProductoExportDTO convertirAProductoExportDTO(ProductoDTO producto) {
         ProductoExportDTO dto = new ProductoExportDTO();
         dto.setId(producto.getId());
-        dto.setCodigo(producto.getCodigo());
+        dto.setCodigo(producto.getSku());
         dto.setNombre(producto.getNombre());
         dto.setDescripcion(producto.getDescripcion());
-        dto.setPrecio(producto.getPrecio());
+        dto.setPrecio(producto.getPrecio() != null ? producto.getPrecio().doubleValue() : null);
         dto.setStock(producto.getStock());
-        dto.setCategoria(producto.getCategoria() != null ? producto.getCategoria().getNombre() : "Sin categoría");
-        dto.setMarca(producto.getMarca());
-        dto.setModelo(producto.getModelo());
+        dto.setCategoria(producto.getCategoria() != null ? producto.getCategoria() : "Sin categoría");
         dto.setActivo(producto.getActivo());
         dto.setFechaCreacion(producto.getFechaCreacion());
         dto.setFechaActualizacion(producto.getFechaActualizacion());
@@ -501,18 +488,17 @@ public class ExportacionServicioImpl implements ExportacionServicio {
         return dto;
     }
 
-    private VentaExportDTO convertirAVentaExportDTO(Venta venta) {
+    private VentaExportDTO convertirAVentaExportDTO(VentaDTO venta) {
         VentaExportDTO dto = new VentaExportDTO();
         dto.setId(venta.getId());
         dto.setFecha(venta.getFecha());
-        dto.setClienteNombre(venta.getCliente().getNombreCompleto());
-        dto.setClienteRut(venta.getCliente().getRut());
-        dto.setVendedorNombre(venta.getVendedor().getNombreCompleto());
+        dto.setClienteNombre(venta.getClienteNombre());
+        dto.setVendedorNombre(venta.getVendedorNombre());
         dto.setSubtotal(venta.getSubtotal());
         dto.setImpuesto(venta.getImpuesto());
         dto.setTotal(venta.getTotal());
-        dto.setMetodoPago(venta.getMetodoPago() != null ? venta.getMetodoPago().name() : "");
-        dto.setEstado(venta.getEstado() != null ? venta.getEstado().name() : "");
+        dto.setMetodoPago(venta.getMetodoPago() != null ? venta.getMetodoPago() : "");
+        dto.setEstado(venta.getEstado() != null ? venta.getEstado() : "");
         dto.setObservaciones(venta.getObservaciones());
         return dto;
     }
@@ -593,7 +579,7 @@ public class ExportacionServicioImpl implements ExportacionServicio {
 
     private List<ProductoExportDTO> obtenerProductosBajoStock(Integer umbral) {
         if (umbral == null) umbral = 5;
-        List<Producto> productos = productoServicio.listarConBajoStock(umbral);
+        List<ProductoDTO> productos = productoServicio.listarConBajoStock(umbral);
 
         return productos.stream()
                 .map(this::convertirAProductoExportDTO)
@@ -603,7 +589,10 @@ public class ExportacionServicioImpl implements ExportacionServicio {
     private ReporteFinancieroDTO generarReporteFinanciero(LocalDateTime fechaInicio, LocalDateTime fechaFin, boolean incluirComparativo) {
         ReporteFinancieroDTO reporte = new ReporteFinancieroDTO();
 
-        Double ventasActuales = ventaServicio.calcularTotalVentas(fechaInicio, fechaFin);
+        java.math.BigDecimal ventasActualesDecimal =
+                ventaServicio.calcularTotalVentas(fechaInicio, fechaFin);
+        Double ventasActuales = ventasActualesDecimal != null
+                ? ventasActualesDecimal.doubleValue() : null;
         Long transaccionesActuales = ventaServicio.contarTransacciones(fechaInicio, fechaFin);
 
         reporte.setFechaInicio(fechaInicio);
@@ -616,7 +605,10 @@ public class ExportacionServicioImpl implements ExportacionServicio {
             LocalDateTime inicioAnterior = fechaInicio.minusDays(diasPeriodo);
             LocalDateTime finAnterior = fechaInicio.minusDays(1);
 
-            Double ventasAnteriores = ventaServicio.calcularTotalVentas(inicioAnterior, finAnterior);
+            java.math.BigDecimal ventasAnterioresDecimal =
+                    ventaServicio.calcularTotalVentas(inicioAnterior, finAnterior);
+            Double ventasAnteriores = ventasAnterioresDecimal != null
+                    ? ventasAnterioresDecimal.doubleValue() : null;
             Long transaccionesAnteriores = ventaServicio.contarTransacciones(inicioAnterior, finAnterior);
 
             reporte.setVentasAnteriores(ventasAnteriores != null ? ventasAnteriores : 0.0);
