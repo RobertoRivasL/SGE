@@ -30,7 +30,7 @@ public class InicioControlador {
     }
 
     @GetMapping("/panel-ventas")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_VENTAS')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'VENTAS')")
     public String mostrarPanelVentas(
             @RequestParam(required = false) String startDate,
             @RequestParam(required = false) String endDate,

@@ -35,7 +35,7 @@ import java.util.Set;
  */
 @Controller
 @RequestMapping("/admin/usuarios")
-@PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_GERENTE_GENERAL')")
+@PreAuthorize("hasAnyRole('ADMIN', 'GERENTE_GENERAL')")
 public class UsuarioAdminControlador {
 
     private final UsuarioServicio usuarioServicio;
@@ -365,7 +365,7 @@ public class UsuarioAdminControlador {
      * @return ResponseEntity con el archivo PDF en el cuerpo de la respuesta.
      */
     @GetMapping("/export/pdf") // Mapea este método a la URL /admin/usuarios/export/pdf
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_GERENTE_GENERAL')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE_GENERAL')")
     // Puedes ajustar los roles permitidos si es necesario
     public ResponseEntity<byte[]> exportUsersToPdf() {
 

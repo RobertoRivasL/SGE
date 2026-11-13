@@ -85,7 +85,7 @@ public class GestApplication {
             aplicacion.setDefaultProperties(java.util.Map.of(
                     "spring.profiles.active", "development",
                     "logging.level.org.springframework.web", "INFO",
-                    "spring.jpa.show-sql", "true",
+                    "spring.jpa.show-sql", "false",
                     "spring.jpa.hibernate.ddl-auto", "update"
             ));
 
@@ -93,7 +93,6 @@ public class GestApplication {
 
             logger.info("✅ APLICACIÓN INICIADA CORRECTAMENTE");
             logger.info("🌐 Aplicación disponible en: http://localhost:8080");
-            logger.info("👤 Usuario administrador: admin / admin123");
             logger.info("📊 Sistema de Gestión de Ventas y Productos");
             logger.info("🔧 Autor: Roberto Rivas Lopez");
             logger.info("=".repeat(70));

@@ -19,7 +19,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  */
 @Controller
 @RequestMapping("/admin/configuracion")
-@PreAuthorize("hasRole('ROLE_ADMIN')")
+@PreAuthorize("hasRole('ADMIN')")
 public class ConfiguracionControlador {
 
     private static final Logger logger = LoggerFactory.getLogger(ConfiguracionControlador.class);

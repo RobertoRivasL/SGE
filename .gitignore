@@ -59,6 +59,7 @@ out/
 # Maven
 .mvn/timing.properties
 .mvn/wrapper/maven-wrapper.properties
+!.mvn/wrapper/maven-wrapper.properties
 
 # Gradle
 .gradle

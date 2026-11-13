@@ -10,6 +10,7 @@ import informviva.gest.service.ServicioUsuarioDetalle;
 import informviva.gest.util.RolesConstantes;
 import informviva.gest.util.RutasConstantes;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -37,6 +38,7 @@ public class ConfiguracionSeguridad {
     private final ServicioUsuarioDetalle servicioUsuarioDetalle;
     private final LoggingFilter loggingFilter;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final String rememberMeKey;
 
     /**
      * Constructor con inyección de dependencias
@@ -45,10 +47,12 @@ public class ConfiguracionSeguridad {
     @Autowired
     public ConfiguracionSeguridad(ServicioUsuarioDetalle servicioUsuarioDetalle,
                                   LoggingFilter loggingFilter,
-                                  BCryptPasswordEncoder passwordEncoder) {
+                                  BCryptPasswordEncoder passwordEncoder,
+                                  @Value("${app.security.remember-me-key}") String rememberMeKey) {
         this.servicioUsuarioDetalle = servicioUsuarioDetalle;
         this.loggingFilter = loggingFilter;
         this.passwordEncoder = passwordEncoder;
+        this.rememberMeKey = rememberMeKey;
     }
 
     /**
@@ -123,7 +127,7 @@ public class ConfiguracionSeguridad {
 
                 // Configuración de recordar sesión
                 .rememberMe(remember -> remember
-                        .key("InformViv@SecureKey2025")
+                        .key(rememberMeKey)
                         .tokenValiditySeconds(86400) // 24 horas
                         .userDetailsService(servicioUsuarioDetalle))
 
