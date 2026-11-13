@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -58,6 +59,9 @@ import java.util.concurrent.Executor;
 public class ConfiguracionMaestra {
 
     private static final Logger logger = LoggerFactory.getLogger(ConfiguracionMaestra.class);
+
+    @Value("${app.bootstrap.admin-password:}")
+    private String adminBootstrapPassword;
 
     // =================== SEGURIDAD Y ENCRIPTACIÓN ===================
 
@@ -150,8 +154,14 @@ public class ConfiguracionMaestra {
     CommandLineRunner inicializarUsuarios(RepositorioUsuario repositorioUsuario,
                                           BCryptPasswordEncoder codificador) {
         return args -> {
+            if (adminBootstrapPassword == null || adminBootstrapPassword.isBlank()) {
+                logger.warn("No se creó el usuario administrador inicial: " +
+                        "ADMIN_BOOTSTRAP_PASSWORD no está configurada");
+                return;
+            }
+
             if (!repositorioUsuario.findByUsername("admin").isPresent()) {
-                Usuario admin = new Usuario("admin", codificador.encode("admin123"));
+                Usuario admin = new Usuario("admin", codificador.encode(adminBootstrapPassword));
                 admin.setNombre("Administrador");
                 admin.setApellido("General");
                 admin.setEmail("admin@informviva.com");
@@ -162,7 +172,7 @@ public class ConfiguracionMaestra {
                 admin.setActivo(true);
 
                 repositorioUsuario.save(admin);
-                logger.info("✅ Usuario administrador creado: admin/admin123");
+                logger.info("Usuario administrador inicial creado");
             } else {
                 logger.info("ℹ️  El usuario administrador ya existe");
             }

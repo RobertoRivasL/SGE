@@ -25,7 +25,7 @@ import java.util.List;
  */
 @Controller
 @RequestMapping("/admin/roles")
-@PreAuthorize("hasRole('ROLE_ADMIN')")
+@PreAuthorize("hasRole('ADMIN')")
 public class RolAdminControlador {
 
     private final RolServicio rolServicio;
