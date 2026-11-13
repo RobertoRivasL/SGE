@@ -1,7 +1,6 @@
 package informviva.gest.dto;
 
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -21,7 +20,6 @@ import java.util.Map;
  * @version 3.0
  */
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
 public class ExportConfigDTO {
 
@@ -127,6 +125,11 @@ public class ExportConfigDTO {
     private String zonaHoraria = "America/Santiago";
 
     // ==================== CONSTRUCTORES DE CONVENIENCIA ====================
+
+    public ExportConfigDTO() {
+        this.fechaSolicitud = LocalDateTime.now();
+        this.filtros = new HashMap<>();
+    }
 
     /**
      * Constructor para exportaciones básicas con LocalDateTime

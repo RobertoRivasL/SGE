@@ -7,6 +7,9 @@ import informviva.gest.service.VentaServicio;
 import informviva.gest.service.UsuarioServicio;
 import informviva.gest.dto.ResultadoValidacionSistema;
 import informviva.gest.dto.ErrorValidacion;
+import informviva.gest.dto.ClienteDTO;
+import informviva.gest.dto.ProductoDTO;
+import informviva.gest.dto.VentaDTO;
 import informviva.gest.enums.NivelSeveridad;
 import informviva.gest.dto.ResultadoValidacionModulo;
 import informviva.gest.model.*;
@@ -117,7 +120,7 @@ public class ValidacionDatosServicioImpl implements ValidacionDatosServicio {
     public ResultadoValidacionModulo validarModuloClientes() {
         logger.debug("Iniciando validación de clientes");
         try {
-            List<Cliente> clientes = clienteServicio.buscarTodos();
+            List<ClienteDTO> clientes = clienteServicio.buscarTodos();
             return validarModulo("Clientes", clientes, this::validarCliente);
         } catch (Exception e) {
             logger.error("Error al obtener clientes para validación: {}", e.getMessage());
@@ -129,7 +132,7 @@ public class ValidacionDatosServicioImpl implements ValidacionDatosServicio {
     public ResultadoValidacionModulo validarModuloProductos() {
         logger.debug("Iniciando validación de productos");
         try {
-            List<Producto> productos = productoServicio.listar();
+            List<ProductoDTO> productos = productoServicio.listar();
             return validarModulo("Productos", productos, this::validarProducto);
         } catch (Exception e) {
             logger.error("Error al obtener productos para validación: {}", e.getMessage());
@@ -141,7 +144,7 @@ public class ValidacionDatosServicioImpl implements ValidacionDatosServicio {
     public ResultadoValidacionModulo validarModuloVentas() {
         logger.debug("Iniciando validación de ventas");
         try {
-            List<Venta> ventas = ventaServicio.obtenerTodasLasVentas();
+            List<VentaDTO> ventas = ventaServicio.obtenerTodasLasVentas();
             return validarModulo("Ventas", ventas, this::validarVenta);
         } catch (Exception e) {
             logger.error("Error al obtener ventas para validación: {}", e.getMessage());
@@ -167,10 +170,10 @@ public class ValidacionDatosServicioImpl implements ValidacionDatosServicio {
         ResultadoValidacionModulo resultado = new ResultadoValidacionModulo("Integridad Referencial");
 
         try {
-            List<Venta> ventas = ventaServicio.obtenerTodasLasVentas();
+            List<VentaDTO> ventas = ventaServicio.obtenerTodasLasVentas();
             Map<String, List<ErrorValidacion>> registrosConErrores = new HashMap<>();
 
-            for (Venta venta : ventas) {
+            for (VentaDTO venta : ventas) {
                 List<ErrorValidacion> errores = validarReferenciasVenta(venta);
                 if (!errores.isEmpty()) {
                     registrosConErrores.put("venta_" + venta.getId(), errores);
@@ -245,7 +248,7 @@ public class ValidacionDatosServicioImpl implements ValidacionDatosServicio {
     /**
      * Valida un cliente individual
      */
-    private List<ErrorValidacion> validarCliente(Cliente cliente) {
+    private List<ErrorValidacion> validarCliente(ClienteDTO cliente) {
         List<ErrorValidacion> errores = new ArrayList<>();
 
         if (cliente == null) {
@@ -280,7 +283,7 @@ public class ValidacionDatosServicioImpl implements ValidacionDatosServicio {
     /**
      * Valida un producto individual
      */
-    private List<ErrorValidacion> validarProducto(Producto producto) {
+    private List<ErrorValidacion> validarProducto(ProductoDTO producto) {
         List<ErrorValidacion> errores = new ArrayList<>();
 
         if (producto == null) {
@@ -290,11 +293,11 @@ public class ValidacionDatosServicioImpl implements ValidacionDatosServicio {
 
         // Validar campos obligatorios
         validarCampoObligatorio(producto.getNombre(), "nombre", NOMBRE_PRODUCTO_REQUERIDO, errores, NivelSeveridad.CRITICO);
-        validarCampoObligatorio(producto.getCodigo(), "codigo", CODIGO_PRODUCTO_REQUERIDO, errores, NivelSeveridad.CRITICO);
+        validarCampoObligatorio(producto.getSku(), "codigo", CODIGO_PRODUCTO_REQUERIDO, errores, NivelSeveridad.CRITICO);
 
         // Validar código de producto
-        if (producto.getCodigo() != null && !producto.getCodigo().trim().isEmpty()) {
-            validarPatron(producto.getCodigo(), CODIGO_PRODUCTO_PATTERN, "codigo", CODIGO_PRODUCTO_INVALIDO, errores, NivelSeveridad.CRITICO);
+        if (producto.getSku() != null && !producto.getSku().trim().isEmpty()) {
+            validarPatron(producto.getSku(), CODIGO_PRODUCTO_PATTERN, "codigo", CODIGO_PRODUCTO_INVALIDO, errores, NivelSeveridad.CRITICO);
         }
 
         // Validar precio
@@ -328,7 +331,7 @@ public class ValidacionDatosServicioImpl implements ValidacionDatosServicio {
     /**
      * Valida una venta individual
      */
-    private List<ErrorValidacion> validarVenta(Venta venta) {
+    private List<ErrorValidacion> validarVenta(VentaDTO venta) {
         List<ErrorValidacion> errores = new ArrayList<>();
 
         if (venta == null) {
@@ -337,12 +340,12 @@ public class ValidacionDatosServicioImpl implements ValidacionDatosServicio {
         }
 
         // Validar cliente
-        if (venta.getCliente() == null) {
+        if (venta.getClienteId() == null) {
             errores.add(new ErrorValidacion("cliente", CLIENTE_REQUERIDO, NivelSeveridad.CRITICO, "La venta debe tener un cliente asociado"));
         }
 
         // Validar vendedor
-        if (venta.getVendedor() == null) {
+        if (venta.getVendedorId() == null) {
             errores.add(new ErrorValidacion("vendedor", VENDEDOR_REQUERIDO, NivelSeveridad.CRITICO, "La venta debe tener un vendedor asociado"));
         }
 
@@ -360,8 +363,8 @@ public class ValidacionDatosServicioImpl implements ValidacionDatosServicio {
         }
 
         // Validar cantidad si existe
-        if (venta.getCantidad() != null) {
-            if (venta.getCantidad() < MIN_CANTIDAD_VENTA || venta.getCantidad() > MAX_CANTIDAD_VENTA) {
+        if (venta.getTotalItems() != null) {
+            if (venta.getTotalItems() < MIN_CANTIDAD_VENTA || venta.getTotalItems() > MAX_CANTIDAD_VENTA) {
                 errores.add(new ErrorValidacion("cantidad", CANTIDAD_INVALIDA, NivelSeveridad.ADVERTENCIA,
                         "La cantidad debe estar entre " + MIN_CANTIDAD_VENTA + " y " + MAX_CANTIDAD_VENTA));
             }
@@ -410,7 +413,7 @@ public class ValidacionDatosServicioImpl implements ValidacionDatosServicio {
     /**
      * Valida referencias de una venta
      */
-    private List<ErrorValidacion> validarReferenciasVenta(Venta venta) {
+    private List<ErrorValidacion> validarReferenciasVenta(VentaDTO venta) {
         List<ErrorValidacion> errores = new ArrayList<>();
 
         if (venta == null) {
@@ -419,9 +422,9 @@ public class ValidacionDatosServicioImpl implements ValidacionDatosServicio {
         }
 
         // Verificar existencia del cliente
-        if (venta.getCliente() != null && venta.getCliente().getId() != null) {
+        if (venta.getClienteId() != null) {
             try {
-                Cliente cliente = clienteServicio.buscarPorId(venta.getCliente().getId());
+                ClienteDTO cliente = clienteServicio.buscarPorId(venta.getClienteId());
                 if (cliente == null) {
                     errores.add(new ErrorValidacion("cliente", "Cliente inexistente", NivelSeveridad.CRITICO,
                             "El cliente asociado no existe en el sistema"));
@@ -433,9 +436,9 @@ public class ValidacionDatosServicioImpl implements ValidacionDatosServicio {
         }
 
         // Verificar existencia del vendedor
-        if (venta.getVendedor() != null && venta.getVendedor().getId() != null) {
+        if (venta.getVendedorId() != null) {
             try {
-                Usuario vendedor = usuarioServicio.buscarPorId(venta.getVendedor().getId());
+                Usuario vendedor = usuarioServicio.buscarPorId(venta.getVendedorId());
                 if (vendedor == null) {
                     errores.add(new ErrorValidacion("vendedor", "Vendedor inexistente", NivelSeveridad.CRITICO,
                             "El vendedor asociado no existe en el sistema"));
@@ -447,17 +450,21 @@ public class ValidacionDatosServicioImpl implements ValidacionDatosServicio {
         }
 
         // Verificar existencia del producto
-        if (venta.getProducto() != null && venta.getProducto().getId() != null) {
+        if (venta.getProductos() != null && !venta.getProductos().isEmpty()) {
             try {
-                Producto producto = productoServicio.buscarPorId(venta.getProducto().getId());
-                if (producto == null) {
-                    errores.add(new ErrorValidacion("producto", "Producto inexistente", NivelSeveridad.CRITICO,
-                            "El producto asociado no existe en el sistema"));
-                } else {
-                    // Verificar stock disponible
-                    if (venta.getCantidad() != null && producto.getStock() != null && venta.getCantidad() > producto.getStock()) {
+                for (VentaDTO.ProductoVentaDTO detalle : venta.getProductos()) {
+                    if (detalle == null || detalle.getProductoId() == null) {
+                        continue;
+                    }
+                    ProductoDTO producto = productoServicio.buscarPorId(detalle.getProductoId());
+                    if (producto == null) {
+                        errores.add(new ErrorValidacion("producto", "Producto inexistente", NivelSeveridad.CRITICO,
+                                "El producto asociado no existe en el sistema"));
+                    } else if (detalle.getCantidad() != null && producto.getStock() != null
+                            && detalle.getCantidad() > producto.getStock()) {
                         errores.add(new ErrorValidacion("stock", "Stock insuficiente", NivelSeveridad.ADVERTENCIA,
-                                "La cantidad vendida (" + venta.getCantidad() + ") excede el stock disponible (" + producto.getStock() + ")"));
+                                "La cantidad vendida (" + detalle.getCantidad()
+                                        + ") excede el stock disponible (" + producto.getStock() + ")"));
                     }
                 }
             } catch (Exception e) {

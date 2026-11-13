@@ -45,7 +45,7 @@ public abstract class BaseServiceImpl<T, ID> {
      * @return Lista de todas las entidades
      */
     @Transactional(readOnly = true)
-    public List<T> buscarTodos() {
+    protected List<T> buscarTodasEntidades() {
         return repository.findAll();
     }
 
@@ -56,7 +56,7 @@ public abstract class BaseServiceImpl<T, ID> {
      * @return Página de entidades
      */
     @Transactional(readOnly = true)
-    public Page<T> buscarTodos(Pageable pageable) {
+    protected Page<T> buscarTodasEntidades(Pageable pageable) {
         return repository.findAll(pageable);
     }
 
@@ -67,7 +67,7 @@ public abstract class BaseServiceImpl<T, ID> {
      * @return Optional con la entidad si existe
      */
     @Transactional(readOnly = true)
-    public Optional<T> buscarPorId(ID id) {
+    protected Optional<T> buscarEntidadPorId(ID id) {
         return repository.findById(id);
     }
 
