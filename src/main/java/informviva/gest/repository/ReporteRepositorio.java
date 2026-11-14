@@ -35,7 +35,7 @@ public interface ReporteRepositorio extends JpaRepository<Venta, Long> {
             "FROM Venta v WHERE v.fecha BETWEEN :startDate AND :endDate GROUP BY FUNCTION('DATE', v.fecha)")
     List<VentaPorPeriodoDTO> obtenerVentasPorPeriodoEntreFechas(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 
-    @Query("SELECT new informviva.gest.dto.VentaPorCategoriaDTO(cat.nombre, SUM(vd.total)) " +
+    @Query("SELECT new informviva.gest.dto.VentaPorCategoriaDTO(cat.nombre, SUM(vd.cantidad * vd.precioUnitario)) " +
             "FROM VentaDetalle vd JOIN vd.producto p JOIN p.categoria cat JOIN vd.venta v " +
             "WHERE v.fecha BETWEEN :startDate AND :endDate GROUP BY cat.nombre")
     List<VentaPorCategoriaDTO> obtenerVentasPorCategoriaEntreFechas(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
@@ -47,7 +47,7 @@ public interface ReporteRepositorio extends JpaRepository<Venta, Long> {
     @Query("SELECT SUM(v.total) FROM Venta v")
     BigDecimal sumarTotalVentas();
 
-    @Query("SELECT (SUM(v.total) - SUM(vd.total)) FROM Venta v JOIN v.detalles vd")
+    @Query("SELECT COALESCE(SUM(v.total), 0) FROM Venta v")
     BigDecimal calcularVariacionVentas();
 
     @Query("SELECT AVG(v.total) FROM Venta v")
@@ -65,10 +65,10 @@ public interface ReporteRepositorio extends JpaRepository<Venta, Long> {
     @Query("SELECT COUNT(c) FROM Cliente c")
     Long contarTotalClientes();
 
-    @Query("SELECT new informviva.gest.dto.ProductoVendidoDTO(p.nombre, SUM(vd.cantidad), SUM(vd.total), SUM(vd.total)) " +
+    @Query("SELECT new informviva.gest.dto.ProductoVendidoDTO(p.id, p.nombre, SUM(vd.cantidad), SUM(vd.cantidad * vd.precioUnitario)) " +
             "FROM VentaDetalle vd JOIN vd.producto p JOIN vd.venta v " +
             "WHERE v.fecha BETWEEN :startDate AND :endDate " +
-            "GROUP BY p.nombre ORDER BY SUM(vd.cantidad) DESC")
+            "GROUP BY p.id, p.nombre ORDER BY SUM(vd.cantidad) DESC")
     List<ProductoVendidoDTO> obtenerProductosMasVendidosEntreFechas(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 
 
@@ -138,10 +138,10 @@ public interface ReporteRepositorio extends JpaRepository<Venta, Long> {
             "ORDER BY hora", nativeQuery = true)
     List<Object[]> analizarTendenciasPorHora(@Param("inicio") LocalDateTime inicio, @Param("fin") LocalDateTime fin);
 
-    @Query("SELECT new informviva.gest.dto.ProductoVendidoDTO(p.nombre, SUM(vd.cantidad), SUM(vd.total), 0) " +
+    @Query("SELECT new informviva.gest.dto.ProductoVendidoDTO(p.id, p.nombre, SUM(vd.cantidad), SUM(vd.cantidad * vd.precioUnitario)) " +
             "FROM VentaDetalle vd JOIN vd.producto p JOIN vd.venta v " +
             "WHERE v.fecha BETWEEN :startDate AND :endDate " +
-            "GROUP BY p.nombre " +
+            "GROUP BY p.id, p.nombre " +
             "ORDER BY SUM(vd.cantidad) DESC")
     List<ProductoVendidoDTO> obtenerProductosMasVendidosEntreFechas(LocalDate startDate, LocalDate endDate);
 
@@ -151,7 +151,7 @@ public interface ReporteRepositorio extends JpaRepository<Venta, Long> {
             "ORDER BY DATE_FORMAT(v.fecha, '%Y-%m-%d') ASC", nativeQuery = true)
     List<VentaPorPeriodoDTO> obtenerVentasPorPeriodoEntreFechas(LocalDate startDate, LocalDate endDate);
 
-    @Query("SELECT new informviva.gest.dto.VentaPorCategoriaDTO(CAST(cat.nombre AS string), COALESCE(SUM(vd.total), 0.0)) " +
+    @Query("SELECT new informviva.gest.dto.VentaPorCategoriaDTO(cat.nombre, COALESCE(SUM(vd.cantidad * vd.precioUnitario), 0.0)) " +
             "FROM VentaDetalle vd JOIN vd.producto p JOIN p.categoria cat JOIN vd.venta v " +
             "WHERE v.fecha BETWEEN :startDate AND :endDate " +
             "GROUP BY cat.nombre " +

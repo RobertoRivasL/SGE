@@ -46,6 +46,12 @@ public class ProductoVendidoDTO {
         this.ingresoTotal = ingresoTotal;
     }
 
+    public ProductoVendidoDTO(Long productoId, String nombreProducto, Long cantidadVendida, Double ingresoTotal) {
+        this(productoId, nombreProducto,
+                cantidadVendida != null ? Math.toIntExact(cantidadVendida) : null,
+                ingresoTotal);
+    }
+
     // Constructor para reportes completos
     public ProductoVendidoDTO(Long productoId, String codigoProducto, String nombreProducto,
                               String categoria, Integer cantidadVendida, Double ingresoTotal) {
