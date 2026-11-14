@@ -29,6 +29,11 @@ public class InicioControlador {
         this.reporteServicio = reporteServicio;
     }
 
+    @GetMapping("/inicio")
+    public String redirigirAlDashboard() {
+        return "redirect:/dashboard";
+    }
+
     @GetMapping("/panel-ventas")
     @PreAuthorize("hasAnyRole('ADMIN', 'VENTAS')")
     public String mostrarPanelVentas(

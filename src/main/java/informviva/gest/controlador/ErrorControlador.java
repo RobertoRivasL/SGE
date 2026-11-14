@@ -22,11 +22,11 @@ public class ErrorControlador implements ErrorController {
             model.addAttribute("statusCode", statusCode);
 
             if (statusCode == HttpStatus.NOT_FOUND.value()) {
-                return "error/404";
+                return "error/default";
             } else if (statusCode == HttpStatus.INTERNAL_SERVER_ERROR.value()) {
                 return "error/500";
             }
         }
-        return "error/generic";
+        return "error/default";
     }
 }
