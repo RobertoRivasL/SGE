@@ -11,7 +11,7 @@ class Venta_02 {
     @Test
     void testSetAndGetEstado() {
         Venta venta = new Venta();
-        venta.setEstado(Venta.EstadoVenta.COMPLETADA);
+        venta.setEstado("COMPLETADA");
 
         assertEquals(Venta.EstadoVenta.COMPLETADA, venta.getEstado());
     }
@@ -19,7 +19,7 @@ class Venta_02 {
     @Test
     void testSetAndGetMetodoPago() {
         Venta venta = new Venta();
-        venta.setMetodoPago(Venta.MetodoPago.TARJETA_CREDITO);
+        venta.setMetodoPago("TARJETA_CREDITO");
 
         assertEquals(Venta.MetodoPago.TARJETA_CREDITO, venta.getMetodoPago());
     }
