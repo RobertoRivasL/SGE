@@ -7,12 +7,13 @@ package informviva.gest;
 
 import informviva.gest.model.Usuario;
 import informviva.gest.model.Producto;
+import informviva.gest.service.impl.GeneradorArchivosServicio;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -20,7 +21,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
-class GeneradorArchivosServicio {
+class GeneradorArchivosServicioTest {
 
     @InjectMocks
     private GeneradorArchivosServicio generadorArchivosServicio;
@@ -35,7 +36,7 @@ class GeneradorArchivosServicio {
         usuario.setApellido("Sistema");
         usuario.setEmail("admin@test.com");
         usuario.setActivo(true);
-        usuario.setFechaCreacion(LocalDate.now());
+        usuario.setFechaCreacion(LocalDateTime.now());
         usuario.setRoles(Set.of("ADMIN"));
 
         List<Usuario> usuarios = Arrays.asList(usuario);

@@ -88,7 +88,7 @@ class ProductoServicioImplTest {
         when(productoRepository.findAll()).thenReturn(productos);
 
         // When
-        List<ProductoDTO> resultado = productoServicio.buscarTodosDTO();
+        List<ProductoDTO> resultado = productoServicio.buscarTodos();
 
         // Then
         assertNotNull(resultado);
@@ -106,7 +106,7 @@ class ProductoServicioImplTest {
         when(productoRepository.findById(id)).thenReturn(Optional.of(producto));
 
         // When
-        ProductoDTO resultado = productoServicio.buscarPorIdDTO(id);
+        ProductoDTO resultado = productoServicio.buscarPorId(id);
 
         // Then
         assertNotNull(resultado);
@@ -125,7 +125,7 @@ class ProductoServicioImplTest {
 
         // When & Then
         assertThrows(RecursoNoEncontradoException.class,
-                () -> productoServicio.buscarPorIdDTO(id));
+                () -> productoServicio.buscarPorId(id));
 
         verify(productoRepository).findById(id);
     }
@@ -152,7 +152,7 @@ class ProductoServicioImplTest {
         when(productoRepository.save(any(Producto.class))).thenReturn(productoGuardado);
 
         // When
-        ProductoDTO resultado = productoServicio.guardarDTO(nuevoProductoDTO);
+        ProductoDTO resultado = productoServicio.guardar(nuevoProductoDTO);
 
         // Then
         assertNotNull(resultado);
@@ -173,7 +173,7 @@ class ProductoServicioImplTest {
 
         // When & Then
         assertThrows(IllegalArgumentException.class,
-                () -> productoServicio.guardarDTO(productoInvalido));
+                () -> productoServicio.guardar(productoInvalido));
 
         verify(productoRepository, never()).save(any(Producto.class));
     }

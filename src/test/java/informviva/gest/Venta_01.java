@@ -17,30 +17,27 @@ class Venta_01 {
         Venta venta = new Venta();
         venta.setFecha(LocalDateTime.of(2023, 10, 1, 10, 30));
 
-        LocalDate fechaEsperada = LocalDate.of(2023, 10, 1);
-        assertEquals(fechaEsperada, venta.getFechaAsLocalDate());
+        assertEquals(LocalDate.of(2023, 10, 1), venta.getFechaAsLocalDate());
     }
 
     @Test
     void testIsClienteNuevo() {
         Cliente cliente = new Cliente();
-        cliente.setFechaRegistro(LocalDate.now().minusDays(15));
-
+        cliente.setFechaRegistro(LocalDateTime.now().minusDays(15));
         Venta venta = new Venta();
         venta.setCliente(cliente);
 
         assertTrue(venta.isClienteNuevo());
 
-        cliente.setFechaRegistro(LocalDate.now().minusDays(40));
+        cliente.setFechaRegistro(LocalDateTime.now().minusDays(40));
         assertFalse(venta.isClienteNuevo());
     }
 
     @Test
-    void testGetTotalConImpuestos() {
+    void testGetTotal() {
         Venta venta = new Venta();
-        venta.setSubtotal(100.0);
-        venta.setImpuesto(18.0);
+        venta.setTotal(118.0);
 
-        assertEquals(118.0, venta.getTotalConImpuestos());
+        assertEquals(118.0, venta.getTotal());
     }
 }

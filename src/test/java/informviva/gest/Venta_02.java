@@ -11,17 +11,17 @@ class Venta_02 {
     @Test
     void testSetAndGetEstado() {
         Venta venta = new Venta();
-        venta.setEstado("COMPLETADA");
+        venta.setEstado(Venta.EstadoVenta.COMPLETADA);
 
-        assertEquals("COMPLETADA", venta.getEstado());
+        assertEquals(Venta.EstadoVenta.COMPLETADA, venta.getEstado());
     }
 
     @Test
     void testSetAndGetMetodoPago() {
         Venta venta = new Venta();
-        venta.setMetodoPago("Tarjeta de Crédito");
+        venta.setMetodoPago(Venta.MetodoPago.TARJETA_CREDITO);
 
-        assertEquals("Tarjeta de Crédito", venta.getMetodoPago());
+        assertEquals(Venta.MetodoPago.TARJETA_CREDITO, venta.getMetodoPago());
     }
 
     @Test
@@ -33,20 +33,18 @@ class Venta_02 {
     }
 
     @Test
-    void testCalculoTotalConValoresNulos() {
+    void testTotalConValoresNulos() {
         Venta venta = new Venta();
-        venta.setSubtotal(0.0);
-        venta.setImpuesto(0.0);
+        venta.setTotal(0.0);
 
-        assertEquals(0.0, venta.getTotalConImpuestos());
+        assertEquals(0.0, venta.getTotal());
     }
 
     @Test
-    void testCalculoTotalConValoresNegativos() {
+    void testTotalConValoresNegativos() {
         Venta venta = new Venta();
-        venta.setSubtotal(-100.0);
-        venta.setImpuesto(-18.0);
+        venta.setTotal(-118.0);
 
-        assertEquals(-118.0, venta.getTotalConImpuestos());
+        assertEquals(-118.0, venta.getTotal());
     }
 }
