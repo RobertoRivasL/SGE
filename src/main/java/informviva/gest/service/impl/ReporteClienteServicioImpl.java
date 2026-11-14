@@ -2,7 +2,7 @@ package informviva.gest.service.impl;
 
 
 import informviva.gest.dto.ClienteReporteDTO;
-import informviva.gest.model.Cliente;
+import informviva.gest.dto.ClienteDTO;
 import informviva.gest.service.ClienteServicio;
 import informviva.gest.service.ReporteClienteServicio;
 import org.apache.poi.ss.usermodel.*;
@@ -126,7 +126,7 @@ public class ReporteClienteServicioImpl implements ReporteClienteServicio {
         Map<String, Long> distribucion = new LinkedHashMap<>();
         LocalDate hoy = LocalDate.now();
 
-        List<Cliente> todosLosClientes = clienteServicio.buscarTodos();
+        List<ClienteDTO> todosLosClientes = clienteServicio.buscarTodos();
 
         // Inicializar contadores
         distribucion.put("Menos de 3 meses", 0L);
@@ -136,8 +136,8 @@ public class ReporteClienteServicioImpl implements ReporteClienteServicio {
         distribucion.put("Más de 2 años", 0L);
 
         todosLosClientes.forEach(cliente -> {
-            if (cliente.getFechaRegistro() != null) {
-                long mesesDiferencia = ChronoUnit.MONTHS.between(cliente.getFechaRegistro(), hoy);
+            if (cliente.getFechaCreacion() != null) {
+                long mesesDiferencia = ChronoUnit.MONTHS.between(cliente.getFechaCreacion().toLocalDate(), hoy);
 
                 String categoria;
                 if (mesesDiferencia < 3) {
@@ -160,8 +160,7 @@ public class ReporteClienteServicioImpl implements ReporteClienteServicio {
     }
 
     @Override
-    public List<Cliente> obtenerClientesInactivos(int diasInactividad) {
-        LocalDate fechaLimite = LocalDate.now().minusDays(diasInactividad);
+    public List<ClienteDTO> obtenerClientesInactivos(int diasInactividad) {
 
         // TODO: Implementar lógica correcta para clientes inactivos
         // Este método necesita:

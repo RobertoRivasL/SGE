@@ -86,14 +86,14 @@ public class DashboardControladorAPI {
         LocalDateTime finAnteriorDT = finAnterior.atTime(LocalTime.MAX);
 
         // Métricas para el período actual
-        Double totalVentas = ventaServicio.calcularTotalVentas(inicioDT, finDT);
+        Double totalVentas = ventaServicio.calcularTotalVentas(inicioDT, finDT).doubleValue();
         Long totalTransacciones = ventaServicio.contarTransacciones(inicioDT, finDT);
         Double ticketPromedio = ventaServicio.calcularTicketPromedio(inicioDT, finDT);
         Long clientesNuevos = reporteServicio.contarClientesNuevosEntreFechas(inicio, fin);
         Long productosVendidos = ventaServicio.contarArticulosVendidos(inicioDT, finDT);
 
         // Métricas para el período anterior
-        Double totalVentasAnterior = ventaServicio.calcularTotalVentas(inicioAnteriorDT, finAnteriorDT);
+        Double totalVentasAnterior = ventaServicio.calcularTotalVentas(inicioAnteriorDT, finAnteriorDT).doubleValue();
         Long totalTransaccionesAnterior = ventaServicio.contarTransacciones(inicioAnteriorDT, finAnteriorDT);
         Double ticketPromedioAnterior = ventaServicio.calcularTicketPromedio(inicioAnteriorDT, finAnteriorDT);
         Long clientesNuevosAnterior = reporteServicio.contarClientesNuevosEntreFechas(inicioAnterior, finAnterior);

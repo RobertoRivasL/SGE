@@ -1,6 +1,7 @@
 package informviva.gest.service;
 
 import informviva.gest.dto.ProductoDTO;
+import informviva.gest.model.Producto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -61,6 +62,17 @@ public interface ProductoServicio {
     ProductoDTO guardar(ProductoDTO productoDTO);
 
     /**
+     * Guarda una entidad importada. Se mantiene para compatibilidad con los
+     * procesadores de importación que trabajan internamente con entidades.
+     */
+    Producto guardar(Producto producto);
+
+    /**
+     * Busca una entidad por código para procesos internos de importación.
+     */
+    Producto buscarEntidadPorCodigo(String codigo);
+
+    /**
      * Actualiza un producto existente
      *
      * @param id Identificador del producto a actualizar
@@ -70,6 +82,8 @@ public interface ProductoServicio {
      * @throws IllegalArgumentException si los datos no son válidos
      */
     ProductoDTO actualizar(Long id, ProductoDTO productoDTO);
+
+    Producto actualizar(Long id, Producto producto);
 
     /**
      * Elimina un producto por su ID

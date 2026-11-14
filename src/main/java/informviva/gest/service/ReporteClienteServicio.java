@@ -2,7 +2,7 @@ package informviva.gest.service;
 
 
 import informviva.gest.dto.ClienteReporteDTO;
-import informviva.gest.model.Cliente;
+import informviva.gest.dto.ClienteDTO;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -57,7 +57,7 @@ public interface ReporteClienteServicio {
      * @param diasInactividad Número de días sin compras para considerar inactivo
      * @return Lista de clientes inactivos
      */
-    List<Cliente> obtenerClientesInactivos(int diasInactividad);
+    List<ClienteDTO> obtenerClientesInactivos(int diasInactividad);
 
     /**
      * Calcula métricas de retención de clientes

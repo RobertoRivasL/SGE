@@ -2,6 +2,13 @@ package informviva.gest.controlador;
 
 
 import informviva.gest.service.*;
+import informviva.gest.dto.ProductoDTO;
+import informviva.gest.dto.VentaDTO;
+import informviva.gest.model.Categoria;
+import informviva.gest.model.Cliente;
+import informviva.gest.model.Producto;
+import informviva.gest.model.Usuario;
+import informviva.gest.model.Venta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +25,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import informviva.gest.dto.ResultadoImportacionCliente;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 /**
  * Controlador para funcionalidades de importación y exportación
@@ -75,10 +83,10 @@ public class ImportacionExportacionControlador {
             @RequestParam(defaultValue = "false") boolean soloBajoStock) {
 
         try {
-            var productos = soloActivos ? productoServicio.listarActivos() : productoServicio.listar();
+            var productos = convertirProductos(soloActivos ? productoServicio.listarActivos() : productoServicio.listar());
 
             if (soloBajoStock) {
-                productos = productoServicio.listarConBajoStock(5);
+                productos = convertirProductos(productoServicio.listarConBajoStock(5));
             }
 
             byte[] excelData = productoExportacionServicio.exportarProductosAExcel(productos);
@@ -104,7 +112,7 @@ public class ImportacionExportacionControlador {
             @RequestParam(defaultValue = "5") int umbral) {
 
         try {
-            var productos = productoServicio.listarConBajoStock(umbral);
+            var productos = convertirProductos(productoServicio.listarConBajoStock(umbral));
             byte[] excelData = productoExportacionServicio.exportarProductosBajoStock(productos, umbral);
 
             String filename = "productos_bajo_stock_" + LocalDate.now().format(DATE_FORMATTER) + ".xlsx";
@@ -126,7 +134,7 @@ public class ImportacionExportacionControlador {
     @GetMapping("/exportar/productos/csv")
     public ResponseEntity<byte[]> exportarProductosCSV() {
         try {
-            var productos = productoServicio.listar();
+            var productos = convertirProductos(productoServicio.listar());
             byte[] csvData = productoExportacionServicio.exportarProductosACSV(productos);
 
             String filename = "productos_" + LocalDate.now().format(DATE_FORMATTER) + ".csv";
@@ -155,7 +163,7 @@ public class ImportacionExportacionControlador {
             if (fechaInicio == null) fechaInicio = LocalDate.now().minusMonths(1);
             if (fechaFin == null) fechaFin = LocalDate.now();
 
-            var ventas = ventaServicio.buscarPorRangoFechas(fechaInicio.atStartOfDay(), fechaFin.atTime(23, 59, 59));
+            var ventas = convertirVentas(ventaServicio.buscarPorRangoFechas(fechaInicio.atStartOfDay(), fechaFin.atTime(23, 59, 59)));
             byte[] excelData = ventaExportacionServicio.exportarVentasAExcel(ventas, fechaInicio, fechaFin);
 
             String filename = "ventas_" + fechaInicio.format(DATE_FORMATTER) + "_" +
@@ -184,7 +192,7 @@ public class ImportacionExportacionControlador {
             if (fechaInicio == null) fechaInicio = LocalDate.now().minusMonths(1);
             if (fechaFin == null) fechaFin = LocalDate.now();
 
-            var ventas = ventaServicio.buscarPorRangoFechas(fechaInicio.atStartOfDay(), fechaFin.atTime(23, 59, 59));
+            var ventas = convertirVentas(ventaServicio.buscarPorRangoFechas(fechaInicio.atStartOfDay(), fechaFin.atTime(23, 59, 59)));
             byte[] csvData = ventaExportacionServicio.exportarVentasACSV(ventas);
 
             String filename = "ventas_" + fechaInicio.format(DATE_FORMATTER) + "_" +
@@ -199,6 +207,52 @@ public class ImportacionExportacionControlador {
             logger.error("Error exportando ventas CSV: {}", e.getMessage());
             return ResponseEntity.internalServerError().build();
         }
+    }
+
+    private List<Producto> convertirProductos(List<ProductoDTO> productosDTO) {
+            return productosDTO.stream().map(dto -> {
+                Producto producto = new Producto();
+                producto.setId(dto.getId());
+                producto.setCodigo(dto.getSku());
+                producto.setNombre(dto.getNombre());
+                producto.setDescripcion(dto.getDescripcion());
+                producto.setPrecio(dto.getPrecio());
+                producto.setStock(dto.getStock());
+                producto.setActivo(Boolean.TRUE.equals(dto.getActivo()));
+                if (dto.getCategoria() != null) {
+                    Categoria categoria = new Categoria();
+                    categoria.setNombre(dto.getCategoria());
+                    producto.setCategoria(categoria);
+                }
+                producto.setFechaCreacion(dto.getFechaCreacion());
+                producto.setFechaActualizacion(dto.getFechaActualizacion());
+                return producto;
+            }).toList();
+        }
+
+    private List<Venta> convertirVentas(List<VentaDTO> ventasDTO) {
+            return ventasDTO.stream().map(dto -> {
+                Venta venta = new Venta();
+                venta.setId(dto.getId());
+                venta.setFecha(dto.getFecha() != null ? dto.getFecha() : dto.getFechaVenta());
+                venta.setSubtotal(dto.getSubtotal());
+                venta.setImpuesto(dto.getImpuesto());
+                venta.setTotal(dto.getTotal());
+                venta.setObservaciones(dto.getObservaciones());
+                venta.setEstado(dto.getEstado());
+                venta.setMetodoPago(dto.getMetodoPago());
+
+                Cliente cliente = new Cliente();
+                cliente.setNombre(dto.getClienteNombre() != null ? dto.getClienteNombre() : "Cliente");
+                cliente.setApellido("");
+                venta.setCliente(cliente);
+
+                Usuario vendedor = new Usuario();
+                vendedor.setNombre(dto.getVendedorNombre() != null ? dto.getVendedorNombre() : "Vendedor");
+                vendedor.setApellido("");
+                venta.setVendedor(vendedor);
+                return venta;
+            }).toList();
     }
 
     // ========== PLANTILLAS ==========

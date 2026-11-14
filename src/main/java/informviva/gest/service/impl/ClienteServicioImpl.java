@@ -118,6 +118,17 @@ public class ClienteServicioImpl extends BaseServiceImpl<Cliente, Long>
     }
 
     @Override
+    public Cliente guardar(Cliente cliente) {
+        return guardarEntidad(cliente);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Cliente buscarEntidadPorRut(String rut) {
+        return clienteRepositorio.findByRut(rut).orElse(null);
+    }
+
+    @Override
     public ClienteDTO actualizar(Long id, ClienteDTO clienteDTO) {
         log.debug("Actualizando cliente ID: {} con datos: {} {}",
                 id, clienteDTO.getNombre(), clienteDTO.getApellido());

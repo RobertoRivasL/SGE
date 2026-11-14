@@ -201,7 +201,7 @@ public class ValidacionServicioImpl implements ValidacionServicio {
         }
 
         try {
-            Producto producto = productoServicio.buscarPorId(productoId);
+            var producto = productoServicio.buscarPorId(productoId);
             if (producto == null || !producto.getActivo()) {
                 return false;
             }
@@ -221,7 +221,7 @@ public class ValidacionServicioImpl implements ValidacionServicio {
         }
 
         try {
-            Producto producto = productoServicio.buscarPorId(productoId);
+            var producto = productoServicio.buscarPorId(productoId);
             return producto != null ? producto.getStock() : 0;
         } catch (Exception e) {
             logger.error("Error obteniendo stock de producto {}: {}", productoId, e.getMessage());

@@ -1,6 +1,7 @@
 package informviva.gest.service;
 
 import informviva.gest.dto.ClienteDTO;
+import informviva.gest.model.Cliente;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -59,6 +60,14 @@ public interface ClienteServicio {
      * @throws IllegalArgumentException si los datos no son válidos
      */
     ClienteDTO guardar(ClienteDTO clienteDTO);
+
+    /**
+     * Guarda una entidad importada. Se mantiene para compatibilidad con los
+     * procesadores de importación que trabajan internamente con entidades.
+     */
+    Cliente guardar(Cliente cliente);
+
+    Cliente buscarEntidadPorRut(String rut);
 
     /**
      * Actualiza un cliente existente

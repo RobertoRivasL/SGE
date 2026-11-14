@@ -322,7 +322,9 @@ public class ReporteExportacionControlador {
                     dto.setId(p.getId());
                     dto.setCodigo(p.getSku());
                     dto.setNombre(p.getNombre());
-                    dto.setCategoria(p.getCategoria());
+                    informviva.gest.model.Categoria categoria = new informviva.gest.model.Categoria();
+                    categoria.setNombre(p.getCategoria());
+                    dto.setCategoria(categoria);
                     dto.setStock(p.getStock());
                     // Simular datos de ventas (en producción estos vendrían de la BD)
                     dto.setUnidadesVendidas((int) (Math.random() * 100));

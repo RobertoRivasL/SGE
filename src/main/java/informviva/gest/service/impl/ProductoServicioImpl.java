@@ -103,6 +103,23 @@ public class ProductoServicioImpl extends BaseServiceImpl<Producto, Long>
     }
 
     @Override
+    public Producto guardar(Producto producto) {
+        return guardarEntidad(producto);
+    }
+
+    @Override
+    public Producto actualizar(Long id, Producto producto) {
+        producto.setId(id);
+        return guardarEntidad(producto);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Producto buscarEntidadPorCodigo(String codigo) {
+        return productoRepositorio.findByCodigo(codigo).orElse(null);
+    }
+
+    @Override
     public ProductoDTO actualizar(Long id, ProductoDTO productoDTO) {
         log.debug("Actualizando producto ID: {} con datos: {}", id, productoDTO.getNombre());
 
@@ -522,7 +539,19 @@ public class ProductoServicioImpl extends BaseServiceImpl<Producto, Long>
      * @return DTO
      */
     private ProductoDTO convertirADTO(Producto producto) {
-        return modelMapper.map(producto, ProductoDTO.class);
+        ProductoDTO dto = new ProductoDTO();
+        dto.setId(producto.getId());
+        dto.setSku(producto.getCodigo());
+        dto.setNombre(producto.getNombre());
+        dto.setDescripcion(producto.getDescripcion());
+        dto.setPrecio(producto.getPrecio() != null ? BigDecimal.valueOf(producto.getPrecio()) : null);
+        dto.setStock(producto.getStock());
+        dto.setCategoria(producto.getCategoria() != null ? producto.getCategoria().getNombre() : null);
+        dto.setActivo(producto.getActivo());
+        dto.setFechaCreacion(producto.getFechaCreacion());
+        dto.setFechaActualizacion(producto.getFechaActualizacion());
+        dto.setStockMinimo(producto.getStockMinimo());
+        return dto;
     }
 
     /**
@@ -532,7 +561,19 @@ public class ProductoServicioImpl extends BaseServiceImpl<Producto, Long>
      * @return Entidad
      */
     private Producto convertirAEntidad(ProductoDTO dto) {
-        return modelMapper.map(dto, Producto.class);
+        Producto producto = new Producto();
+        producto.setId(dto.getId());
+        producto.setCodigo(dto.getSku());
+        producto.setNombre(dto.getNombre());
+        producto.setDescripcion(dto.getDescripcion());
+        producto.setPrecio(dto.getPrecio());
+        producto.setStock(dto.getStock());
+        producto.setCategoria(dto.getCategoria());
+        producto.setActivo(Boolean.TRUE.equals(dto.getActivo()));
+        producto.setFechaCreacion(dto.getFechaCreacion());
+        producto.setFechaActualizacion(dto.getFechaActualizacion());
+        producto.setStockMinimo(dto.getStockMinimo());
+        return producto;
     }
 
     /**

@@ -456,12 +456,7 @@ public class ClienteImportacionServicioImpl {
      * Busca un cliente por RUT (método helper)
      */
     private Cliente buscarClientePorRut(String rut) {
-        // Como ClienteServicio no tiene buscarPorRut, buscar en todos los clientes
-        List<Cliente> todosLosClientes = clienteServicio.buscarTodos();
-        return todosLosClientes.stream()
-                .filter(cliente -> rut.equals(cliente.getRut()))
-                .findFirst()
-                .orElse(null);
+        return clienteServicio.buscarEntidadPorRut(rut);
     }
 
     /**

@@ -94,7 +94,7 @@ public class ProductoImportacionServicioImpl implements ProductoImportacionServi
         for (Producto producto : productos) {
             try {
                 // Validar si el producto ya existe por código
-                Producto existente = productoServicio.buscarPorCodigo(producto.getCodigo());
+                Producto existente = productoServicio.buscarEntidadPorCodigo(producto.getCodigo());
 
                 if (existente != null) {
                     // Actualizar producto existente
@@ -141,7 +141,7 @@ public class ProductoImportacionServicioImpl implements ProductoImportacionServi
         for (Producto producto : productos) {
             try {
                 // Validar si el producto ya existe por código
-                Producto existente = productoServicio.buscarPorCodigo(producto.getCodigo());
+                Producto existente = productoServicio.buscarEntidadPorCodigo(producto.getCodigo());
 
                 if (existente != null) {
                     // Actualizar producto existente

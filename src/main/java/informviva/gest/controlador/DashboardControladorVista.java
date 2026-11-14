@@ -50,8 +50,8 @@ public class DashboardControladorVista {
 
         // KPIs de la semana actual
         MetricaDTO ventasMetrica = calcularMetrica(
-                ventaServicio.calcularTotalVentas(semanaActual[0], semanaActual[1]),
-                ventaServicio.calcularTotalVentas(semanaAnterior[0], semanaAnterior[1])
+                ventaServicio.calcularTotalVentas(semanaActual[0], semanaActual[1]).doubleValue(),
+                ventaServicio.calcularTotalVentas(semanaAnterior[0], semanaAnterior[1]).doubleValue()
         );
 
         MetricaDTO transaccionesMetrica = calcularMetrica(

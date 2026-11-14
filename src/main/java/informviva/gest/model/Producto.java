@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "productos")
@@ -98,5 +99,27 @@ public class Producto {
      */
     public String getSku() {
         return this.codigo;
+    }
+
+    public void setPrecio(BigDecimal precio) {
+        this.precio = precio != null ? precio.doubleValue() : null;
+    }
+
+    public void setPrecio(Double precio) {
+        this.precio = precio;
+    }
+
+    public void setCategoria(String nombreCategoria) {
+        if (nombreCategoria == null || nombreCategoria.isBlank()) {
+            this.categoria = null;
+            return;
+        }
+        Categoria categoria = new Categoria();
+        categoria.setNombre(nombreCategoria);
+        this.categoria = categoria;
+    }
+
+    public void setCategoria(Categoria categoria) {
+        this.categoria = categoria;
     }
 }
