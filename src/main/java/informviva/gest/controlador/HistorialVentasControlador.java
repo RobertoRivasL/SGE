@@ -196,39 +196,8 @@ public class HistorialVentasControlador {
         }
     }
 
-    /**
-     * Duplica una venta existente
-     */
-    /**
-     * Duplica una venta existente
-     */
-    @PostMapping("/duplicar/{id}")
-    public String duplicarVenta(@PathVariable Long id, Model model) {
-        try {
-            VentaDTO ventaOriginal = ventaServicio.buscarPorId(id);
-            if (ventaOriginal == null) {
-                return manejarVentaNoEncontrada(model);
-            }
-
-            VentaDTO nuevaVenta = ventaServicio.duplicarVenta(ventaOriginal);
-
-            // Redirigir al formulario de edición de la nueva venta
-            return "redirect:/ventas/editar/" + nuevaVenta.getId() + "?duplicada=true";
-
-        } catch (Exception e) {
-            return manejarErrorDuplicacion(e, model);
-        }
-    }
-
     private String manejarVentaNoEncontrada(Model model) {
         model.addAttribute("mensaje", "Venta no encontrada");
-        model.addAttribute("tipoMensaje", "error");
-        return "redirect:/ventas/historial";
-    }
-
-    private String manejarErrorDuplicacion(Exception e, Model model) {
-        logger.error("Error al duplicar venta: {}", e.getMessage());
-        model.addAttribute("mensaje", "Error al duplicar la venta: " + e.getMessage());
         model.addAttribute("tipoMensaje", "error");
         return "redirect:/ventas/historial";
     }
