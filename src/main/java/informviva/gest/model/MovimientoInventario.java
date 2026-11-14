@@ -103,13 +103,13 @@ public class MovimientoInventario {
     /**
      * Costo unitario del producto en el momento del movimiento (para valorización)
      */
-    @Column(precision = 10, scale = 2)
+    @Column
     private Double costoUnitario;
 
     /**
      * Costo total del movimiento (cantidad * costoUnitario)
      */
-    @Column(precision = 10, scale = 2)
+    @Column
     private Double costoTotal;
 
     /**
