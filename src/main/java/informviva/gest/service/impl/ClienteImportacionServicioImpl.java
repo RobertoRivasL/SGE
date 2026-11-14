@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.time.LocalDate;
@@ -30,7 +31,7 @@ import java.util.regex.Pattern;
  * @version 2.0
  */
 @Service
-public class ClienteImportacionServicioImpl {
+public class ClienteImportacionServicioImpl implements informviva.gest.service.ClienteImportacionServicio {
 
     private static final Logger logger = LoggerFactory.getLogger(ClienteImportacionServicioImpl.class);
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@(.+)$");
@@ -40,6 +41,22 @@ public class ClienteImportacionServicioImpl {
 
     @Autowired
     private ClienteServicio clienteServicio;
+
+    @Override
+    public ImportacionResultadoDTO importarClientes(MultipartFile archivo) {
+        String nombreArchivo = archivo.getOriginalFilename();
+        if (esArchivoExcel(nombreArchivo)) {
+            return importarClientesDesdeExcel(archivo);
+        }
+        if (esArchivoCSV(nombreArchivo)) {
+            return importarClientesDesdeCSV(archivo);
+        }
+
+        ImportacionResultadoDTO resultado = new ImportacionResultadoDTO("Cliente", nombreArchivo);
+        resultado.agregarError("El archivo debe ser formato Excel (.xlsx) o CSV (.csv)");
+        resultado.calcularTotales();
+        return resultado;
+    }
 
     /**
      * Importa clientes desde archivo Excel
@@ -155,6 +172,55 @@ public class ClienteImportacionServicioImpl {
 
         logger.info("Guardado completado. Exitosos: {}, Errores: {}", exitosos, errores);
         return resultado;
+    }
+
+    @Override
+    public boolean validarFormatoArchivo(MultipartFile archivo) {
+        String nombreArchivo = archivo != null ? archivo.getOriginalFilename() : null;
+        return esArchivoExcel(nombreArchivo) || esArchivoCSV(nombreArchivo);
+    }
+
+    @Override
+    public List<Cliente> obtenerVistaPreviaClientes(MultipartFile archivo, int limite) {
+        if (limite < 1) {
+            throw new IllegalArgumentException("El límite de la vista previa debe ser mayor que cero");
+        }
+        if (!validarFormatoArchivo(archivo)) {
+            throw new IllegalArgumentException("El archivo debe ser formato Excel (.xlsx) o CSV (.csv)");
+        }
+
+        ResultadoImportacionCliente resultado = new ResultadoImportacionCliente();
+        resultado.setTipoEntidad("Cliente");
+        resultado.setNombreArchivo(archivo.getOriginalFilename());
+        resultado.setFechaImportacion(LocalDateTime.now());
+
+        try {
+            List<Cliente> clientes = esArchivoExcel(archivo.getOriginalFilename())
+                    ? procesarArchivoExcel(archivo, resultado)
+                    : procesarArchivoCSV(archivo, resultado);
+            return clientes.stream().limit(limite).toList();
+        } catch (IOException e) {
+            logger.error("Error obteniendo vista previa de clientes: {}", e.getMessage(), e);
+            throw new IllegalStateException("No fue posible leer el archivo de clientes", e);
+        }
+    }
+
+    @Override
+    public byte[] generarPlantillaImportacion() {
+        try (Workbook workbook = new XSSFWorkbook();
+             ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+            Sheet sheet = workbook.createSheet("Clientes");
+            Row header = sheet.createRow(0);
+            for (int i = 0; i < ENCABEZADOS_ESPERADOS.length; i++) {
+                header.createCell(i).setCellValue(ENCABEZADOS_ESPERADOS[i]);
+                sheet.autoSizeColumn(i);
+            }
+            workbook.write(output);
+            return output.toByteArray();
+        } catch (IOException e) {
+            logger.error("Error generando plantilla de clientes: {}", e.getMessage(), e);
+            throw new IllegalStateException("No fue posible generar la plantilla de clientes", e);
+        }
     }
 
     /**
