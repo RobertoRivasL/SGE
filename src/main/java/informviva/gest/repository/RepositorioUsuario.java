@@ -301,5 +301,5 @@ public interface RepositorioUsuario extends JpaRepository<Usuario, Long> {
     List<Usuario> findByRolIncluyendoExcluyendo(@Param("rolIncluir") String rolIncluir,
                                                 @Param("rolExcluir") String rolExcluir);
 
-    long countByRolesId(Long rolId);
+    long countByRolesContaining(String rolNombre);
 }
