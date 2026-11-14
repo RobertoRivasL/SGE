@@ -22,7 +22,7 @@
             <h1>Iniciar Sesión</h1>
             <p>Ingresa tus credenciales para acceder al sistema</p>
         </div>
-        <div class="alert alert-error" id="errorMessage" style="display: none;">
+        <div class="alert alert-error" id="errorMessage" th:if="${param.error}">
             <i class="fas fa-exclamation-circle"></i>
             <span>Usuario o contraseña incorrectos</span>
         </div>
