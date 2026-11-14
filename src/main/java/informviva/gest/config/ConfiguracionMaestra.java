@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -43,7 +42,6 @@ import java.util.concurrent.Executor;
 @EnableAsync
 @EnableScheduling
 @EntityScan(basePackages = "informviva.gest.model")
-@EnableJpaRepositories(basePackages = "informviva.gest.repository")
 @ComponentScan(basePackages = {
         "informviva.gest.service",
         "informviva.gest.service.impl",
