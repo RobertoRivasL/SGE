@@ -213,6 +213,7 @@ public class MovimientoInventario {
     @PrePersist
     @PreUpdate
     public void calcularCostoTotal() {
+        establecerFecha();
         if (this.costoUnitario != null && this.cantidad != null) {
             this.costoTotal = this.costoUnitario * this.cantidad;
         }
@@ -221,7 +222,6 @@ public class MovimientoInventario {
     /**
      * Establece la fecha si no está definida
      */
-    @PrePersist
     public void establecerFecha() {
         if (this.fecha == null) {
             this.fecha = LocalDateTime.now();
