@@ -41,7 +41,7 @@ public interface ReporteRepositorio extends JpaRepository<Venta, Long> {
     List<VentaPorCategoriaDTO> obtenerVentasPorCategoriaEntreFechas(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 
     @Query("SELECT new informviva.gest.dto.VentaPorVendedorDTO(u.username, SUM(v.total)) " +
-            "FROM Venta v JOIN v.usuario u WHERE v.fecha BETWEEN :startDate AND :endDate GROUP BY u.username")
+            "FROM Venta v JOIN v.vendedor u WHERE v.fecha BETWEEN :startDate AND :endDate GROUP BY u.username")
     List<VentaPorVendedorDTO> obtenerVentasPorVendedorEntreFechas(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 
     @Query("SELECT SUM(v.total) FROM Venta v")
